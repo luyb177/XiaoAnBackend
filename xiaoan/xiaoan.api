@@ -1,0 +1,30 @@
+syntax = "v1"
+
+info (
+	title:   "小安API网关"
+	version: "v1.0"
+)
+
+type (
+	SendEmailRequest {
+		email string `json:"email"`
+	}
+)
+
+type (
+	Response {
+		code    int64       `json:"code"`
+		message string      `json:"message"`
+		data    interface{} `json:"data"`
+	}
+)
+
+@server (
+	prefix: /api/auth
+	group:  auth
+)
+service xiaoan {
+	@handler SendEmail
+	post /send-email (SendEmailRequest) returns (Response)
+}
+

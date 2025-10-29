@@ -1,0 +1,96 @@
+syntax = "proto3";
+import "third_party/google/protobuf/any.proto";
+package auth;
+option go_package="./auth";
+
+
+message User {
+  uint64 id = 1;
+  string name = 2;
+  string email = 3;
+  string avatar = 4;
+  string phone = 5;
+  string password = 6;
+  string department = 7;
+}
+
+message InviteCode {
+  string code = 1;              // 邀请码本身
+  string creator_id = 2;        // 创建该邀请码的用户ID
+  string creator_name = 3;      // 创建人名称（可选）
+  string department = 4;        // 该邀请码绑定的部门（如果有）
+  int32 max_uses = 5;           // 可使用次数上限（例如 1 表示一次性）
+  int32 used_count = 6;         // 已使用次数
+  bool is_active = 7;           // 是否启用中
+  string remark = 8;            // 备注，可用于记录用途说明
+  int64 created_at = 9;         // 创建时间（时间戳）
+  int64 expires_at = 10;        // 过期时间（时间戳）
+}
+
+
+message SendEmailRequest {
+  string email = 1;
+}
+
+message ValidateEmailRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message GenerateInviteCodeRequest {
+  string department = 1;
+  int32 count = 2; // 一次生成几个邀请码
+}
+
+message ValidateInviteCodeRequest {
+  string code = 1;
+}
+
+
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string name = 3;
+  string phone = 4;
+  string department = 5;
+  string invite_code = 6;
+}
+
+message LoginResponse {
+  string token = 1;
+  User user = 2;
+}
+
+message RegisterResponse {
+  User user = 1;
+}
+
+message GenerateInviteCodeResponse {
+  repeated string codes = 1;
+}
+
+message Response {
+  int64 code = 1;
+  string message = 2;
+  google.protobuf.Any data = 3;
+}
+
+service AuthService {
+  // 邮箱验证码
+  rpc SendEmailCode(SendEmailRequest) returns (Response);
+  rpc ValidateEmailCode(ValidateEmailRequest) returns (Response);
+
+  // 邀请码
+  rpc GenerateInviteCode(GenerateInviteCodeRequest) returns (Response);
+  rpc ValidateInviteCode(ValidateInviteCodeRequest) returns (Response);
+
+  // 注册登录
+  rpc Register(RegisterRequest) returns (Response);
+  rpc Login(LoginRequest) returns (Response);
+}
