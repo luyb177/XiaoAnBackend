@@ -16,9 +16,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// 发送邮箱验证码
 				Method:  http.MethodPost,
 				Path:    "/send-email",
 				Handler: auth.SendEmailHandler(serverCtx),
+			},
+			{
+				// 验证邮箱验证码
+				Method:  http.MethodPost,
+				Path:    "/validate-email",
+				Handler: auth.ValidateEmailHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/auth"),

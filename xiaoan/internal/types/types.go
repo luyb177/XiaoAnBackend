@@ -12,3 +12,8 @@ type Response struct {
 type SendEmailRequest struct {
 	Email string `json:"email"`
 }
+
+type ValidateEmailRequest struct {
+	Email string `json:"email"`
+	Code  string `json:"code"`
+}
