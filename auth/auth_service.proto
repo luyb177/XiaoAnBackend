@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "third_party/google/protobuf/any.proto";
 package auth;
-option go_package="./auth";
+option go_package = "./auth/v1";
 
 
 message User {

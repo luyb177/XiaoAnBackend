@@ -7,7 +7,7 @@ import (
 	"github.com/luyb177/XiaoAnBackend/auth/internal/config"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/server"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth"
+	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/auth.yaml", "the config file")
+var configFile = flag.String("f", "etc/authservice.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		auth.RegisterAuthServiceServer(grpcServer, server.NewAuthServiceServer(ctx))
+		v1.RegisterAuthServiceServer(grpcServer, server.NewAuthServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

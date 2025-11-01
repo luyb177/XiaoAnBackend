@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth"
+	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,8 +24,8 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 // 邀请码
-func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *auth.GenerateInviteCodeRequest) (*auth.Response, error) {
+func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
 	// todo: add your logic here and delete this line
 
-	return &auth.Response{}, nil
+	return &v1.Response{}, nil
 }

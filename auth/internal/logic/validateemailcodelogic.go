@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth"
+	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +23,7 @@ func NewValidateEmailCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-func (l *ValidateEmailCodeLogic) ValidateEmailCode(in *auth.ValidateEmailRequest) (*auth.Response, error) {
-	// todo: add your logic here and delete this line
+func (l *ValidateEmailCodeLogic) ValidateEmailCode(in *v1.ValidateEmailRequest) (*v1.Response, error) {
 
-	return &auth.Response{}, nil
+	return &v1.Response{}, nil
 }

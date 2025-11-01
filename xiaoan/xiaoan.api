@@ -21,9 +21,11 @@ type (
 
 @server (
 	prefix: /api/auth
+	tags: "认证模块"
 	group:  auth
 )
 service xiaoan {
+	@doc "发送邮箱验证码"
 	@handler SendEmail
 	post /send-email (SendEmailRequest) returns (Response)
 }

@@ -1,7 +1,7 @@
 package svc
 
 import (
-	pb "github.com/luyb177/XiaoAnBackend/auth/pb/auth"
+	pb "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 
 	"github.com/zeromicro/go-zero/zrpc"

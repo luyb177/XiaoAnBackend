@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	pb "github.com/luyb177/XiaoAnBackend/auth/pb/auth"
+	pb "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
