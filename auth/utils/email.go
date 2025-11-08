@@ -1,16 +1,12 @@
 package utils
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
-
 	"github.com/go-gomail/gomail"
 )
 
 const (
 	EmailCodeLength = 6
-	letters         = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
 
 // EmailConfig 邮箱配置
@@ -47,10 +43,5 @@ func SendEmailCode(cfg EmailConfig, to, code string) error {
 
 // GenerateEmailCode 生成随机验证码
 func GenerateEmailCode() string {
-	code := make([]byte, EmailCodeLength)
-	for i := range code {
-		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
-		code[i] = letters[num.Int64()]
-	}
-	return string(code)
+	return GenerateCode(EmailCodeLength)
 }

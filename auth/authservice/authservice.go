@@ -16,6 +16,8 @@ import (
 type (
 	GenerateInviteCodeRequest  = v1.GenerateInviteCodeRequest
 	GenerateInviteCodeResponse = v1.GenerateInviteCodeResponse
+	GetInviteCodeRequest       = v1.GetInviteCodeRequest
+	GetInviteCodeResponse      = v1.GetInviteCodeResponse
 	InviteCode                 = v1.InviteCode
 	LoginRequest               = v1.LoginRequest
 	LoginResponse              = v1.LoginResponse
@@ -34,6 +36,7 @@ type (
 		// 邀请码
 		GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 		ValidateInviteCode(ctx context.Context, in *ValidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
+		GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 		// 注册登录
 		Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*Response, error)
 		Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error)
@@ -70,6 +73,11 @@ func (m *defaultAuthService) GenerateInviteCode(ctx context.Context, in *Generat
 func (m *defaultAuthService) ValidateInviteCode(ctx context.Context, in *ValidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.ValidateInviteCode(ctx, in, opts...)
+}
+
+func (m *defaultAuthService) GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.GetInviteCode(ctx, in, opts...)
 }
 
 // 注册登录

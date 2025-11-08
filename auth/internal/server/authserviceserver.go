@@ -45,6 +45,11 @@ func (s *AuthServiceServer) ValidateInviteCode(ctx context.Context, in *v1.Valid
 	return l.ValidateInviteCode(in)
 }
 
+func (s *AuthServiceServer) GetInviteCode(ctx context.Context, in *v1.GetInviteCodeRequest) (*v1.Response, error) {
+	l := logic.NewGetInviteCodeLogic(ctx, s.svcCtx)
+	return l.GetInviteCode(in)
+}
+
 // 注册登录
 func (s *AuthServiceServer) Register(ctx context.Context, in *v1.RegisterRequest) (*v1.Response, error) {
 	l := logic.NewRegisterLogic(ctx, s.svcCtx)
