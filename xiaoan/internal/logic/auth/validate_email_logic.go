@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	pb "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -32,7 +32,7 @@ func (l *ValidateEmailLogic) ValidateEmail(req *types.ValidateEmailRequest) (res
 			Message: "参数错误",
 		}, nil
 	}
-	res, err := l.svcCtx.AuthRpc.ValidateEmailCode(l.ctx, &pb.ValidateEmailRequest{
+	res, err := l.svcCtx.AuthRpc.ValidateEmailCode(l.ctx, &auth.ValidateEmailRequest{
 		Email: req.Email,
 		Code:  req.Code,
 	})

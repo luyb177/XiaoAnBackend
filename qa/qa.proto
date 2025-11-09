@@ -1,0 +1,22 @@
+syntax = "proto3";
+import "third_party/google/protobuf/any.proto";
+package qa;
+option go_package = "./qa/v1";
+
+message GetAnswerRequest {
+  string question = 1;
+}
+
+message GetAnswerResponse {
+  string answer = 1;
+}
+
+message Response {
+  int64 code = 1;
+  string message = 2;
+  google.protobuf.Any data = 3;
+}
+
+service QAService {
+  rpc GetAnswer(GetAnswerRequest) returns (Response);
+}

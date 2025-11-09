@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	pb "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -31,7 +31,7 @@ func (l *SendEmailLogic) SendEmail(req *types.SendEmailRequest) (resp *types.Res
 			Message: "邮箱不能为空",
 		}, nil
 	}
-	res, err := l.svcCtx.AuthRpc.SendEmailCode(l.ctx, &pb.SendEmailRequest{Email: req.Email})
+	res, err := l.svcCtx.AuthRpc.SendEmailCode(l.ctx, &auth.SendEmailRequest{Email: req.Email})
 	if err != nil {
 		return &types.Response{
 			Code:    400,

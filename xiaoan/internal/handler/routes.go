@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	auth "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/auth"
+	qa "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/qa"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -29,5 +30,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/api/auth"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 获取答案
+				Method:  http.MethodPost,
+				Path:    "/answer",
+				Handler: qa.GetAnswerHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/qa"),
 	)
 }

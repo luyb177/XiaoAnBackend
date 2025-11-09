@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/zeromicro/go-zero/core/logx"
 	"net/http"
 
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/auth"
@@ -21,9 +22,8 @@ func SendEmailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := auth.NewSendEmailLogic(r.Context(), svcCtx)
 		resp, err := l.SendEmail(&req)
 		if err != nil {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			logx.Errorf("SendEmailHandler err: %v", err)
 		}
+		httpx.OkJsonCtx(r.Context(), w, resp)
 	}
 }

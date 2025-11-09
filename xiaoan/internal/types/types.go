@@ -3,6 +3,14 @@
 
 package types
 
+type GetAnswerRequest struct {
+	Question string `json:"question"`
+}
+
+type GetAnswerResponse struct {
+	Answer string `json:"answer"`
+}
+
 type Response struct {
 	Code    int64       `json:"code"`
 	Message string      `json:"message"`

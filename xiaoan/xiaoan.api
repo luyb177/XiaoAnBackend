@@ -5,6 +5,7 @@ info (
 	version: "v1.0"
 )
 
+// 用户请求模块
 type (
 	SendEmailRequest {
 		email string `json:"email"`
@@ -15,6 +16,21 @@ type (
 	}
 )
 
+// 问答请求模块
+type (
+	GetAnswerRequest {
+		question string `json:"question"`
+	}
+)
+
+// 问答返回模块
+type (
+	GetAnswerResponse {
+		answer string `json:"answer"`
+	}
+)
+
+// 通用返回结构
 type (
 	Response {
 		code    int64       `json:"code"`
@@ -36,5 +52,16 @@ service xiaoan {
 	@doc "验证邮箱验证码"
 	@handler ValidateEmail
 	post /validate-email (ValidateEmailRequest) returns (Response)
+}
+
+@server (
+	prefix: /api/qa
+	tags:   "问答模块"
+	group:  qa
+)
+service xiaoan {
+	@doc "获取答案"
+	@handler GetAnswer
+	post /answer (GetAnswerRequest) returns (Response)
 }
 
