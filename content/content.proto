@@ -1,0 +1,54 @@
+syntax = "proto3";
+import "third_party/google/protobuf/any.proto";
+package content;
+option go_package = "./content/v1";
+
+enum ContentType {
+  CONTENT_TYPE_UNSPECIFIED = 0;  // 未指定
+  CONTENT_TYPE_VIDEO = 1;
+  CONTENT_TYPE_COMIC = 2;   // 漫画
+  CONTENT_TYPE_PODCAST = 3; // 播客
+  CONTENT_TYPE_IMAGE = 4;   // 图片
+  CONTENT_TYPE_AVATAR = 5;  // 头像
+}
+
+// 文件分片请求
+message UploadChunk {
+  string filename = 1;
+  ContentType type = 2;
+  string title = 3;
+  bytes data = 4; // 每个分片的二进制内容
+  bool is_last = 5; // 是否最后一片
+}
+
+// 响应
+message UploadResponse {
+  string url = 3;
+}
+
+
+// 获取访问链接请求
+message GetContentURLRequest {
+  string object_name = 1; // MinIO对象名
+}
+
+// 获取访问链接响应
+message GetContentURLResponse {
+  string url = 1;
+  int64 expires_in = 2; // 有效期秒数
+}
+
+
+message Response {
+  int64 code = 1 ;
+  string message = 2;
+  google.protobuf.Any data = 3;
+}
+
+service ContentService {
+  // 上传文件
+  rpc UploadContentStream(stream UploadChunk) returns (Response);
+
+  // 获取访问URL
+  rpc GetContentURL(GetContentURLRequest) returns (Response);
+}
