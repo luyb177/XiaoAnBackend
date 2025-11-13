@@ -4,11 +4,13 @@ go 1.25.3
 
 replace (
 	github.com/luyb177/XiaoAnBackend/auth => ../auth
+	github.com/luyb177/XiaoAnBackend/content => ../content
 	github.com/luyb177/XiaoAnBackend/qa => ../qa
 )
 
 require (
 	github.com/luyb177/XiaoAnBackend/auth v0.0.0-00010101000000-000000000000
+	github.com/luyb177/XiaoAnBackend/content v0.0.0-00010101000000-000000000000
 	github.com/luyb177/XiaoAnBackend/qa v0.0.0-00010101000000-000000000000
 	github.com/zeromicro/go-zero v1.9.2
 )
@@ -40,7 +42,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

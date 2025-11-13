@@ -32,9 +32,8 @@ func NewUploadContentStreamLogic(ctx context.Context, svcCtx *svc.ServiceContext
 // UploadContentStream 上传文件
 func (l *UploadContentStreamLogic) UploadContentStream(stream v1.ContentService_UploadContentStreamServer) error {
 	var (
-		fileBuffer  bytes.Buffer
-		filename    string
-		contentType v1.ContentType
+		fileBuffer bytes.Buffer
+		filename   string
 	)
 
 	// 接受流式数据
@@ -53,8 +52,6 @@ func (l *UploadContentStreamLogic) UploadContentStream(stream v1.ContentService_
 		// 初次赋值
 		if filename == "" {
 			filename = chunk.Filename
-			contentType = chunk.Type
-			//title = chunk.Title
 		}
 
 		_, err = fileBuffer.Write(chunk.Data)
@@ -69,19 +66,7 @@ func (l *UploadContentStreamLogic) UploadContentStream(stream v1.ContentService_
 		}
 	}
 
-	ext := ""
-	switch contentType {
-	case v1.ContentType_CONTENT_TYPE_VIDEO:
-		ext = ".mp4"
-	case v1.ContentType_CONTENT_TYPE_COMIC, v1.ContentType_CONTENT_TYPE_IMAGE, v1.ContentType_CONTENT_TYPE_AVATAR:
-		ext = ".png"
-	case v1.ContentType_CONTENT_TYPE_PODCAST:
-		ext = ".mp3"
-	default:
-		ext = ".txt"
-	}
-
-	objectName := fmt.Sprintf("%s-%s-%s%s", contentType.String(), filename, time.Now().Format("20060102T150405"), ext)
+	objectName := fmt.Sprintf("%s-%s", time.Now().Format("20060102T150405"), filename)
 	reader := bytes.NewReader(fileBuffer.Bytes())
 	size := int64(fileBuffer.Len())
 
@@ -104,7 +89,7 @@ func (l *UploadContentStreamLogic) UploadContentStream(stream v1.ContentService_
 	l.Infof("上传成功: %+v", info)
 
 	// todo 异步保存文件信息
-	
+
 	// 构造返回数据
 	res := &v1.UploadResponse{Url: url}
 

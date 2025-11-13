@@ -26,6 +26,5 @@ func GetAnswerHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		httpx.OkJsonCtx(r.Context(), w, resp)
-
 	}
 }

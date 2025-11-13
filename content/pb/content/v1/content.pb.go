@@ -22,72 +22,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ContentType int32
-
-const (
-	ContentType_CONTENT_TYPE_UNSPECIFIED ContentType = 0 // 未指定
-	ContentType_CONTENT_TYPE_VIDEO       ContentType = 1
-	ContentType_CONTENT_TYPE_COMIC       ContentType = 2 // 漫画
-	ContentType_CONTENT_TYPE_PODCAST     ContentType = 3 // 播客
-	ContentType_CONTENT_TYPE_IMAGE       ContentType = 4 // 图片
-	ContentType_CONTENT_TYPE_AVATAR      ContentType = 5 // 头像
-)
-
-// Enum value maps for ContentType.
-var (
-	ContentType_name = map[int32]string{
-		0: "CONTENT_TYPE_UNSPECIFIED",
-		1: "CONTENT_TYPE_VIDEO",
-		2: "CONTENT_TYPE_COMIC",
-		3: "CONTENT_TYPE_PODCAST",
-		4: "CONTENT_TYPE_IMAGE",
-		5: "CONTENT_TYPE_AVATAR",
-	}
-	ContentType_value = map[string]int32{
-		"CONTENT_TYPE_UNSPECIFIED": 0,
-		"CONTENT_TYPE_VIDEO":       1,
-		"CONTENT_TYPE_COMIC":       2,
-		"CONTENT_TYPE_PODCAST":     3,
-		"CONTENT_TYPE_IMAGE":       4,
-		"CONTENT_TYPE_AVATAR":      5,
-	}
-)
-
-func (x ContentType) Enum() *ContentType {
-	p := new(ContentType)
-	*p = x
-	return p
-}
-
-func (x ContentType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (ContentType) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[0].Descriptor()
-}
-
-func (ContentType) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[0]
-}
-
-func (x ContentType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use ContentType.Descriptor instead.
-func (ContentType) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{0}
-}
-
 // 文件分片请求
 type UploadChunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
-	Type          ContentType            `protobuf:"varint,2,opt,name=type,proto3,enum=content.ContentType" json:"type,omitempty"`
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	Data          []byte                 `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`                    // 每个分片的二进制内容
-	IsLast        bool                   `protobuf:"varint,5,opt,name=is_last,json=isLast,proto3" json:"is_last,omitempty"` // 是否最后一片
+	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`                    // 每个分片的二进制内容
+	IsLast        bool                   `protobuf:"varint,3,opt,name=is_last,json=isLast,proto3" json:"is_last,omitempty"` // 是否最后一片
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -125,20 +65,6 @@ func (*UploadChunk) Descriptor() ([]byte, []int) {
 func (x *UploadChunk) GetFilename() string {
 	if x != nil {
 		return x.Filename
-	}
-	return ""
-}
-
-func (x *UploadChunk) GetType() ContentType {
-	if x != nil {
-		return x.Type
-	}
-	return ContentType_CONTENT_TYPE_UNSPECIFIED
-}
-
-func (x *UploadChunk) GetTitle() string {
-	if x != nil {
-		return x.Title
 	}
 	return ""
 }
@@ -364,13 +290,11 @@ var File_content_proto protoreflect.FileDescriptor
 
 const file_content_proto_rawDesc = "" +
 	"\n" +
-	"\rcontent.proto\x12\acontent\x1a%third_party/google/protobuf/any.proto\"\x96\x01\n" +
+	"\rcontent.proto\x12\acontent\x1a%third_party/google/protobuf/any.proto\"V\n" +
 	"\vUploadChunk\x12\x1a\n" +
-	"\bfilename\x18\x01 \x01(\tR\bfilename\x12(\n" +
-	"\x04type\x18\x02 \x01(\x0e2\x14.content.ContentTypeR\x04type\x12\x14\n" +
-	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
-	"\x04data\x18\x04 \x01(\fR\x04data\x12\x17\n" +
-	"\ais_last\x18\x05 \x01(\bR\x06isLast\"\"\n" +
+	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\x12\x17\n" +
+	"\ais_last\x18\x03 \x01(\bR\x06isLast\"\"\n" +
 	"\x0eUploadResponse\x12\x10\n" +
 	"\x03url\x18\x03 \x01(\tR\x03url\"7\n" +
 	"\x14GetContentURLRequest\x12\x1f\n" +
@@ -383,14 +307,7 @@ const file_content_proto_rawDesc = "" +
 	"\bResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12(\n" +
-	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data*\xa6\x01\n" +
-	"\vContentType\x12\x1c\n" +
-	"\x18CONTENT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
-	"\x12CONTENT_TYPE_VIDEO\x10\x01\x12\x16\n" +
-	"\x12CONTENT_TYPE_COMIC\x10\x02\x12\x18\n" +
-	"\x14CONTENT_TYPE_PODCAST\x10\x03\x12\x16\n" +
-	"\x12CONTENT_TYPE_IMAGE\x10\x04\x12\x17\n" +
-	"\x13CONTENT_TYPE_AVATAR\x10\x052\x95\x01\n" +
+	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data2\x95\x01\n" +
 	"\x0eContentService\x12@\n" +
 	"\x13UploadContentStream\x12\x14.content.UploadChunk\x1a\x11.content.Response(\x01\x12A\n" +
 	"\rGetContentURL\x12\x1d.content.GetContentURLRequest\x1a\x11.content.ResponseB\x0eZ\f./content/v1b\x06proto3"
@@ -407,29 +324,26 @@ func file_content_proto_rawDescGZIP() []byte {
 	return file_content_proto_rawDescData
 }
 
-var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_content_proto_goTypes = []any{
-	(ContentType)(0),              // 0: content.ContentType
-	(*UploadChunk)(nil),           // 1: content.UploadChunk
-	(*UploadResponse)(nil),        // 2: content.UploadResponse
-	(*GetContentURLRequest)(nil),  // 3: content.GetContentURLRequest
-	(*GetContentURLResponse)(nil), // 4: content.GetContentURLResponse
-	(*Response)(nil),              // 5: content.Response
-	(*anypb.Any)(nil),             // 6: google.protobuf.Any
+	(*UploadChunk)(nil),           // 0: content.UploadChunk
+	(*UploadResponse)(nil),        // 1: content.UploadResponse
+	(*GetContentURLRequest)(nil),  // 2: content.GetContentURLRequest
+	(*GetContentURLResponse)(nil), // 3: content.GetContentURLResponse
+	(*Response)(nil),              // 4: content.Response
+	(*anypb.Any)(nil),             // 5: google.protobuf.Any
 }
 var file_content_proto_depIdxs = []int32{
-	0, // 0: content.UploadChunk.type:type_name -> content.ContentType
-	6, // 1: content.Response.data:type_name -> google.protobuf.Any
-	1, // 2: content.ContentService.UploadContentStream:input_type -> content.UploadChunk
-	3, // 3: content.ContentService.GetContentURL:input_type -> content.GetContentURLRequest
-	5, // 4: content.ContentService.UploadContentStream:output_type -> content.Response
-	5, // 5: content.ContentService.GetContentURL:output_type -> content.Response
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	5, // 0: content.Response.data:type_name -> google.protobuf.Any
+	0, // 1: content.ContentService.UploadContentStream:input_type -> content.UploadChunk
+	2, // 2: content.ContentService.GetContentURL:input_type -> content.GetContentURLRequest
+	4, // 3: content.ContentService.UploadContentStream:output_type -> content.Response
+	4, // 4: content.ContentService.GetContentURL:output_type -> content.Response
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }
@@ -442,14 +356,13 @@ func file_content_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_content_proto_goTypes,
 		DependencyIndexes: file_content_proto_depIdxs,
-		EnumInfos:         file_content_proto_enumTypes,
 		MessageInfos:      file_content_proto_msgTypes,
 	}.Build()
 	File_content_proto = out.File

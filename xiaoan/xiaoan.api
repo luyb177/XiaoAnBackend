@@ -30,6 +30,20 @@ type (
 	}
 )
 
+// 文件上传请求
+type (
+	UploadContentRequest {
+		file string `form:"file,optional"`
+	}
+)
+
+// 文件上传返回
+type (
+	UploadContentResponse {
+		url string `json:"url"`
+	}
+)
+
 // 通用返回结构
 type (
 	Response {
@@ -63,5 +77,18 @@ service xiaoan {
 	@doc "获取答案"
 	@handler GetAnswer
 	post /answer (GetAnswerRequest) returns (Response)
+}
+
+@server (
+	prefix:   /api/content
+	tags:     "文件内容模块"
+	maxBytes: 104857600 // 100M
+	timeout:  60s
+	group:    content
+)
+service xiaoan {
+	@doc "上传文件（流式传输到gRPC）"
+	@handler UploadContentStream
+	post /upload (UploadContentRequest) returns (Response)
 }
 

@@ -5,8 +5,10 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	auth "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/auth"
+	content "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/content"
 	qa "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/qa"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 
@@ -30,6 +32,20 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/api/auth"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 上传文件（流式传输到gRPC）
+				Method:  http.MethodPost,
+				Path:    "/upload",
+				Handler: content.UploadContentStreamHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/content"),
+		rest.WithTimeout(60000*time.Millisecond),
+		rest.WithMaxBytes(104857600),
 	)
 
 	server.AddRoutes(

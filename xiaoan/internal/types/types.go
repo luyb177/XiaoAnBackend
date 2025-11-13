@@ -21,6 +21,14 @@ type SendEmailRequest struct {
 	Email string `json:"email"`
 }
 
+type UploadContentRequest struct {
+	File string `form:"file,optional"`
+}
+
+type UploadContentResponse struct {
+	Url string `json:"url"`
+}
+
 type ValidateEmailRequest struct {
 	Email string `json:"email"`
 	Code  string `json:"code"`

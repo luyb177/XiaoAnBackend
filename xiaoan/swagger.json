@@ -125,6 +125,49 @@
         }
       }
     },
+    "/api/content/upload": {
+      "post": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "上传文件（流式传输到gRPC）",
+        "operationId": "contentUploadContentStream",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "file",
+            "in": "formData",
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/qa/answer": {
       "post": {
         "consumes": [
@@ -179,7 +222,7 @@
       }
     }
   },
-  "x-date": "2025-11-09 15:47:48",
+  "x-date": "2025-11-13 18:15:36",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
