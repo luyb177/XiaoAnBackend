@@ -18,6 +18,7 @@ type (
 		FindByCreatorId(ctx context.Context, creatorId uint64, page, pageSize int64) ([]*InviteCode, error)
 		CountByCreatorId(ctx context.Context, creatorId uint64) (int64, error)
 		BatchInsert(ctx context.Context, datas []InviteCode) error
+		UpdateWithSession(ctx context.Context, session sqlx.Session, data *InviteCode) error
 	}
 
 	customInviteCodeModel struct {
@@ -86,4 +87,8 @@ func (m *customInviteCodeModel) BatchInsert(ctx context.Context, datas []InviteC
 		}
 		return nil
 	})
+}
+
+func (m *customInviteCodeModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *InviteCode) error {
+	return m.withSession(session).Update(ctx, data)
 }

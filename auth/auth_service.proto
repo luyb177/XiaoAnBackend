@@ -120,18 +120,10 @@ message LoginResponse {
 }
 
 message RegisterRequest {
-  string name = 1;
-  string email = 2;
-  string avatar = 3;
-  string phone = 4;
-  string password = 5;
-  string department = 6;
-
-  string role = 7;
-  string class_id = 8;  // + optional
-  string invite_code_used = 9;
-
-  string email_code = 10;
+  string email = 1;
+  string email_code = 2;
+  string password = 3;
+  string invite_code_used = 4;
 }
 
 message RegisterResponse {

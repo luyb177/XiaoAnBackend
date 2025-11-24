@@ -1000,16 +1000,10 @@ func (x *LoginResponse) GetUser() *User {
 
 type RegisterRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Email          string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Avatar         string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	Phone          string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`
-	Password       string                 `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
-	Department     string                 `protobuf:"bytes,6,opt,name=department,proto3" json:"department,omitempty"`
-	Role           string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`
-	ClassId        string                 `protobuf:"bytes,8,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // + optional
-	InviteCodeUsed string                 `protobuf:"bytes,9,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
-	EmailCode      string                 `protobuf:"bytes,10,opt,name=email_code,json=emailCode,proto3" json:"email_code,omitempty"`
+	Email          string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	EmailCode      string                 `protobuf:"bytes,2,opt,name=email_code,json=emailCode,proto3" json:"email_code,omitempty"`
+	Password       string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	InviteCodeUsed string                 `protobuf:"bytes,4,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1044,13 +1038,6 @@ func (*RegisterRequest) Descriptor() ([]byte, []int) {
 	return file_auth_service_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *RegisterRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
 func (x *RegisterRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
@@ -1058,16 +1045,9 @@ func (x *RegisterRequest) GetEmail() string {
 	return ""
 }
 
-func (x *RegisterRequest) GetAvatar() string {
+func (x *RegisterRequest) GetEmailCode() string {
 	if x != nil {
-		return x.Avatar
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
+		return x.EmailCode
 	}
 	return ""
 }
@@ -1079,37 +1059,9 @@ func (x *RegisterRequest) GetPassword() string {
 	return ""
 }
 
-func (x *RegisterRequest) GetDepartment() string {
-	if x != nil {
-		return x.Department
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetRole() string {
-	if x != nil {
-		return x.Role
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetClassId() string {
-	if x != nil {
-		return x.ClassId
-	}
-	return ""
-}
-
 func (x *RegisterRequest) GetInviteCodeUsed() string {
 	if x != nil {
 		return x.InviteCodeUsed
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetEmailCode() string {
-	if x != nil {
-		return x.EmailCode
 	}
 	return ""
 }
@@ -1423,22 +1375,13 @@ const file_auth_service_proto_rawDesc = "" +
 	"\rLoginResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1e\n" +
 	"\x04user\x18\x02 \x01(\v2\n" +
-	".auth.UserR\x04user\"\x9d\x02\n" +
-	"\x0fRegisterRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12\x16\n" +
-	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12\x14\n" +
-	"\x05phone\x18\x04 \x01(\tR\x05phone\x12\x1a\n" +
-	"\bpassword\x18\x05 \x01(\tR\bpassword\x12\x1e\n" +
+	".auth.UserR\x04user\"\x8c\x01\n" +
+	"\x0fRegisterRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1d\n" +
 	"\n" +
-	"department\x18\x06 \x01(\tR\n" +
-	"department\x12\x12\n" +
-	"\x04role\x18\a \x01(\tR\x04role\x12\x19\n" +
-	"\bclass_id\x18\b \x01(\tR\aclassId\x12(\n" +
-	"\x10invite_code_used\x18\t \x01(\tR\x0einviteCodeUsed\x12\x1d\n" +
-	"\n" +
-	"email_code\x18\n" +
-	" \x01(\tR\temailCode\"\xc9\x02\n" +
+	"email_code\x18\x02 \x01(\tR\temailCode\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12(\n" +
+	"\x10invite_code_used\x18\x04 \x01(\tR\x0einviteCodeUsed\"\xc9\x02\n" +
 	"\x10RegisterResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
