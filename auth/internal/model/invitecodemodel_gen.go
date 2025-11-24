@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -40,15 +39,18 @@ type (
 	InviteCode struct {
 		Id          uint64         `db:"id"`
 		Code        string         `db:"code"`
-		CreatorId   uint64         `db:"creator_id"`
+		CreatorId   int64          `db:"creator_id"`
 		CreatorName sql.NullString `db:"creator_name"`
 		Department  sql.NullString `db:"department"`
 		MaxUses     int64          `db:"max_uses"`
 		UsedCount   int64          `db:"used_count"`
 		IsActive    int64          `db:"is_active"`
 		Remark      sql.NullString `db:"remark"`
-		CreatedAt   time.Time      `db:"created_at"`
-		ExpiresAt   sql.NullTime   `db:"expires_at"`
+		CreatedAt   int64          `db:"created_at"`
+		ExpiresAt   sql.NullInt64  `db:"expires_at"`
+		TargetRole  string         `db:"target_role"`
+		ClassId     int64          `db:"class_id"`
+		Type        string         `db:"type"`
 	}
 )
 
@@ -94,14 +96,14 @@ func (m *defaultInviteCodeModel) FindOneByCode(ctx context.Context, code string)
 }
 
 func (m *defaultInviteCodeModel) Insert(ctx context.Context, data *InviteCode) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.ExpiresAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.ExpiresAt, data.TargetRole, data.ClassId, data.Type)
 	return ret, err
 }
 
 func (m *defaultInviteCodeModel) Update(ctx context.Context, newData *InviteCode) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, inviteCodeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.CreatorId, newData.CreatorName, newData.Department, newData.MaxUses, newData.UsedCount, newData.IsActive, newData.Remark, newData.ExpiresAt, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.CreatorId, newData.CreatorName, newData.Department, newData.MaxUses, newData.UsedCount, newData.IsActive, newData.Remark, newData.ExpiresAt, newData.TargetRole, newData.ClassId, newData.Type, newData.Id)
 	return err
 }
 

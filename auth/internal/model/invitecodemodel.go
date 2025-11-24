@@ -17,6 +17,7 @@ type (
 		withSession(session sqlx.Session) InviteCodeModel
 		FindByCreatorId(ctx context.Context, creatorId uint64, page, pageSize int64) ([]*InviteCode, error)
 		CountByCreatorId(ctx context.Context, creatorId uint64) (int64, error)
+		BatchInsert(ctx context.Context, datas []InviteCode) error
 	}
 
 	customInviteCodeModel struct {
@@ -70,4 +71,19 @@ func (m *customInviteCodeModel) CountByCreatorId(ctx context.Context, creatorId 
 	}
 
 	return count, nil
+}
+
+// BatchInsert 事务 生成大量数据
+func (m *customInviteCodeModel) BatchInsert(ctx context.Context, datas []InviteCode) error {
+	return m.conn.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
+
+		for _, data := range datas {
+			_, err := session.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.ExpiresAt, data.TargetRole, data.ClassId, data.Type)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }

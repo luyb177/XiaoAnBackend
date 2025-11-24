@@ -65,6 +65,13 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		}, fmt.Errorf("部门不能为空")
 	}
 
+	if in.Role == "" {
+		return &v1.Response{
+			Code:    400,
+			Message: "角色为空",
+		}, fmt.Errorf("角色为空")
+	}
+
 	// 验证邮箱验证码
 	getCode, err := l.svcCtx.RedisRepo.GetEmailCode(in.Email)
 	if err != nil {

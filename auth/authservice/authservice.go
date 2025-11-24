@@ -14,6 +14,7 @@ import (
 )
 
 type (
+	Class                      = v1.Class
 	GenerateInviteCodeRequest  = v1.GenerateInviteCodeRequest
 	GenerateInviteCodeResponse = v1.GenerateInviteCodeResponse
 	GetInviteCodeRequest       = v1.GetInviteCodeRequest

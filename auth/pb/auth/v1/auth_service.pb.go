@@ -23,16 +23,22 @@ const (
 )
 
 type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	Phone         string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`
-	Password      string                 `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
-	Department    string                 `protobuf:"bytes,7,opt,name=department,proto3" json:"department,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Email          string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Avatar         string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Phone          string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`
+	Password       string                 `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
+	Department     string                 `protobuf:"bytes,7,opt,name=department,proto3" json:"department,omitempty"`
+	Role           string                 `protobuf:"bytes,8,opt,name=role,proto3" json:"role,omitempty"`                       // superadmin / classadmin / student / staff
+	ClassId        uint64                 `protobuf:"varint,9,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // 所属班级 学生 ID
+	Status         int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`                 // 0正常 1禁用 2删除
+	InviteCodeUsed string                 `protobuf:"bytes,11,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
+	CreatedAt      int64                  `protobuf:"varint,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      int64                  `protobuf:"varint,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -114,18 +120,63 @@ func (x *User) GetDepartment() string {
 	return ""
 }
 
+func (x *User) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *User) GetClassId() uint64 {
+	if x != nil {
+		return x.ClassId
+	}
+	return 0
+}
+
+func (x *User) GetStatus() int64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *User) GetInviteCodeUsed() string {
+	if x != nil {
+		return x.InviteCodeUsed
+	}
+	return ""
+}
+
+func (x *User) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *User) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
 type InviteCode struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                                  // 邀请码本身
-	CreatorId     string                 `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`       // 创建该邀请码的用户ID
-	CreatorName   string                 `protobuf:"bytes,3,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"` // 创建人名称（可选）
-	Department    string                 `protobuf:"bytes,4,opt,name=department,proto3" json:"department,omitempty"`                      // 该邀请码绑定的部门（如果有）
-	MaxUses       int64                  `protobuf:"varint,5,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`            // 可使用次数上限（例如 1 表示一次性）
-	UsedCount     int64                  `protobuf:"varint,6,opt,name=used_count,json=usedCount,proto3" json:"used_count,omitempty"`      // 已使用次数
-	IsActive      int64                  `protobuf:"varint,7,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`         // 是否启用中
-	Remark        string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`                              // 备注，可用于记录用途说明
-	CreatedAt     int64                  `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`      // 创建时间（时间戳）
-	ExpiresAt     int64                  `protobuf:"varint,10,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`     // 过期时间（时间戳）
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	CreatorId     string                 `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorName   string                 `protobuf:"bytes,3,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`
+	Department    string                 `protobuf:"bytes,4,opt,name=department,proto3" json:"department,omitempty"`
+	MaxUses       int64                  `protobuf:"varint,5,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
+	UsedCount     int64                  `protobuf:"varint,6,opt,name=used_count,json=usedCount,proto3" json:"used_count,omitempty"`
+	IsActive      int64                  `protobuf:"varint,7,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"` // 1 有效  0 无效
+	Remark        string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ExpiresAt     int64                  `protobuf:"varint,10,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	TargetRole    string                 `protobuf:"bytes,11,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"` // 邀请码的目标角色 classadmin / student / staff
+	ClassId       uint64                 `protobuf:"varint,12,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`         // student 用，注册自动加入班级 其中 0 表示没有班级
+	Type          string                 `protobuf:"bytes,13,opt,name=type,proto3" json:"type,omitempty"`                               // 记录的邀请码的类型 admin / student / staff
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,6 +281,135 @@ func (x *InviteCode) GetExpiresAt() int64 {
 	return 0
 }
 
+func (x *InviteCode) GetTargetRole() string {
+	if x != nil {
+		return x.TargetRole
+	}
+	return ""
+}
+
+func (x *InviteCode) GetClassId() uint64 {
+	if x != nil {
+		return x.ClassId
+	}
+	return 0
+}
+
+func (x *InviteCode) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+type Class struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 班级 ID
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                      // 班级名称，如 "软件工程 2201 班"
+	Department    string                 `protobuf:"bytes,3,opt,name=department,proto3" json:"department,omitempty"`                          // 所属部门 / 学院
+	AdminId       uint64                 `protobuf:"varint,4,opt,name=admin_id,json=adminId,proto3" json:"admin_id,omitempty"`                // 班级管理员（班主任）
+	AdminName     string                 `protobuf:"bytes,5,opt,name=admin_name,json=adminName,proto3" json:"admin_name,omitempty"`           // 管理员名称，冗余字段（方便查询）
+	StudentCount  uint64                 `protobuf:"varint,6,opt,name=student_count,json=studentCount,proto3" json:"student_count,omitempty"` // 班级学生数量
+	Status        int64                  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`                                 // 状态：0 正常，1 禁用，2 已解散
+	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`          // 创建时间
+	UpdatedAt     int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`          // 更新时间
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Class) Reset() {
+	*x = Class{}
+	mi := &file_auth_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Class) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Class) ProtoMessage() {}
+
+func (x *Class) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Class.ProtoReflect.Descriptor instead.
+func (*Class) Descriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Class) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Class) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Class) GetDepartment() string {
+	if x != nil {
+		return x.Department
+	}
+	return ""
+}
+
+func (x *Class) GetAdminId() uint64 {
+	if x != nil {
+		return x.AdminId
+	}
+	return 0
+}
+
+func (x *Class) GetAdminName() string {
+	if x != nil {
+		return x.AdminName
+	}
+	return ""
+}
+
+func (x *Class) GetStudentCount() uint64 {
+	if x != nil {
+		return x.StudentCount
+	}
+	return 0
+}
+
+func (x *Class) GetStatus() int64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *Class) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *Class) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
 type SendEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
@@ -239,7 +419,7 @@ type SendEmailRequest struct {
 
 func (x *SendEmailRequest) Reset() {
 	*x = SendEmailRequest{}
-	mi := &file_auth_service_proto_msgTypes[2]
+	mi := &file_auth_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -251,7 +431,7 @@ func (x *SendEmailRequest) String() string {
 func (*SendEmailRequest) ProtoMessage() {}
 
 func (x *SendEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[2]
+	mi := &file_auth_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -264,7 +444,7 @@ func (x *SendEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendEmailRequest.ProtoReflect.Descriptor instead.
 func (*SendEmailRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{2}
+	return file_auth_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SendEmailRequest) GetEmail() string {
@@ -284,7 +464,7 @@ type ValidateEmailRequest struct {
 
 func (x *ValidateEmailRequest) Reset() {
 	*x = ValidateEmailRequest{}
-	mi := &file_auth_service_proto_msgTypes[3]
+	mi := &file_auth_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -296,7 +476,7 @@ func (x *ValidateEmailRequest) String() string {
 func (*ValidateEmailRequest) ProtoMessage() {}
 
 func (x *ValidateEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[3]
+	mi := &file_auth_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -309,7 +489,7 @@ func (x *ValidateEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateEmailRequest.ProtoReflect.Descriptor instead.
 func (*ValidateEmailRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{3}
+	return file_auth_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ValidateEmailRequest) GetEmail() string {
@@ -328,19 +508,21 @@ func (x *ValidateEmailRequest) GetCode() string {
 
 type GenerateInviteCodeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Department    string                 `protobuf:"bytes,1,opt,name=department,proto3" json:"department,omitempty"`
-	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"` // 一次生成几个邀请码
-	CreatorId     string                 `protobuf:"bytes,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	CreatorName   string                 `protobuf:"bytes,4,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`
+	CreatorId     string                 `protobuf:"bytes,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorName   string                 `protobuf:"bytes,2,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`
+	Department    string                 `protobuf:"bytes,3,opt,name=department,proto3" json:"department,omitempty"`
+	MaxUses       int64                  `protobuf:"varint,4,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
 	Remark        string                 `protobuf:"bytes,5,opt,name=remark,proto3" json:"remark,omitempty"`
-	ExpiresAt     int64                  `protobuf:"varint,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"` // 过期时间
+	ExpiresAt     int64                  `protobuf:"varint,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	TargetRole    string                 `protobuf:"bytes,7,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"` // 邀请码的目标角色
+	ClassId       uint64                 `protobuf:"varint,8,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`         // student用，注册时自动加入班级
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GenerateInviteCodeRequest) Reset() {
 	*x = GenerateInviteCodeRequest{}
-	mi := &file_auth_service_proto_msgTypes[4]
+	mi := &file_auth_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -352,7 +534,7 @@ func (x *GenerateInviteCodeRequest) String() string {
 func (*GenerateInviteCodeRequest) ProtoMessage() {}
 
 func (x *GenerateInviteCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[4]
+	mi := &file_auth_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -365,21 +547,7 @@ func (x *GenerateInviteCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInviteCodeRequest.ProtoReflect.Descriptor instead.
 func (*GenerateInviteCodeRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GenerateInviteCodeRequest) GetDepartment() string {
-	if x != nil {
-		return x.Department
-	}
-	return ""
-}
-
-func (x *GenerateInviteCodeRequest) GetCount() int64 {
-	if x != nil {
-		return x.Count
-	}
-	return 0
+	return file_auth_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GenerateInviteCodeRequest) GetCreatorId() string {
@@ -396,6 +564,20 @@ func (x *GenerateInviteCodeRequest) GetCreatorName() string {
 	return ""
 }
 
+func (x *GenerateInviteCodeRequest) GetDepartment() string {
+	if x != nil {
+		return x.Department
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeRequest) GetMaxUses() int64 {
+	if x != nil {
+		return x.MaxUses
+	}
+	return 0
+}
+
 func (x *GenerateInviteCodeRequest) GetRemark() string {
 	if x != nil {
 		return x.Remark
@@ -406,6 +588,136 @@ func (x *GenerateInviteCodeRequest) GetRemark() string {
 func (x *GenerateInviteCodeRequest) GetExpiresAt() int64 {
 	if x != nil {
 		return x.ExpiresAt
+	}
+	return 0
+}
+
+func (x *GenerateInviteCodeRequest) GetTargetRole() string {
+	if x != nil {
+		return x.TargetRole
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeRequest) GetClassId() uint64 {
+	if x != nil {
+		return x.ClassId
+	}
+	return 0
+}
+
+type GenerateInviteCodeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	CreatorId     string                 `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorName   string                 `protobuf:"bytes,3,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`
+	Department    string                 `protobuf:"bytes,4,opt,name=department,proto3" json:"department,omitempty"`
+	MaxUses       int64                  `protobuf:"varint,5,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
+	Remark        string                 `protobuf:"bytes,6,opt,name=remark,proto3" json:"remark,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ExpiresAt     int64                  `protobuf:"varint,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	TargetRole    string                 `protobuf:"bytes,9,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"`
+	ClassId       uint64                 `protobuf:"varint,10,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateInviteCodeResponse) Reset() {
+	*x = GenerateInviteCodeResponse{}
+	mi := &file_auth_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateInviteCodeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateInviteCodeResponse) ProtoMessage() {}
+
+func (x *GenerateInviteCodeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateInviteCodeResponse.ProtoReflect.Descriptor instead.
+func (*GenerateInviteCodeResponse) Descriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GenerateInviteCodeResponse) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeResponse) GetCreatorId() string {
+	if x != nil {
+		return x.CreatorId
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeResponse) GetCreatorName() string {
+	if x != nil {
+		return x.CreatorName
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeResponse) GetDepartment() string {
+	if x != nil {
+		return x.Department
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeResponse) GetMaxUses() int64 {
+	if x != nil {
+		return x.MaxUses
+	}
+	return 0
+}
+
+func (x *GenerateInviteCodeResponse) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeResponse) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *GenerateInviteCodeResponse) GetExpiresAt() int64 {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return 0
+}
+
+func (x *GenerateInviteCodeResponse) GetTargetRole() string {
+	if x != nil {
+		return x.TargetRole
+	}
+	return ""
+}
+
+func (x *GenerateInviteCodeResponse) GetClassId() uint64 {
+	if x != nil {
+		return x.ClassId
 	}
 	return 0
 }
@@ -421,7 +733,7 @@ type GetInviteCodeRequest struct {
 
 func (x *GetInviteCodeRequest) Reset() {
 	*x = GetInviteCodeRequest{}
-	mi := &file_auth_service_proto_msgTypes[5]
+	mi := &file_auth_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +745,7 @@ func (x *GetInviteCodeRequest) String() string {
 func (*GetInviteCodeRequest) ProtoMessage() {}
 
 func (x *GetInviteCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[5]
+	mi := &file_auth_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +758,7 @@ func (x *GetInviteCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInviteCodeRequest.ProtoReflect.Descriptor instead.
 func (*GetInviteCodeRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{5}
+	return file_auth_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetInviteCodeRequest) GetCreatorId() string {
@@ -482,7 +794,7 @@ type GetInviteCodeResponse struct {
 
 func (x *GetInviteCodeResponse) Reset() {
 	*x = GetInviteCodeResponse{}
-	mi := &file_auth_service_proto_msgTypes[6]
+	mi := &file_auth_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +806,7 @@ func (x *GetInviteCodeResponse) String() string {
 func (*GetInviteCodeResponse) ProtoMessage() {}
 
 func (x *GetInviteCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[6]
+	mi := &file_auth_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +819,7 @@ func (x *GetInviteCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInviteCodeResponse.ProtoReflect.Descriptor instead.
 func (*GetInviteCodeResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{6}
+	return file_auth_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetInviteCodeResponse) GetCodes() []*InviteCode {
@@ -547,7 +859,7 @@ type ValidateInviteCodeRequest struct {
 
 func (x *ValidateInviteCodeRequest) Reset() {
 	*x = ValidateInviteCodeRequest{}
-	mi := &file_auth_service_proto_msgTypes[7]
+	mi := &file_auth_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -559,7 +871,7 @@ func (x *ValidateInviteCodeRequest) String() string {
 func (*ValidateInviteCodeRequest) ProtoMessage() {}
 
 func (x *ValidateInviteCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[7]
+	mi := &file_auth_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -572,7 +884,7 @@ func (x *ValidateInviteCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateInviteCodeRequest.ProtoReflect.Descriptor instead.
 func (*ValidateInviteCodeRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{7}
+	return file_auth_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ValidateInviteCodeRequest) GetCode() string {
@@ -592,7 +904,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_auth_service_proto_msgTypes[8]
+	mi := &file_auth_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -604,7 +916,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[8]
+	mi := &file_auth_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -617,7 +929,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{8}
+	return file_auth_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *LoginRequest) GetEmail() string {
@@ -634,98 +946,6 @@ func (x *LoginRequest) GetPassword() string {
 	return ""
 }
 
-type RegisterRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`
-	Department    string                 `protobuf:"bytes,5,opt,name=department,proto3" json:"department,omitempty"`
-	InviteCode    string                 `protobuf:"bytes,6,opt,name=invite_code,json=inviteCode,proto3" json:"invite_code,omitempty"`
-	EmailCode     string                 `protobuf:"bytes,7,opt,name=email_code,json=emailCode,proto3" json:"email_code,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RegisterRequest) Reset() {
-	*x = RegisterRequest{}
-	mi := &file_auth_service_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RegisterRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RegisterRequest) ProtoMessage() {}
-
-func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
-func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *RegisterRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetDepartment() string {
-	if x != nil {
-		return x.Department
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetInviteCode() string {
-	if x != nil {
-		return x.InviteCode
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetEmailCode() string {
-	if x != nil {
-		return x.EmailCode
-	}
-	return ""
-}
-
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
@@ -736,7 +956,7 @@ type LoginResponse struct {
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
-	mi := &file_auth_service_proto_msgTypes[10]
+	mi := &file_auth_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -748,7 +968,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[10]
+	mi := &file_auth_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,7 +981,7 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{10}
+	return file_auth_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *LoginResponse) GetToken() string {
@@ -778,16 +998,143 @@ func (x *LoginResponse) GetUser() *User {
 	return nil
 }
 
+type RegisterRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Email          string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Avatar         string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Phone          string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`
+	Password       string                 `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	Department     string                 `protobuf:"bytes,6,opt,name=department,proto3" json:"department,omitempty"`
+	Role           string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`
+	ClassId        string                 `protobuf:"bytes,8,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // + optional
+	InviteCodeUsed string                 `protobuf:"bytes,9,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
+	EmailCode      string                 `protobuf:"bytes,10,opt,name=email_code,json=emailCode,proto3" json:"email_code,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *RegisterRequest) Reset() {
+	*x = RegisterRequest{}
+	mi := &file_auth_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterRequest) ProtoMessage() {}
+
+func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
+func (*RegisterRequest) Descriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *RegisterRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetDepartment() string {
+	if x != nil {
+		return x.Department
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetClassId() string {
+	if x != nil {
+		return x.ClassId
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetInviteCodeUsed() string {
+	if x != nil {
+		return x.InviteCodeUsed
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetEmailCode() string {
+	if x != nil {
+		return x.EmailCode
+	}
+	return ""
+}
+
 type RegisterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Email          string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Avatar         string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Phone          string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`
+	Department     string                 `protobuf:"bytes,7,opt,name=department,proto3" json:"department,omitempty"`
+	Role           string                 `protobuf:"bytes,8,opt,name=role,proto3" json:"role,omitempty"`                       // superadmin / classadmin / student / staff
+	ClassId        uint64                 `protobuf:"varint,9,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // 所属班级 学生 ID
+	Status         int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`                 // 0正常 1禁用 2删除
+	InviteCodeUsed string                 `protobuf:"bytes,11,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
+	CreatedAt      int64                  `protobuf:"varint,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      int64                  `protobuf:"varint,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RegisterResponse) Reset() {
 	*x = RegisterResponse{}
-	mi := &file_auth_service_proto_msgTypes[11]
+	mi := &file_auth_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -799,7 +1146,7 @@ func (x *RegisterResponse) String() string {
 func (*RegisterResponse) ProtoMessage() {}
 
 func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[11]
+	mi := &file_auth_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,58 +1159,91 @@ func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{11}
+	return file_auth_service_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *RegisterResponse) GetUser() *User {
+func (x *RegisterResponse) GetId() string {
 	if x != nil {
-		return x.User
+		return x.Id
 	}
-	return nil
+	return ""
 }
 
-type GenerateInviteCodeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Codes         []string               `protobuf:"bytes,1,rep,name=codes,proto3" json:"codes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GenerateInviteCodeResponse) Reset() {
-	*x = GenerateInviteCodeResponse{}
-	mi := &file_auth_service_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GenerateInviteCodeResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GenerateInviteCodeResponse) ProtoMessage() {}
-
-func (x *GenerateInviteCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[12]
+func (x *RegisterResponse) GetName() string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.Name
 	}
-	return mi.MessageOf(x)
+	return ""
 }
 
-// Deprecated: Use GenerateInviteCodeResponse.ProtoReflect.Descriptor instead.
-func (*GenerateInviteCodeResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *GenerateInviteCodeResponse) GetCodes() []string {
+func (x *RegisterResponse) GetEmail() string {
 	if x != nil {
-		return x.Codes
+		return x.Email
 	}
-	return nil
+	return ""
+}
+
+func (x *RegisterResponse) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetDepartment() string {
+	if x != nil {
+		return x.Department
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetClassId() uint64 {
+	if x != nil {
+		return x.ClassId
+	}
+	return 0
+}
+
+func (x *RegisterResponse) GetStatus() int64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *RegisterResponse) GetInviteCodeUsed() string {
+	if x != nil {
+		return x.InviteCodeUsed
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *RegisterResponse) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
 }
 
 type Response struct {
@@ -877,7 +1257,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_auth_service_proto_msgTypes[13]
+	mi := &file_auth_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -889,7 +1269,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_proto_msgTypes[13]
+	mi := &file_auth_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -902,7 +1282,7 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Response.ProtoReflect.Descriptor instead.
 func (*Response) Descriptor() ([]byte, []int) {
-	return file_auth_service_proto_rawDescGZIP(), []int{13}
+	return file_auth_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Response) GetCode() int64 {
@@ -930,7 +1310,7 @@ var File_auth_service_proto protoreflect.FileDescriptor
 
 const file_auth_service_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth_service.proto\x12\x04auth\x1a%third_party/google/protobuf/any.proto\"\xaa\x01\n" +
+	"\x12auth_service.proto\x12\x04auth\x1a%third_party/google/protobuf/any.proto\"\xd9\x02\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -940,7 +1320,16 @@ const file_auth_service_proto_rawDesc = "" +
 	"\bpassword\x18\x06 \x01(\tR\bpassword\x12\x1e\n" +
 	"\n" +
 	"department\x18\a \x01(\tR\n" +
-	"department\"\xaf\x02\n" +
+	"department\x12\x12\n" +
+	"\x04role\x18\b \x01(\tR\x04role\x12\x19\n" +
+	"\bclass_id\x18\t \x01(\x04R\aclassId\x12\x16\n" +
+	"\x06status\x18\n" +
+	" \x01(\x03R\x06status\x12(\n" +
+	"\x10invite_code_used\x18\v \x01(\tR\x0einviteCodeUsed\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\f \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\r \x01(\x03R\tupdatedAt\"\xff\x02\n" +
 	"\n" +
 	"InviteCode\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x1d\n" +
@@ -959,23 +1348,63 @@ const file_auth_service_proto_rawDesc = "" +
 	"created_at\x18\t \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"expires_at\x18\n" +
-	" \x01(\x03R\texpiresAt\"(\n" +
+	" \x01(\x03R\texpiresAt\x12\x1f\n" +
+	"\vtarget_role\x18\v \x01(\tR\n" +
+	"targetRole\x12\x19\n" +
+	"\bclass_id\x18\f \x01(\x04R\aclassId\x12\x12\n" +
+	"\x04type\x18\r \x01(\tR\x04type\"\x80\x02\n" +
+	"\x05Class\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
+	"\n" +
+	"department\x18\x03 \x01(\tR\n" +
+	"department\x12\x19\n" +
+	"\badmin_id\x18\x04 \x01(\x04R\aadminId\x12\x1d\n" +
+	"\n" +
+	"admin_name\x18\x05 \x01(\tR\tadminName\x12#\n" +
+	"\rstudent_count\x18\x06 \x01(\x04R\fstudentCount\x12\x16\n" +
+	"\x06status\x18\a \x01(\x03R\x06status\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\b \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\x03R\tupdatedAt\"(\n" +
 	"\x10SendEmailRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"@\n" +
 	"\x14ValidateEmailRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\tR\x04code\"\xca\x01\n" +
-	"\x19GenerateInviteCodeRequest\x12\x1e\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\"\x8b\x02\n" +
+	"\x19GenerateInviteCodeRequest\x12\x1d\n" +
 	"\n" +
-	"department\x18\x01 \x01(\tR\n" +
-	"department\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x1d\n" +
+	"creator_id\x18\x01 \x01(\tR\tcreatorId\x12!\n" +
+	"\fcreator_name\x18\x02 \x01(\tR\vcreatorName\x12\x1e\n" +
 	"\n" +
-	"creator_id\x18\x03 \x01(\tR\tcreatorId\x12!\n" +
-	"\fcreator_name\x18\x04 \x01(\tR\vcreatorName\x12\x16\n" +
+	"department\x18\x03 \x01(\tR\n" +
+	"department\x12\x19\n" +
+	"\bmax_uses\x18\x04 \x01(\x03R\amaxUses\x12\x16\n" +
 	"\x06remark\x18\x05 \x01(\tR\x06remark\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x06 \x01(\x03R\texpiresAt\"f\n" +
+	"expires_at\x18\x06 \x01(\x03R\texpiresAt\x12\x1f\n" +
+	"\vtarget_role\x18\a \x01(\tR\n" +
+	"targetRole\x12\x19\n" +
+	"\bclass_id\x18\b \x01(\x04R\aclassId\"\xbf\x02\n" +
+	"\x1aGenerateInviteCodeResponse\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\x12\x1d\n" +
+	"\n" +
+	"creator_id\x18\x02 \x01(\tR\tcreatorId\x12!\n" +
+	"\fcreator_name\x18\x03 \x01(\tR\vcreatorName\x12\x1e\n" +
+	"\n" +
+	"department\x18\x04 \x01(\tR\n" +
+	"department\x12\x19\n" +
+	"\bmax_uses\x18\x05 \x01(\x03R\amaxUses\x12\x16\n" +
+	"\x06remark\x18\x06 \x01(\tR\x06remark\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\a \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"expires_at\x18\b \x01(\x03R\texpiresAt\x12\x1f\n" +
+	"\vtarget_role\x18\t \x01(\tR\n" +
+	"targetRole\x12\x19\n" +
+	"\bclass_id\x18\n" +
+	" \x01(\x04R\aclassId\"f\n" +
 	"\x14GetInviteCodeRequest\x12\x1d\n" +
 	"\n" +
 	"creator_id\x18\x01 \x01(\tR\tcreatorId\x12\x12\n" +
@@ -990,28 +1419,44 @@ const file_auth_service_proto_rawDesc = "" +
 	"\x04code\x18\x01 \x01(\tR\x04code\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\xcd\x01\n" +
-	"\x0fRegisterRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12\x14\n" +
-	"\x05phone\x18\x04 \x01(\tR\x05phone\x12\x1e\n" +
-	"\n" +
-	"department\x18\x05 \x01(\tR\n" +
-	"department\x12\x1f\n" +
-	"\vinvite_code\x18\x06 \x01(\tR\n" +
-	"inviteCode\x12\x1d\n" +
-	"\n" +
-	"email_code\x18\a \x01(\tR\temailCode\"E\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"E\n" +
 	"\rLoginResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1e\n" +
 	"\x04user\x18\x02 \x01(\v2\n" +
-	".auth.UserR\x04user\"2\n" +
-	"\x10RegisterResponse\x12\x1e\n" +
-	"\x04user\x18\x01 \x01(\v2\n" +
-	".auth.UserR\x04user\"2\n" +
-	"\x1aGenerateInviteCodeResponse\x12\x14\n" +
-	"\x05codes\x18\x01 \x03(\tR\x05codes\"b\n" +
+	".auth.UserR\x04user\"\x9d\x02\n" +
+	"\x0fRegisterRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12\x14\n" +
+	"\x05phone\x18\x04 \x01(\tR\x05phone\x12\x1a\n" +
+	"\bpassword\x18\x05 \x01(\tR\bpassword\x12\x1e\n" +
+	"\n" +
+	"department\x18\x06 \x01(\tR\n" +
+	"department\x12\x12\n" +
+	"\x04role\x18\a \x01(\tR\x04role\x12\x19\n" +
+	"\bclass_id\x18\b \x01(\tR\aclassId\x12(\n" +
+	"\x10invite_code_used\x18\t \x01(\tR\x0einviteCodeUsed\x12\x1d\n" +
+	"\n" +
+	"email_code\x18\n" +
+	" \x01(\tR\temailCode\"\xc9\x02\n" +
+	"\x10RegisterResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x14\n" +
+	"\x05phone\x18\x05 \x01(\tR\x05phone\x12\x1e\n" +
+	"\n" +
+	"department\x18\a \x01(\tR\n" +
+	"department\x12\x12\n" +
+	"\x04role\x18\b \x01(\tR\x04role\x12\x19\n" +
+	"\bclass_id\x18\t \x01(\x04R\aclassId\x12\x16\n" +
+	"\x06status\x18\n" +
+	" \x01(\x03R\x06status\x12(\n" +
+	"\x10invite_code_used\x18\v \x01(\tR\x0einviteCodeUsed\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\f \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\r \x01(\x03R\tupdatedAt\"b\n" +
 	"\bResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12(\n" +
@@ -1037,48 +1482,48 @@ func file_auth_service_proto_rawDescGZIP() []byte {
 	return file_auth_service_proto_rawDescData
 }
 
-var file_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_auth_service_proto_goTypes = []any{
 	(*User)(nil),                       // 0: auth.User
 	(*InviteCode)(nil),                 // 1: auth.InviteCode
-	(*SendEmailRequest)(nil),           // 2: auth.SendEmailRequest
-	(*ValidateEmailRequest)(nil),       // 3: auth.ValidateEmailRequest
-	(*GenerateInviteCodeRequest)(nil),  // 4: auth.GenerateInviteCodeRequest
-	(*GetInviteCodeRequest)(nil),       // 5: auth.GetInviteCodeRequest
-	(*GetInviteCodeResponse)(nil),      // 6: auth.GetInviteCodeResponse
-	(*ValidateInviteCodeRequest)(nil),  // 7: auth.ValidateInviteCodeRequest
-	(*LoginRequest)(nil),               // 8: auth.LoginRequest
-	(*RegisterRequest)(nil),            // 9: auth.RegisterRequest
-	(*LoginResponse)(nil),              // 10: auth.LoginResponse
-	(*RegisterResponse)(nil),           // 11: auth.RegisterResponse
-	(*GenerateInviteCodeResponse)(nil), // 12: auth.GenerateInviteCodeResponse
-	(*Response)(nil),                   // 13: auth.Response
-	(*anypb.Any)(nil),                  // 14: google.protobuf.Any
+	(*Class)(nil),                      // 2: auth.Class
+	(*SendEmailRequest)(nil),           // 3: auth.SendEmailRequest
+	(*ValidateEmailRequest)(nil),       // 4: auth.ValidateEmailRequest
+	(*GenerateInviteCodeRequest)(nil),  // 5: auth.GenerateInviteCodeRequest
+	(*GenerateInviteCodeResponse)(nil), // 6: auth.GenerateInviteCodeResponse
+	(*GetInviteCodeRequest)(nil),       // 7: auth.GetInviteCodeRequest
+	(*GetInviteCodeResponse)(nil),      // 8: auth.GetInviteCodeResponse
+	(*ValidateInviteCodeRequest)(nil),  // 9: auth.ValidateInviteCodeRequest
+	(*LoginRequest)(nil),               // 10: auth.LoginRequest
+	(*LoginResponse)(nil),              // 11: auth.LoginResponse
+	(*RegisterRequest)(nil),            // 12: auth.RegisterRequest
+	(*RegisterResponse)(nil),           // 13: auth.RegisterResponse
+	(*Response)(nil),                   // 14: auth.Response
+	(*anypb.Any)(nil),                  // 15: google.protobuf.Any
 }
 var file_auth_service_proto_depIdxs = []int32{
 	1,  // 0: auth.GetInviteCodeResponse.codes:type_name -> auth.InviteCode
 	0,  // 1: auth.LoginResponse.user:type_name -> auth.User
-	0,  // 2: auth.RegisterResponse.user:type_name -> auth.User
-	14, // 3: auth.Response.data:type_name -> google.protobuf.Any
-	2,  // 4: auth.AuthService.SendEmailCode:input_type -> auth.SendEmailRequest
-	3,  // 5: auth.AuthService.ValidateEmailCode:input_type -> auth.ValidateEmailRequest
-	4,  // 6: auth.AuthService.GenerateInviteCode:input_type -> auth.GenerateInviteCodeRequest
-	7,  // 7: auth.AuthService.ValidateInviteCode:input_type -> auth.ValidateInviteCodeRequest
-	5,  // 8: auth.AuthService.GetInviteCode:input_type -> auth.GetInviteCodeRequest
-	9,  // 9: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	8,  // 10: auth.AuthService.Login:input_type -> auth.LoginRequest
-	13, // 11: auth.AuthService.SendEmailCode:output_type -> auth.Response
-	13, // 12: auth.AuthService.ValidateEmailCode:output_type -> auth.Response
-	13, // 13: auth.AuthService.GenerateInviteCode:output_type -> auth.Response
-	13, // 14: auth.AuthService.ValidateInviteCode:output_type -> auth.Response
-	13, // 15: auth.AuthService.GetInviteCode:output_type -> auth.Response
-	13, // 16: auth.AuthService.Register:output_type -> auth.Response
-	13, // 17: auth.AuthService.Login:output_type -> auth.Response
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	15, // 2: auth.Response.data:type_name -> google.protobuf.Any
+	3,  // 3: auth.AuthService.SendEmailCode:input_type -> auth.SendEmailRequest
+	4,  // 4: auth.AuthService.ValidateEmailCode:input_type -> auth.ValidateEmailRequest
+	5,  // 5: auth.AuthService.GenerateInviteCode:input_type -> auth.GenerateInviteCodeRequest
+	9,  // 6: auth.AuthService.ValidateInviteCode:input_type -> auth.ValidateInviteCodeRequest
+	7,  // 7: auth.AuthService.GetInviteCode:input_type -> auth.GetInviteCodeRequest
+	12, // 8: auth.AuthService.Register:input_type -> auth.RegisterRequest
+	10, // 9: auth.AuthService.Login:input_type -> auth.LoginRequest
+	14, // 10: auth.AuthService.SendEmailCode:output_type -> auth.Response
+	14, // 11: auth.AuthService.ValidateEmailCode:output_type -> auth.Response
+	14, // 12: auth.AuthService.GenerateInviteCode:output_type -> auth.Response
+	14, // 13: auth.AuthService.ValidateInviteCode:output_type -> auth.Response
+	14, // 14: auth.AuthService.GetInviteCode:output_type -> auth.Response
+	14, // 15: auth.AuthService.Register:output_type -> auth.Response
+	14, // 16: auth.AuthService.Login:output_type -> auth.Response
+	10, // [10:17] is the sub-list for method output_type
+	3,  // [3:10] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_proto_init() }
@@ -1092,7 +1537,7 @@ func file_auth_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_service_proto_rawDesc), len(file_auth_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
