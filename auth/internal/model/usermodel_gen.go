@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -38,15 +37,19 @@ type (
 	}
 
 	User struct {
-		Id         uint64         `db:"id"`
-		Name       string         `db:"name"`
-		Email      string         `db:"email"`
-		Avatar     sql.NullString `db:"avatar"`
-		Phone      sql.NullString `db:"phone"`
-		Password   string         `db:"password"`
-		Department sql.NullString `db:"department"`
-		CreateTime time.Time      `db:"create_time"`
-		UpdateTime time.Time      `db:"update_time"`
+		Id             uint64         `db:"id"`
+		Name           string         `db:"name"`
+		Email          string         `db:"email"`
+		Avatar         sql.NullString `db:"avatar"`
+		Phone          sql.NullString `db:"phone"`
+		Password       string         `db:"password"`
+		Department     sql.NullString `db:"department"`
+		Role           string         `db:"role"`
+		ClassId        uint64         `db:"class_id"`
+		Status         int64          `db:"status"`
+		InviteCodeUsed sql.NullString `db:"invite_code_used"`
+		CreatedAt      int64          `db:"created_at"`
+		UpdatedAt      int64          `db:"updated_at"`
 	}
 )
 
@@ -92,14 +95,14 @@ func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*U
 }
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Email, data.Avatar, data.Phone, data.Password, data.Department)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Email, data.Avatar, data.Phone, data.Password, data.Department, data.Role, data.ClassId, data.Status, data.InviteCodeUsed)
 	return ret, err
 }
 
 func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Name, newData.Email, newData.Avatar, newData.Phone, newData.Password, newData.Department, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Name, newData.Email, newData.Avatar, newData.Phone, newData.Password, newData.Department, newData.Role, newData.ClassId, newData.Status, newData.InviteCodeUsed, newData.Id)
 	return err
 }
 

@@ -11,6 +11,7 @@ type Config struct {
 	Email     EmailConfig
 	RedisConf redis.RedisConf
 	MysqlConf sqlx.SqlConf
+	JWTConfig JWTConfig
 }
 
 type EmailConfig struct {
@@ -18,4 +19,9 @@ type EmailConfig struct {
 	Password string
 	SMTPHost string
 	SMTPPort int
+}
+
+type JWTConfig struct {
+	Secret string
+	Expire int64
 }

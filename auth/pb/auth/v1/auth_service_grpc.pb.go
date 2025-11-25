@@ -22,7 +22,6 @@ const (
 	AuthService_SendEmailCode_FullMethodName      = "/auth.AuthService/SendEmailCode"
 	AuthService_ValidateEmailCode_FullMethodName  = "/auth.AuthService/ValidateEmailCode"
 	AuthService_GenerateInviteCode_FullMethodName = "/auth.AuthService/GenerateInviteCode"
-	AuthService_ValidateInviteCode_FullMethodName = "/auth.AuthService/ValidateInviteCode"
 	AuthService_GetInviteCode_FullMethodName      = "/auth.AuthService/GetInviteCode"
 	AuthService_Register_FullMethodName           = "/auth.AuthService/Register"
 	AuthService_Login_FullMethodName              = "/auth.AuthService/Login"
@@ -37,7 +36,6 @@ type AuthServiceClient interface {
 	ValidateEmailCode(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*Response, error)
 	// 邀请码
 	GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
-	ValidateInviteCode(ctx context.Context, in *ValidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 	GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 	// 注册登录
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*Response, error)
@@ -76,16 +74,6 @@ func (c *authServiceClient) GenerateInviteCode(ctx context.Context, in *Generate
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, AuthService_GenerateInviteCode_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) ValidateInviteCode(ctx context.Context, in *ValidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, AuthService_ValidateInviteCode_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +119,6 @@ type AuthServiceServer interface {
 	ValidateEmailCode(context.Context, *ValidateEmailRequest) (*Response, error)
 	// 邀请码
 	GenerateInviteCode(context.Context, *GenerateInviteCodeRequest) (*Response, error)
-	ValidateInviteCode(context.Context, *ValidateInviteCodeRequest) (*Response, error)
 	GetInviteCode(context.Context, *GetInviteCodeRequest) (*Response, error)
 	// 注册登录
 	Register(context.Context, *RegisterRequest) (*Response, error)
@@ -154,9 +141,6 @@ func (UnimplementedAuthServiceServer) ValidateEmailCode(context.Context, *Valida
 }
 func (UnimplementedAuthServiceServer) GenerateInviteCode(context.Context, *GenerateInviteCodeRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateInviteCode not implemented")
-}
-func (UnimplementedAuthServiceServer) ValidateInviteCode(context.Context, *ValidateInviteCodeRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateInviteCode not implemented")
 }
 func (UnimplementedAuthServiceServer) GetInviteCode(context.Context, *GetInviteCodeRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInviteCode not implemented")
@@ -242,24 +226,6 @@ func _AuthService_GenerateInviteCode_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_ValidateInviteCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateInviteCodeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).ValidateInviteCode(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_ValidateInviteCode_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).ValidateInviteCode(ctx, req.(*ValidateInviteCodeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AuthService_GetInviteCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetInviteCodeRequest)
 	if err := dec(in); err != nil {
@@ -332,10 +298,6 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateInviteCode",
 			Handler:    _AuthService_GenerateInviteCode_Handler,
-		},
-		{
-			MethodName: "ValidateInviteCode",
-			Handler:    _AuthService_ValidateInviteCode_Handler,
 		},
 		{
 			MethodName: "GetInviteCode",

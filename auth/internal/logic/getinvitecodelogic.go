@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"sync"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
@@ -33,28 +32,15 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
-	if in.CreatorId == "" {
-		return &v1.Response{
-			Code:    400,
-			Message: "创建者信息缺失",
-		}, fmt.Errorf("创建者信息缺失")
-	}
+	creatorId := l.ctx.Value("user_id").(uint64)
+	creatorRole := l.ctx.Value("user_role").(string)
+	creatorStatus := l.ctx.Value("user_status").(int64)
 
-	// 获取创建人信息
-	creatorId, err := strconv.Atoi(in.CreatorId)
-	if err != nil {
+	if creatorId == 0 || creatorRole == "" || creatorStatus != 1 {
 		return &v1.Response{
 			Code:    400,
-			Message: "请输入正确的创建人信息",
-		}, fmt.Errorf("请输入正确的创建人信息")
-	}
-
-	_, err = l.UserDao.FindOne(l.ctx, uint64(creatorId))
-	if err != nil {
-		return &v1.Response{
-			Code:    400,
-			Message: "创建人信息不存在",
-		}, fmt.Errorf("创建人信息不存在")
+			Message: "请先登录",
+		}, fmt.Errorf("请先登录")
 	}
 
 	// 异步一下
@@ -104,8 +90,8 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 			UsedCount:   code.UsedCount,
 			IsActive:    code.IsActive,
 			Remark:      code.Remark.String,
-			CreatedAt:   code.CreatedAt.Unix(),
-			ExpiresAt:   code.ExpiresAt.Time.Unix(),
+			CreatedAt:   code.CreatedAt,
+			ExpiresAt:   code.ExpiresAt.Int64,
 		})
 	}
 

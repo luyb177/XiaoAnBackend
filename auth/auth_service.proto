@@ -6,25 +6,52 @@ option go_package = "./auth/v1";
 
 message User {
   uint64 id = 1;
-  string name = 2; // 用户名
-  string email = 3; // 邮箱
-  string avatar = 4; // 头像
-  string phone = 5; // 手机
-  string password = 6; // 密码
-  string department = 7; // 部门（华师）
+  string name = 2;
+  string email = 3;
+  string avatar = 4;
+  string phone = 5;
+  string password = 6;
+  string department = 7;
+
+  string role = 8;           // superadmin / classadmin / student / staff
+  uint64 class_id = 9;       // 所属班级 学生 ID
+  int64 status = 10;         // 1 正常 2 禁用 3 删除
+  string invite_code_used = 11;
+
+  int64 created_at = 12;
+  int64 updated_at = 13;
 }
 
 message InviteCode {
-  string code = 1;              // 邀请码本身
-  string creator_id = 2;        // 创建该邀请码的用户ID
-  string creator_name = 3;      // 创建人名称（可选）
-  string department = 4;        // 该邀请码绑定的部门（如果有）
-  int64 max_uses = 5;           // 可使用次数上限（例如 1 表示一次性）
-  int64 used_count = 6;         // 已使用次数
-  int64 is_active = 7;           // 是否启用中
-  string remark = 8;            // 备注，可用于记录用途说明
-  int64 created_at = 9;         // 创建时间（时间戳）
-  int64 expires_at = 10;        // 过期时间（时间戳）
+  string code = 1;
+  string creator_id = 2;
+  string creator_name = 3;
+  string department = 4;
+
+  int64 max_uses = 5;
+  int64 used_count = 6;
+  int64 is_active = 7;  // 1 有效  0 无效
+  string remark = 8;
+  int64 created_at = 9;
+  int64 expires_at = 10;
+
+  string target_role = 11;    // 邀请码的目标角色 classadmin / student / staff
+  uint64 class_id = 12;       // student 用，注册自动加入班级 其中 0 表示没有班级
+  string type = 13;           // 记录的邀请码的类型 admin / student / staff
+}
+
+message Class {
+  uint64 id = 1;                // 班级 ID
+  string name = 2;              // 班级名称，如 "软件工程 2201 班"
+  string department = 3;        // 所属部门 / 学院
+  uint64 admin_id = 4;          // 班级管理员（班主任）
+  string admin_name = 5;        // 管理员名称，冗余字段（方便查询）
+
+  uint64 student_count = 6;     // 班级学生数量
+  int64 status = 7;             // 状态：0 正常，1 禁用，2 已解散
+
+  int64 created_at = 8;         // 创建时间
+  int64 updated_at = 9;         // 更新时间
 }
 
 
@@ -38,16 +65,30 @@ message ValidateEmailRequest {
 }
 
 message GenerateInviteCodeRequest {
-  string department = 1;
-  int64 count = 2; // 一次生成几个邀请码
-  string creator_id = 3;
-  string creator_name = 4;
+  string creator_name = 2;
+  string department = 3;
+  int64 max_uses = 4;
   string remark = 5;
-  int64 expires_at = 6;  // 过期时间
+  int64 expires_at = 6;
+
+  string target_role = 7; // 邀请码的目标角色
+  uint64 class_id = 8;  // student用，注册时自动加入班级
+}
+
+message GenerateInviteCodeResponse {
+  string code = 1;
+  string creator_id = 2;
+  string creator_name = 3;
+  string department = 4;
+  int64 max_uses = 5;
+  string remark = 6;
+  int64 created_at = 7;
+  int64 expires_at = 8;
+  string target_role = 9;
+  uint64  class_id = 10;
 }
 
 message GetInviteCodeRequest {
-  string creator_id = 1;
   int64 page = 2; // 当前页码
   int64 page_size = 3;
 }
@@ -63,21 +104,17 @@ message ValidateInviteCodeRequest {
   string code = 1;
 }
 
-
-
-message LoginRequest {
-  string email = 1;
-  string password = 2;
+enum LoginType {
+  UNKNOWN = 0;
+  EMAIL_CODE = 1;
+  PASSWORD = 2;
 }
 
-message RegisterRequest {
-  string email = 1;
-  string password = 2;
-  string name = 3;
-  string phone = 4;
-  string department = 5;
-  string invite_code = 6;
-  string email_code = 7;
+message LoginRequest {
+  LoginType type = 1; // 1: email + email_code 2: email + password
+  string email = 2;
+  string password = 3;
+  string email_code = 4;
 }
 
 message LoginResponse {
@@ -85,13 +122,30 @@ message LoginResponse {
   User user = 2;
 }
 
-message RegisterResponse {
-  User user = 1;
+message RegisterRequest {
+  string email = 1;
+  string email_code = 2;
+  string password = 3;
+  string invite_code_used = 4;
 }
 
-message GenerateInviteCodeResponse {
-  repeated string codes = 1;
+message RegisterResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string avatar = 4;
+  string phone = 5;
+  string department = 7;
+
+  string role = 8;           // superadmin / classadmin / student / staff
+  uint64 class_id = 9;       // 所属班级 学生 ID
+  int64 status = 10;         // 0正常 1禁用 2删除
+  string invite_code_used = 11;
+
+  int64 created_at = 12;
+  int64 updated_at = 13;
 }
+
 
 message Response {
   int64 code = 1;
@@ -106,7 +160,6 @@ service AuthService {
 
   // 邀请码
   rpc GenerateInviteCode(GenerateInviteCodeRequest) returns (Response);
-  rpc ValidateInviteCode(ValidateInviteCodeRequest) returns (Response);
   rpc GetInviteCode(GetInviteCodeRequest) returns (Response);
 
   // 注册登录

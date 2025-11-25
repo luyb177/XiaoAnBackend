@@ -4,7 +4,9 @@ go 1.25.3
 
 require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/zeromicro/go-zero v1.9.2
+	golang.org/x/crypto v0.40.0
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
 )
