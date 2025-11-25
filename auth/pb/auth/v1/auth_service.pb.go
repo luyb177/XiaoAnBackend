@@ -22,6 +22,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type LoginType int32
+
+const (
+	LoginType_UNKNOWN    LoginType = 0
+	LoginType_EMAIL_CODE LoginType = 1
+	LoginType_PASSWORD   LoginType = 2
+)
+
+// Enum value maps for LoginType.
+var (
+	LoginType_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "EMAIL_CODE",
+		2: "PASSWORD",
+	}
+	LoginType_value = map[string]int32{
+		"UNKNOWN":    0,
+		"EMAIL_CODE": 1,
+		"PASSWORD":   2,
+	}
+)
+
+func (x LoginType) Enum() *LoginType {
+	p := new(LoginType)
+	*p = x
+	return p
+}
+
+func (x LoginType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoginType) Descriptor() protoreflect.EnumDescriptor {
+	return file_auth_service_proto_enumTypes[0].Descriptor()
+}
+
+func (LoginType) Type() protoreflect.EnumType {
+	return &file_auth_service_proto_enumTypes[0]
+}
+
+func (x LoginType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoginType.Descriptor instead.
+func (LoginType) EnumDescriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{0}
+}
+
 type User struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -896,8 +945,10 @@ func (x *ValidateInviteCodeRequest) GetCode() string {
 
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Type          LoginType              `protobuf:"varint,1,opt,name=type,proto3,enum=auth.LoginType" json:"type,omitempty"` // 1: email + email_code 2: email + password
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	EmailCode     string                 `protobuf:"bytes,4,opt,name=email_code,json=emailCode,proto3" json:"email_code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -932,6 +983,13 @@ func (*LoginRequest) Descriptor() ([]byte, []int) {
 	return file_auth_service_proto_rawDescGZIP(), []int{10}
 }
 
+func (x *LoginRequest) GetType() LoginType {
+	if x != nil {
+		return x.Type
+	}
+	return LoginType_UNKNOWN
+}
+
 func (x *LoginRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
@@ -942,6 +1000,13 @@ func (x *LoginRequest) GetEmail() string {
 func (x *LoginRequest) GetPassword() string {
 	if x != nil {
 		return x.Password
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetEmailCode() string {
+	if x != nil {
+		return x.EmailCode
 	}
 	return ""
 }
@@ -1368,10 +1433,13 @@ const file_auth_service_proto_rawDesc = "" +
 	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x03R\bpageSize\"/\n" +
 	"\x19ValidateInviteCodeRequest\x12\x12\n" +
-	"\x04code\x18\x01 \x01(\tR\x04code\"@\n" +
-	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"E\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\"\x84\x01\n" +
+	"\fLoginRequest\x12#\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x0f.auth.LoginTypeR\x04type\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x1d\n" +
+	"\n" +
+	"email_code\x18\x04 \x01(\tR\temailCode\"E\n" +
 	"\rLoginResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1e\n" +
 	"\x04user\x18\x02 \x01(\v2\n" +
@@ -1403,7 +1471,12 @@ const file_auth_service_proto_rawDesc = "" +
 	"\bResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12(\n" +
-	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data2\xb2\x03\n" +
+	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data*6\n" +
+	"\tLoginType\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\x0e\n" +
+	"\n" +
+	"EMAIL_CODE\x10\x01\x12\f\n" +
+	"\bPASSWORD\x10\x022\xb2\x03\n" +
 	"\vAuthService\x127\n" +
 	"\rSendEmailCode\x12\x16.auth.SendEmailRequest\x1a\x0e.auth.Response\x12?\n" +
 	"\x11ValidateEmailCode\x12\x1a.auth.ValidateEmailRequest\x1a\x0e.auth.Response\x12E\n" +
@@ -1425,48 +1498,51 @@ func file_auth_service_proto_rawDescGZIP() []byte {
 	return file_auth_service_proto_rawDescData
 }
 
+var file_auth_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_auth_service_proto_goTypes = []any{
-	(*User)(nil),                       // 0: auth.User
-	(*InviteCode)(nil),                 // 1: auth.InviteCode
-	(*Class)(nil),                      // 2: auth.Class
-	(*SendEmailRequest)(nil),           // 3: auth.SendEmailRequest
-	(*ValidateEmailRequest)(nil),       // 4: auth.ValidateEmailRequest
-	(*GenerateInviteCodeRequest)(nil),  // 5: auth.GenerateInviteCodeRequest
-	(*GenerateInviteCodeResponse)(nil), // 6: auth.GenerateInviteCodeResponse
-	(*GetInviteCodeRequest)(nil),       // 7: auth.GetInviteCodeRequest
-	(*GetInviteCodeResponse)(nil),      // 8: auth.GetInviteCodeResponse
-	(*ValidateInviteCodeRequest)(nil),  // 9: auth.ValidateInviteCodeRequest
-	(*LoginRequest)(nil),               // 10: auth.LoginRequest
-	(*LoginResponse)(nil),              // 11: auth.LoginResponse
-	(*RegisterRequest)(nil),            // 12: auth.RegisterRequest
-	(*RegisterResponse)(nil),           // 13: auth.RegisterResponse
-	(*Response)(nil),                   // 14: auth.Response
-	(*anypb.Any)(nil),                  // 15: google.protobuf.Any
+	(LoginType)(0),                     // 0: auth.LoginType
+	(*User)(nil),                       // 1: auth.User
+	(*InviteCode)(nil),                 // 2: auth.InviteCode
+	(*Class)(nil),                      // 3: auth.Class
+	(*SendEmailRequest)(nil),           // 4: auth.SendEmailRequest
+	(*ValidateEmailRequest)(nil),       // 5: auth.ValidateEmailRequest
+	(*GenerateInviteCodeRequest)(nil),  // 6: auth.GenerateInviteCodeRequest
+	(*GenerateInviteCodeResponse)(nil), // 7: auth.GenerateInviteCodeResponse
+	(*GetInviteCodeRequest)(nil),       // 8: auth.GetInviteCodeRequest
+	(*GetInviteCodeResponse)(nil),      // 9: auth.GetInviteCodeResponse
+	(*ValidateInviteCodeRequest)(nil),  // 10: auth.ValidateInviteCodeRequest
+	(*LoginRequest)(nil),               // 11: auth.LoginRequest
+	(*LoginResponse)(nil),              // 12: auth.LoginResponse
+	(*RegisterRequest)(nil),            // 13: auth.RegisterRequest
+	(*RegisterResponse)(nil),           // 14: auth.RegisterResponse
+	(*Response)(nil),                   // 15: auth.Response
+	(*anypb.Any)(nil),                  // 16: google.protobuf.Any
 }
 var file_auth_service_proto_depIdxs = []int32{
-	1,  // 0: auth.GetInviteCodeResponse.codes:type_name -> auth.InviteCode
-	0,  // 1: auth.LoginResponse.user:type_name -> auth.User
-	15, // 2: auth.Response.data:type_name -> google.protobuf.Any
-	3,  // 3: auth.AuthService.SendEmailCode:input_type -> auth.SendEmailRequest
-	4,  // 4: auth.AuthService.ValidateEmailCode:input_type -> auth.ValidateEmailRequest
-	5,  // 5: auth.AuthService.GenerateInviteCode:input_type -> auth.GenerateInviteCodeRequest
-	9,  // 6: auth.AuthService.ValidateInviteCode:input_type -> auth.ValidateInviteCodeRequest
-	7,  // 7: auth.AuthService.GetInviteCode:input_type -> auth.GetInviteCodeRequest
-	12, // 8: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	10, // 9: auth.AuthService.Login:input_type -> auth.LoginRequest
-	14, // 10: auth.AuthService.SendEmailCode:output_type -> auth.Response
-	14, // 11: auth.AuthService.ValidateEmailCode:output_type -> auth.Response
-	14, // 12: auth.AuthService.GenerateInviteCode:output_type -> auth.Response
-	14, // 13: auth.AuthService.ValidateInviteCode:output_type -> auth.Response
-	14, // 14: auth.AuthService.GetInviteCode:output_type -> auth.Response
-	14, // 15: auth.AuthService.Register:output_type -> auth.Response
-	14, // 16: auth.AuthService.Login:output_type -> auth.Response
-	10, // [10:17] is the sub-list for method output_type
-	3,  // [3:10] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	2,  // 0: auth.GetInviteCodeResponse.codes:type_name -> auth.InviteCode
+	0,  // 1: auth.LoginRequest.type:type_name -> auth.LoginType
+	1,  // 2: auth.LoginResponse.user:type_name -> auth.User
+	16, // 3: auth.Response.data:type_name -> google.protobuf.Any
+	4,  // 4: auth.AuthService.SendEmailCode:input_type -> auth.SendEmailRequest
+	5,  // 5: auth.AuthService.ValidateEmailCode:input_type -> auth.ValidateEmailRequest
+	6,  // 6: auth.AuthService.GenerateInviteCode:input_type -> auth.GenerateInviteCodeRequest
+	10, // 7: auth.AuthService.ValidateInviteCode:input_type -> auth.ValidateInviteCodeRequest
+	8,  // 8: auth.AuthService.GetInviteCode:input_type -> auth.GetInviteCodeRequest
+	13, // 9: auth.AuthService.Register:input_type -> auth.RegisterRequest
+	11, // 10: auth.AuthService.Login:input_type -> auth.LoginRequest
+	15, // 11: auth.AuthService.SendEmailCode:output_type -> auth.Response
+	15, // 12: auth.AuthService.ValidateEmailCode:output_type -> auth.Response
+	15, // 13: auth.AuthService.GenerateInviteCode:output_type -> auth.Response
+	15, // 14: auth.AuthService.ValidateInviteCode:output_type -> auth.Response
+	15, // 15: auth.AuthService.GetInviteCode:output_type -> auth.Response
+	15, // 16: auth.AuthService.Register:output_type -> auth.Response
+	15, // 17: auth.AuthService.Login:output_type -> auth.Response
+	11, // [11:18] is the sub-list for method output_type
+	4,  // [4:11] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_proto_init() }
@@ -1479,13 +1555,14 @@ func file_auth_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_service_proto_rawDesc), len(file_auth_service_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_auth_service_proto_goTypes,
 		DependencyIndexes: file_auth_service_proto_depIdxs,
+		EnumInfos:         file_auth_service_proto_enumTypes,
 		MessageInfos:      file_auth_service_proto_msgTypes,
 	}.Build()
 	File_auth_service_proto = out.File

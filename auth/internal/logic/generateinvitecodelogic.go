@@ -62,7 +62,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		in.ExpiresAt = 604800 // 7 day
 	}
 
-	// 验证生成者身份 // Todo 此时有 token 了所以可以将 token 解析
+	// 验证生成者身份 // todo 从请求头中获取信息
 
 	// 创建邀请码
 	// 指数退避

@@ -107,11 +107,17 @@ message ValidateInviteCodeRequest {
   string code = 1;
 }
 
-
+enum LoginType {
+  UNKNOWN = 0;
+  EMAIL_CODE = 1;
+  PASSWORD = 2;
+}
 
 message LoginRequest {
-  string email = 1;
-  string password = 2;
+  LoginType type = 1; // 1: email + email_code 2: email + password
+  string email = 2;
+  string password = 3;
+  string email_code = 4;
 }
 
 message LoginResponse {
