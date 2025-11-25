@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ContentService_UploadContentStream_FullMethodName = "/content.ContentService/UploadContentStream"
 	ContentService_GetContentURL_FullMethodName       = "/content.ContentService/GetContentURL"
+	ContentService_AddVideo_FullMethodName            = "/content.ContentService/AddVideo"
+	ContentService_Search_FullMethodName              = "/content.ContentService/Search"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -31,6 +33,10 @@ type ContentServiceClient interface {
 	UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadChunk, Response], error)
 	// 获取访问URL
 	GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
+	// 添加视频
+	AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
+	// 搜索
+	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type contentServiceClient struct {
@@ -64,6 +70,26 @@ func (c *contentServiceClient) GetContentURL(ctx context.Context, in *GetContent
 	return out, nil
 }
 
+func (c *contentServiceClient) AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_AddVideo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_Search_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -72,6 +98,10 @@ type ContentServiceServer interface {
 	UploadContentStream(grpc.ClientStreamingServer[UploadChunk, Response]) error
 	// 获取访问URL
 	GetContentURL(context.Context, *GetContentURLRequest) (*Response, error)
+	// 添加视频
+	AddVideo(context.Context, *AddVideoRequest) (*Response, error)
+	// 搜索
+	Search(context.Context, *SearchRequest) (*Response, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -87,6 +117,12 @@ func (UnimplementedContentServiceServer) UploadContentStream(grpc.ClientStreamin
 }
 func (UnimplementedContentServiceServer) GetContentURL(context.Context, *GetContentURLRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContentURL not implemented")
+}
+func (UnimplementedContentServiceServer) AddVideo(context.Context, *AddVideoRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddVideo not implemented")
+}
+func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -134,6 +170,42 @@ func _ContentService_GetContentURL_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_AddVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AddVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AddVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AddVideo(ctx, req.(*AddVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_Search_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).Search(ctx, req.(*SearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -144,6 +216,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetContentURL",
 			Handler:    _ContentService_GetContentURL_Handler,
+		},
+		{
+			MethodName: "AddVideo",
+			Handler:    _ContentService_AddVideo_Handler,
+		},
+		{
+			MethodName: "Search",
+			Handler:    _ContentService_Search_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

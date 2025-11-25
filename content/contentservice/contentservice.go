@@ -14,17 +14,31 @@ import (
 )
 
 type (
+	AddVideoRequest       = v1.AddVideoRequest
+	Article               = v1.Article
+	Comic                 = v1.Comic
+	Comment               = v1.Comment
+	ContentCollect        = v1.ContentCollect
+	ContentLike           = v1.ContentLike
 	GetContentURLRequest  = v1.GetContentURLRequest
 	GetContentURLResponse = v1.GetContentURLResponse
+	Podcast               = v1.Podcast
 	Response              = v1.Response
+	SearchRequest         = v1.SearchRequest
+	SearchResponse        = v1.SearchResponse
 	UploadChunk           = v1.UploadChunk
 	UploadResponse        = v1.UploadResponse
+	Video                 = v1.Video
 
 	ContentService interface {
 		// 上传文件
 		UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (v1.ContentService_UploadContentStreamClient, error)
 		// 获取访问URL
 		GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
+		// 添加视频
+		AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
+		// 搜索
+		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultContentService struct {
@@ -48,4 +62,16 @@ func (m *defaultContentService) UploadContentStream(ctx context.Context, opts ..
 func (m *defaultContentService) GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.GetContentURL(ctx, in, opts...)
+}
+
+// 添加视频
+func (m *defaultContentService) AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.AddVideo(ctx, in, opts...)
+}
+
+// 搜索
+func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Search(ctx, in, opts...)
 }

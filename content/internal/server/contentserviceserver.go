@@ -34,3 +34,15 @@ func (s *ContentServiceServer) GetContentURL(ctx context.Context, in *v1.GetCont
 	l := logic.NewGetContentURLLogic(ctx, s.svcCtx)
 	return l.GetContentURL(in)
 }
+
+// 添加视频
+func (s *ContentServiceServer) AddVideo(ctx context.Context, in *v1.AddVideoRequest) (*v1.Response, error) {
+	l := logic.NewAddVideoLogic(ctx, s.svcCtx)
+	return l.AddVideo(in)
+}
+
+// 搜索
+func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
+	l := logic.NewSearchLogic(ctx, s.svcCtx)
+	return l.Search(in)
+}

@@ -5,15 +5,16 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
 	Config      config.Config
 	MinioClient *minio.Client
+	Mysql       sqlx.SqlConn
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	//fmt.Println(c.MinioConf)
 	minioClient, err := minio.New(c.MinioConf.EndPoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(c.MinioConf.AccessKeyID, c.MinioConf.SecretAccessKey, ""),
 		Secure: c.MinioConf.UseSSL,
@@ -24,5 +25,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:      c,
 		MinioClient: minioClient,
+		Mysql:       sqlx.NewMysql(c.MysqlConf.DataSource),
 	}
 }

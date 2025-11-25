@@ -3,6 +3,108 @@ import "third_party/google/protobuf/any.proto";
 package content;
 option go_package = "./content/v1";
 
+message Video {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string url = 4;
+  string description = 5;
+  string cover = 6;
+  string author = 7;
+  int64 create_time = 8;
+  int64 created_at = 9;
+  int64 update_time = 10;
+  uint64 like_count = 11;
+  uint64 view_count = 12;
+  uint64 collect_count = 13;
+}
+
+message Comic {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  repeated string url = 4;
+  string description = 5;
+  string cover = 6;
+  string author = 7;
+  int64 create_time = 8;
+  int64 created_at = 9;
+  int64 update_time = 10;
+  uint64 like_count = 11;
+  uint64 view_count = 12;
+  uint64 collect_count = 13;
+}
+
+message Podcast {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string url = 4;
+  string description = 5;
+  string cover = 6;
+  string author = 7;
+  int64 create_time = 8;
+  int64 created_at = 9;
+  int64 update_time = 10;
+  uint64 like_count = 11;
+  uint64 view_count = 12;
+  uint64 collect_count = 13;
+}
+
+message Article {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string url = 4;
+  string description = 5;
+  string cover = 6;
+  string content = 7;
+  string author = 8;
+  int64 create_time = 9;
+  int64 created_at = 10;
+  int64 update_time = 11;
+  uint64 like_count = 12;
+  uint64 view_count = 13;
+  uint64 collect_count = 14;
+}
+
+// 点赞记录
+message ContentLike {
+  uint64 id = 1;
+  string type = 2;  // video,comic,podcast,article
+  uint64 target_id = 3;
+  uint64 user_id = 4;
+  string status = 5; // valid invalid - 有效 无效
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}
+
+// 收藏记录
+message ContentCollect {
+  uint64 id = 1;
+  string type = 2;
+  uint64 target_id = 3;
+  uint64 user_id = 4;
+  string status = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}
+
+// 评论
+message Comment {
+  uint64 id = 1;
+  string type = 2;
+  uint64 target_id = 3;
+  uint64 user_id = 4;
+  uint64 parent_id = 5;
+  uint64 reply_comment_id = 6;
+  uint64 reply_user_id = 7;
+  string content = 8;
+  uint64 like_count = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+}
+
 // 文件分片请求
 message UploadChunk {
   string filename = 1;
@@ -27,6 +129,31 @@ message GetContentURLResponse {
   int64 expires_in = 2; // 有效期秒数
 }
 
+// 添加视频
+message AddVideoRequest {
+  string name = 1;
+  repeated string tag = 2;
+  string url = 3;
+  string description = 4;
+  string cover = 5;
+  string author = 6;
+  int64 create_time = 7;
+}
+
+message SearchRequest {
+  string keyword = 1;        // 搜索关键字
+  string type = 2;           // video, comic, podcast, article
+  repeated string tag = 3;   // 标签筛选
+  int64 page = 4;            // 页码
+  int64 page_size = 5;       // 每页数量
+}
+
+message SearchResponse {
+  repeated Video videos = 1;
+  repeated Comic comics = 2;
+  repeated Podcast podcasts = 3;
+  repeated Article articles = 4;
+}
 
 message Response {
   int64 code = 1 ;
@@ -40,4 +167,10 @@ service ContentService {
 
   // 获取访问URL
   rpc GetContentURL(GetContentURLRequest) returns (Response);
+
+  // 添加视频
+  rpc AddVideo(AddVideoRequest) returns (Response);
+
+  // 搜索
+  rpc Search(SearchRequest) returns (Response);
 }
