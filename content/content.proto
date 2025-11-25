@@ -3,15 +3,6 @@ import "third_party/google/protobuf/any.proto";
 package content;
 option go_package = "./content/v1";
 
-//enum ContentType {
-//  CONTENT_TYPE_UNSPECIFIED = 0;  // 未指定
-//  CONTENT_TYPE_VIDEO = 1;
-//  CONTENT_TYPE_COMIC = 2;   // 漫画
-//  CONTENT_TYPE_PODCAST = 3; // 播客
-//  CONTENT_TYPE_IMAGE = 4;   // 图片
-//  CONTENT_TYPE_AVATAR = 5;  // 头像
-//}
-
 // 文件分片请求
 message UploadChunk {
   string filename = 1;
