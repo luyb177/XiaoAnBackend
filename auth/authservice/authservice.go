@@ -36,7 +36,6 @@ type (
 		ValidateEmailCode(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*Response, error)
 		// 邀请码
 		GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
-		ValidateInviteCode(ctx context.Context, in *ValidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 		GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 		// 注册登录
 		Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*Response, error)
@@ -69,11 +68,6 @@ func (m *defaultAuthService) ValidateEmailCode(ctx context.Context, in *Validate
 func (m *defaultAuthService) GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.GenerateInviteCode(ctx, in, opts...)
-}
-
-func (m *defaultAuthService) ValidateInviteCode(ctx context.Context, in *ValidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewAuthServiceClient(m.cli.Conn())
-	return client.ValidateInviteCode(ctx, in, opts...)
 }
 
 func (m *defaultAuthService) GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {

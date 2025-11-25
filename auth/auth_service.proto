@@ -15,7 +15,7 @@ message User {
 
   string role = 8;           // superadmin / classadmin / student / staff
   uint64 class_id = 9;       // 所属班级 学生 ID
-  int64 status = 10;         // 0正常 1禁用 2删除
+  int64 status = 10;         // 1 正常 2 禁用 3 删除
   string invite_code_used = 11;
 
   int64 created_at = 12;
@@ -65,10 +65,8 @@ message ValidateEmailRequest {
 }
 
 message GenerateInviteCodeRequest {
-  string creator_id = 1;
   string creator_name = 2;
   string department = 3;
-
   int64 max_uses = 4;
   string remark = 5;
   int64 expires_at = 6;
@@ -91,7 +89,6 @@ message GenerateInviteCodeResponse {
 }
 
 message GetInviteCodeRequest {
-  string creator_id = 1;
   int64 page = 2; // 当前页码
   int64 page_size = 3;
 }
@@ -163,7 +160,6 @@ service AuthService {
 
   // 邀请码
   rpc GenerateInviteCode(GenerateInviteCodeRequest) returns (Response);
-  rpc ValidateInviteCode(ValidateInviteCodeRequest) returns (Response);
   rpc GetInviteCode(GetInviteCodeRequest) returns (Response);
 
   // 注册登录

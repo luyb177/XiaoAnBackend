@@ -117,7 +117,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		Department:     code.Department,
 		Role:           code.TargetRole,
 		ClassId:        uint64(code.ClassId),
-		Status:         0, // 0 正常
+		Status:         1, // 1 正常
 		InviteCodeUsed: sql.NullString{String: code.Code, Valid: true},
 		CreatedAt:      time.Now().Unix(),
 		UpdatedAt:      time.Now().Unix(),

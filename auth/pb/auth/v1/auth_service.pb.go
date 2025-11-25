@@ -82,7 +82,7 @@ type User struct {
 	Department     string                 `protobuf:"bytes,7,opt,name=department,proto3" json:"department,omitempty"`
 	Role           string                 `protobuf:"bytes,8,opt,name=role,proto3" json:"role,omitempty"`                       // superadmin / classadmin / student / staff
 	ClassId        uint64                 `protobuf:"varint,9,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // 所属班级 学生 ID
-	Status         int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`                 // 0正常 1禁用 2删除
+	Status         int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`                 // 1 正常 2 禁用 3 删除
 	InviteCodeUsed string                 `protobuf:"bytes,11,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
 	CreatedAt      int64                  `protobuf:"varint,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt      int64                  `protobuf:"varint,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -557,7 +557,6 @@ func (x *ValidateEmailRequest) GetCode() string {
 
 type GenerateInviteCodeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CreatorId     string                 `protobuf:"bytes,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	CreatorName   string                 `protobuf:"bytes,2,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`
 	Department    string                 `protobuf:"bytes,3,opt,name=department,proto3" json:"department,omitempty"`
 	MaxUses       int64                  `protobuf:"varint,4,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
@@ -597,13 +596,6 @@ func (x *GenerateInviteCodeRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GenerateInviteCodeRequest.ProtoReflect.Descriptor instead.
 func (*GenerateInviteCodeRequest) Descriptor() ([]byte, []int) {
 	return file_auth_service_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *GenerateInviteCodeRequest) GetCreatorId() string {
-	if x != nil {
-		return x.CreatorId
-	}
-	return ""
 }
 
 func (x *GenerateInviteCodeRequest) GetCreatorName() string {
@@ -773,7 +765,6 @@ func (x *GenerateInviteCodeResponse) GetClassId() uint64 {
 
 type GetInviteCodeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CreatorId     string                 `protobuf:"bytes,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	Page          int64                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"` // 当前页码
 	PageSize      int64                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -808,13 +799,6 @@ func (x *GetInviteCodeRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetInviteCodeRequest.ProtoReflect.Descriptor instead.
 func (*GetInviteCodeRequest) Descriptor() ([]byte, []int) {
 	return file_auth_service_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *GetInviteCodeRequest) GetCreatorId() string {
-	if x != nil {
-		return x.CreatorId
-	}
-	return ""
 }
 
 func (x *GetInviteCodeRequest) GetPage() int64 {
@@ -1389,10 +1373,8 @@ const file_auth_service_proto_rawDesc = "" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"@\n" +
 	"\x14ValidateEmailRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\tR\x04code\"\x8b\x02\n" +
-	"\x19GenerateInviteCodeRequest\x12\x1d\n" +
-	"\n" +
-	"creator_id\x18\x01 \x01(\tR\tcreatorId\x12!\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\"\xec\x01\n" +
+	"\x19GenerateInviteCodeRequest\x12!\n" +
 	"\fcreator_name\x18\x02 \x01(\tR\vcreatorName\x12\x1e\n" +
 	"\n" +
 	"department\x18\x03 \x01(\tR\n" +
@@ -1421,10 +1403,8 @@ const file_auth_service_proto_rawDesc = "" +
 	"\vtarget_role\x18\t \x01(\tR\n" +
 	"targetRole\x12\x19\n" +
 	"\bclass_id\x18\n" +
-	" \x01(\x04R\aclassId\"f\n" +
-	"\x14GetInviteCodeRequest\x12\x1d\n" +
-	"\n" +
-	"creator_id\x18\x01 \x01(\tR\tcreatorId\x12\x12\n" +
+	" \x01(\x04R\aclassId\"G\n" +
+	"\x14GetInviteCodeRequest\x12\x12\n" +
 	"\x04page\x18\x02 \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x03R\bpageSize\"\x86\x01\n" +
 	"\x15GetInviteCodeResponse\x12&\n" +
@@ -1476,12 +1456,11 @@ const file_auth_service_proto_rawDesc = "" +
 	"\aUNKNOWN\x10\x00\x12\x0e\n" +
 	"\n" +
 	"EMAIL_CODE\x10\x01\x12\f\n" +
-	"\bPASSWORD\x10\x022\xb2\x03\n" +
+	"\bPASSWORD\x10\x022\xeb\x02\n" +
 	"\vAuthService\x127\n" +
 	"\rSendEmailCode\x12\x16.auth.SendEmailRequest\x1a\x0e.auth.Response\x12?\n" +
 	"\x11ValidateEmailCode\x12\x1a.auth.ValidateEmailRequest\x1a\x0e.auth.Response\x12E\n" +
-	"\x12GenerateInviteCode\x12\x1f.auth.GenerateInviteCodeRequest\x1a\x0e.auth.Response\x12E\n" +
-	"\x12ValidateInviteCode\x12\x1f.auth.ValidateInviteCodeRequest\x1a\x0e.auth.Response\x12;\n" +
+	"\x12GenerateInviteCode\x12\x1f.auth.GenerateInviteCodeRequest\x1a\x0e.auth.Response\x12;\n" +
 	"\rGetInviteCode\x12\x1a.auth.GetInviteCodeRequest\x1a\x0e.auth.Response\x121\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x0e.auth.Response\x12+\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x0e.auth.ResponseB\vZ\t./auth/v1b\x06proto3"
@@ -1527,19 +1506,17 @@ var file_auth_service_proto_depIdxs = []int32{
 	4,  // 4: auth.AuthService.SendEmailCode:input_type -> auth.SendEmailRequest
 	5,  // 5: auth.AuthService.ValidateEmailCode:input_type -> auth.ValidateEmailRequest
 	6,  // 6: auth.AuthService.GenerateInviteCode:input_type -> auth.GenerateInviteCodeRequest
-	10, // 7: auth.AuthService.ValidateInviteCode:input_type -> auth.ValidateInviteCodeRequest
-	8,  // 8: auth.AuthService.GetInviteCode:input_type -> auth.GetInviteCodeRequest
-	13, // 9: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	11, // 10: auth.AuthService.Login:input_type -> auth.LoginRequest
-	15, // 11: auth.AuthService.SendEmailCode:output_type -> auth.Response
-	15, // 12: auth.AuthService.ValidateEmailCode:output_type -> auth.Response
-	15, // 13: auth.AuthService.GenerateInviteCode:output_type -> auth.Response
-	15, // 14: auth.AuthService.ValidateInviteCode:output_type -> auth.Response
-	15, // 15: auth.AuthService.GetInviteCode:output_type -> auth.Response
-	15, // 16: auth.AuthService.Register:output_type -> auth.Response
-	15, // 17: auth.AuthService.Login:output_type -> auth.Response
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
+	8,  // 7: auth.AuthService.GetInviteCode:input_type -> auth.GetInviteCodeRequest
+	13, // 8: auth.AuthService.Register:input_type -> auth.RegisterRequest
+	11, // 9: auth.AuthService.Login:input_type -> auth.LoginRequest
+	15, // 10: auth.AuthService.SendEmailCode:output_type -> auth.Response
+	15, // 11: auth.AuthService.ValidateEmailCode:output_type -> auth.Response
+	15, // 12: auth.AuthService.GenerateInviteCode:output_type -> auth.Response
+	15, // 13: auth.AuthService.GetInviteCode:output_type -> auth.Response
+	15, // 14: auth.AuthService.Register:output_type -> auth.Response
+	15, // 15: auth.AuthService.Login:output_type -> auth.Response
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name

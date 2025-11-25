@@ -40,11 +40,6 @@ func (s *AuthServiceServer) GenerateInviteCode(ctx context.Context, in *v1.Gener
 	return l.GenerateInviteCode(in)
 }
 
-func (s *AuthServiceServer) ValidateInviteCode(ctx context.Context, in *v1.ValidateInviteCodeRequest) (*v1.Response, error) {
-	l := logic.NewValidateInviteCodeLogic(ctx, s.svcCtx)
-	return l.ValidateInviteCode(in)
-}
-
 func (s *AuthServiceServer) GetInviteCode(ctx context.Context, in *v1.GetInviteCodeRequest) (*v1.Response, error) {
 	l := logic.NewGetInviteCodeLogic(ctx, s.svcCtx)
 	return l.GetInviteCode(in)

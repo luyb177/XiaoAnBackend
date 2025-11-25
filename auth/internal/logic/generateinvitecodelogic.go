@@ -15,6 +15,13 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
+const (
+	SUPERADMIN = "superadmin"
+	CLASSADMIN = "classadmin"
+	STUDENT    = "student"
+	STAFF      = "staff"
+)
+
 type GenerateInviteCodeLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
@@ -35,12 +42,17 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // GenerateInviteCode 生成邀请码
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
-	if in.CreatorId == "" || in.CreatorName == "" {
+	creatorId := l.ctx.Value("user_id").(uint64)
+	creatorRole := l.ctx.Value("user_role").(string)
+	creatorStatus := l.ctx.Value("user_status").(int64)
+
+	if creatorId == 0 || creatorRole == "" || creatorStatus != 1 {
 		return &v1.Response{
 			Code:    400,
-			Message: "生成人为空",
-		}, fmt.Errorf("生成人为空")
+			Message: "用户信息错误",
+		}, fmt.Errorf("用户信息错误")
 	}
+
 	if in.Department == "" {
 		return &v1.Response{
 			Code:    400,
@@ -62,7 +74,22 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		in.ExpiresAt = 604800 // 7 day
 	}
 
-	// 验证生成者身份 // todo 从请求头中获取信息
+	// 验证生成者身份
+	if creatorRole != SUPERADMIN && creatorRole != CLASSADMIN {
+		return &v1.Response{
+			Code:    400,
+			Message: "用户权限不足",
+		}, fmt.Errorf("用户权限不足")
+	}
+	if creatorRole == CLASSADMIN {
+		// 创建的是 student
+		if in.TargetRole != STUDENT {
+			return &v1.Response{
+				Code:    400,
+				Message: "用户权限不足",
+			}, fmt.Errorf("用户权限不足")
+		}
+	}
 
 	// 创建邀请码
 	// 指数退避
@@ -70,13 +97,8 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	var code model.InviteCode
 	var fn func() error
 	fn = func() error {
-		// 生成邀请码
-		creatorIdInt, err := strconv.Atoi(in.CreatorId)
-		if err != nil {
-			return fmt.Errorf("生成者ID转换失败,err: %v", err)
-		}
 		code.Code = utils.GenerateInviteCode()
-		code.CreatorId = int64(creatorIdInt)
+		code.CreatorId = int64(creatorId)
 		code.CreatorName = sql.NullString{String: in.CreatorName, Valid: true}
 		code.Department = sql.NullString{String: in.Department, Valid: true}
 		code.MaxUses = in.MaxUses
@@ -89,7 +111,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		code.ClassId = 0
 		code.Type = in.TargetRole
 
-		_, err = l.InviteCodeDao.Insert(l.ctx, &code)
+		_, err := l.InviteCodeDao.Insert(l.ctx, &code)
 		return err
 	}
 	err := utils.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
@@ -104,7 +126,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	// 构建返回体
 	res := v1.GenerateInviteCodeResponse{
 		Code:        code.Code,
-		CreatorId:   in.CreatorId,
+		CreatorId:   strconv.FormatUint(creatorId, 10),
 		CreatorName: in.CreatorName,
 		Department:  in.Department,
 		MaxUses:     in.MaxUses,
