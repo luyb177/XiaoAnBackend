@@ -71,7 +71,7 @@ message Article {
 // 点赞记录
 message ContentLike {
   uint64 id = 1;
-  string type = 2;  // video,comic,podcast,article
+  string type = 2;  // video,comic,podcast,article,comment
   uint64 target_id = 3;
   uint64 user_id = 4;
   string status = 5; // valid invalid - 有效 无效
@@ -96,7 +96,7 @@ message Comment {
   string type = 2;
   uint64 target_id = 3;
   uint64 user_id = 4;
-  uint64 parent_id = 5;
+  uint64 parent_id = 5; // 为0 则为根评论
   uint64 reply_comment_id = 6;
   uint64 reply_user_id = 7;
   string content = 8;
@@ -155,6 +155,64 @@ message SearchResponse {
   repeated Article articles = 4;
 }
 
+// 点赞请求
+message LikeRequest {
+  string type = 1; // video,comic,podcast,article,comment
+  uint64 target_id = 2; // 目标ID
+}
+
+message collectRequest {
+  string type = 1;
+  uint64 target_id = 2;
+}
+
+// 添加评论
+message AddCommentRequest {
+  string type = 1;
+  uint64 target_id = 2;
+  uint64 parent_id = 4;
+  uint64 reply_comment_id = 5;
+  uint64 reply_user_id = 6;
+  string content = 7;
+}
+
+// 修改评论
+message UpdateCommentRequest {
+  uint64 id = 1;
+  string content = 2;
+}
+
+message DeleteCommentRequest {
+  uint64 id = 1;
+}
+
+message GetCommentsRequest {
+  string type = 1;
+  uint64 target_id = 2;
+  int64 page = 3;
+  int64 page_size = 4;
+}
+
+// 评论
+message CommentItem {
+  Comment comment = 1;  // 评论本身
+  repeated Comment child_preview = 2;  // 子评论预览 （默认为前3条）
+  int64 child_total = 3;
+}
+
+message GetCommentsResponse {
+  repeated CommentItem comments = 1;  // 评论列表
+  int64 total = 2;  // 总数
+}
+
+
+// 获取内容请求
+message GetContentRequest {
+  string type = 1;
+  uint64 content_id = 2;
+
+}
+
 message Response {
   int64 code = 1 ;
   string message = 2;
@@ -173,4 +231,22 @@ service ContentService {
 
   // 搜索
   rpc Search(SearchRequest) returns (Response);
+
+  // 点赞
+  rpc Like(LikeRequest) returns (Response);
+
+  // 收藏
+  rpc Collect(collectRequest) returns (Response);
+
+  // 添加评论
+  rpc AddComment(AddCommentRequest) returns (Response);
+
+  // 修改评论
+  rpc UpdateComment(UpdateCommentRequest) returns (Response);
+
+  // 删除评论
+  rpc DeleteComment(DeleteCommentRequest) returns (Response);
+
+  // 获取根评论
+  rpc GetComments(GetCommentsRequest) returns (Response);
 }

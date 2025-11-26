@@ -14,18 +14,27 @@ import (
 )
 
 type (
+	AddCommentRequest     = v1.AddCommentRequest
 	AddVideoRequest       = v1.AddVideoRequest
 	Article               = v1.Article
+	CollectRequest        = v1.CollectRequest
 	Comic                 = v1.Comic
 	Comment               = v1.Comment
+	CommentItem           = v1.CommentItem
 	ContentCollect        = v1.ContentCollect
 	ContentLike           = v1.ContentLike
+	DeleteCommentRequest  = v1.DeleteCommentRequest
+	GetCommentsRequest    = v1.GetCommentsRequest
+	GetCommentsResponse   = v1.GetCommentsResponse
+	GetContentRequest     = v1.GetContentRequest
 	GetContentURLRequest  = v1.GetContentURLRequest
 	GetContentURLResponse = v1.GetContentURLResponse
+	LikeRequest           = v1.LikeRequest
 	Podcast               = v1.Podcast
 	Response              = v1.Response
 	SearchRequest         = v1.SearchRequest
 	SearchResponse        = v1.SearchResponse
+	UpdateCommentRequest  = v1.UpdateCommentRequest
 	UploadChunk           = v1.UploadChunk
 	UploadResponse        = v1.UploadResponse
 	Video                 = v1.Video
@@ -39,6 +48,18 @@ type (
 		AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
+		// 点赞
+		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
+		// 收藏
+		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
+		// 添加评论
+		AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// 修改评论
+		UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// 删除评论
+		DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// 获取根评论
+		GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultContentService struct {
@@ -74,4 +95,40 @@ func (m *defaultContentService) AddVideo(ctx context.Context, in *AddVideoReques
 func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.Search(ctx, in, opts...)
+}
+
+// 点赞
+func (m *defaultContentService) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Like(ctx, in, opts...)
+}
+
+// 收藏
+func (m *defaultContentService) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Collect(ctx, in, opts...)
+}
+
+// 添加评论
+func (m *defaultContentService) AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.AddComment(ctx, in, opts...)
+}
+
+// 修改评论
+func (m *defaultContentService) UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.UpdateComment(ctx, in, opts...)
+}
+
+// 删除评论
+func (m *defaultContentService) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.DeleteComment(ctx, in, opts...)
+}
+
+// 获取根评论
+func (m *defaultContentService) GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetComments(ctx, in, opts...)
 }

@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	SearchTypeVideo   = "video"
-	SearchTypeComic   = "comic"
-	SearchTypePodcast = "podcast"
-	SearchTypeArticle = "article"
+	TypeVideo   = "video"
+	TypeComic   = "comic"
+	TypePodcast = "podcast"
+	TypeArticle = "article"
+	TypeComment = "comment"
 )
 
 type SearchLogic struct {
@@ -76,13 +77,13 @@ func (l *SearchLogic) Search(in *v1.SearchRequest) (*v1.Response, error) {
 	}
 
 	switch in.Type {
-	case SearchTypeVideo:
+	case TypeVideo:
 		return l.SearchVideo(in)
-	case SearchTypeComic:
+	case TypeComic:
 		return l.SearchComic(in)
-	case SearchTypePodcast:
+	case TypePodcast:
 		return l.SearchPodcast(in)
-	case SearchTypeArticle:
+	case TypeArticle:
 		return l.SearchArticle(in)
 	default:
 		return &v1.Response{
