@@ -4,5 +4,11 @@
     <file url="file://$PROJECT_DIR$/auth/sql/class.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/auth/sql/invite_code.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/auth/sql/user.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/content/sql/article.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/content/sql/comic.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/content/sql/comic_url.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/content/sql/podcast.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/content/sql/video.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/content/sql/video_tag.sql" dialect="MySQL" />
   </component>
 </project>

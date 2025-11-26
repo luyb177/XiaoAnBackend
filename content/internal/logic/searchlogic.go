@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -25,6 +26,7 @@ type SearchLogic struct {
 	videoDao   model.VideoModel
 	comicDao   model.ComicModel
 	podcastDao model.PodcastModel
+	articleDao model.ArticleModel
 }
 
 func NewSearchLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SearchLogic {
@@ -35,6 +37,7 @@ func NewSearchLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SearchLogi
 		videoDao:   model.NewVideoModel(svcCtx.Mysql),
 		comicDao:   model.NewComicModel(svcCtx.Mysql),
 		podcastDao: model.NewPodcastModel(svcCtx.Mysql),
+		articleDao: model.NewArticleModel(svcCtx.Mysql),
 	}
 }
 
@@ -72,26 +75,185 @@ func (l *SearchLogic) Search(in *v1.SearchRequest) (*v1.Response, error) {
 		in.PageSize = 10
 	}
 
-	// 查询
-	var videos []*model.Video
-	var comics []*model.Comic
-	var podcasts []*model.Podcast
-
-	// 偏移量
-	offest := (in.Page - 1) * in.PageSize
-	var err error
-
 	switch in.Type {
 	case SearchTypeVideo:
-		videos, err = l.videoDao.FindByVideoTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+		return l.SearchVideo(in)
 	case SearchTypeComic:
-		comics, err = l.comicDao.FindByTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+		return l.SearchComic(in)
 	case SearchTypePodcast:
-		podcasts, err = l.podcastDao.FindByTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+		return l.SearchPodcast(in)
+	case SearchTypeArticle:
+		return l.SearchArticle(in)
+	default:
+		return &v1.Response{
+			Code:    400,
+			Message: "请选择正确的搜索类型",
+		}, fmt.Errorf("请选择正确的搜索类型")
+	}
+}
+
+func (l *SearchLogic) SearchVideo(in *v1.SearchRequest) (*v1.Response, error) {
+	offest := (in.Page - 1) * in.PageSize
+	video, err := l.videoDao.FindByVideoTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+	if err != nil {
+		return nil, err
+	}
+	videoRes := make([]*v1.Video, 0, len(video))
+	// 转换
+	for i := 0; i < len(video); i++ {
+		videoRes = append(videoRes, &v1.Video{
+			Id:           video[i].Id,
+			Name:         video[i].Name,
+			Url:          video[i].Url,
+			Description:  video[i].Description.String,
+			Cover:        video[i].Cover,
+			Author:       video[i].Author,
+			CreateTime:   video[i].CreateTime,
+			CreatedAt:    video[i].CreatedAt,
+			UpdateTime:   video[i].UpdateTime,
+			LikeCount:    video[i].LikeCount,
+			ViewCount:    video[i].ViewCount,
+			CollectCount: video[i].CollectCount,
+		})
+	}
+
+	res := &v1.SearchResponse{
+		Videos: videoRes,
+	}
+
+	resAny, err := anypb.New(res)
+	if err != nil {
+		return &v1.Response{
+			Code:    400,
+			Message: "消息体类型转换失败",
+		}, err
 	}
 
 	return &v1.Response{
 		Code:    200,
-		Message: "搜索成功",
+		Message: "查询成功",
+		Data:    resAny,
+	}, nil
+}
+
+func (l *SearchLogic) SearchComic(in *v1.SearchRequest) (*v1.Response, error) {
+	offest := (in.Page - 1) * in.PageSize
+	comic, err := l.comicDao.FindByTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+	if err != nil {
+		return nil, err
+	}
+	comicRes := make([]*v1.Comic, 0, len(comic))
+	// 转换
+	for i := 0; i < len(comic); i++ {
+		comicRes = append(comicRes, &v1.Comic{
+			Id:           comic[i].Id,
+			Name:         comic[i].Name,
+			Description:  comic[i].Description.String,
+			Cover:        comic[i].Cover,
+			Author:       comic[i].Author,
+			CreateTime:   comic[i].CreateTime,
+			CreatedAt:    comic[i].CreatedAt,
+			UpdateTime:   comic[i].UpdateTime,
+			LikeCount:    comic[i].LikeCount,
+			ViewCount:    comic[i].ViewCount,
+			CollectCount: comic[i].CollectCount,
+		})
+	}
+
+	res := &v1.SearchResponse{
+		Comics: comicRes,
+	}
+
+	resAny, err := anypb.New(res)
+	if err != nil {
+		return &v1.Response{
+			Code:    400,
+			Message: "消息体类型转换失败",
+		}, err
+	}
+	return &v1.Response{
+		Code:    200,
+		Message: "查询成功",
+		Data:    resAny,
+	}, nil
+}
+
+func (l *SearchLogic) SearchPodcast(in *v1.SearchRequest) (*v1.Response, error) {
+	offest := (in.Page - 1) * in.PageSize
+	podcast, err := l.podcastDao.FindByTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+	if err != nil {
+		return nil, err
+	}
+	podcastRes := make([]*v1.Podcast, 0, len(podcast))
+	// 转换
+	for i := 0; i < len(podcast); i++ {
+		podcastRes = append(podcastRes, &v1.Podcast{
+			Id:          podcast[i].Id,
+			Name:        podcast[i].Name,
+			Description: podcast[i].Description.String,
+			Cover:       podcast[i].Cover,
+			Author:      podcast[i].Author,
+			CreateTime:  podcast[i].CreateTime,
+			CreatedAt:   podcast[i].CreatedAt,
+			UpdateTime:  podcast[i].UpdateTime,
+			LikeCount:   podcast[i].LikeCount,
+		})
+	}
+
+	res := &v1.SearchResponse{
+		Podcasts: podcastRes,
+	}
+	resAny, err := anypb.New(res)
+	if err != nil {
+		return &v1.Response{
+			Code:    400,
+			Message: "消息体类型转换失败",
+		}, err
+	}
+	return &v1.Response{
+		Code:    200,
+		Message: "查询成功",
+		Data:    resAny,
+	}, nil
+}
+
+func (l *SearchLogic) SearchArticle(in *v1.SearchRequest) (*v1.Response, error) {
+	offest := (in.Page - 1) * in.PageSize
+	article, err := l.articleDao.FindByTagsAndKeyWord(l.ctx, int(offest), int(in.PageSize), in.Tag, in.Keyword)
+	if err != nil {
+		return nil, err
+	}
+	articleRes := make([]*v1.Article, 0, len(article))
+	// 转换
+	for i := 0; i < len(article); i++ {
+		articleRes = append(articleRes, &v1.Article{
+			Id:           article[i].Id,
+			Name:         article[i].Name,
+			Description:  article[i].Description.String,
+			Cover:        article[i].Cover,
+			Author:       article[i].Author,
+			CreateTime:   article[i].CreateTime,
+			CreatedAt:    article[i].CreatedAt,
+			UpdateTime:   article[i].UpdateTime,
+			LikeCount:    article[i].LikeCount,
+			ViewCount:    article[i].ViewCount,
+			CollectCount: article[i].CollectCount,
+		})
+	}
+
+	res := &v1.SearchResponse{
+		Articles: articleRes,
+	}
+	resAny, err := anypb.New(res)
+	if err != nil {
+		return &v1.Response{
+			Code:    400,
+			Message: "消息体类型转换失败",
+		}, err
+	}
+	return &v1.Response{
+		Code:    200,
+		Message: "查询成功",
+		Data:    resAny,
 	}, nil
 }
