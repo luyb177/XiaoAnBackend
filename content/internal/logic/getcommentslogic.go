@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"google.golang.org/protobuf/types/known/anypb"
 	"sync"
@@ -17,15 +18,17 @@ type GetCommentsLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	commentDao model.CommentModel
+	commentDao     model.CommentModel
+	contentLikeDao model.ContentLikeModel
 }
 
 func NewGetCommentsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCommentsLogic {
 	return &GetCommentsLogic{
-		ctx:        ctx,
-		svcCtx:     svcCtx,
-		Logger:     logx.WithContext(ctx),
-		commentDao: model.NewCommentModel(svcCtx.Mysql),
+		ctx:            ctx,
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		commentDao:     model.NewCommentModel(svcCtx.Mysql),
+		contentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
@@ -49,10 +52,10 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 		}, fmt.Errorf("参数错误")
 	}
 
-	if in.Page < 0 {
+	if in.Page <= 0 {
 		in.Page = 1
 	}
-	if in.PageSize < 0 {
+	if in.PageSize <= 0 {
 		in.PageSize = 10
 	}
 
@@ -87,7 +90,7 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 	for _, comment := range comments {
 		// 先放一下跟评论的数据
 		commentRes = append(commentRes, &v1.CommentItem{
-			Comment: &v1.Comment{
+			Comment: &v1.CommentDetail{
 				Id:             comment.Id,
 				Type:           comment.Type,
 				TargetId:       comment.TargetId,
@@ -99,6 +102,7 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 				LikeCount:      comment.LikeCount,
 				CreatedAt:      comment.CreatedAt,
 				UpdatedAt:      comment.UpdatedAt,
+				IsLiked:        false, // 这里需要查看
 			},
 			ChildPreview: nil,
 			ChildTotal:   0,
@@ -116,6 +120,15 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 		wg.Add(1)
 		go func(comment *v1.CommentItem) {
 			defer wg.Done()
+			// 获取跟评论是否点赞
+			contentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, comment.Comment.Id)
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				l.Logger.Errorf("GetComments 获取评论点赞数据失败 err: %v，其中parent_id为", err, comment.Comment.Id)
+			}
+			// 有点赞数据，判断是否有效
+			if contentLike.Status == Valid {
+				comment.Comment.IsLiked = true
+			}
 
 			// 获取子评论总数
 			var childTotal int64
@@ -129,7 +142,6 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 			comment.ChildTotal = childTotal
 			// 无子评论
 			if childTotal == 0 {
-				comment.ChildPreview = nil
 				return
 			}
 
@@ -138,9 +150,9 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 			child, childErr = l.commentDao.FindDefaultChildByTypeAndTargetId(l.ctx, in.Type, in.TargetId, comment.Comment.Id)
 			if childErr == nil {
 				// 构造子评论数据
-				childComments := make([]*v1.Comment, 0, len(child))
+				childComments := make([]*v1.CommentDetail, 0, len(child))
 				for _, c := range child {
-					childComments = append(childComments, &v1.Comment{
+					childComments = append(childComments, &v1.CommentDetail{
 						Id:             c.Id,
 						Type:           c.Type,
 						TargetId:       c.TargetId,
@@ -152,9 +164,26 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 						LikeCount:      c.LikeCount,
 						CreatedAt:      c.CreatedAt,
 						UpdatedAt:      c.UpdatedAt,
+						IsLiked:        false,
 					})
 				}
 				comment.ChildPreview = childComments
+
+				// 继续开启协程异步获取是否点赞
+				for _, value := range comment.ChildPreview {
+					wg.Add(1)
+					go func(comment *v1.CommentDetail) {
+						defer wg.Done()
+						childContentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, comment.Id)
+						if err != nil && !errors.Is(err, model.ErrNotFound) {
+							l.Logger.Errorf("GetComments 获取子评论点赞数据失败 err: %v，其中parent_id为", err, comment.Id)
+						}
+						// 有点赞数据，判断是否有效
+						if childContentLike.Status == Valid {
+							comment.IsLiked = true
+						}
+					}(value)
+				}
 			} else {
 				l.Logger.Errorf("GetComments 获取子评论数据失败 err: %v，其中parent_id为", childErr, comment.Comment.Id)
 			}

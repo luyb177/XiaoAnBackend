@@ -1697,11 +1697,144 @@ func (x *GetCommentsRequest) GetPageSize() int64 {
 	return 0
 }
 
-// 评论
+// 评论详情
+type CommentDetail struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type           string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	TargetId       uint64                 `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
+	UserId         uint64                 `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ParentId       uint64                 `protobuf:"varint,5,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"` // 为0 则为根评论
+	ReplyCommentId uint64                 `protobuf:"varint,6,opt,name=reply_comment_id,json=replyCommentId,proto3" json:"reply_comment_id,omitempty"`
+	ReplyUserId    uint64                 `protobuf:"varint,7,opt,name=reply_user_id,json=replyUserId,proto3" json:"reply_user_id,omitempty"`
+	Content        string                 `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	LikeCount      uint64                 `protobuf:"varint,9,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	CreatedAt      int64                  `protobuf:"varint,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      int64                  `protobuf:"varint,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	IsLiked        bool                   `protobuf:"varint,12,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"` // 用户是否点赞
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CommentDetail) Reset() {
+	*x = CommentDetail{}
+	mi := &file_content_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommentDetail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommentDetail) ProtoMessage() {}
+
+func (x *CommentDetail) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommentDetail.ProtoReflect.Descriptor instead.
+func (*CommentDetail) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *CommentDetail) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *CommentDetail) GetTargetId() uint64 {
+	if x != nil {
+		return x.TargetId
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetParentId() uint64 {
+	if x != nil {
+		return x.ParentId
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetReplyCommentId() uint64 {
+	if x != nil {
+		return x.ReplyCommentId
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetReplyUserId() uint64 {
+	if x != nil {
+		return x.ReplyUserId
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *CommentDetail) GetLikeCount() uint64 {
+	if x != nil {
+		return x.LikeCount
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
+func (x *CommentDetail) GetIsLiked() bool {
+	if x != nil {
+		return x.IsLiked
+	}
+	return false
+}
+
+// 评论列表项
 type CommentItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Comment       *Comment               `protobuf:"bytes,1,opt,name=comment,proto3" json:"comment,omitempty"`                               // 评论本身
-	ChildPreview  []*Comment             `protobuf:"bytes,2,rep,name=child_preview,json=childPreview,proto3" json:"child_preview,omitempty"` // 子评论预览 （默认为前3条）
+	Comment       *CommentDetail         `protobuf:"bytes,1,opt,name=comment,proto3" json:"comment,omitempty"`                               // 评论本身
+	ChildPreview  []*CommentDetail       `protobuf:"bytes,2,rep,name=child_preview,json=childPreview,proto3" json:"child_preview,omitempty"` // 子评论预览 （默认为前3条）
 	ChildTotal    int64                  `protobuf:"varint,3,opt,name=child_total,json=childTotal,proto3" json:"child_total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1709,7 +1842,7 @@ type CommentItem struct {
 
 func (x *CommentItem) Reset() {
 	*x = CommentItem{}
-	mi := &file_content_proto_msgTypes[20]
+	mi := &file_content_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1721,7 +1854,7 @@ func (x *CommentItem) String() string {
 func (*CommentItem) ProtoMessage() {}
 
 func (x *CommentItem) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[20]
+	mi := &file_content_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1734,17 +1867,17 @@ func (x *CommentItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentItem.ProtoReflect.Descriptor instead.
 func (*CommentItem) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20}
+	return file_content_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *CommentItem) GetComment() *Comment {
+func (x *CommentItem) GetComment() *CommentDetail {
 	if x != nil {
 		return x.Comment
 	}
 	return nil
 }
 
-func (x *CommentItem) GetChildPreview() []*Comment {
+func (x *CommentItem) GetChildPreview() []*CommentDetail {
 	if x != nil {
 		return x.ChildPreview
 	}
@@ -1768,7 +1901,7 @@ type GetCommentsResponse struct {
 
 func (x *GetCommentsResponse) Reset() {
 	*x = GetCommentsResponse{}
-	mi := &file_content_proto_msgTypes[21]
+	mi := &file_content_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1780,7 +1913,7 @@ func (x *GetCommentsResponse) String() string {
 func (*GetCommentsResponse) ProtoMessage() {}
 
 func (x *GetCommentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[21]
+	mi := &file_content_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1793,7 +1926,7 @@ func (x *GetCommentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCommentsResponse.ProtoReflect.Descriptor instead.
 func (*GetCommentsResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{21}
+	return file_content_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetCommentsResponse) GetComments() []*CommentItem {
@@ -1821,7 +1954,7 @@ type GetContentRequest struct {
 
 func (x *GetContentRequest) Reset() {
 	*x = GetContentRequest{}
-	mi := &file_content_proto_msgTypes[22]
+	mi := &file_content_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1833,7 +1966,7 @@ func (x *GetContentRequest) String() string {
 func (*GetContentRequest) ProtoMessage() {}
 
 func (x *GetContentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[22]
+	mi := &file_content_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1846,7 +1979,7 @@ func (x *GetContentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContentRequest.ProtoReflect.Descriptor instead.
 func (*GetContentRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{22}
+	return file_content_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetContentRequest) GetType() string {
@@ -1874,7 +2007,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_content_proto_msgTypes[23]
+	mi := &file_content_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1886,7 +2019,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[23]
+	mi := &file_content_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1899,7 +2032,7 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Response.ProtoReflect.Descriptor instead.
 func (*Response) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{23}
+	return file_content_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *Response) GetCode() int64 {
@@ -2100,10 +2233,27 @@ const file_content_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1b\n" +
 	"\ttarget_id\x18\x02 \x01(\x04R\btargetId\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x03R\bpageSize\"\x91\x01\n" +
-	"\vCommentItem\x12*\n" +
-	"\acomment\x18\x01 \x01(\v2\x10.content.CommentR\acomment\x125\n" +
-	"\rchild_preview\x18\x02 \x03(\v2\x10.content.CommentR\fchildPreview\x12\x1f\n" +
+	"\tpage_size\x18\x04 \x01(\x03R\bpageSize\"\xe6\x02\n" +
+	"\rCommentDetail\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1b\n" +
+	"\ttarget_id\x18\x03 \x01(\x04R\btargetId\x12\x17\n" +
+	"\auser_id\x18\x04 \x01(\x04R\x06userId\x12\x1b\n" +
+	"\tparent_id\x18\x05 \x01(\x04R\bparentId\x12(\n" +
+	"\x10reply_comment_id\x18\x06 \x01(\x04R\x0ereplyCommentId\x12\"\n" +
+	"\rreply_user_id\x18\a \x01(\x04R\vreplyUserId\x12\x18\n" +
+	"\acontent\x18\b \x01(\tR\acontent\x12\x1d\n" +
+	"\n" +
+	"like_count\x18\t \x01(\x04R\tlikeCount\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\n" +
+	" \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\v \x01(\x03R\tupdatedAt\x12\x19\n" +
+	"\bis_liked\x18\f \x01(\bR\aisLiked\"\x9d\x01\n" +
+	"\vCommentItem\x120\n" +
+	"\acomment\x18\x01 \x01(\v2\x16.content.CommentDetailR\acomment\x12;\n" +
+	"\rchild_preview\x18\x02 \x03(\v2\x16.content.CommentDetailR\fchildPreview\x12\x1f\n" +
 	"\vchild_total\x18\x03 \x01(\x03R\n" +
 	"childTotal\"]\n" +
 	"\x13GetCommentsResponse\x120\n" +
@@ -2142,7 +2292,7 @@ func file_content_proto_rawDescGZIP() []byte {
 	return file_content_proto_rawDescData
 }
 
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_content_proto_goTypes = []any{
 	(*Video)(nil),                 // 0: content.Video
 	(*Comic)(nil),                 // 1: content.Comic
@@ -2164,21 +2314,22 @@ var file_content_proto_goTypes = []any{
 	(*UpdateCommentRequest)(nil),  // 17: content.UpdateCommentRequest
 	(*DeleteCommentRequest)(nil),  // 18: content.DeleteCommentRequest
 	(*GetCommentsRequest)(nil),    // 19: content.GetCommentsRequest
-	(*CommentItem)(nil),           // 20: content.CommentItem
-	(*GetCommentsResponse)(nil),   // 21: content.GetCommentsResponse
-	(*GetContentRequest)(nil),     // 22: content.GetContentRequest
-	(*Response)(nil),              // 23: content.Response
-	(*anypb.Any)(nil),             // 24: google.protobuf.Any
+	(*CommentDetail)(nil),         // 20: content.CommentDetail
+	(*CommentItem)(nil),           // 21: content.CommentItem
+	(*GetCommentsResponse)(nil),   // 22: content.GetCommentsResponse
+	(*GetContentRequest)(nil),     // 23: content.GetContentRequest
+	(*Response)(nil),              // 24: content.Response
+	(*anypb.Any)(nil),             // 25: google.protobuf.Any
 }
 var file_content_proto_depIdxs = []int32{
 	0,  // 0: content.SearchResponse.videos:type_name -> content.Video
 	1,  // 1: content.SearchResponse.comics:type_name -> content.Comic
 	2,  // 2: content.SearchResponse.podcasts:type_name -> content.Podcast
 	3,  // 3: content.SearchResponse.articles:type_name -> content.Article
-	6,  // 4: content.CommentItem.comment:type_name -> content.Comment
-	6,  // 5: content.CommentItem.child_preview:type_name -> content.Comment
-	20, // 6: content.GetCommentsResponse.comments:type_name -> content.CommentItem
-	24, // 7: content.Response.data:type_name -> google.protobuf.Any
+	20, // 4: content.CommentItem.comment:type_name -> content.CommentDetail
+	20, // 5: content.CommentItem.child_preview:type_name -> content.CommentDetail
+	21, // 6: content.GetCommentsResponse.comments:type_name -> content.CommentItem
+	25, // 7: content.Response.data:type_name -> google.protobuf.Any
 	7,  // 8: content.ContentService.UploadContentStream:input_type -> content.UploadChunk
 	9,  // 9: content.ContentService.GetContentURL:input_type -> content.GetContentURLRequest
 	11, // 10: content.ContentService.AddVideo:input_type -> content.AddVideoRequest
@@ -2189,16 +2340,16 @@ var file_content_proto_depIdxs = []int32{
 	17, // 15: content.ContentService.UpdateComment:input_type -> content.UpdateCommentRequest
 	18, // 16: content.ContentService.DeleteComment:input_type -> content.DeleteCommentRequest
 	19, // 17: content.ContentService.GetComments:input_type -> content.GetCommentsRequest
-	23, // 18: content.ContentService.UploadContentStream:output_type -> content.Response
-	23, // 19: content.ContentService.GetContentURL:output_type -> content.Response
-	23, // 20: content.ContentService.AddVideo:output_type -> content.Response
-	23, // 21: content.ContentService.Search:output_type -> content.Response
-	23, // 22: content.ContentService.Like:output_type -> content.Response
-	23, // 23: content.ContentService.Collect:output_type -> content.Response
-	23, // 24: content.ContentService.AddComment:output_type -> content.Response
-	23, // 25: content.ContentService.UpdateComment:output_type -> content.Response
-	23, // 26: content.ContentService.DeleteComment:output_type -> content.Response
-	23, // 27: content.ContentService.GetComments:output_type -> content.Response
+	24, // 18: content.ContentService.UploadContentStream:output_type -> content.Response
+	24, // 19: content.ContentService.GetContentURL:output_type -> content.Response
+	24, // 20: content.ContentService.AddVideo:output_type -> content.Response
+	24, // 21: content.ContentService.Search:output_type -> content.Response
+	24, // 22: content.ContentService.Like:output_type -> content.Response
+	24, // 23: content.ContentService.Collect:output_type -> content.Response
+	24, // 24: content.ContentService.AddComment:output_type -> content.Response
+	24, // 25: content.ContentService.UpdateComment:output_type -> content.Response
+	24, // 26: content.ContentService.DeleteComment:output_type -> content.Response
+	24, // 27: content.ContentService.GetComments:output_type -> content.Response
 	18, // [18:28] is the sub-list for method output_type
 	8,  // [8:18] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
@@ -2217,7 +2368,7 @@ func file_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

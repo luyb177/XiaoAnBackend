@@ -20,6 +20,7 @@ type (
 	CollectRequest        = v1.CollectRequest
 	Comic                 = v1.Comic
 	Comment               = v1.Comment
+	CommentDetail         = v1.CommentDetail
 	CommentItem           = v1.CommentItem
 	ContentCollect        = v1.ContentCollect
 	ContentLike           = v1.ContentLike
