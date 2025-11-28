@@ -33,6 +33,8 @@ func NewGetCommentsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCo
 }
 
 // GetComments 获取根评论
+// todo 限制并发量
+// todo 减少DB请求 - 将跟评论的 id 使用 in(?,?) 来一次请求是否点赞
 func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response, error) {
 	userId := l.ctx.Value("user_id").(uint64)
 	userRole := l.ctx.Value("user_role").(string)
@@ -116,78 +118,84 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 	}
 
 	// 异步获取子评论数据
-	for _, v := range res.Comments {
+	for i := range res.Comments {
+		c := res.Comments[i] // 闭包不要 capture 迭代变量，要 capture value 的副本
 		wg.Add(1)
-		go func(comment *v1.CommentItem) {
+
+		go func(item *v1.CommentItem) {
 			defer wg.Done()
+
 			// 获取跟评论是否点赞
-			contentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, comment.Comment.Id)
-			if err != nil && !errors.Is(err, model.ErrNotFound) {
-				l.Logger.Errorf("GetComments 获取评论点赞数据失败 err: %v，其中parent_id为", err, comment.Comment.Id)
-			}
-			// 有点赞数据，判断是否有效
-			if contentLike.Status == Valid {
-				comment.Comment.IsLiked = true
+			contentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, item.Comment.Id)
+			if err == nil {
+				// 有点赞数据，判断是否有效
+				if contentLike.Status == Valid {
+					item.Comment.IsLiked = true
+				}
+			} else if !errors.Is(err, model.ErrNotFound) {
+				l.Logger.Errorf("GetComments 获取跟评论点赞数据失败 err: %v，其中parent_id为 %d", err, item.Comment.Id)
 			}
 
 			// 获取子评论总数
 			var childTotal int64
 			var childErr error
-			childTotal, childErr = l.commentDao.CountChildByTypeAndTargetId(l.ctx, in.Type, in.TargetId, comment.Comment.Id)
+			childTotal, childErr = l.commentDao.CountChildByTypeAndTargetId(l.ctx, in.Type, in.TargetId, item.Comment.Id)
 			if childErr != nil {
-				l.Logger.Errorf("GetComments 获取子评论总数失败 err: %v，其中parent_id为", childErr, comment.Comment.Id)
+				l.Logger.Errorf("GetComments 获取子评论总数失败 err: %v，其中parent_id为 %d", childErr, item.Comment.Id)
 				return
 			}
 
-			comment.ChildTotal = childTotal
+			item.ChildTotal = childTotal
 			// 无子评论
 			if childTotal == 0 {
 				return
 			}
 
 			// 获取子评论数据
-			var child []*model.Comment
-			child, childErr = l.commentDao.FindDefaultChildByTypeAndTargetId(l.ctx, in.Type, in.TargetId, comment.Comment.Id)
+			var children []*model.Comment
+			children, childErr = l.commentDao.FindDefaultChildByTypeAndTargetId(l.ctx, in.Type, in.TargetId, item.Comment.Id)
 			if childErr == nil {
 				// 构造子评论数据
-				childComments := make([]*v1.CommentDetail, 0, len(child))
-				for _, c := range child {
+				childComments := make([]*v1.CommentDetail, 0, len(children))
+				for _, child := range children {
 					childComments = append(childComments, &v1.CommentDetail{
-						Id:             c.Id,
-						Type:           c.Type,
-						TargetId:       c.TargetId,
-						UserId:         c.UserId,
-						ParentId:       c.ParentId,
-						ReplyCommentId: c.ReplyCommentId,
-						ReplyUserId:    c.ReplyUserId,
-						Content:        c.Content,
-						LikeCount:      c.LikeCount,
-						CreatedAt:      c.CreatedAt,
-						UpdatedAt:      c.UpdatedAt,
+						Id:             child.Id,
+						Type:           child.Type,
+						TargetId:       child.TargetId,
+						UserId:         child.UserId,
+						ParentId:       child.ParentId,
+						ReplyCommentId: child.ReplyCommentId,
+						ReplyUserId:    child.ReplyUserId,
+						Content:        child.Content,
+						LikeCount:      child.LikeCount,
+						CreatedAt:      child.CreatedAt,
+						UpdatedAt:      child.UpdatedAt,
 						IsLiked:        false,
 					})
 				}
-				comment.ChildPreview = childComments
+				item.ChildPreview = childComments
 
-				// 继续开启协程异步获取是否点赞
-				for _, value := range comment.ChildPreview {
-					wg.Add(1)
-					go func(comment *v1.CommentDetail) {
-						defer wg.Done()
-						childContentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, comment.Id)
-						if err != nil && !errors.Is(err, model.ErrNotFound) {
-							l.Logger.Errorf("GetComments 获取子评论点赞数据失败 err: %v，其中parent_id为", err, comment.Id)
-						}
-						// 有点赞数据，判断是否有效
+				//	获取子评论是否点赞
+				for _, cp := range item.ChildPreview {
+					childContentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, cp.Id)
+					if err == nil {
 						if childContentLike.Status == Valid {
-							comment.IsLiked = true
+							cp.IsLiked = true
 						}
-					}(value)
+					} else if !errors.Is(err, model.ErrNotFound) {
+						l.Logger.Errorf("GetComments 获取子评论点赞数据失败 err: %v，其中parent_id为 %d", err, cp.Id)
+					}
+
+					// 有点赞数据，判断是否有效
+					if childContentLike.Status == Valid {
+						cp.IsLiked = true
+					}
 				}
+
 			} else {
-				l.Logger.Errorf("GetComments 获取子评论数据失败 err: %v，其中parent_id为", childErr, comment.Comment.Id)
+				l.Logger.Errorf("GetComments 获取子评论数据失败 err: %v，其中parent_id为 %d", childErr, item.Comment.Id)
 			}
-		}(v)
+		}(c)
 	}
 	wg.Wait()
 
