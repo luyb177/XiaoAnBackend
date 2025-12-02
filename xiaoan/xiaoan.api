@@ -14,6 +14,31 @@ type (
 		email string `json:"email"`
 		code  string `json:"code"`
 	}
+	GenerateInviteCodeRequest {
+		creator_name string `json:"creator_name"`
+		department   string `json:"department"`
+		maxUses      int64  `json:"max_uses"`
+		remark       string `json:"remark"`
+		expires_at   int64  `json:"expires_at"`
+		target_role  string `json:"target_role"`
+		classId      uint64 `json:"class_id"`
+	}
+	GetInviteCodeRequest {
+		page     int64 `json:"page"`
+		pageSize int64 `json:"page_size"`
+	}
+	RegisterRequest {
+		email          string `json:"email"`
+		emailCode      string `json:"email_code"`
+		password       string `json:"password"`
+		inviteCodeUsed string `json:"invite_code_used"`
+	}
+	LoginRequest {
+		tp        string `json:"type"`
+		email     string `json:"email,"`
+		password  string `json:"password,optional"`
+		emailCode string `json:"email_code,optional"`
+	}
 )
 
 // 问答请求模块
@@ -66,6 +91,30 @@ service xiaoan {
 	@doc "验证邮箱验证码"
 	@handler ValidateEmail
 	post /validate-email (ValidateEmailRequest) returns (Response)
+
+	@doc "注册"
+	@handler Register
+	post /register (RegisterRequest) returns (Response)
+
+	@doc "登录"
+	@handler Login
+	post /login (LoginRequest) returns (Response)
+}
+
+@server (
+	prefix:     /api/auth
+	tags:       "认证模块"
+	group:      auth
+	middleware: AuthMiddleware
+)
+service xiaoan {
+	@doc "生成邀请码"
+	@handler GenerateInviteCode
+	post /generate-invite-code (GenerateInviteCodeRequest) returns (Response)
+
+	@doc "获取邀请码"
+	@handler GetInviteCode
+	post /get-invite-code (GetInviteCodeRequest) returns (Response)
 }
 
 @server (

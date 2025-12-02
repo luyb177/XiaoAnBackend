@@ -10,4 +10,10 @@ type Config struct {
 	AuthRpc    zrpc.RpcClientConf
 	QARpc      zrpc.RpcClientConf
 	ContentRpc zrpc.RpcClientConf
+	JWTConfig  JWTConfig
+}
+
+type JWTConfig struct {
+	Secret string
+	Expire int64
 }

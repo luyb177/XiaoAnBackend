@@ -9,10 +9,11 @@ replace (
 )
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/luyb177/XiaoAnBackend/auth v0.0.0-00010101000000-000000000000
 	github.com/luyb177/XiaoAnBackend/content v0.0.0-00010101000000-000000000000
 	github.com/luyb177/XiaoAnBackend/qa v0.0.0-00010101000000-000000000000
-	github.com/zeromicro/go-zero v1.9.2
+	github.com/zeromicro/go-zero v1.9.3
 )
 
 require (
@@ -55,7 +56,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/redis/go-redis/v9 v9.14.0 // indirect
+	github.com/redis/go-redis/v9 v9.16.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.15 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.15 // indirect
