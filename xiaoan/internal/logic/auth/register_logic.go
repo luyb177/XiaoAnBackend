@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
@@ -51,22 +50,17 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Respon
 			Message: "邀请码不能为空",
 		}, nil
 	}
-	res, err := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
+	res, _ := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
 		Email:          req.Email,
 		EmailCode:      req.EmailCode,
 		Password:       req.Password,
 		InviteCodeUsed: req.InviteCodeUsed,
 	})
-	if err != nil {
-		return &types.Response{
-			Code:    400,
-			Message: "注册失败",
-		}, err
-	}
 
-	data := &auth.RegisterResponse{} // 你的具体 Protobuf 消息对象
-	fmt.Println("==", res.Data.Value, "==")
+	var data *auth.RegisterResponse
+
 	if res.Data != nil {
+		data = &auth.RegisterResponse{}
 		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 	}
 

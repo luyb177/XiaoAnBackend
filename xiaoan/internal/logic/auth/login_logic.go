@@ -101,22 +101,20 @@ func (l *LoginLogic) LoginByEmailCode(req *types.LoginRequest) (resp *types.Resp
 			Message: "验证码不能为空",
 		}, nil
 	}
-	res, err := l.svcCtx.AuthRpc.Login(l.ctx, &auth.LoginRequest{
+	res, _ := l.svcCtx.AuthRpc.Login(l.ctx, &auth.LoginRequest{
 		Type:      auth.LoginType_EMAIL_CODE,
 		Email:     req.Email,
 		EmailCode: req.EmailCode,
 	})
-	if res == nil {
-		return &types.Response{
-			Code:    400,
-			Message: "登录失败",
-		}, nil
-	}
-	if err != nil {
-		l.Logger.Errorf("LoginByEmailCode 登录失败：err %v", err)
+
+	var data *auth.LoginResponse
+	if res.Data != nil {
+		data = &auth.LoginResponse{}
+		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 	}
 	return &types.Response{
 		Code:    res.Code,
 		Message: res.Message,
+		Data:    data,
 	}, nil
 }
