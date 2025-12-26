@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"strconv"
 	"time"
 
@@ -42,9 +43,9 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // GenerateInviteCode 生成邀请码
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
-	creatorId, creatorRole, creatorStatus, err := utils.GetUserFromMetadata(l.ctx)
-	if creatorId == 0 || creatorRole == "" || creatorStatus != 1 {
-		l.Logger.Errorf("GenerateInviteCode err 用户未登录或登录状态异常,%v", err)
+	creator := middleware.MustGetUser(l.ctx)
+	if creator.UID == 0 || creator.Role == "" || creator.Status != 1 {
+		l.Logger.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
 
 		return &v1.Response{
 			Code:    400,
@@ -78,14 +79,14 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	}
 
 	// 验证生成者身份
-	if creatorRole != SUPERADMIN && creatorRole != CLASSADMIN {
+	if creator.Role != SUPERADMIN && creator.Role != CLASSADMIN {
 		l.Logger.Errorf("GenerateInviteCode err 用户权限不足")
 		return &v1.Response{
 			Code:    400,
 			Message: "用户权限不足",
 		}, nil
 	}
-	if creatorRole == CLASSADMIN {
+	if creator.Role == CLASSADMIN {
 		// 创建的是 student
 		if in.TargetRole != STUDENT {
 			l.Logger.Errorf("GenerateInviteCode err 用户权限不足")
@@ -103,15 +104,17 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	var fn func() error
 
 	fn = func() error {
+		now := time.Now()
 		code.Code = utils.GenerateInviteCode()
-		code.CreatorId = int64(creatorId)
+		code.CreatorId = int64(creator.UID)
 		code.CreatorName = sql.NullString{String: in.CreatorName, Valid: true}
 		code.Department = sql.NullString{String: in.Department, Valid: true}
 		code.MaxUses = in.MaxUses
 		code.UsedCount = 0
 		code.IsActive = 1 // 有效
 		code.Remark = sql.NullString{String: in.Remark, Valid: true}
-		code.ExpiresAt = sql.NullTime{Time: time.Now().Add(time.Duration(in.ExpiresAt) * time.Second), Valid: true}
+		code.CreatedAt = now
+		code.ExpiresAt = sql.NullTime{Time: now.Add(time.Duration(in.ExpiresAt) * time.Second), Valid: true}
 		code.TargetRole = in.TargetRole
 		code.ClassId = 0
 		code.Type = in.TargetRole
@@ -119,7 +122,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		_, err := l.InviteCodeDao.Insert(l.ctx, &code)
 		return err
 	}
-	err = utils.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
+	err := utils.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
 
 	if err != nil {
 		l.Logger.Errorf("GenerateInviteCode err 生成邀请码失败")
@@ -132,7 +135,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	// 构建返回体
 	res := v1.GenerateInviteCodeResponse{
 		Code:        code.Code,
-		CreatorId:   strconv.FormatUint(creatorId, 10),
+		CreatorId:   strconv.FormatUint(creator.UID, 10),
 		CreatorName: in.CreatorName,
 		Department:  in.Department,
 		MaxUses:     in.MaxUses,

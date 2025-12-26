@@ -2,6 +2,9 @@ package auth
 
 import (
 	"context"
+	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
@@ -15,7 +18,7 @@ type GetInviteCodeLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// 获取邀请码
+// NewGetInviteCodeLogic 获取邀请码
 func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetInviteCodeLogic {
 	return &GetInviteCodeLogic{
 		Logger: logx.WithContext(ctx),
@@ -25,7 +28,27 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetInviteCodeLogic) GetInviteCode(req *types.GetInviteCodeRequest) (resp *types.Response, err error) {
-	// todo: add your logic here and delete this line
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 {
+		req.PageSize = 10
+	}
 
-	return
+	res, _ := l.svcCtx.AuthRpc.GetInviteCode(l.ctx, &auth.GetInviteCodeRequest{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	})
+
+	var data *auth.GetInviteCodeResponse
+	if res.Data != nil {
+		data = &auth.GetInviteCodeResponse{}
+		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+	}
+
+	return &types.Response{
+		Code:    res.Code,
+		Message: res.Message,
+		Data:    data,
+	}, nil
 }
