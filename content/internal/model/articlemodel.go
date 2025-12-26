@@ -57,7 +57,7 @@ func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset in
 	args = append(args, offset, limit)
 
 	query := fmt.Sprintf(`
-		seletct distinct a.*
+		select distinct a.*
 		from %s a 
 		left join %s t on a.id = t.article_id
 		where (a.name like ? or a.description like ? or a.author like ? or a.content like ?)

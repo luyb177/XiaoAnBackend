@@ -35,7 +35,7 @@ type (
 	}
 	LoginRequest {
 		tp        string `json:"type"`
-		email     string `json:"email,"`
+		email     string `json:"email"`
 		password  string `json:"password,optional"`
 		emailCode string `json:"email_code,optional"`
 	}

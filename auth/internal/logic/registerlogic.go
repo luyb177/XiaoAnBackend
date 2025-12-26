@@ -52,12 +52,19 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 
 	// 先查询是否已注册
 	_, err := l.UserDao.FindOneByEmail(l.ctx, in.Email)
-	if err == nil || errors.Is(err, sqlx.ErrNotFound) {
-		l.Logger.Errorf("Register err: %s 邮箱已注册或者邮箱错误", in.Email)
+	if err == nil {
+		l.Logger.Errorf("Register err: %s 邮箱已注册", in.Email)
 
 		return &v1.Response{
 			Code:    400,
-			Message: "邮箱已注册或出现错误",
+			Message: "邮箱已注册",
+		}, nil
+	} else if !errors.Is(err, sqlx.ErrNotFound) {
+		l.Logger.Errorf("Register err: 数据库查询失败: %v", err)
+
+		return &v1.Response{
+			Code:    500,
+			Message: "内部错误",
 		}, nil
 	}
 
