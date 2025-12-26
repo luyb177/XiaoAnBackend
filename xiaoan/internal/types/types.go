@@ -28,7 +28,7 @@ type GetInviteCodeRequest struct {
 
 type LoginRequest struct {
 	Tp        string `json:"type"`
-	Email     string `json:"email,"`
+	Email     string `json:"email"`
 	Password  string `json:"password,optional"`
 	EmailCode string `json:"email_code,optional"`
 }

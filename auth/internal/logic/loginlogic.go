@@ -157,6 +157,9 @@ func (l *LoginLogic) validateEmailCode(in *v1.LoginRequest) (msg string, flag bo
 }
 
 func (l *LoginLogic) validatePassword(in *v1.LoginRequest) (*model.User, string, bool) {
+	if in.Password == "" {
+		return nil, "密码为空", false
+	}
 	user, err := l.UserDao.FindOneByEmail(l.ctx, in.Email)
 	if err != nil {
 		return nil, "用户不存在", false
