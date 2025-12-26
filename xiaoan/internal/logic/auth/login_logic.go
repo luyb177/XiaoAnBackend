@@ -38,6 +38,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.Response, err e
 			Message: "邮箱不能为空",
 		}, nil
 	}
+
 	switch req.Tp {
 	case LoginTypePassword:
 		return l.LoginByPassword(req)
@@ -64,15 +65,6 @@ func (l *LoginLogic) LoginByPassword(req *types.LoginRequest) (resp *types.Respo
 		Email:    req.Email,
 		Password: req.Password,
 	})
-	if res == nil {
-		return &types.Response{
-			Code:    400,
-			Message: "登录失败",
-		}, nil
-	}
-	if err != nil {
-		l.Logger.Errorf("LoginByPassword 登录失败：err %v", err)
-	}
 
 	var data *auth.LoginResponse
 	if res.Data != nil {
@@ -80,6 +72,7 @@ func (l *LoginLogic) LoginByPassword(req *types.LoginRequest) (resp *types.Respo
 		err = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 		if err != nil {
 			l.Logger.Errorf("Login 消息类型转换失败：err %v")
+
 			return &types.Response{
 				Code:    400,
 				Message: "消息类型转换失败",
@@ -101,6 +94,7 @@ func (l *LoginLogic) LoginByEmailCode(req *types.LoginRequest) (resp *types.Resp
 			Message: "验证码不能为空",
 		}, nil
 	}
+
 	res, _ := l.svcCtx.AuthRpc.Login(l.ctx, &auth.LoginRequest{
 		Type:      auth.LoginType_EMAIL_CODE,
 		Email:     req.Email,
@@ -112,6 +106,7 @@ func (l *LoginLogic) LoginByEmailCode(req *types.LoginRequest) (resp *types.Resp
 		data = &auth.LoginResponse{}
 		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 	}
+
 	return &types.Response{
 		Code:    res.Code,
 		Message: res.Message,

@@ -26,11 +26,15 @@ func NewHandler(secret string, expire time.Duration) Handler {
 
 func (h *HandlerImpl) ParseJWTToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if token.Method != jwt.SigningMethodHS256 {
+			return nil, errors.New("unexpected signing method")
+		}
 		return h.Secret, nil
 	})
 	if err != nil {
 		return nil, err
 	}
+
 	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
 		return nil, errors.New("invalid token")

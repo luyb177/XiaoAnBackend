@@ -50,6 +50,7 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Respon
 			Message: "邀请码不能为空",
 		}, nil
 	}
+
 	res, _ := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
 		Email:          req.Email,
 		EmailCode:      req.EmailCode,

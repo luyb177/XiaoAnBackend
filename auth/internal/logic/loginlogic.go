@@ -30,7 +30,6 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
-	var user *model.User
 	// 验证邮箱验证码
 	if in.Email == "" {
 		l.Logger.Errorf("Login 邮箱为空")
@@ -40,20 +39,22 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 			Message: "邮箱为空",
 		}, nil
 	}
+	var user *model.User
+	var msg string
+	var flag bool
 
 	switch in.Type {
 	case v1.LoginType_EMAIL_CODE:
-		msg, flag := l.validateEmailCode(in)
+		msg, flag = l.validateEmailCode(in)
 		if !flag {
 			l.Logger.Errorf("Login 邮箱验证码验证失败")
+
 			return &v1.Response{
 				Code:    400,
 				Message: msg,
 			}, nil
 		}
 	case v1.LoginType_PASSWORD:
-		var msg string
-		var flag bool
 		user, msg, flag = l.validatePassword(in)
 		if !flag {
 			l.Logger.Errorf("Login 密码验证失败")
@@ -69,7 +70,8 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		var err error
 		user, err = l.UserDao.FindOneByEmail(l.ctx, in.Email)
 		if err != nil {
-			l.Logger.Errorf("Login 用户不存在")
+			l.Logger.Errorf("Login err: 用户不存在,%v", err)
+
 			return &v1.Response{
 				Code:    400,
 				Message: "用户不存在",
@@ -114,8 +116,8 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		ClassId:        user.ClassId,
 		Status:         user.Status,
 		InviteCodeUsed: user.InviteCodeUsed.String,
-		CreatedAt:      user.CreatedAt,
-		UpdatedAt:      user.UpdatedAt,
+		CreatedAt:      user.CreatedAt.Unix(),
+		UpdatedAt:      user.UpdatedAt.Unix(),
 	}
 	res := v1.LoginResponse{
 		Token: token,

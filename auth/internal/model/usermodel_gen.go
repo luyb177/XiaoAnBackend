@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -48,8 +49,8 @@ type (
 		ClassId        uint64         `db:"class_id"`
 		Status         int64          `db:"status"`
 		InviteCodeUsed sql.NullString `db:"invite_code_used"`
-		CreatedAt      int64          `db:"created_at"`
-		UpdatedAt      int64          `db:"updated_at"`
+		CreatedAt      time.Time      `db:"created_at"`
+		UpdatedAt      time.Time      `db:"updated_at"`
 	}
 )
 

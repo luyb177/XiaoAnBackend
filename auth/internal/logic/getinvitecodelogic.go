@@ -90,8 +90,8 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 			UsedCount:   code.UsedCount,
 			IsActive:    code.IsActive,
 			Remark:      code.Remark.String,
-			CreatedAt:   code.CreatedAt,
-			ExpiresAt:   code.ExpiresAt.Int64,
+			CreatedAt:   code.CreatedAt.Unix(),
+			ExpiresAt:   code.ExpiresAt.Time.Unix(),
 		})
 	}
 
