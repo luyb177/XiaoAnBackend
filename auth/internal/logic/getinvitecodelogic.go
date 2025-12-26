@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"sync"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
@@ -32,30 +33,31 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
-	creatorId := l.ctx.Value("user_id").(uint64)
-	creatorRole := l.ctx.Value("user_role").(string)
-	creatorStatus := l.ctx.Value("user_status").(int64)
+	creator := middleware.MustGetUser(l.ctx)
+	if creator.UID == 0 || creator.Role == "" || creator.Status != 1 {
+		l.Logger.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
 
-	if creatorId == 0 || creatorRole == "" || creatorStatus != 1 {
 		return &v1.Response{
 			Code:    400,
-			Message: "请先登录",
-		}, fmt.Errorf("请先登录")
+			Message: "用户未登录或登录状态异常",
+		}, nil
 	}
 
 	// 异步一下
 	var wg sync.WaitGroup
 	var inviteCodes []*model.InviteCode // 用来存储查询结果
 	var totalCount int64                // 用来存储邀请码总数
-	var queryErr error
+	var findErr error
+	var countErr error
 
 	// 执行 FindByCreatorId 查询
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		inviteCodes, queryErr = l.InviteCodeDao.FindByCreatorId(l.ctx, uint64(creatorId), in.Page, in.PageSize)
-		if queryErr != nil {
-			logx.Errorf("获取邀请码失败: %v", queryErr)
+		inviteCodes, findErr = l.InviteCodeDao.FindByCreatorId(l.ctx, creator.UID, in.Page, in.PageSize)
+		if findErr != nil {
+			l.Logger.Errorf("获取邀请码失败: %v", findErr)
+			return
 		}
 	}()
 
@@ -63,20 +65,21 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		totalCount, queryErr = l.InviteCodeDao.CountByCreatorId(l.ctx, uint64(creatorId))
-		if queryErr != nil {
-			logx.Errorf("获取邀请码总数失败: %v", queryErr)
+		totalCount, countErr = l.InviteCodeDao.CountByCreatorId(l.ctx, creator.UID)
+		if countErr != nil {
+			l.Logger.Errorf("获取邀请码总数失败: %v", countErr)
+			return
 		}
 	}()
 
 	// 等待所有查询任务完成
 	wg.Wait()
 
-	if queryErr != nil {
+	if findErr != nil || countErr != nil {
 		return &v1.Response{
 			Code:    400,
 			Message: "获取邀请码数据失败",
-		}, queryErr
+		}, nil
 	}
 
 	var codes []*v1.InviteCode
@@ -90,8 +93,8 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 			UsedCount:   code.UsedCount,
 			IsActive:    code.IsActive,
 			Remark:      code.Remark.String,
-			CreatedAt:   code.CreatedAt,
-			ExpiresAt:   code.ExpiresAt.Int64,
+			CreatedAt:   code.CreatedAt.Unix(),
+			ExpiresAt:   code.ExpiresAt.Time.Unix(),
 		})
 	}
 

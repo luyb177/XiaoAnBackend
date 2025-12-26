@@ -48,7 +48,7 @@ message Class {
   string admin_name = 5;        // 管理员名称，冗余字段（方便查询）
 
   uint64 student_count = 6;     // 班级学生数量
-  int64 status = 7;             // 状态：0 正常，1 禁用，2 已解散
+  int64 status = 7;             // 状态：1 正常，2 禁用，3 已解散
 
   int64 created_at = 8;         // 创建时间
   int64 updated_at = 9;         // 更新时间

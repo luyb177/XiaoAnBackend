@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-
+	"fmt"
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
@@ -24,23 +24,27 @@ func NewSendEmailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendEma
 	}
 }
 
+// SendEmail 人为规定 res 不为 空
 func (l *SendEmailLogic) SendEmail(req *types.SendEmailRequest) (resp *types.Response, err error) {
 	if req.Email == "" {
 		return &types.Response{
 			Code:    400,
 			Message: "邮箱不能为空",
-		}, nil
+		}, fmt.Errorf("邮箱不能为空")
 	}
-	res, err := l.svcCtx.AuthRpc.SendEmailCode(l.ctx, &auth.SendEmailRequest{Email: req.Email})
-	if err != nil {
+
+	res, _ := l.svcCtx.AuthRpc.SendEmailCode(l.ctx, &auth.SendEmailRequest{Email: req.Email})
+
+	if res != nil {
 		return &types.Response{
-			Code:    400,
-			Message: "发送失败",
+			Code:    res.Code,
+			Message: res.Message,
 		}, nil
 	}
+
+	// 兜底
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    res.Data,
+		Code:    400,
+		Message: "发送失败",
 	}, nil
 }

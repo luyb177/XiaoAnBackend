@@ -25,7 +25,7 @@ func (h *HandlerImpl) SetJWTToken(claimsParams ClaimsParams) (string, error) {
 	claims := Claims{
 		ClaimsParams: claimsParams,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(h.TokenExpire)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(h.TokenExpire * time.Second)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims)

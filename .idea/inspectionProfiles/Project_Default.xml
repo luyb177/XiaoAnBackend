@@ -5,6 +5,7 @@
       <methods>
         <method importPath="github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1" receiver="AuthServiceClient" name="ValidateEmailCode" />
         <method importPath="github.com/luyb177/XiaoAnBackend/auth/internal/model" receiver="UserModel" name="Insert" />
+        <method importPath="github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1" receiver="AuthServiceClient" name="Login" />
       </methods>
     </inspection_tool>
   </profile>

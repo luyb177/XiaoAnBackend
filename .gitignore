@@ -1,7 +1,10 @@
+.idea
 auth/etc
 xiaoan/etc
-auth/sql
 qa/etc
+content/etc
+auth/sql
+content/sql
 content/internal/logic/test_source
 *_test.go
 *.png

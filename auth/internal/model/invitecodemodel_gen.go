@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -46,8 +47,8 @@ type (
 		UsedCount   int64          `db:"used_count"`
 		IsActive    int64          `db:"is_active"`
 		Remark      sql.NullString `db:"remark"`
-		CreatedAt   int64          `db:"created_at"`
-		ExpiresAt   sql.NullInt64  `db:"expires_at"`
+		CreatedAt   time.Time      `db:"created_at"`
+		ExpiresAt   sql.NullTime   `db:"expires_at"`
 		TargetRole  string         `db:"target_role"`
 		ClassId     int64          `db:"class_id"`
 		Type        string         `db:"type"`

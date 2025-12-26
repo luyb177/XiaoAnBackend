@@ -19,6 +19,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// 登录
+				Method:  http.MethodPost,
+				Path:    "/login",
+				Handler: auth.LoginHandler(serverCtx),
+			},
+			{
+				// 注册
+				Method:  http.MethodPost,
+				Path:    "/register",
+				Handler: auth.RegisterHandler(serverCtx),
+			},
+			{
 				// 发送邮箱验证码
 				Method:  http.MethodPost,
 				Path:    "/send-email",
@@ -31,6 +43,27 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: auth.ValidateEmailHandler(serverCtx),
 			},
 		},
+		rest.WithPrefix("/api/auth"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 生成邀请码
+					Method:  http.MethodPost,
+					Path:    "/generate-invite-code",
+					Handler: auth.GenerateInviteCodeHandler(serverCtx),
+				},
+				{
+					// 获取邀请码
+					Method:  http.MethodPost,
+					Path:    "/get-invite-code",
+					Handler: auth.GetInviteCodeHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/auth"),
 	)
 

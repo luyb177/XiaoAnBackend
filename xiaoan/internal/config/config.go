@@ -7,7 +7,13 @@ import (
 
 type Config struct {
 	rest.RestConf
-	AuthRpc    zrpc.RpcClientConf
-	QARpc      zrpc.RpcClientConf
-	ContentRpc zrpc.RpcClientConf
+	AuthRpc zrpc.RpcClientConf
+	QARpc   zrpc.RpcClientConf
+	//ContentRpc zrpc.RpcClientConf
+	JWTConfig JWTConfig
+}
+
+type JWTConfig struct {
+	Secret string
+	Expire int64
 }

@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/jwt"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/utils"
@@ -33,43 +32,60 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	// 验证邮箱验证码
 	if in.Email == "" {
+		l.Logger.Errorf("Login 邮箱为空")
+
 		return &v1.Response{
 			Code:    400,
 			Message: "邮箱为空",
-		}, fmt.Errorf("邮箱为空")
+		}, nil
 	}
+	var user *model.User
+	var msg string
+	var flag bool
 
 	switch in.Type {
 	case v1.LoginType_EMAIL_CODE:
-		msg, flag := l.validateEmailCode(in)
+		msg, flag = l.validateEmailCode(in)
 		if !flag {
+			l.Logger.Errorf("Login 邮箱验证码验证失败")
+
 			return &v1.Response{
 				Code:    400,
 				Message: msg,
-			}, fmt.Errorf(msg)
+			}, nil
 		}
 	case v1.LoginType_PASSWORD:
-		msg, flag := l.validatePassword(in)
+		user, msg, flag = l.validatePassword(in)
 		if !flag {
+			l.Logger.Errorf("Login 密码验证失败")
+
 			return &v1.Response{
 				Code:    400,
 				Message: msg,
-			}, fmt.Errorf(msg)
+			}, nil
 		}
 	}
-	// 验证成功 获取用户信息
-	user, err := l.UserDao.FindOneByEmail(l.ctx, in.Email)
-	if err != nil {
-		return &v1.Response{
-			Code:    400,
-			Message: "用户不存在",
-		}, fmt.Errorf("用户不存在")
+
+	if user == nil {
+		var err error
+		user, err = l.UserDao.FindOneByEmail(l.ctx, in.Email)
+		if err != nil {
+			l.Logger.Errorf("Login err: 用户不存在,%v", err)
+
+			return &v1.Response{
+				Code:    400,
+				Message: "用户不存在",
+			}, nil
+		}
 	}
-	if user.Status != 0 {
+
+	if user.Status != 1 {
+		l.Logger.Errorf("Login 用户被禁用")
+
 		return &v1.Response{
 			Code:    400,
 			Message: "用户被禁用",
-		}, fmt.Errorf("用户被禁用")
+		}, nil
 	}
 
 	// 生成 token
@@ -80,10 +96,11 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	})
 
 	if err != nil {
+		l.Logger.Errorf("Login 生成token失败 err: %v", err)
 		return &v1.Response{
 			Code:    400,
 			Message: "生成token失败",
-		}, fmt.Errorf("生成token失败 err: %v", err)
+		}, nil
 	}
 
 	// 构造返回内容
@@ -99,8 +116,8 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		ClassId:        user.ClassId,
 		Status:         user.Status,
 		InviteCodeUsed: user.InviteCodeUsed.String,
-		CreatedAt:      user.CreatedAt,
-		UpdatedAt:      user.UpdatedAt,
+		CreatedAt:      user.CreatedAt.Unix(),
+		UpdatedAt:      user.UpdatedAt.Unix(),
 	}
 	res := v1.LoginResponse{
 		Token: token,
@@ -108,10 +125,12 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	}
 	resAny, err := anypb.New(&res)
 	if err != nil {
+		l.Logger.Errorf("Login 响应数据转换失败")
+
 		return &v1.Response{
 			Code:    400,
 			Message: "消息类型转换失败",
-		}, fmt.Errorf("消息类型转换失败 err: %v", err)
+		}, nil
 	}
 
 	return &v1.Response{
@@ -137,18 +156,13 @@ func (l *LoginLogic) validateEmailCode(in *v1.LoginRequest) (msg string, flag bo
 	return "", true
 }
 
-func (l *LoginLogic) validatePassword(in *v1.LoginRequest) (msg string, flag bool) {
-	if in.Password == "" {
-		return "密码为空", false
-	}
-
-	// 获取用户信息
+func (l *LoginLogic) validatePassword(in *v1.LoginRequest) (*model.User, string, bool) {
 	user, err := l.UserDao.FindOneByEmail(l.ctx, in.Email)
 	if err != nil {
-		return "用户不存在", false
+		return nil, "用户不存在", false
 	}
 	if !utils.CheckPasswordHash(in.Password, user.Password) {
-		return "密码错误", false
+		return nil, "密码错误", false
 	}
-	return "", true
+	return user, "", true
 }

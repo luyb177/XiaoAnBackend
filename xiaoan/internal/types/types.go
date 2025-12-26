@@ -3,12 +3,41 @@
 
 package types
 
+type GenerateInviteCodeRequest struct {
+	Creator_name string `json:"creator_name"`
+	Department   string `json:"department"`
+	MaxUses      int64  `json:"max_uses"`
+	Remark       string `json:"remark"`
+	Expires_at   int64  `json:"expires_at"`
+	Target_role  string `json:"target_role"`
+	ClassId      uint64 `json:"class_id"`
+}
+
 type GetAnswerRequest struct {
 	Question string `json:"question"`
 }
 
 type GetAnswerResponse struct {
 	Answer string `json:"answer"`
+}
+
+type GetInviteCodeRequest struct {
+	Page     int64 `json:"page"`
+	PageSize int64 `json:"page_size"`
+}
+
+type LoginRequest struct {
+	Tp        string `json:"type"`
+	Email     string `json:"email,"`
+	Password  string `json:"password,optional"`
+	EmailCode string `json:"email_code,optional"`
+}
+
+type RegisterRequest struct {
+	Email          string `json:"email"`
+	EmailCode      string `json:"email_code"`
+	Password       string `json:"password"`
+	InviteCodeUsed string `json:"invite_code_used"`
 }
 
 type Response struct {
