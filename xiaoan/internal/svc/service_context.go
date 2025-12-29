@@ -22,12 +22,12 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	ac := zrpc.MustNewClient(c.AuthRpc).Conn()
 	qc := zrpc.MustNewClient(c.QARpc).Conn()
-	//cc := zrpc.MustNewClient(c.ContentRpc).Conn()
+	cc := zrpc.MustNewClient(c.ContentRpc).Conn()
 	return &ServiceContext{
-		Config:  c,
-		AuthRpc: auth.NewAuthServiceClient(ac),
-		QARpc:   qa.NewQAServiceClient(qc),
-		//ContentRpc:     content.NewContentServiceClient(cc),
+		Config:         c,
+		AuthRpc:        auth.NewAuthServiceClient(ac),
+		QARpc:          qa.NewQAServiceClient(qc),
+		ContentRpc:     content.NewContentServiceClient(cc),
 		AuthMiddleware: middleware.NewAuthMiddleware(c.JWTConfig).Handle,
 	}
 }

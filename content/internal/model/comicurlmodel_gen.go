@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -26,6 +27,7 @@ type (
 	comicUrlModel interface {
 		Insert(ctx context.Context, data *ComicUrl) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*ComicUrl, error)
+		FindOneByComicIdChapterPage(ctx context.Context, comicId uint64, chapter int64, page int64) (*ComicUrl, error)
 		Update(ctx context.Context, data *ComicUrl) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -36,11 +38,13 @@ type (
 	}
 
 	ComicUrl struct {
-		Id        uint64 `db:"id"`
-		ComicId   uint64 `db:"comic_id"`   // 漫画ID
-		Url       string `db:"url"`        // 章节URL
-		SortOrder int64  `db:"sort_order"` // 章节排序
-		CreatedAt int64  `db:"created_at"` // 创建时间
+		Id        uint64    `db:"id"`
+		ComicId   uint64    `db:"comic_id"`   // 漫画ID
+		Chapter   int64     `db:"chapter"`    // 章节（第几话/章）
+		Page      int64     `db:"page"`       // 页码（章节内顺序）
+		Url       string    `db:"url"`        // 页面资源URL
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
 	}
 )
 
@@ -71,15 +75,29 @@ func (m *defaultComicUrlModel) FindOne(ctx context.Context, id uint64) (*ComicUr
 	}
 }
 
+func (m *defaultComicUrlModel) FindOneByComicIdChapterPage(ctx context.Context, comicId uint64, chapter int64, page int64) (*ComicUrl, error) {
+	var resp ComicUrl
+	query := fmt.Sprintf("select %s from %s where `comic_id` = ? and `chapter` = ? and `page` = ? limit 1", comicUrlRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, comicId, chapter, page)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultComicUrlModel) Insert(ctx context.Context, data *ComicUrl) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, comicUrlRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ComicId, data.Url, data.SortOrder)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, comicUrlRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ComicId, data.Chapter, data.Page, data.Url)
 	return ret, err
 }
 
-func (m *defaultComicUrlModel) Update(ctx context.Context, data *ComicUrl) error {
+func (m *defaultComicUrlModel) Update(ctx context.Context, newData *ComicUrl) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, comicUrlRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.ComicId, data.Url, data.SortOrder, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.ComicId, newData.Chapter, newData.Page, newData.Url, newData.Id)
 	return err
 }
 
