@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -37,13 +38,13 @@ type (
 	}
 
 	ContentLike struct {
-		Id        uint64 `db:"id"`         // 点赞记录ID
-		Type      string `db:"type"`       // 内容类型: video, comic, podcast, article,comment
-		TargetId  uint64 `db:"target_id"`  // 目标内容ID
-		UserId    uint64 `db:"user_id"`    // 用户ID
-		Status    string `db:"status"`     // 状态: valid-有效, invalid-无效
-		CreatedAt int64  `db:"created_at"` // 创建时间
-		UpdatedAt int64  `db:"updated_at"` // 更新时间
+		Id        uint64       `db:"id"`         // 点赞记录ID
+		Type      string       `db:"type"`       // 内容类型: video, comic, podcast, article, comment
+		TargetId  uint64       `db:"target_id"`  // 目标内容ID
+		UserId    uint64       `db:"user_id"`    // 用户ID
+		CreatedAt time.Time    `db:"created_at"` // 创建时间
+		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
+		DeletedAt sql.NullTime `db:"deleted_at"` // 软删除时间（NULL表示未删除）
 	}
 )
 
@@ -90,13 +91,13 @@ func (m *defaultContentLikeModel) FindOneByUserIdTypeTargetId(ctx context.Contex
 
 func (m *defaultContentLikeModel) Insert(ctx context.Context, data *ContentLike) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, contentLikeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.Status)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultContentLikeModel) Update(ctx context.Context, newData *ContentLike) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, contentLikeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Type, newData.TargetId, newData.UserId, newData.Status, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Type, newData.TargetId, newData.UserId, newData.DeletedAt, newData.Id)
 	return err
 }
 

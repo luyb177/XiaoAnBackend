@@ -17,10 +17,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-const (
-	NamePrifx = "小安用户"
-)
-
 type RegisterLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
@@ -166,7 +162,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		Department:     code.Department,
 		Role:           code.TargetRole,
 		ClassId:        uint64(code.ClassId),
-		Status:         1, // 1 正常
+		Status:         UserStatusNormal, // 1 正常
 		InviteCodeUsed: sql.NullString{String: code.Code, Valid: true},
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),

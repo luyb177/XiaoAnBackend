@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -41,12 +42,13 @@ type (
 		Description  sql.NullString `db:"description"`   // 漫画描述
 		Cover        string         `db:"cover"`         // 封面图URL
 		Author       string         `db:"author"`        // 作者
-		CreateTime   int64          `db:"create_time"`   // 内容创建时间(业务时间)
-		CreatedAt    int64          `db:"created_at"`    // 记录创建时间(系统时间)
-		UpdateTime   int64          `db:"update_time"`   // 内容更新时间(业务时间)
+		PublishedAt  time.Time      `db:"published_at"`  // 漫画发布时间（业务时间，可修改）
 		LikeCount    uint64         `db:"like_count"`    // 点赞数
 		ViewCount    uint64         `db:"view_count"`    // 浏览数
 		CollectCount uint64         `db:"collect_count"` // 收藏数
+		CreatedAt    time.Time      `db:"created_at"`    // 记录创建时间（系统时间）
+		UpdatedAt    time.Time      `db:"updated_at"`    // 记录更新时间（系统时间）
+		DeletedAt    sql.NullTime   `db:"deleted_at"`    // 删除时间(NULL表示未删除)
 	}
 )
 
@@ -78,14 +80,14 @@ func (m *defaultComicModel) FindOne(ctx context.Context, id uint64) (*Comic, err
 }
 
 func (m *defaultComicModel) Insert(ctx context.Context, data *Comic) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, comicRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Description, data.Cover, data.Author, data.LikeCount, data.ViewCount, data.CollectCount)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, comicRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Description, data.Cover, data.Author, data.PublishedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultComicModel) Update(ctx context.Context, data *Comic) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, comicRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Description, data.Cover, data.Author, data.LikeCount, data.ViewCount, data.CollectCount, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Description, data.Cover, data.Author, data.PublishedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt, data.Id)
 	return err
 }
 

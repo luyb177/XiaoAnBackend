@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -37,10 +38,12 @@ type (
 	}
 
 	ComicTag struct {
-		Id        uint64 `db:"id"`
-		ComicId   uint64 `db:"comic_id"`   // 漫画ID
-		Tag       string `db:"tag"`        // 标签
-		CreatedAt int64  `db:"created_at"` // 创建时间
+		Id        uint64       `db:"id"`
+		ComicId   uint64       `db:"comic_id"`   // 漫画ID
+		Tag       string       `db:"tag"`        // 标签
+		CreatedAt time.Time    `db:"created_at"` // 创建时间
+		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
+		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间(NULL表示未删除)
 	}
 )
 
@@ -86,14 +89,14 @@ func (m *defaultComicTagModel) FindOneByComicIdTag(ctx context.Context, comicId 
 }
 
 func (m *defaultComicTagModel) Insert(ctx context.Context, data *ComicTag) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.table, comicTagRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ComicId, data.Tag)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, comicTagRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ComicId, data.Tag, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultComicTagModel) Update(ctx context.Context, newData *ComicTag) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, comicTagRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.ComicId, newData.Tag, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.ComicId, newData.Tag, newData.DeletedAt, newData.Id)
 	return err
 }
 

@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -37,10 +38,12 @@ type (
 	}
 
 	PodcastTag struct {
-		Id        uint64 `db:"id"`
-		PodcastId uint64 `db:"podcast_id"` // 播客ID
-		Tag       string `db:"tag"`        // 标签
-		CreatedAt int64  `db:"created_at"` // 创建时间
+		Id        uint64       `db:"id"`
+		PodcastId uint64       `db:"podcast_id"` // 播客ID
+		Tag       string       `db:"tag"`        // 标签
+		CreatedAt time.Time    `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt time.Time    `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt sql.NullTime `db:"deleted_at"` // 软删除时间
 	}
 )
 
@@ -86,14 +89,14 @@ func (m *defaultPodcastTagModel) FindOneByPodcastIdTag(ctx context.Context, podc
 }
 
 func (m *defaultPodcastTagModel) Insert(ctx context.Context, data *PodcastTag) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.table, podcastTagRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.PodcastId, data.Tag)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, podcastTagRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.PodcastId, data.Tag, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultPodcastTagModel) Update(ctx context.Context, newData *PodcastTag) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, podcastTagRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.PodcastId, newData.Tag, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.PodcastId, newData.Tag, newData.DeletedAt, newData.Id)
 	return err
 }
 

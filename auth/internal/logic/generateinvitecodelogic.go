@@ -16,13 +16,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-const (
-	SUPERADMIN = "superadmin"
-	CLASSADMIN = "classadmin"
-	STUDENT    = "student"
-	STAFF      = "staff"
-)
-
 type GenerateInviteCodeLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
@@ -44,7 +37,7 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // GenerateInviteCode 生成邀请码
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
 	creator := middleware.MustGetUser(l.ctx)
-	if creator.UID == 0 || creator.Role == "" || creator.Status != 1 {
+	if creator.UID == InvalidUserID || creator.Role == "" || creator.Status != UserStatusNormal {
 		l.Logger.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
 
 		return &v1.Response{
@@ -111,7 +104,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		code.Department = sql.NullString{String: in.Department, Valid: true}
 		code.MaxUses = in.MaxUses
 		code.UsedCount = 0
-		code.IsActive = 1 // 有效
+		code.IsActive = InviteCodeActive // 有效
 		code.Remark = sql.NullString{String: in.Remark, Valid: true}
 		code.CreatedAt = now
 		code.ExpiresAt = sql.NullTime{Time: now.Add(time.Duration(in.ExpiresAt) * time.Second), Valid: true}
