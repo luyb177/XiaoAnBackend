@@ -8,3 +8,4 @@ content/sql
 content/internal/logic/test_source
 *_test.go
 *.png
+docker-compose.yaml
