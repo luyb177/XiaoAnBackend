@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"strings"
@@ -20,6 +21,7 @@ type (
 		articleModel
 		withSession(session sqlx.Session) ArticleModel
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
+		InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error)
 	}
 
 	customArticleModel struct {
@@ -36,6 +38,10 @@ func NewArticleModel(conn sqlx.SqlConn) ArticleModel {
 
 func (m *customArticleModel) withSession(session sqlx.Session) ArticleModel {
 	return NewArticleModel(sqlx.NewSqlConnFromSession(session))
+}
+
+func (m *customArticleModel) InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error) {
+	return m.withSession(session).Insert(ctx, data)
 }
 
 func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error) {

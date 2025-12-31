@@ -8,10 +8,12 @@ import (
 	"google.golang.org/grpc"
 )
 
+type ctxKey string
+
 const (
-	ctxKeyUserID     string = "user_id"
-	ctxKeyUserRole   string = "user_role"
-	ctxKeyUserStatus string = "user_status"
+	ctxKeyUserID     ctxKey = "user_id"
+	ctxKeyUserRole   ctxKey = "user_role"
+	ctxKeyUserStatus ctxKey = "user_status"
 )
 
 // 不需要鉴权的方法

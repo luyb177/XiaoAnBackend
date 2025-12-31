@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ContentService_UploadContentStream_FullMethodName = "/content.ContentService/UploadContentStream"
 	ContentService_GetContentURL_FullMethodName       = "/content.ContentService/GetContentURL"
+	ContentService_AddArticle_FullMethodName          = "/content.ContentService/AddArticle"
+	ContentService_GetArticle_FullMethodName          = "/content.ContentService/GetArticle"
 	ContentService_AddVideo_FullMethodName            = "/content.ContentService/AddVideo"
 	ContentService_Search_FullMethodName              = "/content.ContentService/Search"
 	ContentService_Like_FullMethodName                = "/content.ContentService/Like"
@@ -39,6 +41,10 @@ type ContentServiceClient interface {
 	UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadChunk, Response], error)
 	// 获取访问URL
 	GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
+	// AddArticle 添加文章
+	AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetArticle 获取文章
+	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error)
 	// 添加视频
 	AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
@@ -82,6 +88,26 @@ func (c *contentServiceClient) GetContentURL(ctx context.Context, in *GetContent
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, ContentService_GetContentURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_AddArticle_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetArticle_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -176,6 +202,10 @@ type ContentServiceServer interface {
 	UploadContentStream(grpc.ClientStreamingServer[UploadChunk, Response]) error
 	// 获取访问URL
 	GetContentURL(context.Context, *GetContentURLRequest) (*Response, error)
+	// AddArticle 添加文章
+	AddArticle(context.Context, *AddArticleRequest) (*Response, error)
+	// GetArticle 获取文章
+	GetArticle(context.Context, *GetArticleRequest) (*Response, error)
 	// 添加视频
 	AddVideo(context.Context, *AddVideoRequest) (*Response, error)
 	// 搜索
@@ -207,6 +237,12 @@ func (UnimplementedContentServiceServer) UploadContentStream(grpc.ClientStreamin
 }
 func (UnimplementedContentServiceServer) GetContentURL(context.Context, *GetContentURLRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContentURL not implemented")
+}
+func (UnimplementedContentServiceServer) AddArticle(context.Context, *AddArticleRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddArticle not implemented")
+}
+func (UnimplementedContentServiceServer) GetArticle(context.Context, *GetArticleRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticle not implemented")
 }
 func (UnimplementedContentServiceServer) AddVideo(context.Context, *AddVideoRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddVideo not implemented")
@@ -274,6 +310,42 @@ func _ContentService_GetContentURL_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).GetContentURL(ctx, req.(*GetContentURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_AddArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AddArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AddArticle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AddArticle(ctx, req.(*AddArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetArticle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetArticle(ctx, req.(*GetArticleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -432,6 +504,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetContentURL",
 			Handler:    _ContentService_GetContentURL_Handler,
+		},
+		{
+			MethodName: "AddArticle",
+			Handler:    _ContentService_AddArticle_Handler,
+		},
+		{
+			MethodName: "GetArticle",
+			Handler:    _ContentService_GetArticle_Handler,
 		},
 		{
 			MethodName: "AddVideo",

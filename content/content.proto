@@ -55,17 +55,24 @@ message Article {
   uint64 id = 1;
   string name = 2;
   repeated string tag = 3;
-  string url = 4;
-  string description = 5;
-  string cover = 6;
-  string content = 7;
-  string author = 8;
-  int64 create_time = 9;
-  int64 created_at = 10;
-  int64 update_time = 11;
-  uint64 like_count = 12;
-  uint64 view_count = 13;
-  uint64 collect_count = 14;
+  repeated ArticleImage images = 4;
+  string url = 5; // 可能的视频 url
+  string description = 6;
+  string cover = 7;
+  string content = 8;
+  string author = 9;
+  int64 published_at = 10;
+  int64 created_at = 11;
+  int64 updated_at = 12;
+  uint64 like_count = 13;
+  uint64 view_count = 14;
+  uint64 collect_count = 15;
+}
+
+message ArticleImage {
+  string url = 2;
+  int64 sort = 3;  // 图片顺序
+  int64 tp = 4;
 }
 
 // 点赞记录
@@ -139,6 +146,39 @@ message AddVideoRequest {
   string author = 6;
   int64 create_time = 7;
 }
+
+// 添加文章
+message AddArticleRequest {
+  string name = 1;                    // 文章标题
+  string description = 2;             // 文章摘要
+  string content = 3;                 // 文章正文
+  string cover = 4;                   // 封面图
+  string url = 5;                     // 视频URL（可选）
+  int64 published_at = 6;              // 发表时间（可选）
+
+  repeated string tags = 7;            // 标签
+  repeated AddArticleImage images = 8; // 正文图片
+
+  string author = 9;
+}
+
+// 添加文章图片
+message AddArticleImage {
+  string url = 1;
+  int64 sort = 2;
+  int64 tp = 3; // 1内容图 2轮播图
+}
+
+message AddArticleResponse {
+  Article article = 1;
+}
+
+// 获取文章
+message GetArticleRequest {
+  uint64 id = 1;
+}
+
+
 
 message SearchRequest {
   string keyword = 1;        // 搜索关键字
@@ -240,6 +280,12 @@ service ContentService {
 
   // 获取访问URL
   rpc GetContentURL(GetContentURLRequest) returns (Response);
+
+  // AddArticle 添加文章
+  rpc AddArticle(AddArticleRequest) returns (Response);
+
+  // GetArticle 获取文章
+  rpc GetArticle(GetArticleRequest) returns (Response);
 
   // 添加视频
   rpc AddVideo(AddVideoRequest) returns (Response);

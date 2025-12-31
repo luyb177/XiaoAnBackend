@@ -54,7 +54,7 @@ func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, er
 		in.ReplyCommentId = 0 // 没有@其他用户
 	}
 
-	now := time.Now().Unix()
+	now := time.Now()
 	comment := model.Comment{
 		Type:           in.Type,
 		TargetId:       in.TargetId,

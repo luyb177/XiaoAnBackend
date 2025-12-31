@@ -82,6 +82,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 添加文章
+					Method:  http.MethodPost,
+					Path:    "/add-article",
+					Handler: content.AddArticleHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/content"),
+	)
+
+	server.AddRoutes(
 		[]rest.Route{
 			{
 				// 获取答案

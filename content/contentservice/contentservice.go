@@ -14,9 +14,13 @@ import (
 )
 
 type (
+	AddArticleImage       = v1.AddArticleImage
+	AddArticleRequest     = v1.AddArticleRequest
+	AddArticleResponse    = v1.AddArticleResponse
 	AddCommentRequest     = v1.AddCommentRequest
 	AddVideoRequest       = v1.AddVideoRequest
 	Article               = v1.Article
+	ArticleImage          = v1.ArticleImage
 	CollectRequest        = v1.CollectRequest
 	Comic                 = v1.Comic
 	Comment               = v1.Comment
@@ -25,6 +29,7 @@ type (
 	ContentCollect        = v1.ContentCollect
 	ContentLike           = v1.ContentLike
 	DeleteCommentRequest  = v1.DeleteCommentRequest
+	GetArticleRequest     = v1.GetArticleRequest
 	GetCommentsRequest    = v1.GetCommentsRequest
 	GetCommentsResponse   = v1.GetCommentsResponse
 	GetContentRequest     = v1.GetContentRequest
@@ -45,6 +50,10 @@ type (
 		UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (v1.ContentService_UploadContentStreamClient, error)
 		// 获取访问URL
 		GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
+		// AddArticle 添加文章
+		AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetArticle 获取文章
+		GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// 添加视频
 		AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
@@ -84,6 +93,18 @@ func (m *defaultContentService) UploadContentStream(ctx context.Context, opts ..
 func (m *defaultContentService) GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.GetContentURL(ctx, in, opts...)
+}
+
+// AddArticle 添加文章
+func (m *defaultContentService) AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.AddArticle(ctx, in, opts...)
+}
+
+// GetArticle 获取文章
+func (m *defaultContentService) GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetArticle(ctx, in, opts...)
 }
 
 // 添加视频

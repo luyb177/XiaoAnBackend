@@ -14,13 +14,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-const (
-	SUPERADMIN = "superadmin"
-	CLASSADMIN = "classadmin"
-	STUDENT    = "student"
-	STAFF      = "staff"
-)
-
 type AddVideoLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
@@ -99,17 +92,20 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 			Message: "视频创建时间不能为空",
 		}, fmt.Errorf("视频创建时间不能为空")
 	}
-	now := time.Now().Unix()
+	now := time.Now()
 
 	video := model.Video{
-		Name:         in.Name,
-		Url:          in.Url,
-		Description:  sql.NullString{String: in.Description, Valid: true},
-		Cover:        in.Cover,
-		Author:       in.Author,
-		CreateTime:   in.CreateTime,
+		Name:        in.Name,
+		Url:         in.Url,
+		Description: sql.NullString{String: in.Description, Valid: true},
+		Cover:       in.Cover,
+		Author:      in.Author,
+		PublishedAt: sql.NullTime{
+			Time:  time.Time{},
+			Valid: false,
+		},
 		CreatedAt:    now,
-		UpdateTime:   now,
+		UpdatedAt:    now,
 		LikeCount:    0,
 		ViewCount:    0,
 		CollectCount: 0,

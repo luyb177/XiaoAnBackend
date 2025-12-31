@@ -73,7 +73,7 @@ func (l *UpdateCommentLogic) UpdateComment(in *v1.UpdateCommentRequest) (*v1.Res
 	}
 
 	comment.Content = in.Content
-	comment.UpdatedAt = time.Now().Unix()
+	comment.UpdatedAt = time.Now()
 
 	err = l.commentDao.Update(l.ctx, comment)
 	if err != nil {

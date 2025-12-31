@@ -55,14 +55,30 @@ type (
 	}
 )
 
-// 文件上传请求
+// content 请求模块
 type (
 	UploadContentRequest {
 		file string `form:"file,optional"`
 	}
+	AddArticleRequest {
+		name        string            `json:"name"`
+		description string            `json:"description"`
+		content     string            `json:"content"`
+		cover       string            `json:"cover"`
+		url         string            `json:"url"`
+		publishedAt int64             `json:"published_at"`
+		author      string            `json:"author"`
+		Tags        []string          `json:"tags"`
+		Images      []AddArticleImage `json:"images"`
+	}
+	AddArticleImage {
+		url  string `json:"url"`
+		sort int64  `json:"sort"`
+		tp   int64  `json:"tp"`
+	}
 )
 
-// 文件上传返回
+// content 返回模块
 type (
 	UploadContentResponse {
 		url string `json:"url"`
@@ -139,5 +155,17 @@ service xiaoan {
 	@doc "上传文件（流式传输到gRPC）"
 	@handler UploadContentStream
 	post /upload (UploadContentRequest) returns (Response)
+}
+
+@server (
+	prefix:     /api/content
+	tags:       "文件内容模块"
+	group:      content
+	middleware: AuthMiddleware
+)
+service xiaoan {
+	@doc "添加文章"
+	@handler AddArticle
+	post /add-article (AddArticleRequest) returns (Response)
 }
 

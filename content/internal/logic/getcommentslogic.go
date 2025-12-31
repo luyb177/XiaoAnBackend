@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"google.golang.org/protobuf/types/known/anypb"
 	"sync"
@@ -102,8 +101,8 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 				ReplyUserId:    comment.ReplyUserId,
 				Content:        comment.Content,
 				LikeCount:      comment.LikeCount,
-				CreatedAt:      comment.CreatedAt,
-				UpdatedAt:      comment.UpdatedAt,
+				CreatedAt:      comment.CreatedAt.Unix(),
+				UpdatedAt:      comment.UpdatedAt.Unix(),
 				IsLiked:        false, // 这里需要查看
 			},
 			ChildPreview: nil,
@@ -126,15 +125,15 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 			defer wg.Done()
 
 			// 获取跟评论是否点赞
-			contentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, item.Comment.Id)
-			if err == nil {
-				// 有点赞数据，判断是否有效
-				if contentLike.Status == Valid {
-					item.Comment.IsLiked = true
-				}
-			} else if !errors.Is(err, model.ErrNotFound) {
-				l.Logger.Errorf("GetComments 获取跟评论点赞数据失败 err: %v，其中parent_id为 %d", err, item.Comment.Id)
-			}
+			//contentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, item.Comment.Id)
+			//if err == nil {
+			//	// 有点赞数据，判断是否有效
+			//	if contentLike.Status == Valid {
+			//		item.Comment.IsLiked = true
+			//	}
+			//} else if !errors.Is(err, model.ErrNotFound) {
+			//	l.Logger.Errorf("GetComments 获取跟评论点赞数据失败 err: %v，其中parent_id为 %d", err, item.Comment.Id)
+			//}
 
 			// 获取子评论总数
 			var childTotal int64
@@ -168,29 +167,29 @@ func (l *GetCommentsLogic) GetComments(in *v1.GetCommentsRequest) (*v1.Response,
 						ReplyUserId:    child.ReplyUserId,
 						Content:        child.Content,
 						LikeCount:      child.LikeCount,
-						CreatedAt:      child.CreatedAt,
-						UpdatedAt:      child.UpdatedAt,
+						CreatedAt:      child.CreatedAt.Unix(),
+						UpdatedAt:      child.UpdatedAt.Unix(),
 						IsLiked:        false,
 					})
 				}
 				item.ChildPreview = childComments
 
 				//	获取子评论是否点赞
-				for _, cp := range item.ChildPreview {
-					childContentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, cp.Id)
-					if err == nil {
-						if childContentLike.Status == Valid {
-							cp.IsLiked = true
-						}
-					} else if !errors.Is(err, model.ErrNotFound) {
-						l.Logger.Errorf("GetComments 获取子评论点赞数据失败 err: %v，其中parent_id为 %d", err, cp.Id)
-					}
-
-					// 有点赞数据，判断是否有效
-					if childContentLike.Status == Valid {
-						cp.IsLiked = true
-					}
-				}
+				//for _, cp := range item.ChildPreview {
+				//	childContentLike, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, TypeComment, cp.Id)
+				//	if err == nil {
+				//		if childContentLike.Status == Valid {
+				//			cp.IsLiked = true
+				//		}
+				//	} else if !errors.Is(err, model.ErrNotFound) {
+				//		l.Logger.Errorf("GetComments 获取子评论点赞数据失败 err: %v，其中parent_id为 %d", err, cp.Id)
+				//	}
+				//
+				//	// 有点赞数据，判断是否有效
+				//	if childContentLike.Status == Valid {
+				//		cp.IsLiked = true
+				//	}
+				//}
 
 			} else {
 				l.Logger.Errorf("GetComments 获取子评论数据失败 err: %v，其中parent_id为 %d", childErr, item.Comment.Id)

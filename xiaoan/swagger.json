@@ -174,9 +174,7 @@
               "type": "object",
               "required": [
                 "type",
-                "email",
-                "password",
-                "email_code"
+                "email"
               ],
               "properties": {
                 "email": {
@@ -389,6 +387,113 @@
         }
       }
     },
+    "/api/content/add-article": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "添加文章",
+        "operationId": "contentAddArticle",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "content",
+                "cover",
+                "url",
+                "published_at",
+                "author",
+                "tags",
+                "images"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "url",
+                      "sort",
+                      "tp"
+                    ],
+                    "properties": {
+                      "sort": {
+                        "type": "integer"
+                      },
+                      "tp": {
+                        "type": "integer"
+                      },
+                      "url": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/upload": {
       "post": {
         "consumes": [
@@ -486,7 +591,7 @@
       }
     }
   },
-  "x-date": "2025-12-02 21:49:03",
+  "x-date": "2025-12-31 21:35:03",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
