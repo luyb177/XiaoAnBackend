@@ -47,7 +47,9 @@ type (
 		UsedCount   int64          `db:"used_count"`
 		IsActive    int64          `db:"is_active"`
 		Remark      sql.NullString `db:"remark"`
-		CreatedAt   time.Time      `db:"created_at"`
+		CreatedAt   time.Time      `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt   time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt   sql.NullTime   `db:"deleted_at"` // 删除时间(NULL表示未删除)
 		ExpiresAt   sql.NullTime   `db:"expires_at"`
 		TargetRole  string         `db:"target_role"`
 		ClassId     int64          `db:"class_id"`
@@ -97,14 +99,14 @@ func (m *defaultInviteCodeModel) FindOneByCode(ctx context.Context, code string)
 }
 
 func (m *defaultInviteCodeModel) Insert(ctx context.Context, data *InviteCode) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.ExpiresAt, data.TargetRole, data.ClassId, data.Type)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.DeletedAt, data.ExpiresAt, data.TargetRole, data.ClassId, data.Type)
 	return ret, err
 }
 
 func (m *defaultInviteCodeModel) Update(ctx context.Context, newData *InviteCode) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, inviteCodeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.CreatorId, newData.CreatorName, newData.Department, newData.MaxUses, newData.UsedCount, newData.IsActive, newData.Remark, newData.ExpiresAt, newData.TargetRole, newData.ClassId, newData.Type, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.CreatorId, newData.CreatorName, newData.Department, newData.MaxUses, newData.UsedCount, newData.IsActive, newData.Remark, newData.DeletedAt, newData.ExpiresAt, newData.TargetRole, newData.ClassId, newData.Type, newData.Id)
 	return err
 }
 
