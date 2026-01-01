@@ -28,41 +28,6 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 }
 
 func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.Response, err error) {
-	// 验证 req
-	if req.Name == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "文章名不能为空",
-		}, nil
-	}
-	if req.Content == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "文章内容不能为空",
-		}, nil
-	}
-	if req.Description == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "文章描述不能为空",
-		}, nil
-	}
-	if req.Cover == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "文章封面不能为空",
-		}, nil
-	}
-	if req.Author == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "作者不能为空",
-		}, nil
-	}
-	if req.Tags == nil {
-		req.Tags = []string{"默认标签"}
-	}
-
 	// 构造
 	images := make([]*content.AddArticleImage, 0, len(req.Images))
 	for _, image := range req.Images {

@@ -70,9 +70,9 @@ message Article {
 }
 
 message ArticleImage {
-  string url = 2;
-  int64 sort = 3;  // 图片顺序
-  int64 tp = 4;
+  string url = 1;
+  int64 sort = 2;  // 图片顺序
+  int64 tp = 3;
 }
 
 // 点赞记录
@@ -121,7 +121,7 @@ message UploadChunk {
 
 // 响应
 message UploadResponse {
-  string url = 3;
+  string url = 1;
 }
 
 

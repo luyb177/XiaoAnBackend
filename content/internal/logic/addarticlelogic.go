@@ -21,6 +21,7 @@ type AddArticleLogic struct {
 	logx.Logger
 	ArticleDao      model.ArticleModel
 	ArticleImageDao model.ArticleImageModel
+	ArticleTagDao   model.ArticleTagModel
 }
 
 func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArticleLogic {
@@ -30,6 +31,7 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 		Logger:          logx.WithContext(ctx),
 		ArticleDao:      model.NewArticleModel(svcCtx.Mysql),
 		ArticleImageDao: model.NewArticleImageModel(svcCtx.Mysql),
+		ArticleTagDao:   model.NewArticleTagModel(svcCtx.Mysql),
 	}
 }
 
@@ -181,7 +183,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 				Tag:       tag,
 			}
 		}
-		err = model.NewArticleTagModel(l.svcCtx.Mysql).InsertBatchWithSession(ctx, session, tags)
+		err = l.ArticleTagDao.InsertBatchWithSession(ctx, session, tags)
 		if err != nil {
 			l.Logger.Errorf("AddArticle err: %v", err)
 			return err

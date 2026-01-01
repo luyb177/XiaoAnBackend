@@ -28,15 +28,6 @@ func NewGetArticleContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *GetArticleContentLogic) GetArticleContent(req *types.GetArticleContentRequest) (resp *types.Response, err error) {
-	if req.ArticleId <= 0 {
-		l.Logger.Errorf("文章ID错误")
-
-		return &types.Response{
-			Code:    400,
-			Message: "文章ID错误",
-		}, nil
-	}
-
 	res, _ := l.svcCtx.ContentRpc.GetArticle(l.ctx, &content.GetArticleRequest{
 		Id: req.ArticleId,
 	})
