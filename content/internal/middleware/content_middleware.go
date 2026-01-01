@@ -19,7 +19,9 @@ const (
 // 不需要鉴权的方法
 //
 //	/<proto包名>.<ServiceName>/<MethodName>
-var noAuthMethods = map[string]struct{}{}
+var noAuthMethods = map[string]struct{}{
+	"/content.ContentService/GetArticle": {},
+}
 
 // UserUnaryInterceptor 用户服务拦截器
 func UserUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {

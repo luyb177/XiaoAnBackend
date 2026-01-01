@@ -16,6 +16,7 @@ type (
 		articleImageModel
 		withSession(session sqlx.Session) ArticleImageModel
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleImage) error
+		FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleImage, error)
 	}
 
 	customArticleImageModel struct {
@@ -63,4 +64,16 @@ func (m *customArticleImageModel) InsertBatchWithSession(ctx context.Context, se
 
 	_, err := session.ExecCtx(ctx, query, args...)
 	return err
+}
+
+func (m *customArticleImageModel) FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleImage, error) {
+	query := fmt.Sprintf("select %s from %s where `article_id` = ?", articleImageRows, m.table)
+
+	var res []*ArticleImage
+
+	err := m.conn.QueryRowsCtx(ctx, &res, query, articleId)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

@@ -17,6 +17,7 @@ type (
 		articleTagModel
 		withSession(session sqlx.Session) ArticleTagModel
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleTag) error
+		FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error)
 	}
 
 	customArticleTagModel struct {
@@ -58,4 +59,20 @@ func (m *customArticleTagModel) InsertBatchWithSession(ctx context.Context, sess
 
 	_, err := session.ExecCtx(ctx, query, args...)
 	return err
+}
+
+func (m *customArticleTagModel) FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where `article_id` = ?",
+		articleTagRows,
+		m.table,
+	)
+
+	var resp []*ArticleTag
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, articleId)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }

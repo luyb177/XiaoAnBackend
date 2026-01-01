@@ -39,6 +39,10 @@ type GetAnswerResponse struct {
 	Answer string `json:"answer"`
 }
 
+type GetArticleContentRequest struct {
+	ArticleId uint64 `json:"article_id"`
+}
+
 type GetInviteCodeRequest struct {
 	Page     int64 `json:"page"`
 	PageSize int64 `json:"page_size"`

@@ -173,10 +173,15 @@ message AddArticleResponse {
   Article article = 1;
 }
 
-// 获取文章
+// 获取文章详细内容
 message GetArticleRequest {
   uint64 id = 1;
 }
+
+message GetArticleResponse {
+  Article article = 1;
+}
+
 
 
 

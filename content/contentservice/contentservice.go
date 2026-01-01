@@ -30,6 +30,7 @@ type (
 	ContentLike           = v1.ContentLike
 	DeleteCommentRequest  = v1.DeleteCommentRequest
 	GetArticleRequest     = v1.GetArticleRequest
+	GetArticleResponse    = v1.GetArticleResponse
 	GetCommentsRequest    = v1.GetCommentsRequest
 	GetCommentsResponse   = v1.GetCommentsResponse
 	GetContentRequest     = v1.GetContentRequest

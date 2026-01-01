@@ -76,6 +76,9 @@ type (
 		sort int64  `json:"sort"`
 		tp   int64  `json:"tp"`
 	}
+	GetArticleContentRequest {
+		articleId uint64 `json:"article_id"`
+	}
 )
 
 // content 返回模块
@@ -155,6 +158,17 @@ service xiaoan {
 	@doc "上传文件（流式传输到gRPC）"
 	@handler UploadContentStream
 	post /upload (UploadContentRequest) returns (Response)
+}
+
+@server (
+	prefix: /api/content
+	tags:   "文件内容模块"
+	group:  content
+)
+service xiaoan {
+	@doc "获取文章详细内容"
+	@handler GetArticleContent
+	post /get-article-content (GetArticleContentRequest) returns (Response)
 }
 
 @server (

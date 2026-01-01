@@ -171,6 +171,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}
 
 		// 添加文章标签
+		// todo 这里需要限制一下标签的数量
 
 		// 1. 构造
 		tags := make([]*model.ArticleTag, len(in.Tags))
