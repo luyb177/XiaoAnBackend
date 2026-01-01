@@ -107,6 +107,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		code.IsActive = InviteCodeActive // 有效
 		code.Remark = sql.NullString{String: in.Remark, Valid: true}
 		code.CreatedAt = now
+		code.UpdatedAt = now
 		code.ExpiresAt = sql.NullTime{Time: now.Add(time.Duration(in.ExpiresAt) * time.Second), Valid: true}
 		code.TargetRole = in.TargetRole
 		code.ClassId = 0
@@ -119,6 +120,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 
 	if err != nil {
 		l.Logger.Errorf("GenerateInviteCode err 生成邀请码失败")
+
 		return &v1.Response{
 			Code:    400,
 			Message: "生成邀请码失败",
@@ -134,6 +136,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		MaxUses:     in.MaxUses,
 		Remark:      in.Remark,
 		CreatedAt:   code.CreatedAt.Unix(),
+		UpdatedAt:   code.UpdatedAt.Unix(),
 		ExpiresAt:   code.ExpiresAt.Time.Unix(),
 		TargetRole:  code.TargetRole,
 		ClassId:     in.ClassId,

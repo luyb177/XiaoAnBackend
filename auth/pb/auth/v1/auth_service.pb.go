@@ -226,6 +226,7 @@ type InviteCode struct {
 	TargetRole    string                 `protobuf:"bytes,11,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"` // 邀请码的目标角色 classadmin / student / staff
 	ClassId       uint64                 `protobuf:"varint,12,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`         // student 用，注册自动加入班级 其中 0 表示没有班级
 	Type          string                 `protobuf:"bytes,13,opt,name=type,proto3" json:"type,omitempty"`                               // 记录的邀请码的类型 admin / student / staff
+	UpdatedAt     int64                  `protobuf:"varint,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -351,6 +352,13 @@ func (x *InviteCode) GetType() string {
 	return ""
 }
 
+func (x *InviteCode) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
 type Class struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 班级 ID
@@ -359,7 +367,7 @@ type Class struct {
 	AdminId       uint64                 `protobuf:"varint,4,opt,name=admin_id,json=adminId,proto3" json:"admin_id,omitempty"`                // 班级管理员（班主任）
 	AdminName     string                 `protobuf:"bytes,5,opt,name=admin_name,json=adminName,proto3" json:"admin_name,omitempty"`           // 管理员名称，冗余字段（方便查询）
 	StudentCount  uint64                 `protobuf:"varint,6,opt,name=student_count,json=studentCount,proto3" json:"student_count,omitempty"` // 班级学生数量
-	Status        int64                  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`                                 // 状态：0 正常，1 禁用，2 已解散
+	Status        int64                  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`                                 // 状态：1 正常，2 禁用，3 已解散
 	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`          // 创建时间
 	UpdatedAt     int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`          // 更新时间
 	unknownFields protoimpl.UnknownFields
@@ -659,6 +667,7 @@ type GenerateInviteCodeResponse struct {
 	ExpiresAt     int64                  `protobuf:"varint,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	TargetRole    string                 `protobuf:"bytes,9,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"`
 	ClassId       uint64                 `protobuf:"varint,10,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`
+	UpdatedAt     int64                  `protobuf:"varint,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -759,6 +768,13 @@ func (x *GenerateInviteCodeResponse) GetTargetRole() string {
 func (x *GenerateInviteCodeResponse) GetClassId() uint64 {
 	if x != nil {
 		return x.ClassId
+	}
+	return 0
+}
+
+func (x *GenerateInviteCodeResponse) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
 	}
 	return 0
 }
@@ -1330,7 +1346,7 @@ const file_auth_service_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\f \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\x03R\tupdatedAt\"\xff\x02\n" +
+	"updated_at\x18\r \x01(\x03R\tupdatedAt\"\x9e\x03\n" +
 	"\n" +
 	"InviteCode\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x1d\n" +
@@ -1353,7 +1369,9 @@ const file_auth_service_proto_rawDesc = "" +
 	"\vtarget_role\x18\v \x01(\tR\n" +
 	"targetRole\x12\x19\n" +
 	"\bclass_id\x18\f \x01(\x04R\aclassId\x12\x12\n" +
-	"\x04type\x18\r \x01(\tR\x04type\"\x80\x02\n" +
+	"\x04type\x18\r \x01(\tR\x04type\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x0e \x01(\x03R\tupdatedAt\"\x80\x02\n" +
 	"\x05Class\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
@@ -1385,7 +1403,7 @@ const file_auth_service_proto_rawDesc = "" +
 	"expires_at\x18\x06 \x01(\x03R\texpiresAt\x12\x1f\n" +
 	"\vtarget_role\x18\a \x01(\tR\n" +
 	"targetRole\x12\x19\n" +
-	"\bclass_id\x18\b \x01(\x04R\aclassId\"\xbf\x02\n" +
+	"\bclass_id\x18\b \x01(\x04R\aclassId\"\xde\x02\n" +
 	"\x1aGenerateInviteCodeResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x1d\n" +
 	"\n" +
@@ -1403,7 +1421,9 @@ const file_auth_service_proto_rawDesc = "" +
 	"\vtarget_role\x18\t \x01(\tR\n" +
 	"targetRole\x12\x19\n" +
 	"\bclass_id\x18\n" +
-	" \x01(\x04R\aclassId\"G\n" +
+	" \x01(\x04R\aclassId\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\v \x01(\x03R\tupdatedAt\"G\n" +
 	"\x14GetInviteCodeRequest\x12\x12\n" +
 	"\x04page\x18\x02 \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x03R\bpageSize\"\x86\x01\n" +

@@ -55,17 +55,17 @@ func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 	}
 
 	// 先查询
-	now := time.Now().Unix()
+	now := time.Now()
 
 	like, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, in.Type, in.TargetId)
 
 	switch {
 	case errors.Is(err, model.ErrNotFound):
 		_, err = l.contentLikeDao.Insert(l.ctx, &model.ContentLike{
-			Type:      in.Type,
-			TargetId:  in.TargetId,
-			UserId:    userId,
-			Status:    Valid,
+			Type:     in.Type,
+			TargetId: in.TargetId,
+			UserId:   userId,
+
 			CreatedAt: now,
 			UpdatedAt: now,
 		})
@@ -87,14 +87,14 @@ func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 		}, fmt.Errorf("点赞失败")
 
 	default:
-		// 有 查看状态
-		if like.Status == Valid {
-			// 取消点赞
-			like.Status = Invalid
-		} else {
-			// 点赞
-			like.Status = Valid
-		}
+		//// 有 查看状态
+		//if like.Status == Valid {
+		//	// 取消点赞
+		//	like.Status = Invalid
+		//} else {
+		//	// 点赞
+		//	like.Status = Valid
+		//}
 		like.UpdatedAt = now
 		// 更新
 		err = l.contentLikeDao.Update(l.ctx, like)

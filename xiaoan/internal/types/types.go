@@ -3,6 +3,24 @@
 
 package types
 
+type AddArticleImage struct {
+	Url  string `json:"url"`
+	Sort int64  `json:"sort"`
+	Tp   int64  `json:"tp"`
+}
+
+type AddArticleRequest struct {
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Content     string            `json:"content"`
+	Cover       string            `json:"cover"`
+	Url         string            `json:"url"`
+	PublishedAt int64             `json:"published_at"`
+	Author      string            `json:"author"`
+	Tags        []string          `json:"tags"`
+	Images      []AddArticleImage `json:"images"`
+}
+
 type GenerateInviteCodeRequest struct {
 	Creator_name string `json:"creator_name"`
 	Department   string `json:"department"`
@@ -19,6 +37,10 @@ type GetAnswerRequest struct {
 
 type GetAnswerResponse struct {
 	Answer string `json:"answer"`
+}
+
+type GetArticleContentRequest struct {
+	ArticleId uint64 `json:"article_id"`
 }
 
 type GetInviteCodeRequest struct {

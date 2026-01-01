@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	NamePrifx = "小安用户"
+	NamePrefix = "小安用户"
 )
 
 const (
@@ -22,7 +22,6 @@ const (
 )
 
 const (
-
 	// UserStatusNormal 正常
 	UserStatusNormal = iota + 1
 	// UserStatusDisable 禁用

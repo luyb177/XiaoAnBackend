@@ -38,6 +38,8 @@ message InviteCode {
   string target_role = 11;    // 邀请码的目标角色 classadmin / student / staff
   uint64 class_id = 12;       // student 用，注册自动加入班级 其中 0 表示没有班级
   string type = 13;           // 记录的邀请码的类型 admin / student / staff
+
+  int64 updated_at = 14;
 }
 
 message Class {
@@ -86,6 +88,7 @@ message GenerateInviteCodeResponse {
   int64 expires_at = 8;
   string target_role = 9;
   uint64  class_id = 10;
+  int64 updated_at = 11;
 }
 
 message GetInviteCodeRequest {

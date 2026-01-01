@@ -2,6 +2,8 @@ package model
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"strings"
@@ -20,6 +22,8 @@ type (
 		articleModel
 		withSession(session sqlx.Session) ArticleModel
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
+		InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error)
+		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
 	}
 
 	customArticleModel struct {
@@ -36,6 +40,10 @@ func NewArticleModel(conn sqlx.SqlConn) ArticleModel {
 
 func (m *customArticleModel) withSession(session sqlx.Session) ArticleModel {
 	return NewArticleModel(sqlx.NewSqlConnFromSession(session))
+}
+
+func (m *customArticleModel) InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error) {
+	return m.withSession(session).Insert(ctx, data)
 }
 
 func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error) {
@@ -67,4 +75,23 @@ func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset in
 	var out []*Article
 	err := m.conn.QueryRowsCtx(ctx, &out, query, args...)
 	return out, err
+}
+
+func (m *customArticleModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where `id` = ? and `deleted_at` is null limit 1",
+		articleRows,
+		m.table,
+	)
+
+	var resp Article
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	switch {
+	case err == nil:
+		return &resp, nil
+	case errors.Is(err, sqlx.ErrNotFound):
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
 }

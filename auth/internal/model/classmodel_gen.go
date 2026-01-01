@@ -43,9 +43,9 @@ type (
 		AdminId      int64          `db:"admin_id"`
 		AdminName    sql.NullString `db:"admin_name"`
 		StudentCount int64          `db:"student_count"`
-		Status       int64          `db:"status"`
-		CreatedAt    time.Time      `db:"created_at"`
-		UpdatedAt    time.Time      `db:"updated_at"`
+		CreatedAt    time.Time      `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt    time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt    sql.NullTime   `db:"deleted_at"` // 删除时间(NULL表示未删除)
 	}
 )
 
@@ -78,13 +78,13 @@ func (m *defaultClassModel) FindOne(ctx context.Context, id uint64) (*Class, err
 
 func (m *defaultClassModel) Insert(ctx context.Context, data *Class) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, classRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Department, data.AdminId, data.AdminName, data.StudentCount, data.Status)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Department, data.AdminId, data.AdminName, data.StudentCount, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultClassModel) Update(ctx context.Context, data *Class) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, classRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Department, data.AdminId, data.AdminName, data.StudentCount, data.Status, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Department, data.AdminId, data.AdminName, data.StudentCount, data.DeletedAt, data.Id)
 	return err
 }
 

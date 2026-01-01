@@ -156,7 +156,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 
 	// 创建用户
 	user := model.User{
-		Name:           NamePrifx + in.InviteCodeUsed,
+		Name:           NamePrefix + in.InviteCodeUsed,
 		Email:          in.Email,
 		Password:       hashPassword,
 		Department:     code.Department,

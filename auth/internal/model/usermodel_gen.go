@@ -47,10 +47,11 @@ type (
 		Department     sql.NullString `db:"department"`
 		Role           string         `db:"role"`
 		ClassId        uint64         `db:"class_id"`
-		Status         int64          `db:"status"`
+		Status         int64          `db:"status"` // 用户状态: 1正常 2封禁 3注销
 		InviteCodeUsed sql.NullString `db:"invite_code_used"`
-		CreatedAt      time.Time      `db:"created_at"`
-		UpdatedAt      time.Time      `db:"updated_at"`
+		CreatedAt      time.Time      `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt      time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt      sql.NullTime   `db:"deleted_at"` // 删除时间(NULL表示未删除)
 	}
 )
 
@@ -96,14 +97,14 @@ func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*U
 }
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Email, data.Avatar, data.Phone, data.Password, data.Department, data.Role, data.ClassId, data.Status, data.InviteCodeUsed)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Email, data.Avatar, data.Phone, data.Password, data.Department, data.Role, data.ClassId, data.Status, data.InviteCodeUsed, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Name, newData.Email, newData.Avatar, newData.Phone, newData.Password, newData.Department, newData.Role, newData.ClassId, newData.Status, newData.InviteCodeUsed, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Name, newData.Email, newData.Avatar, newData.Phone, newData.Password, newData.Department, newData.Role, newData.ClassId, newData.Status, newData.InviteCodeUsed, newData.DeletedAt, newData.Id)
 	return err
 }
 

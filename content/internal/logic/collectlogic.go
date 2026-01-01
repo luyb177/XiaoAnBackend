@@ -47,7 +47,7 @@ func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
 			Message: "参数错误",
 		}, fmt.Errorf("参数错误")
 	}
-	now := time.Now().Unix()
+	now := time.Now()
 	collect, err := l.contentCollectDao.FindOneByUserIdTypeTargetId(l.ctx, userId, in.Type, in.TargetId)
 	switch {
 	case errors.Is(err, model.ErrNotFound):
@@ -55,7 +55,6 @@ func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
 			Type:      in.Type,
 			TargetId:  in.TargetId,
 			UserId:    userId,
-			Status:    Valid,
 			CreatedAt: now,
 			UpdatedAt: now,
 		})
@@ -77,13 +76,6 @@ func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
 		}, fmt.Errorf("收藏失败")
 
 	default:
-		if collect.Status == Valid {
-			// 取消收藏
-			collect.Status = Invalid
-		} else {
-			// 收藏
-			collect.Status = Valid
-		}
 		collect.UpdatedAt = now
 		err = l.contentCollectDao.Update(l.ctx, collect)
 		if err != nil {

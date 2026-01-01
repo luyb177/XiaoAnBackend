@@ -35,6 +35,18 @@ func (s *ContentServiceServer) GetContentURL(ctx context.Context, in *v1.GetCont
 	return l.GetContentURL(in)
 }
 
+// AddArticle 添加文章
+func (s *ContentServiceServer) AddArticle(ctx context.Context, in *v1.AddArticleRequest) (*v1.Response, error) {
+	l := logic.NewAddArticleLogic(ctx, s.svcCtx)
+	return l.AddArticle(in)
+}
+
+// GetArticle 获取文章
+func (s *ContentServiceServer) GetArticle(ctx context.Context, in *v1.GetArticleRequest) (*v1.Response, error) {
+	l := logic.NewGetArticleLogic(ctx, s.svcCtx)
+	return l.GetArticle(in)
+}
+
 // 添加视频
 func (s *ContentServiceServer) AddVideo(ctx context.Context, in *v1.AddVideoRequest) (*v1.Response, error) {
 	l := logic.NewAddVideoLogic(ctx, s.svcCtx)
