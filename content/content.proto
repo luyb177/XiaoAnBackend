@@ -67,6 +67,8 @@ message Article {
   uint64 like_count = 13;
   uint64 view_count = 14;
   uint64 collect_count = 15;
+  int64 last_modified_by = 16;
+  int64 relation_status = 17;
 }
 
 message ArticleImage {
@@ -182,7 +184,22 @@ message GetArticleResponse {
   Article article = 1;
 }
 
+message ModifyArticleRequest {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag =  3;
+  repeated ArticleImage images = 4;
+  string url = 5;
+  string description = 6;
+  string cover = 7;
+  string content = 9;
+  string author = 10;
+  int64 published_at = 11;
+}
 
+message ModifyArticleResponse {
+  Article article = 1;
+}
 
 
 message SearchRequest {
@@ -291,6 +308,9 @@ service ContentService {
 
   // GetArticle 获取文章
   rpc GetArticle(GetArticleRequest) returns (Response);
+
+  // ModifyArticle 修改文章
+  rpc ModifyArticle(ModifyArticleRequest) returns (Response);
 
   // 添加视频
   rpc AddVideo(AddVideoRequest) returns (Response);

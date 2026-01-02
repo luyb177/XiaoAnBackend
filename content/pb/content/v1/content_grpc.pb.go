@@ -23,6 +23,7 @@ const (
 	ContentService_GetContentURL_FullMethodName       = "/content.ContentService/GetContentURL"
 	ContentService_AddArticle_FullMethodName          = "/content.ContentService/AddArticle"
 	ContentService_GetArticle_FullMethodName          = "/content.ContentService/GetArticle"
+	ContentService_ModifyArticle_FullMethodName       = "/content.ContentService/ModifyArticle"
 	ContentService_AddVideo_FullMethodName            = "/content.ContentService/AddVideo"
 	ContentService_Search_FullMethodName              = "/content.ContentService/Search"
 	ContentService_Like_FullMethodName                = "/content.ContentService/Like"
@@ -45,6 +46,8 @@ type ContentServiceClient interface {
 	AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
 	// GetArticle 获取文章
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error)
+	// ModifyArticle 修改文章
+	ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error)
 	// 添加视频
 	AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
@@ -108,6 +111,16 @@ func (c *contentServiceClient) GetArticle(ctx context.Context, in *GetArticleReq
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, ContentService_GetArticle_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_ModifyArticle_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -206,6 +219,8 @@ type ContentServiceServer interface {
 	AddArticle(context.Context, *AddArticleRequest) (*Response, error)
 	// GetArticle 获取文章
 	GetArticle(context.Context, *GetArticleRequest) (*Response, error)
+	// ModifyArticle 修改文章
+	ModifyArticle(context.Context, *ModifyArticleRequest) (*Response, error)
 	// 添加视频
 	AddVideo(context.Context, *AddVideoRequest) (*Response, error)
 	// 搜索
@@ -243,6 +258,9 @@ func (UnimplementedContentServiceServer) AddArticle(context.Context, *AddArticle
 }
 func (UnimplementedContentServiceServer) GetArticle(context.Context, *GetArticleRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticle not implemented")
+}
+func (UnimplementedContentServiceServer) ModifyArticle(context.Context, *ModifyArticleRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyArticle not implemented")
 }
 func (UnimplementedContentServiceServer) AddVideo(context.Context, *AddVideoRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddVideo not implemented")
@@ -346,6 +364,24 @@ func _ContentService_GetArticle_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).GetArticle(ctx, req.(*GetArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ModifyArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ModifyArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ModifyArticle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ModifyArticle(ctx, req.(*ModifyArticleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -512,6 +548,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticle",
 			Handler:    _ContentService_GetArticle_Handler,
+		},
+		{
+			MethodName: "ModifyArticle",
+			Handler:    _ContentService_ModifyArticle_Handler,
 		},
 		{
 			MethodName: "AddVideo",

@@ -87,6 +87,15 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	if in.Tags == nil {
 		in.Tags = []string{"默认标签"}
 	}
+	if len(in.Tags) > 10 {
+		l.Logger.Errorf("AddArticle err: 标签数量超出限制")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "标签数量超出限制",
+		}, nil
+	}
+
 	if len(in.Images) != 0 {
 		for _, image := range in.Images {
 			if image.Url == "" {
@@ -119,75 +128,38 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	// 正式添加文章
 	var article model.Article
 	var images []*model.ArticleImage
+	now := time.Now()
 	// 事务
 	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 添加文章
-
 		// 1. 构造
-		now := time.Now()
 		article = model.Article{
-			Name:         in.Name,
-			Url:          in.Url,
-			Description:  sql.NullString{String: in.Description, Valid: true},
-			Cover:        in.Cover,
-			Content:      sql.NullString{String: in.Content, Valid: true},
-			Author:       in.Author,
-			PublishedAt:  time.Unix(in.PublishedAt, 0),
-			LikeCount:    0,
-			ViewCount:    0,
-			CollectCount: 0,
-			CreatedAt:    now,
-			UpdatedAt:    now,
+			Name:           in.Name,
+			Url:            in.Url,
+			Description:    sql.NullString{String: in.Description, Valid: true},
+			Cover:          in.Cover,
+			Content:        sql.NullString{String: in.Content, Valid: true},
+			Author:         in.Author,
+			PublishedAt:    time.Unix(in.PublishedAt, 0),
+			RelationStatus: RelationStatusPending,
+			LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
+			LikeCount:      0,
+			ViewCount:      0,
+			CollectCount:   0,
+			CreatedAt:      now,
+			UpdatedAt:      now,
 		}
 
 		result, err := l.ArticleDao.InsertWithSession(ctx, session, &article)
 		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
-
 			return err
 		}
 		id, err := result.LastInsertId()
 		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
 			return err
 		}
 		article.Id = uint64(id)
 
-		// 添加文章图片
-
-		// 2. 构造
-		images = make([]*model.ArticleImage, len(in.Images))
-		for i, image := range in.Images {
-			images[i] = &model.ArticleImage{
-				ArticleId: article.Id,
-				Url:       image.Url,
-				Sort:      image.Sort,
-				CreatedAt: now,
-				Type:      image.Tp,
-			}
-		}
-		err = l.ArticleImageDao.InsertBatchWithSession(ctx, session, images)
-		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
-			return err
-		}
-
-		// 添加文章标签
-		// todo 这里需要限制一下标签的数量
-
-		// 1. 构造
-		tags := make([]*model.ArticleTag, len(in.Tags))
-		for i, tag := range in.Tags {
-			tags[i] = &model.ArticleTag{
-				ArticleId: article.Id,
-				Tag:       tag,
-			}
-		}
-		err = l.ArticleTagDao.InsertBatchWithSession(ctx, session, tags)
-		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
-			return err
-		}
 		return nil
 	})
 
@@ -198,6 +170,48 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 			Message: "添加文章失败",
 		}, nil
 	}
+
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		images = make([]*model.ArticleImage, len(in.Images))
+		for i, image := range in.Images {
+			images[i] = &model.ArticleImage{
+				ArticleId: article.Id,
+				Url:       image.Url,
+				Sort:      image.Sort,
+				CreatedAt: now,
+				Type:      image.Tp,
+			}
+		}
+
+		err = l.ArticleImageDao.InsertBatch(ctx, images)
+		if err != nil {
+			l.Logger.Errorf("AddArticle async add images err: %v", err)
+			return
+		}
+
+		tags := make([]*model.ArticleTag, len(in.Tags))
+		for i, tag := range in.Tags {
+			tags[i] = &model.ArticleTag{
+				ArticleId: article.Id,
+				Tag:       tag,
+			}
+		}
+		err = l.ArticleTagDao.InsertBatch(ctx, tags)
+		if err != nil {
+			l.Logger.Errorf("AddArticle async add tags err: %v", err)
+			return
+		}
+
+		// 关连内容同步正常
+		err = l.ArticleDao.UpdateRelationStatus(ctx, article.Id, RelationStatusNormal)
+		if err != nil {
+			l.Logger.Errorf("AddArticle async update relation_status err: %v", err)
+			return
+		}
+	}()
 
 	imageRes := make([]*v1.ArticleImage, len(images))
 	for i, image := range images {

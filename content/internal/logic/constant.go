@@ -30,3 +30,8 @@ var (
 		ArticleContentImage: {}, // 内容
 	}
 )
+
+const (
+	RelationStatusNormal = iota
+	RelationStatusPending
+)

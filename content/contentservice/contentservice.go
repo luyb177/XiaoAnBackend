@@ -37,6 +37,8 @@ type (
 	GetContentURLRequest  = v1.GetContentURLRequest
 	GetContentURLResponse = v1.GetContentURLResponse
 	LikeRequest           = v1.LikeRequest
+	ModifyArticleRequest  = v1.ModifyArticleRequest
+	ModifyArticleResponse = v1.ModifyArticleResponse
 	Podcast               = v1.Podcast
 	Response              = v1.Response
 	SearchRequest         = v1.SearchRequest
@@ -55,6 +57,8 @@ type (
 		AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// GetArticle 获取文章
 		GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error)
+		// ModifyArticle 修改文章
+		ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// 添加视频
 		AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
@@ -106,6 +110,12 @@ func (m *defaultContentService) AddArticle(ctx context.Context, in *AddArticleRe
 func (m *defaultContentService) GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.GetArticle(ctx, in, opts...)
+}
+
+// ModifyArticle 修改文章
+func (m *defaultContentService) ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.ModifyArticle(ctx, in, opts...)
 }
 
 // 添加视频

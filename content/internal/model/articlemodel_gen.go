@@ -37,20 +37,22 @@ type (
 	}
 
 	Article struct {
-		Id           uint64         `db:"id"`            // 文章ID
-		Name         string         `db:"name"`          // 文章标题
-		Url          string         `db:"url"`           // 视频URL
-		Description  sql.NullString `db:"description"`   // 文章描述
-		Cover        string         `db:"cover"`         // 封面图URL
-		Content      sql.NullString `db:"content"`       // 文章内容
-		Author       string         `db:"author"`        // 作者
-		PublishedAt  time.Time      `db:"published_at"`  // 文章发表时间（业务时间，可修改）
-		LikeCount    uint64         `db:"like_count"`    // 点赞数
-		ViewCount    uint64         `db:"view_count"`    // 浏览数
-		CollectCount uint64         `db:"collect_count"` // 收藏数
-		CreatedAt    time.Time      `db:"created_at"`    // 记录创建时间（系统时间）
-		UpdatedAt    time.Time      `db:"updated_at"`    // 记录更新时间（系统时间）
-		DeletedAt    sql.NullTime   `db:"deleted_at"`    // 删除时间(NULL表示未删除)
+		Id             uint64         `db:"id"`               // 文章ID
+		Name           string         `db:"name"`             // 文章标题
+		Url            string         `db:"url"`              // 视频URL
+		Description    sql.NullString `db:"description"`      // 文章描述
+		Cover          string         `db:"cover"`            // 封面图URL
+		Content        sql.NullString `db:"content"`          // 文章内容
+		Author         string         `db:"author"`           // 作者
+		PublishedAt    time.Time      `db:"published_at"`     // 文章发表时间（业务时间，可修改）
+		RelationStatus int64          `db:"relation_status"`  // 0正常 1待同步
+		LastModifiedBy sql.NullInt64  `db:"last_modified_by"` // 最后修改人ID
+		LikeCount      uint64         `db:"like_count"`       // 点赞数
+		ViewCount      uint64         `db:"view_count"`       // 浏览数
+		CollectCount   uint64         `db:"collect_count"`    // 收藏数
+		CreatedAt      time.Time      `db:"created_at"`       // 记录创建时间（系统时间）
+		UpdatedAt      time.Time      `db:"updated_at"`       // 记录更新时间（系统时间）
+		DeletedAt      sql.NullTime   `db:"deleted_at"`       // 删除时间(NULL表示未删除)
 	}
 )
 
@@ -82,14 +84,14 @@ func (m *defaultArticleModel) FindOne(ctx context.Context, id uint64) (*Article,
 }
 
 func (m *defaultArticleModel) Insert(ctx context.Context, data *Article) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, articleRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, articleRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultArticleModel) Update(ctx context.Context, data *Article) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, articleRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt, data.Id)
 	return err
 }
 
