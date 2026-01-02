@@ -115,21 +115,23 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 
 	// 构造返回内容
 	res := &v1.GetArticleResponse{Article: &v1.Article{
-		Id:           article.Id,
-		Name:         article.Name,
-		Tag:          tagsRes,
-		Images:       imagesRes,
-		Url:          article.Url,
-		Description:  article.Description.String,
-		Cover:        article.Cover,
-		Content:      article.Content.String,
-		Author:       article.Author,
-		PublishedAt:  article.PublishedAt.Unix(),
-		CreatedAt:    article.CreatedAt.Unix(),
-		UpdatedAt:    article.UpdatedAt.Unix(),
-		LikeCount:    article.LikeCount,
-		ViewCount:    article.ViewCount,
-		CollectCount: article.CollectCount,
+		Id:             article.Id,
+		Name:           article.Name,
+		Tag:            tagsRes,
+		Images:         imagesRes,
+		Url:            article.Url,
+		Description:    article.Description.String,
+		Cover:          article.Cover,
+		Content:        article.Content.String,
+		Author:         article.Author,
+		PublishedAt:    article.PublishedAt.Unix(),
+		CreatedAt:      article.CreatedAt.Unix(),
+		UpdatedAt:      article.UpdatedAt.Unix(),
+		LikeCount:      article.LikeCount,
+		ViewCount:      article.ViewCount,
+		CollectCount:   article.CollectCount,
+		LastModifiedBy: article.LastModifiedBy.Int64,
+		RelationStatus: article.RelationStatus,
 	}}
 
 	resAny, err := anypb.New(res)
@@ -142,9 +144,14 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
+	msg := "获取文章成功"
+	if article.RelationStatus == RelationStatusPending {
+		msg = "文章内容已更新，图片/标签同步中"
+	}
+
 	return &v1.Response{
 		Code:    200,
-		Message: "获取文章成功",
+		Message: msg,
 		Data:    resAny,
 	}, nil
 }

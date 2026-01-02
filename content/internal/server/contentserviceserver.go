@@ -47,6 +47,12 @@ func (s *ContentServiceServer) GetArticle(ctx context.Context, in *v1.GetArticle
 	return l.GetArticle(in)
 }
 
+// ModifyArticle 修改文章
+func (s *ContentServiceServer) ModifyArticle(ctx context.Context, in *v1.ModifyArticleRequest) (*v1.Response, error) {
+	l := logic.NewModifyArticleLogic(ctx, s.svcCtx)
+	return l.ModifyArticle(in)
+}
+
 // 添加视频
 func (s *ContentServiceServer) AddVideo(ctx context.Context, in *v1.AddVideoRequest) (*v1.Response, error) {
 	l := logic.NewAddVideoLogic(ctx, s.svcCtx)

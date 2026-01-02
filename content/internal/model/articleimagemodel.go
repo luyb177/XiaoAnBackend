@@ -15,8 +15,11 @@ type (
 	ArticleImageModel interface {
 		articleImageModel
 		withSession(session sqlx.Session) ArticleImageModel
+		InsertBatch(ctx context.Context, list []*ArticleImage) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleImage) error
 		FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleImage, error)
+		DeleteBatchByArticleId(ctx context.Context, articleId uint64) error
+		DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error
 	}
 
 	customArticleImageModel struct {
@@ -35,7 +38,7 @@ func (m *customArticleImageModel) withSession(session sqlx.Session) ArticleImage
 	return NewArticleImageModel(sqlx.NewSqlConnFromSession(session))
 }
 
-func (m *customArticleImageModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleImage) error {
+func (m *customArticleImageModel) InsertBatch(ctx context.Context, list []*ArticleImage) error {
 	if len(list) == 0 {
 		return nil
 	}
@@ -62,8 +65,12 @@ func (m *customArticleImageModel) InsertBatchWithSession(ctx context.Context, se
 		strings.Join(valuePlaceholders, ","),
 	)
 
-	_, err := session.ExecCtx(ctx, query, args...)
+	_, err := m.conn.ExecCtx(ctx, query, args...)
 	return err
+}
+
+func (m *customArticleImageModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleImage) error {
+	return m.withSession(session).InsertBatch(ctx, list)
 }
 
 func (m *customArticleImageModel) FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleImage, error) {
@@ -76,4 +83,14 @@ func (m *customArticleImageModel) FindManyByArticleId(ctx context.Context, artic
 		return nil, err
 	}
 	return res, nil
+}
+
+func (m *customArticleImageModel) DeleteBatchByArticleId(ctx context.Context, articleId uint64) error {
+	query := fmt.Sprintf("delete from %s where `article_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, articleId)
+	return err
+}
+
+func (m *customArticleImageModel) DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error {
+	return m.withSession(session).DeleteBatchByArticleId(ctx, articleId)
 }

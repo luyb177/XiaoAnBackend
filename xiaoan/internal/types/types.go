@@ -3,22 +3,22 @@
 
 package types
 
-type AddArticleImage struct {
+type AddArticleRequest struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Content     string         `json:"content"`
+	Cover       string         `json:"cover"`
+	Url         string         `json:"url"`
+	PublishedAt int64          `json:"published_at"`
+	Author      string         `json:"author"`
+	Tags        []string       `json:"tags"`
+	Images      []ArticleImage `json:"images"`
+}
+
+type ArticleImage struct {
 	Url  string `json:"url"`
 	Sort int64  `json:"sort"`
 	Tp   int64  `json:"tp"`
-}
-
-type AddArticleRequest struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Content     string            `json:"content"`
-	Cover       string            `json:"cover"`
-	Url         string            `json:"url"`
-	PublishedAt int64             `json:"published_at"`
-	Author      string            `json:"author"`
-	Tags        []string          `json:"tags"`
-	Images      []AddArticleImage `json:"images"`
 }
 
 type GenerateInviteCodeRequest struct {
@@ -53,6 +53,19 @@ type LoginRequest struct {
 	Email     string `json:"email"`
 	Password  string `json:"password,optional"`
 	EmailCode string `json:"email_code,optional"`
+}
+
+type ModifyArticleRequest struct {
+	ArticleId   uint64         `json:"article_id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Content     string         `json:"content"`
+	Cover       string         `json:"cover"`
+	Url         string         `json:"url"`
+	PublishedAt int64          `json:"published_at"`
+	Author      string         `json:"author"`
+	Tags        []string       `json:"tags"`
+	Images      []ArticleImage `json:"images"`
 }
 
 type RegisterRequest struct {
