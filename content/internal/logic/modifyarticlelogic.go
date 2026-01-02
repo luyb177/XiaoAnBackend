@@ -40,6 +40,7 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 // todo 存储修改历史
 // 因为接口比较慢，所以事务中主要新增文章，图片和标签在事务外异步执行
 // 放在异步中的话，需要一个状态来标记异步完成
+// 当然了，异步的话，还是应该使用异步队列的，这样之后可以修复
 func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Response, error) {
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
@@ -197,68 +198,77 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 		}, nil
 	}
 
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	go func(articleID uint64, tags []string, images []*v1.ArticleImage) {
+		defer func() {
+			if r := recover(); r != nil {
+				l.Logger.Errorf("panic in async article update: %v", r)
+			}
+		}()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		tags := make([]*model.ArticleTag, len(in.Tag))
-		for i, tag := range in.Tag {
-			tags[i] = &model.ArticleTag{
-				ArticleId: in.Id,
-				Tag:       tag,
+		const maxRetry = 3
+
+		for attempt := 1; attempt <= maxRetry; attempt++ {
+			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
+				// 1. 删除旧标签
+				if err := l.ArticleTagDao.DeleteBatchByArticleIdWithSession(txCtx, session, articleID); err != nil {
+					return err
+				}
+
+				// 2. 插入新标签
+				tagModels := make([]*model.ArticleTag, len(tags))
+				for i, tag := range tags {
+					tagModels[i] = &model.ArticleTag{
+						ArticleId: articleID,
+						Tag:       tag,
+					}
+				}
+				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
+					return err
+				}
+
+				// 3. 删除旧图片
+				if err := l.ArticleImageDao.DeleteBatchByArticleIdWithSession(txCtx, session, articleID); err != nil {
+					return err
+				}
+				// 4. 插入新图片
+				imageModels := make([]*model.ArticleImage, len(images))
+				for i, image := range images {
+					imageModels[i] = &model.ArticleImage{
+						ArticleId: articleID,
+						Url:       image.Url,
+						Sort:      image.Sort,
+						Type:      image.Tp,
+					}
+				}
+				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
+					return err
+				}
+
+				// 5. 更新文章的 relation_status 为正常
+				return l.ArticleDao.UpdateRelationStatusWithSession(txCtx, session, articleID, RelationStatusNormal)
+			})
+
+			if err == nil {
+				// 成功执行，退出循环
+				return
 			}
-		}
-		images := make([]*model.ArticleImage, len(in.Images))
-		for i, image := range in.Images {
-			images[i] = &model.ArticleImage{
-				ArticleId: in.Id,
-				Url:       image.Url,
-				Sort:      image.Sort,
-				Type:      image.Tp,
-			}
-		}
-		if err := l.ArticleTagDao.DeleteBatchByArticleId(ctx, in.Id); err != nil {
-			l.Logger.Errorf("async delete article tag err: %v", err)
-			return
-		}
-		if err := l.ArticleTagDao.InsertBatch(ctx, tags); err != nil {
-			l.Logger.Errorf("async insert article tag err: %v", err)
-			return
-		}
-		if err := l.ArticleImageDao.DeleteBatchByArticleId(ctx, in.Id); err != nil {
-			l.Logger.Errorf("async delete article image err: %v", err)
-			return
-		}
-		if err := l.ArticleImageDao.InsertBatch(ctx, images); err != nil {
-			l.Logger.Errorf("async insert article image err: %v", err)
-			return
+
+			// 失败，记录日志并稍作延迟重试
+			l.Logger.Errorf("async modify article attempt %d failed: %v", attempt, err)
+			time.Sleep(time.Duration(attempt) * 500 * time.Millisecond) // 指数退避
 		}
 
-		// 将关系改为正常
-		if err := l.ArticleDao.UpdateRelationStatus(ctx, in.Id, RelationStatusNormal); err != nil {
-			l.Logger.Errorf("update relation_status err: %v", err)
-		}
-	}()
+		l.Logger.Errorf("async modify article ultimately failed after %d attempts", maxRetry)
+
+	}(in.Id, in.Tag, in.Images)
 
 	// 构造返回值
 	res := &v1.ModifyArticleResponse{
-		Article: &v1.Article{
-			Id:           in.Id,
-			Name:         in.Name,
-			Tag:          in.Tag,
-			Images:       in.Images,
-			Url:          in.Url,
-			Description:  in.Description,
-			Cover:        in.Cover,
-			Content:      in.Content,
-			Author:       in.Author,
-			PublishedAt:  in.PublishedAt,
-			CreatedAt:    article.CreatedAt.Unix(),
-			UpdatedAt:    time.Now().Unix(),
-			LikeCount:    article.LikeCount,
-			ViewCount:    article.ViewCount,
-			CollectCount: article.CollectCount,
-		},
+		Id:             in.Id,
+		RelationStatus: RelationStatusPending,
 	}
 
 	resAny, err := anypb.New(res)

@@ -1453,10 +1453,11 @@ func (x *AddArticleImage) GetTp() int64 {
 }
 
 type AddArticleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Article       *Article               `protobuf:"bytes,1,opt,name=article,proto3" json:"article,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	RelationStatus int64                  `protobuf:"varint,2,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AddArticleResponse) Reset() {
@@ -1489,11 +1490,18 @@ func (*AddArticleResponse) Descriptor() ([]byte, []int) {
 	return file_content_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *AddArticleResponse) GetArticle() *Article {
+func (x *AddArticleResponse) GetId() uint64 {
 	if x != nil {
-		return x.Article
+		return x.Id
 	}
-	return nil
+	return 0
+}
+
+func (x *AddArticleResponse) GetRelationStatus() int64 {
+	if x != nil {
+		return x.RelationStatus
+	}
+	return 0
 }
 
 // 获取文章详细内容
@@ -1702,10 +1710,11 @@ func (x *ModifyArticleRequest) GetPublishedAt() int64 {
 }
 
 type ModifyArticleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Article       *Article               `protobuf:"bytes,1,opt,name=article,proto3" json:"article,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	RelationStatus int64                  `protobuf:"varint,2,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ModifyArticleResponse) Reset() {
@@ -1738,11 +1747,18 @@ func (*ModifyArticleResponse) Descriptor() ([]byte, []int) {
 	return file_content_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *ModifyArticleResponse) GetArticle() *Article {
+func (x *ModifyArticleResponse) GetId() uint64 {
 	if x != nil {
-		return x.Article
+		return x.Id
 	}
-	return nil
+	return 0
+}
+
+func (x *ModifyArticleResponse) GetRelationStatus() int64 {
+	if x != nil {
+		return x.RelationStatus
+	}
+	return 0
 }
 
 type SearchRequest struct {
@@ -2766,9 +2782,10 @@ const file_content_proto_rawDesc = "" +
 	"\x0fAddArticleImage\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x12\n" +
 	"\x04sort\x18\x02 \x01(\x03R\x04sort\x12\x0e\n" +
-	"\x02tp\x18\x03 \x01(\x03R\x02tp\"@\n" +
-	"\x12AddArticleResponse\x12*\n" +
-	"\aarticle\x18\x01 \x01(\v2\x10.content.ArticleR\aarticle\"#\n" +
+	"\x02tp\x18\x03 \x01(\x03R\x02tp\"M\n" +
+	"\x12AddArticleResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12'\n" +
+	"\x0frelation_status\x18\x02 \x01(\x03R\x0erelationStatus\"#\n" +
 	"\x11GetArticleRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\"@\n" +
 	"\x12GetArticleResponse\x12*\n" +
@@ -2784,9 +2801,10 @@ const file_content_proto_rawDesc = "" +
 	"\acontent\x18\t \x01(\tR\acontent\x12\x16\n" +
 	"\x06author\x18\n" +
 	" \x01(\tR\x06author\x12!\n" +
-	"\fpublished_at\x18\v \x01(\x03R\vpublishedAt\"C\n" +
-	"\x15ModifyArticleResponse\x12*\n" +
-	"\aarticle\x18\x01 \x01(\v2\x10.content.ArticleR\aarticle\"\x80\x01\n" +
+	"\fpublished_at\x18\v \x01(\x03R\vpublishedAt\"P\n" +
+	"\x15ModifyArticleResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12'\n" +
+	"\x0frelation_status\x18\x02 \x01(\x03R\x0erelationStatus\"\x80\x01\n" +
 	"\rSearchRequest\x12\x18\n" +
 	"\akeyword\x18\x01 \x01(\tR\akeyword\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x10\n" +
@@ -2924,49 +2942,47 @@ var file_content_proto_goTypes = []any{
 var file_content_proto_depIdxs = []int32{
 	4,  // 0: content.Article.images:type_name -> content.ArticleImage
 	14, // 1: content.AddArticleRequest.images:type_name -> content.AddArticleImage
-	3,  // 2: content.AddArticleResponse.article:type_name -> content.Article
-	3,  // 3: content.GetArticleResponse.article:type_name -> content.Article
-	4,  // 4: content.ModifyArticleRequest.images:type_name -> content.ArticleImage
-	3,  // 5: content.ModifyArticleResponse.article:type_name -> content.Article
-	0,  // 6: content.SearchResponse.videos:type_name -> content.Video
-	1,  // 7: content.SearchResponse.comics:type_name -> content.Comic
-	2,  // 8: content.SearchResponse.podcasts:type_name -> content.Podcast
-	3,  // 9: content.SearchResponse.articles:type_name -> content.Article
-	28, // 10: content.CommentItem.comment:type_name -> content.CommentDetail
-	28, // 11: content.CommentItem.child_preview:type_name -> content.CommentDetail
-	29, // 12: content.GetCommentsResponse.comments:type_name -> content.CommentItem
-	33, // 13: content.Response.data:type_name -> google.protobuf.Any
-	8,  // 14: content.ContentService.UploadContentStream:input_type -> content.UploadChunk
-	10, // 15: content.ContentService.GetContentURL:input_type -> content.GetContentURLRequest
-	13, // 16: content.ContentService.AddArticle:input_type -> content.AddArticleRequest
-	16, // 17: content.ContentService.GetArticle:input_type -> content.GetArticleRequest
-	18, // 18: content.ContentService.ModifyArticle:input_type -> content.ModifyArticleRequest
-	12, // 19: content.ContentService.AddVideo:input_type -> content.AddVideoRequest
-	20, // 20: content.ContentService.Search:input_type -> content.SearchRequest
-	22, // 21: content.ContentService.Like:input_type -> content.LikeRequest
-	23, // 22: content.ContentService.Collect:input_type -> content.collectRequest
-	24, // 23: content.ContentService.AddComment:input_type -> content.AddCommentRequest
-	25, // 24: content.ContentService.UpdateComment:input_type -> content.UpdateCommentRequest
-	26, // 25: content.ContentService.DeleteComment:input_type -> content.DeleteCommentRequest
-	27, // 26: content.ContentService.GetComments:input_type -> content.GetCommentsRequest
-	32, // 27: content.ContentService.UploadContentStream:output_type -> content.Response
-	32, // 28: content.ContentService.GetContentURL:output_type -> content.Response
-	32, // 29: content.ContentService.AddArticle:output_type -> content.Response
-	32, // 30: content.ContentService.GetArticle:output_type -> content.Response
-	32, // 31: content.ContentService.ModifyArticle:output_type -> content.Response
-	32, // 32: content.ContentService.AddVideo:output_type -> content.Response
-	32, // 33: content.ContentService.Search:output_type -> content.Response
-	32, // 34: content.ContentService.Like:output_type -> content.Response
-	32, // 35: content.ContentService.Collect:output_type -> content.Response
-	32, // 36: content.ContentService.AddComment:output_type -> content.Response
-	32, // 37: content.ContentService.UpdateComment:output_type -> content.Response
-	32, // 38: content.ContentService.DeleteComment:output_type -> content.Response
-	32, // 39: content.ContentService.GetComments:output_type -> content.Response
-	27, // [27:40] is the sub-list for method output_type
-	14, // [14:27] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	3,  // 2: content.GetArticleResponse.article:type_name -> content.Article
+	4,  // 3: content.ModifyArticleRequest.images:type_name -> content.ArticleImage
+	0,  // 4: content.SearchResponse.videos:type_name -> content.Video
+	1,  // 5: content.SearchResponse.comics:type_name -> content.Comic
+	2,  // 6: content.SearchResponse.podcasts:type_name -> content.Podcast
+	3,  // 7: content.SearchResponse.articles:type_name -> content.Article
+	28, // 8: content.CommentItem.comment:type_name -> content.CommentDetail
+	28, // 9: content.CommentItem.child_preview:type_name -> content.CommentDetail
+	29, // 10: content.GetCommentsResponse.comments:type_name -> content.CommentItem
+	33, // 11: content.Response.data:type_name -> google.protobuf.Any
+	8,  // 12: content.ContentService.UploadContentStream:input_type -> content.UploadChunk
+	10, // 13: content.ContentService.GetContentURL:input_type -> content.GetContentURLRequest
+	13, // 14: content.ContentService.AddArticle:input_type -> content.AddArticleRequest
+	16, // 15: content.ContentService.GetArticle:input_type -> content.GetArticleRequest
+	18, // 16: content.ContentService.ModifyArticle:input_type -> content.ModifyArticleRequest
+	12, // 17: content.ContentService.AddVideo:input_type -> content.AddVideoRequest
+	20, // 18: content.ContentService.Search:input_type -> content.SearchRequest
+	22, // 19: content.ContentService.Like:input_type -> content.LikeRequest
+	23, // 20: content.ContentService.Collect:input_type -> content.collectRequest
+	24, // 21: content.ContentService.AddComment:input_type -> content.AddCommentRequest
+	25, // 22: content.ContentService.UpdateComment:input_type -> content.UpdateCommentRequest
+	26, // 23: content.ContentService.DeleteComment:input_type -> content.DeleteCommentRequest
+	27, // 24: content.ContentService.GetComments:input_type -> content.GetCommentsRequest
+	32, // 25: content.ContentService.UploadContentStream:output_type -> content.Response
+	32, // 26: content.ContentService.GetContentURL:output_type -> content.Response
+	32, // 27: content.ContentService.AddArticle:output_type -> content.Response
+	32, // 28: content.ContentService.GetArticle:output_type -> content.Response
+	32, // 29: content.ContentService.ModifyArticle:output_type -> content.Response
+	32, // 30: content.ContentService.AddVideo:output_type -> content.Response
+	32, // 31: content.ContentService.Search:output_type -> content.Response
+	32, // 32: content.ContentService.Like:output_type -> content.Response
+	32, // 33: content.ContentService.Collect:output_type -> content.Response
+	32, // 34: content.ContentService.AddComment:output_type -> content.Response
+	32, // 35: content.ContentService.UpdateComment:output_type -> content.Response
+	32, // 36: content.ContentService.DeleteComment:output_type -> content.Response
+	32, // 37: content.ContentService.GetComments:output_type -> content.Response
+	25, // [25:38] is the sub-list for method output_type
+	12, // [12:25] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }

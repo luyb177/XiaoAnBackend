@@ -171,47 +171,62 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	go func(articleID uint64, tags []string, images []*v1.AddArticleImage) {
+		defer func() {
+			if r := recover(); r != nil {
+				l.Logger.Errorf("panic in async article update: %v", r)
+			}
+		}()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		images = make([]*model.ArticleImage, len(in.Images))
-		for i, image := range in.Images {
-			images[i] = &model.ArticleImage{
-				ArticleId: article.Id,
-				Url:       image.Url,
-				Sort:      image.Sort,
-				CreatedAt: now,
-				Type:      image.Tp,
+		const maxRetry = 3
+
+		for attempt := 1; attempt <= maxRetry; attempt++ {
+			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
+				// 1. 插入新标签
+				tagModels := make([]*model.ArticleTag, len(tags))
+				for i, tag := range tags {
+					tagModels[i] = &model.ArticleTag{
+						ArticleId: articleID,
+						Tag:       tag,
+					}
+				}
+				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
+					return err
+				}
+				// 2. 插入新图片
+				imageModels := make([]*model.ArticleImage, len(images))
+				for i, image := range images {
+					imageModels[i] = &model.ArticleImage{
+						ArticleId: articleID,
+						Url:       image.Url,
+						Sort:      image.Sort,
+						Type:      image.Tp,
+					}
+				}
+				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
+					return err
+				}
+
+				// 3. 更新文章的 relation_status 为正常
+				return l.ArticleDao.UpdateRelationStatusWithSession(txCtx, session, articleID, RelationStatusNormal)
+			})
+
+			if err == nil {
+				// 成功执行，退出循环
+				return
 			}
+
+			// 失败，记录日志并稍作延迟重试
+			l.Logger.Errorf("async modify article attempt %d failed: %v", attempt, err)
+			time.Sleep(time.Duration(attempt) * 500 * time.Millisecond) // 指数退避
 		}
 
-		err = l.ArticleImageDao.InsertBatch(ctx, images)
-		if err != nil {
-			l.Logger.Errorf("AddArticle async add images err: %v", err)
-			return
-		}
+		l.Logger.Errorf("async modify article ultimately failed after %d attempts", maxRetry)
 
-		tags := make([]*model.ArticleTag, len(in.Tags))
-		for i, tag := range in.Tags {
-			tags[i] = &model.ArticleTag{
-				ArticleId: article.Id,
-				Tag:       tag,
-			}
-		}
-		err = l.ArticleTagDao.InsertBatch(ctx, tags)
-		if err != nil {
-			l.Logger.Errorf("AddArticle async add tags err: %v", err)
-			return
-		}
-
-		// 关连内容同步正常
-		err = l.ArticleDao.UpdateRelationStatus(ctx, article.Id, RelationStatusNormal)
-		if err != nil {
-			l.Logger.Errorf("AddArticle async update relation_status err: %v", err)
-			return
-		}
-	}()
+	}(article.Id, in.Tags, in.Images)
 
 	imageRes := make([]*v1.ArticleImage, len(images))
 	for i, image := range images {
@@ -223,23 +238,10 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	}
 
 	// 构造返回内容
-	res := &v1.AddArticleResponse{Article: &v1.Article{
-		Id:           article.Id,
-		Name:         article.Name,
-		Tag:          in.Tags,
-		Images:       imageRes,
-		Url:          article.Url,
-		Description:  article.Description.String,
-		Cover:        article.Cover,
-		Content:      article.Content.String,
-		Author:       article.Author,
-		PublishedAt:  article.PublishedAt.Unix(),
-		CreatedAt:    article.CreatedAt.Unix(),
-		UpdatedAt:    article.UpdatedAt.Unix(),
-		LikeCount:    article.LikeCount,
-		ViewCount:    article.ViewCount,
-		CollectCount: article.CollectCount,
-	}}
+	res := &v1.AddArticleResponse{
+		Id:             article.Id,
+		RelationStatus: RelationStatusPending,
+	}
 
 	resAny, err := anypb.New(res)
 	if err != nil {

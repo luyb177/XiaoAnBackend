@@ -26,6 +26,7 @@ type (
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
+		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 	}
 
 	customArticleModel struct {
@@ -107,4 +108,8 @@ func (m *customArticleModel) UpdateRelationStatus(ctx context.Context, id uint64
 
 	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
 	return err
+}
+
+func (m *customArticleModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
+	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
 }
