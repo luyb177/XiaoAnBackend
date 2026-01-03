@@ -159,16 +159,9 @@ message AddArticleRequest {
   int64 published_at = 6;              // 发表时间（可选）
 
   repeated string tags = 7;            // 标签
-  repeated AddArticleImage images = 8; // 正文图片
+  repeated ArticleImage images = 8; // 正文图片
 
   string author = 9;
-}
-
-// 添加文章图片
-message AddArticleImage {
-  string url = 1;
-  int64 sort = 2;
-  int64 tp = 3; // 1内容图 2轮播图
 }
 
 message AddArticleResponse {

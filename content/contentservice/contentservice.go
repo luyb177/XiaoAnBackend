@@ -14,7 +14,6 @@ import (
 )
 
 type (
-	AddArticleImage       = v1.AddArticleImage
 	AddArticleRequest     = v1.AddArticleRequest
 	AddArticleResponse    = v1.AddArticleResponse
 	AddCommentRequest     = v1.AddCommentRequest

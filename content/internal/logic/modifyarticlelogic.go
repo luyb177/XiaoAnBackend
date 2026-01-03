@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/utils"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
 	"time"
@@ -218,13 +219,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 				}
 
 				// 2. 插入新标签
-				tagModels := make([]*model.ArticleTag, len(tags))
-				for i, tag := range tags {
-					tagModels[i] = &model.ArticleTag{
-						ArticleId: articleID,
-						Tag:       tag,
-					}
-				}
+				tagModels := utils.ArticleTagsFromStrings(articleID, tags)
 				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
 					return err
 				}
@@ -234,15 +229,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 					return err
 				}
 				// 4. 插入新图片
-				imageModels := make([]*model.ArticleImage, len(images))
-				for i, image := range images {
-					imageModels[i] = &model.ArticleImage{
-						ArticleId: articleID,
-						Url:       image.Url,
-						Sort:      image.Sort,
-						Type:      image.Tp,
-					}
-				}
+				imageModels := utils.ArticleImagesFromPB(articleID, images)
 				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
 					return err
 				}

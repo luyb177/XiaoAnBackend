@@ -29,9 +29,9 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 
 func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.Response, err error) {
 	// 构造
-	images := make([]*content.AddArticleImage, 0, len(req.Images))
+	images := make([]*content.ArticleImage, 0, len(req.Images))
 	for _, image := range req.Images {
-		images = append(images, &content.AddArticleImage{
+		images = append(images, &content.ArticleImage{
 			Url:  image.Url,
 			Sort: image.Sort,
 			Tp:   image.Tp,

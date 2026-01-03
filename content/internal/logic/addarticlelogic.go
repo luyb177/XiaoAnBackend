@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"github.com/luyb177/XiaoAnBackend/content/utils"
 	"google.golang.org/protobuf/types/known/anypb"
 	"time"
 
@@ -127,7 +128,6 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 
 	// 正式添加文章
 	var article model.Article
-	var images []*model.ArticleImage
 	now := time.Now()
 	// 事务
 	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
@@ -171,7 +171,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
-	go func(articleID uint64, tags []string, images []*v1.AddArticleImage) {
+	go func(articleID uint64, tags []string, images []*v1.ArticleImage) {
 		defer func() {
 			if r := recover(); r != nil {
 				l.Logger.Errorf("panic in async article update: %v", r)
@@ -186,26 +186,12 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		for attempt := 1; attempt <= maxRetry; attempt++ {
 			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
 				// 1. 插入新标签
-				tagModels := make([]*model.ArticleTag, len(tags))
-				for i, tag := range tags {
-					tagModels[i] = &model.ArticleTag{
-						ArticleId: articleID,
-						Tag:       tag,
-					}
-				}
+				tagModels := utils.ArticleTagsFromStrings(articleID, tags)
 				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
 					return err
 				}
 				// 2. 插入新图片
-				imageModels := make([]*model.ArticleImage, len(images))
-				for i, image := range images {
-					imageModels[i] = &model.ArticleImage{
-						ArticleId: articleID,
-						Url:       image.Url,
-						Sort:      image.Sort,
-						Type:      image.Tp,
-					}
-				}
+				imageModels := utils.ArticleImagesFromPB(articleID, images)
 				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
 					return err
 				}
@@ -227,15 +213,6 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		l.Logger.Errorf("async modify article ultimately failed after %d attempts", maxRetry)
 
 	}(article.Id, in.Tags, in.Images)
-
-	imageRes := make([]*v1.ArticleImage, len(images))
-	for i, image := range images {
-		imageRes[i] = &v1.ArticleImage{
-			Url:  image.Url,
-			Sort: image.Sort,
-			Tp:   image.Type,
-		}
-	}
 
 	// 构造返回内容
 	res := &v1.AddArticleResponse{

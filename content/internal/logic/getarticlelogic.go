@@ -6,6 +6,7 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/utils"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -98,20 +99,10 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 	}
 
 	// 处理 tag
-	var tagsRes []string
-	for _, tag := range tagsResult.tags {
-		tagsRes = append(tagsRes, tag.Tag)
-	}
+	tagsRes := utils.StringsFromArticleTags(tagsResult.tags)
 
 	// 处理 image
-	var imagesRes []*v1.ArticleImage
-	for _, image := range imagesResult.images {
-		imagesRes = append(imagesRes, &v1.ArticleImage{
-			Url:  image.Url,
-			Sort: image.Sort,
-			Tp:   image.Type,
-		})
-	}
+	imagesRes := utils.ArticleImagesToPB(imagesResult.images)
 
 	// 构造返回内容
 	res := &v1.GetArticleResponse{Article: &v1.Article{
