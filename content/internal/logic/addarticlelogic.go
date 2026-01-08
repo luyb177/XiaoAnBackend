@@ -3,17 +3,17 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"github.com/luyb177/XiaoAnBackend/content/utils"
-	"google.golang.org/protobuf/types/known/anypb"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type AddArticleLogic struct {
@@ -186,12 +186,12 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		for attempt := 1; attempt <= maxRetry; attempt++ {
 			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
 				// 1. 插入新标签
-				tagModels := utils.ArticleTagsFromStrings(articleID, tags)
+				tagModels := convert.ArticleTagsFromStrings(articleID, tags)
 				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
 					return err
 				}
 				// 2. 插入新图片
-				imageModels := utils.ArticleImagesFromPB(articleID, images)
+				imageModels := convert.ArticleImagesFromPB(articleID, images)
 				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
 					return err
 				}
