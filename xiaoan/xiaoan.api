@@ -61,23 +61,35 @@ type (
 		file string `form:"file,optional"`
 	}
 	AddArticleRequest {
-		name        string            `json:"name"`
-		description string            `json:"description"`
-		content     string            `json:"content"`
-		cover       string            `json:"cover"`
-		url         string            `json:"url"`
-		publishedAt int64             `json:"published_at"`
-		author      string            `json:"author"`
-		Tags        []string          `json:"tags"`
-		Images      []AddArticleImage `json:"images"`
+		name        string         `json:"name"`
+		description string         `json:"description"`
+		content     string         `json:"content"`
+		cover       string         `json:"cover"`
+		url         string         `json:"url"`
+		publishedAt int64          `json:"published_at"`
+		author      string         `json:"author"`
+		Tags        []string       `json:"tags"`
+		Images      []ArticleImage `json:"images"`
 	}
-	AddArticleImage {
+	ArticleImage {
 		url  string `json:"url"`
 		sort int64  `json:"sort"`
 		tp   int64  `json:"tp"`
 	}
 	GetArticleContentRequest {
 		articleId uint64 `json:"article_id"`
+	}
+	ModifyArticleRequest {
+		articleId   uint64         `json:"article_id"`
+		name        string         `json:"name"`
+		description string         `json:"description"`
+		content     string         `json:"content"`
+		cover       string         `json:"cover"`
+		url         string         `json:"url"`
+		publishedAt int64          `json:"published_at"`
+		author      string         `json:"author"`
+		Tags        []string       `json:"tags"`
+		Images      []ArticleImage `json:"images"`
 	}
 )
 
@@ -181,5 +193,9 @@ service xiaoan {
 	@doc "添加文章"
 	@handler AddArticle
 	post /add-article (AddArticleRequest) returns (Response)
+
+	@doc "修改文章"
+	@handler ModifyArticle
+	post /modify-article (ModifyArticleRequest) returns (Response)
 }
 

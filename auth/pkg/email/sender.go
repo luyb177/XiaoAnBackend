@@ -1,21 +1,10 @@
-package utils
+package email
 
 import (
 	"fmt"
+
 	"github.com/go-gomail/gomail"
 )
-
-const (
-	EmailCodeLength = 6
-)
-
-// EmailConfig 邮箱配置
-type EmailConfig struct {
-	From     string
-	Password string
-	SMTPHost string
-	SMTPPort int
-}
 
 // SendEmailCode 发送邮件验证码
 func SendEmailCode(cfg EmailConfig, to, code string) error {
@@ -39,9 +28,4 @@ func SendEmailCode(cfg EmailConfig, to, code string) error {
 		return fmt.Errorf("发送邮件失败: %w", err)
 	}
 	return nil
-}
-
-// GenerateEmailCode 生成随机验证码
-func GenerateEmailCode() string {
-	return GenerateCode(EmailCodeLength)
 }

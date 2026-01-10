@@ -2,15 +2,15 @@ package logic
 
 import (
 	"context"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/jwt"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"github.com/luyb177/XiaoAnBackend/auth/utils"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type LoginLogic struct {
@@ -164,7 +164,7 @@ func (l *LoginLogic) validatePassword(in *v1.LoginRequest) (*model.User, string,
 	if err != nil {
 		return nil, "用户不存在", false
 	}
-	if !utils.CheckPasswordHash(in.Password, user.Password) {
+	if !password.Compare(in.Password, user.Password) {
 		return nil, "密码错误", false
 	}
 	return user, "", true

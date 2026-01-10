@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"sync"
 
+	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"

@@ -2,10 +2,11 @@ package logic
 
 import (
 	"context"
-	"github.com/luyb177/XiaoAnBackend/auth/utils"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	authcode "github.com/luyb177/XiaoAnBackend/auth/pkg/code"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,14 +37,14 @@ func (l *SendEmailCodeLogic) SendEmailCode(in *v1.SendEmailRequest) (*v1.Respons
 		}, nil
 	}
 
-	emailCfg := utils.EmailConfig{
+	emailCfg := email.EmailConfig{
 		From:     l.svcCtx.Config.Email.From,
 		Password: l.svcCtx.Config.Email.Password,
 		SMTPHost: l.svcCtx.Config.Email.SMTPHost,
 		SMTPPort: l.svcCtx.Config.Email.SMTPPort,
 	}
 
-	code := utils.GenerateEmailCode()
+	code := authcode.EmailCode()
 
 	go func() {
 		err := l.svcCtx.RedisRepo.SetEmailCode(in.Email, code, 300)
@@ -52,7 +53,7 @@ func (l *SendEmailCodeLogic) SendEmailCode(in *v1.SendEmailRequest) (*v1.Respons
 			return
 		}
 
-		if err = utils.SendEmailCode(emailCfg, in.Email, code); err != nil {
+		if err = email.SendEmailCode(emailCfg, in.Email, code); err != nil {
 			l.Logger.Errorf("发送邮件失败: %v", err)
 			return
 		}

@@ -103,6 +103,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/add-article",
 					Handler: content.AddArticleHandler(serverCtx),
 				},
+				{
+					// 修改文章
+					Method:  http.MethodPost,
+					Path:    "/modify-article",
+					Handler: content.ModifyArticleHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithPrefix("/api/content"),

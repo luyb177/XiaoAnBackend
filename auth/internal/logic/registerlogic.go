@@ -5,16 +5,17 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/auth/utils"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"google.golang.org/protobuf/types/known/anypb"
 	"strconv"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
+
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type RegisterLogic struct {
@@ -144,7 +145,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		}, nil
 	}
 
-	hashPassword, err := utils.HashPassword(in.Password)
+	hashPassword, err := password.Hash(in.Password)
 	if err != nil {
 		l.Logger.Errorf("Register err: 密码加密失败")
 

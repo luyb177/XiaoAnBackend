@@ -10,7 +10,8 @@ import (
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/auth/utils"
+	authcode "github.com/luyb177/XiaoAnBackend/auth/pkg/code"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/retry"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -98,7 +99,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 
 	fn = func() error {
 		now := time.Now()
-		code.Code = utils.GenerateInviteCode()
+		code.Code = authcode.InviteCode()
 		code.CreatorId = int64(creator.UID)
 		code.CreatorName = sql.NullString{String: in.CreatorName, Valid: true}
 		code.Department = sql.NullString{String: in.Department, Valid: true}
@@ -116,7 +117,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		_, err := l.InviteCodeDao.Insert(l.ctx, &code)
 		return err
 	}
-	err := utils.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
+	err := retry.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
 
 	if err != nil {
 		l.Logger.Errorf("GenerateInviteCode err 生成邀请码失败")

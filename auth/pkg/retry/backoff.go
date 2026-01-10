@@ -1,23 +1,6 @@
-package utils
+package retry
 
-import (
-	"crypto/rand"
-	"math/big"
-	"time"
-)
-
-const (
-	letters = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
-)
-
-func GenerateCode(length int) string {
-	code := make([]byte, length)
-	for i := range code {
-		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
-		code[i] = letters[num.Int64()]
-	}
-	return string(code)
-}
+import "time"
 
 // ExponentialBackoffRetry 指数退避
 func ExponentialBackoffRetry(maxAttempts int, baseDelay time.Duration, maxDelay time.Duration, fn func() error) error {

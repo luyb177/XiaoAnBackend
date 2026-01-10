@@ -24,6 +24,9 @@ type (
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
+		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error
+		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
+		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 	}
 
 	customArticleModel struct {
@@ -94,4 +97,19 @@ func (m *customArticleModel) FindOneWithNotDelete(ctx context.Context, id uint64
 	default:
 		return nil, err
 	}
+}
+
+func (m *customArticleModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error {
+	return m.withSession(session).Update(ctx, data)
+}
+
+func (m *customArticleModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {
+	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
+	return err
+}
+
+func (m *customArticleModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
+	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
 }

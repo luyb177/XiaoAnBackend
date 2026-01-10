@@ -3,16 +3,17 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"google.golang.org/protobuf/types/known/anypb"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type AddArticleLogic struct {
@@ -87,6 +88,15 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	if in.Tags == nil {
 		in.Tags = []string{"默认标签"}
 	}
+	if len(in.Tags) > 10 {
+		l.Logger.Errorf("AddArticle err: 标签数量超出限制")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "标签数量超出限制",
+		}, nil
+	}
+
 	if len(in.Images) != 0 {
 		for _, image := range in.Images {
 			if image.Url == "" {
@@ -118,76 +128,38 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 
 	// 正式添加文章
 	var article model.Article
-	var images []*model.ArticleImage
+	now := time.Now()
 	// 事务
 	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 添加文章
-
 		// 1. 构造
-		now := time.Now()
 		article = model.Article{
-			Name:         in.Name,
-			Url:          in.Url,
-			Description:  sql.NullString{String: in.Description, Valid: true},
-			Cover:        in.Cover,
-			Content:      sql.NullString{String: in.Content, Valid: true},
-			Author:       in.Author,
-			PublishedAt:  time.Unix(in.PublishedAt, 0),
-			LikeCount:    0,
-			ViewCount:    0,
-			CollectCount: 0,
-			CreatedAt:    now,
-			UpdatedAt:    now,
+			Name:           in.Name,
+			Url:            in.Url,
+			Description:    sql.NullString{String: in.Description, Valid: true},
+			Cover:          in.Cover,
+			Content:        sql.NullString{String: in.Content, Valid: true},
+			Author:         in.Author,
+			PublishedAt:    time.Unix(in.PublishedAt, 0),
+			RelationStatus: RelationStatusPending,
+			LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
+			LikeCount:      0,
+			ViewCount:      0,
+			CollectCount:   0,
+			CreatedAt:      now,
+			UpdatedAt:      now,
 		}
 
 		result, err := l.ArticleDao.InsertWithSession(ctx, session, &article)
 		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
-
 			return err
 		}
 		id, err := result.LastInsertId()
 		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
 			return err
 		}
 		article.Id = uint64(id)
 
-		// 添加文章图片
-
-		// 2. 构造
-		images = make([]*model.ArticleImage, len(in.Images))
-		for i, image := range in.Images {
-			images[i] = &model.ArticleImage{
-				ArticleId: article.Id,
-				Url:       image.Url,
-				Sort:      image.Sort,
-				CreatedAt: now,
-				Type:      image.Tp,
-			}
-		}
-		err = l.ArticleImageDao.InsertBatchWithSession(ctx, session, images)
-		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
-			return err
-		}
-
-		// 添加文章标签
-		// todo 这里需要限制一下标签的数量
-
-		// 1. 构造
-		tags := make([]*model.ArticleTag, len(in.Tags))
-		for i, tag := range in.Tags {
-			tags[i] = &model.ArticleTag{
-				ArticleId: article.Id,
-				Tag:       tag,
-			}
-		}
-		err = l.ArticleTagDao.InsertBatchWithSession(ctx, session, tags)
-		if err != nil {
-			l.Logger.Errorf("AddArticle err: %v", err)
-			return err
-		}
 		return nil
 	})
 
@@ -199,33 +171,54 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
-	imageRes := make([]*v1.ArticleImage, len(images))
-	for i, image := range images {
-		imageRes[i] = &v1.ArticleImage{
-			Url:  image.Url,
-			Sort: image.Sort,
-			Tp:   image.Type,
+	go func(articleID uint64, tags []string, images []*v1.ArticleImage) {
+		defer func() {
+			if r := recover(); r != nil {
+				l.Logger.Errorf("panic in async article update: %v", r)
+			}
+		}()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		const maxRetry = 3
+
+		for attempt := 1; attempt <= maxRetry; attempt++ {
+			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
+				// 1. 插入新标签
+				tagModels := convert.ArticleTagsFromStrings(articleID, tags)
+				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
+					return err
+				}
+				// 2. 插入新图片
+				imageModels := convert.ArticleImagesFromPB(articleID, images)
+				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
+					return err
+				}
+
+				// 3. 更新文章的 relation_status 为正常
+				return l.ArticleDao.UpdateRelationStatusWithSession(txCtx, session, articleID, RelationStatusNormal)
+			})
+
+			if err == nil {
+				// 成功执行，退出循环
+				return
+			}
+
+			// 失败，记录日志并稍作延迟重试
+			l.Logger.Errorf("async modify article attempt %d failed: %v", attempt, err)
+			time.Sleep(time.Duration(attempt) * 500 * time.Millisecond) // 指数退避
 		}
-	}
+
+		l.Logger.Errorf("async modify article ultimately failed after %d attempts", maxRetry)
+
+	}(article.Id, in.Tags, in.Images)
 
 	// 构造返回内容
-	res := &v1.AddArticleResponse{Article: &v1.Article{
-		Id:           article.Id,
-		Name:         article.Name,
-		Tag:          in.Tags,
-		Images:       imageRes,
-		Url:          article.Url,
-		Description:  article.Description.String,
-		Cover:        article.Cover,
-		Content:      article.Content.String,
-		Author:       article.Author,
-		PublishedAt:  article.PublishedAt.Unix(),
-		CreatedAt:    article.CreatedAt.Unix(),
-		UpdatedAt:    article.UpdatedAt.Unix(),
-		LikeCount:    article.LikeCount,
-		ViewCount:    article.ViewCount,
-		CollectCount: article.CollectCount,
-	}}
+	res := &v1.AddArticleResponse{
+		Id:             article.Id,
+		RelationStatus: RelationStatusPending,
+	}
 
 	resAny, err := anypb.New(res)
 	if err != nil {
