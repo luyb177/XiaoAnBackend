@@ -1,0 +1,53 @@
+run:
+  timeout: 5m
+  tests: true
+
+  # 跳过明显不该 lint 的目录
+  skip-dirs:
+    - third_party
+    - auth/third_party
+    - content/third_party
+    - qa/third_party
+
+  # 跳过生成代码
+  skip-files:
+    - ".*\\.pb\\.go"
+    - ".*\\.gen\\.go"
+
+linters:
+  enable:
+    # 基础质量
+    - govet
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - errcheck
+
+    # 格式 & import
+    - gofmt
+    - goimports
+    - gci
+    - importas
+
+linters-settings:
+  # import 分组（三块）
+  gci:
+    sections:
+      - standard
+      - default
+      # ⚠️ 如果 module 名不同，只改这一行
+      - prefix(github.com/luyb177/XiaoAnBackend)
+    skip-generated: true
+
+  # import 别名规范（等价于 verify-import-aliases.sh）
+  importas:
+    no-unaliased: true
+    rules:
+      # k8s 常用
+      - pkg: k8s.io/api/core/v1
+        alias: corev1
+      - pkg: k8s.io/apimachinery/pkg/apis/meta/v1
+        alias: metav1
+      - pkg: k8s.io/apimachinery/pkg/runtime
+        alias: runtime
+      - pkg: k8s.io/apimachinery/p
