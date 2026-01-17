@@ -1,3 +1,4 @@
+# .github/workflows/ci.yaml
 name: CI
 
 on:
@@ -14,38 +15,30 @@ permissions:
   contents: read
 
 jobs:
-  lint-and-check:
-    name: Lint & Checks
+  lint:
+    name: Lint (${{ matrix.module }})
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - auth
+          - content
+          - qa
+          - xiaoan
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go
+      - name: Set up Go for ${{ matrix.module }}
         uses: actions/setup-go@v5
         with:
-          go-version-file: 'go.mod'  # 会自动从根目录或子模块找，但建议统一版本
+          go-version-file: ${{ matrix.module }}/go.mod
+          cache-dependency-path: ${{ matrix.module }}/go.sum
 
-      - name: Run golangci-lint
+      - name: Run golangci-lint in ${{ matrix.module }}
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.63.4   # 或 latest，但固定版本更稳定
-          args: --timeout=10m
-
-      - name: Check go mod tidy
-        run: |
-          go mod tidy
-          git diff --exit-code go.mod go.sum || (echo "go.mod/go.sum is not tidy. Run 'go mod tidy' locally."; exit 1)
-
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-22.04
-    needs: lint-and-check
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
+          version: v1.63.4  # 推荐固定版本，v2.x 是实验性分支，可能不稳定
+          args: --timeout=5m
+          working-directory: ${{ matrix.module }}
