@@ -32,7 +32,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	// 验证邮箱验证码
 	if in.Email == "" {
-		l.Logger.Errorf("Login 邮箱为空")
+		l.Errorf("Login 邮箱为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -47,7 +47,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	case v1.LoginType_EMAIL_CODE:
 		msg, flag = l.validateEmailCode(in)
 		if !flag {
-			l.Logger.Errorf("Login 邮箱验证码验证失败")
+			l.Errorf("Login 邮箱验证码验证失败")
 
 			return &v1.Response{
 				Code:    400,
@@ -57,7 +57,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	case v1.LoginType_PASSWORD:
 		user, msg, flag = l.validatePassword(in)
 		if !flag {
-			l.Logger.Errorf("Login 密码验证失败")
+			l.Errorf("Login 密码验证失败")
 
 			return &v1.Response{
 				Code:    400,
@@ -70,7 +70,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		var err error
 		user, err = l.UserDao.FindOneByEmail(l.ctx, in.Email)
 		if err != nil {
-			l.Logger.Errorf("Login err: 用户不存在,%v", err)
+			l.Errorf("Login err: 用户不存在,%v", err)
 
 			return &v1.Response{
 				Code:    400,
@@ -80,7 +80,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	}
 
 	if user.Status != 1 {
-		l.Logger.Errorf("Login 用户被禁用")
+		l.Errorf("Login 用户被禁用")
 
 		return &v1.Response{
 			Code:    400,
@@ -96,7 +96,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	})
 
 	if err != nil {
-		l.Logger.Errorf("Login 生成token失败 err: %v", err)
+		l.Errorf("Login 生成token失败 err: %v", err)
 		return &v1.Response{
 			Code:    400,
 			Message: "生成token失败",
@@ -125,7 +125,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	}
 	resAny, err := anypb.New(&res)
 	if err != nil {
-		l.Logger.Errorf("Login 响应数据转换失败")
+		l.Errorf("Login 响应数据转换失败")
 
 		return &v1.Response{
 			Code:    400,

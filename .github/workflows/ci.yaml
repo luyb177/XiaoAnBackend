@@ -3,42 +3,49 @@ name: CI
 on:
   push:
     branches-ignore:
-      - dependabot/**
+      - 'dependabot/**'
   pull_request:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  lint:
-    name: lint (${{ matrix.module }})
+  lint-and-check:
+    name: Lint & Checks
     runs-on: ubuntu-22.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        module:
-          - auth
-          - content
-          - qa
-          - xiaoan
-
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ matrix.module }}/go.mod
-          cache: true
+          go-version-file: 'go.mod'  # 会自动从根目录或子模块找，但建议统一版本
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v2.8.0
-          args: --timeout=5m
-          working-directory: ${{ matrix.module }}
+          version: v1.63.4   # 或 latest，但固定版本更稳定
+          args: --timeout=10m
+
+      - name: Check go mod tidy
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum || (echo "go.mod/go.sum is not tidy. Run 'go mod tidy' locally."; exit 1)
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-22.04
+    needs: lint-and-check
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'

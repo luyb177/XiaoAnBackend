@@ -1,59 +1,96 @@
 version: "2"
 
 run:
-  timeout: 5m
-  tests: true
+  timeout: 10m
   modules-download-mode: readonly
-  relative-path-mode: gomod
-  issues-exit-code: 2
-  go: "1.25.3"
 
 linters:
-  default: none
   enable:
-    - govet
-    - staticcheck
-    - ineffassign
+    - depguard
+    - gocyclo
+    - gosec
+    - misspell
+    - revive
+    - whitespace
     - errcheck
-    - unparam
-    - wastedassign
-    - nilnesserr
+    - gofmt
+    - goimports
+    - unconvert
+    - unused
+    - staticcheck
+    - typecheck
 
-  exclusions:
-    generated: lax
-    paths:
-      - ".*third_party.*"
-      - ".*\\.pb\\.go"
-      - ".*_gen\\.go"
-    rules:
-      - path: _test\.go
-        linters:
-          - errcheck
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: io/ioutil
+              desc: 'replaced by io and os packages since Go 1.16'
 
-# Formatter 配置（仅用于 --fix）
+    gocyclo:
+      min-complexity: 15
+
+    revive:
+      rules:
+        # Disable overly strict or internal-use-unfriendly rules
+        - name: if-return
+          disabled: true
+        - name: package-comments
+          disabled: true
+
+        # Enable useful style & safety rules
+        - name: superfluous-else
+          arguments: [preserveScope]
+        - name: error-strings
+        - name: error-return
+        - name: receiver-naming
+        - name: increment-decrement
+        - name: range
+        - name: error-naming
+        - name: dot-imports
+        - name: errorf
+        - name: exported
+        - name: var-declaration
+        - name: blank-imports
+        - name: indent-error-flow
+        - name: unreachable-code
+        - name: var-naming
+        - name: redefines-builtin-id
+        - name: unused-parameter
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: unexported-return
+        - name: time-naming
+        - name: empty-block
+
+    staticcheck:
+      checks:
+        - all
+        - "-ST1000"  # disable package comment check (internal modules)
+        - "-QF1008"  # allow embedded fields for readability
+
+exclusions:
+  generated:
+    lax: true
+  paths:
+    - (^|/)vendor($|/)
+    - (^|/)third_party($|/)
+    - (^|/)pb($|/)
+    - (^|/)internal/.*_gen\.go$
+
 formatters:
   enable:
     - gci
+    - gofmt
+    - goimports
+
   settings:
     gci:
       sections:
         - Standard
         - Prefix(github.com/luyb177/XiaoAnBackend)
         - Default
-      # ⚠️ skip-generated 不允许在这里！已移除
-  # 如果需要跳过生成文件，用 exclusions.generated（可选）
-  exclusions:
-    generated: strict  # 或 lax，根据你需求
-
-issues:
-  new: true
-  new-from-merge-base: main
-  fix: false
-
-output:
-  formats:
-    text:
-      path: stdout
-      print-linter-name: true
-      print-issued-lines: true
-      colors: true
+    goimports:
+      local-prefixes:
+        - github.com/luyb177/XiaoAnBackend           # 👈 同上
