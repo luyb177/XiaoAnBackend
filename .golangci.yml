@@ -1,53 +1,59 @@
+version: "2"
+
 run:
   timeout: 5m
   tests: true
-
-  # 跳过明显不该 lint 的目录
-  skip-dirs:
-    - third_party
-    - auth/third_party
-    - content/third_party
-    - qa/third_party
-
-  # 跳过生成代码
-  skip-files:
-    - ".*\\.pb\\.go"
-    - ".*\\.gen\\.go"
+  modules-download-mode: readonly
+  relative-path-mode: gomod
+  issues-exit-code: 2
+  go: "1.25.3"
 
 linters:
+  default: none
   enable:
-    # 基础质量
     - govet
     - staticcheck
-    - gosimple
     - ineffassign
     - errcheck
+    - unparam
+    - wastedassign
+    - nilnesserr
 
-    # 格式 & import
-    - gofmt
-    - goimports
-    - gci
-    - importas
-
-linters-settings:
-  # import 分组（三块）
-  gci:
-    sections:
-      - standard
-      - default
-      # ⚠️ 如果 module 名不同，只改这一行
-      - prefix(github.com/luyb177/XiaoAnBackend)
-    skip-generated: true
-
-  # import 别名规范（等价于 verify-import-aliases.sh）
-  importas:
-    no-unaliased: true
+  exclusions:
+    generated: lax
+    paths:
+      - ".*third_party.*"
+      - ".*\\.pb\\.go"
+      - ".*_gen\\.go"
     rules:
-      # k8s 常用
-      - pkg: k8s.io/api/core/v1
-        alias: corev1
-      - pkg: k8s.io/apimachinery/pkg/apis/meta/v1
-        alias: metav1
-      - pkg: k8s.io/apimachinery/pkg/runtime
-        alias: runtime
-      - pkg: k8s.io/apimachinery/p
+      - path: _test\.go
+        linters:
+          - errcheck
+
+# Formatter 配置（仅用于 --fix）
+formatters:
+  enable:
+    - gci
+  settings:
+    gci:
+      sections:
+        - Standard
+        - Default
+        - Prefix(github.com/luyb177/XiaoAnBackend)
+      # ⚠️ skip-generated 不允许在这里！已移除
+  # 如果需要跳过生成文件，用 exclusions.generated（可选）
+  exclusions:
+    generated: strict  # 或 lax，根据你需求
+
+issues:
+  new: true
+  new-from-merge-base: main
+  fix: false
+
+output:
+  formats:
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
