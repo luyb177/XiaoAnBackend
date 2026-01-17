@@ -39,6 +39,6 @@ jobs:
       - name: Run golangci-lint in ${{ matrix.module }}
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.63.4  # 推荐固定版本，v2.x 是实验性分支，可能不稳定
-          args: --timeout=5m
+          version: v2.8.0  # 推荐固定版本，v2.x 是实验性分支，可能不稳定
+          args: --tieout=5m
           working-directory: ${{ matrix.module }}
