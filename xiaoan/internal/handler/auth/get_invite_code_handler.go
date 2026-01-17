@@ -6,10 +6,11 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/auth"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 获取邀请码
+// GetInviteCodeHandler 获取邀请码
 func GetInviteCodeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.GetInviteCodeRequest

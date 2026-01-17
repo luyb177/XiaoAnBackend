@@ -3,8 +3,9 @@ package model
 import (
 	"context"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"strings"
+
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ ComicModel = (*customComicModel)(nil)

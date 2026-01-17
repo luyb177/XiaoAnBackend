@@ -35,7 +35,7 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
 	creator := middleware.MustGetUser(l.ctx)
 	if creator.UID == 0 || creator.Role == "" || creator.Status != 1 {
-		l.Logger.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
+		l.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
 
 		return &v1.Response{
 			Code:    400,
@@ -56,7 +56,7 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 		defer wg.Done()
 		inviteCodes, findErr = l.InviteCodeDao.FindByCreatorId(l.ctx, creator.UID, in.Page, in.PageSize)
 		if findErr != nil {
-			l.Logger.Errorf("获取邀请码失败: %v", findErr)
+			l.Errorf("获取邀请码失败: %v", findErr)
 			return
 		}
 	}()
@@ -67,7 +67,7 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 		defer wg.Done()
 		totalCount, countErr = l.InviteCodeDao.CountByCreatorId(l.ctx, creator.UID)
 		if countErr != nil {
-			l.Logger.Errorf("获取邀请码总数失败: %v", countErr)
+			l.Errorf("获取邀请码总数失败: %v", countErr)
 			return
 		}
 	}()

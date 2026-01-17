@@ -1,6 +1,8 @@
 package repo
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	EmailCodeKey = "email:code:%s"

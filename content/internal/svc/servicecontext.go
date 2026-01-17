@@ -2,6 +2,7 @@ package svc
 
 import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/zeromicro/go-zero/core/logx"
