@@ -6,8 +6,8 @@ import (
 	qa "github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/middleware"
-	"github.com/zeromicro/go-zero/rest"
 
+	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 

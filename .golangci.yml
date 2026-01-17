@@ -38,8 +38,8 @@ formatters:
     gci:
       sections:
         - Standard
-        - Default
         - Prefix(github.com/luyb177/XiaoAnBackend)
+        - Default
       # ⚠️ skip-generated 不允许在这里！已移除
   # 如果需要跳过生成文件，用 exclusions.generated（可选）
   exclusions:

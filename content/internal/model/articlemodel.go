@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"strings"
+
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ ArticleModel = (*customArticleModel)(nil)

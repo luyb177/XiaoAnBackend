@@ -1,6 +1,8 @@
 package retry
 
-import "time"
+import (
+	"time"
+)
 
 // ExponentialBackoffRetry 指数退避
 func ExponentialBackoffRetry(maxAttempts int, baseDelay time.Duration, maxDelay time.Duration, fn func() error) error {

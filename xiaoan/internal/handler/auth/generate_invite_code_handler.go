@@ -6,10 +6,11 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/auth"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 生成邀请码
+// GenerateInviteCodeHandler 生成邀请码
 func GenerateInviteCodeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.GenerateInviteCodeRequest

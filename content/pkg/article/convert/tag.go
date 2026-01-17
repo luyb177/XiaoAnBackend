@@ -1,6 +1,8 @@
 package convert
 
-import "github.com/luyb177/XiaoAnBackend/content/internal/model"
+import (
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+)
 
 // 转换器
 
