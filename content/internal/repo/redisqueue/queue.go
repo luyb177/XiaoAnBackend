@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
@@ -35,7 +36,11 @@ func (t *RawTask) ID() string {
 }
 
 func (t *RawTask) Payload() []byte {
-	payload, _ := json.Marshal(t)
+	payload, err := json.Marshal(t)
+	// 这里出现错误的话，说明程序可能有问题
+	if err != nil {
+		panic(fmt.Sprintf("RawTask marshal error: %v", err))
+	}
 	return payload
 }
 
@@ -68,8 +73,11 @@ func (q *RedisTaskQueue) Enqueue(ctx context.Context, task taskqueue.Task) error
 		CreatedAt: time.Now().Unix(),
 	}
 
-	rawTaskJson, _ := json.Marshal(rawTask)
-	_, err := q.rds.LpushCtx(ctx, q.keys.Pending, string(rawTaskJson))
+	rawTaskJson, err := json.Marshal(rawTask)
+	if err != nil {
+		return err
+	}
+	_, err = q.rds.LpushCtx(ctx, q.keys.Pending, string(rawTaskJson))
 	return err
 }
 
@@ -98,14 +106,7 @@ func (q *RedisTaskQueue) Dequeue(ctx context.Context) (taskqueue.Task, error) {
 		return nil, err
 	}
 
-	return &RawTask{
-		TaskID:    rawTask.TaskID,
-		Retry:     rawTask.Retry,
-		MaxRetry:  rawTask.MaxRetry,
-		DelaySec:  rawTask.DelaySec,
-		Data:      rawTask.Data,
-		CreatedAt: rawTask.CreatedAt,
-	}, nil
+	return rawTask, nil
 }
 
 // Ack 处理中队列 task -> 删除
@@ -121,13 +122,30 @@ func (q *RedisTaskQueue) Retry(ctx context.Context, task taskqueue.Task, delay t
 	if err != nil {
 		return err
 	}
-	rawTask.Retry += 1
+
+	rawTask.Retry++
 	if rawTask.Retry > rawTask.MaxRetry {
 		return q.MoveToDLQ(ctx, task)
 	}
 
+	newPayload, err := json.Marshal(&rawTask)
+	if err != nil {
+		return err
+	}
+
 	score := time.Now().Add(delay).Unix()
-	_, err = q.rds.ZaddCtx(ctx, q.keys.Retry, score, string(task.Payload()))
+
+	_, err = q.rds.EvalCtx(
+		ctx,
+		moveProcessingToRetryLua,
+		[]string{
+			q.keys.Processing,
+			q.keys.Retry,
+		},
+		string(task.Payload()), // old payload
+		string(newPayload),     // new payload
+		score,
+	)
 	return err
 }
 
@@ -148,6 +166,14 @@ func (q *RedisTaskQueue) MoveRetryToPending(ctx context.Context) error {
 }
 
 func (q *RedisTaskQueue) MoveToDLQ(ctx context.Context, task taskqueue.Task) error {
-	_, err := q.rds.LpushCtx(ctx, q.keys.DLQ, string(task.Payload()))
+	_, err := q.rds.EvalCtx(
+		ctx,
+		moveProcessingToDLQLua,
+		[]string{
+			q.keys.Processing,
+			q.keys.DLQ,
+		},
+		string(task.Payload()),
+	)
 	return err
 }

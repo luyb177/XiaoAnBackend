@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	v1 "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 )
 
@@ -25,7 +24,7 @@ type ArticleRelationTask struct {
 	Tags      []string                `json:"tags"`
 }
 
-func NewArticleRelationTask(tp ArticleRelationTaskType, articleID uint64, tags []string, images []*v1.ArticleImage) taskqueue.Task {
+func NewArticleRelationTask(tp ArticleRelationTaskType, articleID uint64, tags []string) taskqueue.Task {
 	return &ArticleRelationTask{
 		Type:      tp,
 		ArticleID: articleID,
@@ -42,6 +41,9 @@ func (t *ArticleRelationTask) ID() string {
 
 // Payload 返回任务内容
 func (t *ArticleRelationTask) Payload() []byte {
-	b, _ := json.Marshal(t)
+	b, err := json.Marshal(t)
+	if err != nil {
+		panic(fmt.Sprintf("ArticleRelationTask marshal error: %v", err))
+	}
 	return b
 }

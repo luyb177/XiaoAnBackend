@@ -15,9 +15,9 @@ local tasks = redis.call(
 	limit
 )
 
-for i, task in ipairs(tasks) do
-	redis.call("ZREM", KEYS[1], task)
-	redis.call("LPUSH", KEYS[2], task)
+if #tasks > 0 then
+	redis.call("ZREM", KEYS[1], unpack(tasks))
+	redis.call("LPUSH", KEYS[2], unpack(tasks))
 end
 
 return #tasks
