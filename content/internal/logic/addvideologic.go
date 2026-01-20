@@ -4,14 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type AddVideoLogic struct {

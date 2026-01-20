@@ -3,10 +3,10 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"strconv"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
@@ -39,7 +39,7 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
 	creator := middleware.MustGetUser(l.ctx)
 	if creator.UID == InvalidUserID || creator.Role == "" || creator.Status != UserStatusNormal {
-		l.Logger.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
+		l.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
 
 		return &v1.Response{
 			Code:    400,
@@ -48,7 +48,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	}
 
 	if in.Department == "" {
-		l.Logger.Errorf("GenerateInviteCode err 部门为空")
+		l.Errorf("GenerateInviteCode err 部门为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -57,7 +57,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	}
 
 	if in.TargetRole == "" {
-		l.Logger.Errorf("GenerateInviteCode err 邀请码目标角色为空")
+		l.Errorf("GenerateInviteCode err 邀请码目标角色为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -74,7 +74,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 
 	// 验证生成者身份
 	if creator.Role != SUPERADMIN && creator.Role != CLASSADMIN {
-		l.Logger.Errorf("GenerateInviteCode err 用户权限不足")
+		l.Errorf("GenerateInviteCode err 用户权限不足")
 		return &v1.Response{
 			Code:    400,
 			Message: "用户权限不足",
@@ -83,7 +83,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	if creator.Role == CLASSADMIN {
 		// 创建的是 student
 		if in.TargetRole != STUDENT {
-			l.Logger.Errorf("GenerateInviteCode err 用户权限不足")
+			l.Errorf("GenerateInviteCode err 用户权限不足")
 			return &v1.Response{
 				Code:    400,
 				Message: "用户权限不足",
@@ -95,9 +95,8 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	// 指数退避
 	// 失败后-可能是邀请码冲突，重新生成
 	var code model.InviteCode
-	var fn func() error
 
-	fn = func() error {
+	fn := func() error {
 		now := time.Now()
 		code.Code = authcode.InviteCode()
 		code.CreatorId = int64(creator.UID)
@@ -120,7 +119,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 	err := retry.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
 
 	if err != nil {
-		l.Logger.Errorf("GenerateInviteCode err 生成邀请码失败")
+		l.Errorf("GenerateInviteCode err 生成邀请码失败")
 
 		return &v1.Response{
 			Code:    400,
@@ -145,7 +144,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 
 	resAny, err := anypb.New(&res)
 	if err != nil {
-		l.Logger.Errorf("GenerateInviteCode err 消息类型转换失败")
+		l.Errorf("GenerateInviteCode err 消息类型转换失败")
 
 		return &v1.Response{
 			Code:    400,

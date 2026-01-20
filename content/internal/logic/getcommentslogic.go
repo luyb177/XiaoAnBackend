@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/anypb"
 	"sync"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -11,6 +10,7 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type GetCommentsLogic struct {
