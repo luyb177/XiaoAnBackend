@@ -1,14 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/server"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/internal/worker"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"log"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -36,6 +38,14 @@ func main() {
 	defer s.Stop()
 
 	s.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
+
+	//启动 worker
+	w := worker.NewWorker(ctx)
+	go func() {
+		if err := w.Start(context.Background()); err != nil {
+			log.Fatalf("worker start error: %v", err)
+		}
+	}()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

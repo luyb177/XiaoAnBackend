@@ -38,6 +38,7 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		// todo 这里可以把 user 相关信息加密一下，然后解密
 		claims, err := m.r.ParseJWTToken(token)
 		if err != nil {
 			m.Logger.Errorf("ParseJWTToken 解析token失败：err %v", err)

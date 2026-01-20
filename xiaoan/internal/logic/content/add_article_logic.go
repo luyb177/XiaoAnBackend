@@ -28,16 +28,6 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 }
 
 func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.Response, err error) {
-	// 构造
-	images := make([]*content.ArticleImage, 0, len(req.Images))
-	for _, image := range req.Images {
-		images = append(images, &content.ArticleImage{
-			Url:  image.Url,
-			Sort: image.Sort,
-			Tp:   image.Tp,
-		})
-	}
-
 	res, _ := l.svcCtx.ContentRpc.AddArticle(l.ctx, &content.AddArticleRequest{
 		Name:        req.Name,
 		Description: req.Description,
@@ -46,7 +36,6 @@ func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.
 		Url:         req.Url,
 		PublishedAt: req.PublishedAt,
 		Tags:        req.Tags,
-		Images:      images,
 		Author:      req.Author,
 	})
 

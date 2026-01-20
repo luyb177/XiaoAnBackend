@@ -28,20 +28,10 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 }
 
 func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (resp *types.Response, err error) {
-	images := make([]*content.ArticleImage, len(req.Images))
-	for i, v := range req.Images {
-		images[i] = &content.ArticleImage{
-			Url:  v.Url,
-			Sort: v.Sort,
-			Tp:   v.Tp,
-		}
-	}
-
 	res, _ := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
 		Id:          req.ArticleId,
 		Name:        req.Name,
 		Tag:         req.Tags,
-		Images:      images,
 		Url:         req.Url,
 		Description: req.Description,
 		Cover:       req.Cover,

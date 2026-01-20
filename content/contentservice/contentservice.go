@@ -19,7 +19,6 @@ type (
 	AddCommentRequest     = v1.AddCommentRequest
 	AddVideoRequest       = v1.AddVideoRequest
 	Article               = v1.Article
-	ArticleImage          = v1.ArticleImage
 	CollectRequest        = v1.CollectRequest
 	Comic                 = v1.Comic
 	Comment               = v1.Comment
@@ -48,10 +47,6 @@ type (
 	Video                 = v1.Video
 
 	ContentService interface {
-		// 上传文件
-		UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (v1.ContentService_UploadContentStreamClient, error)
-		// 获取访问URL
-		GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
 		// AddArticle 添加文章
 		AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// GetArticle 获取文章
@@ -85,18 +80,6 @@ func NewContentService(cli zrpc.Client) ContentService {
 	return &defaultContentService{
 		cli: cli,
 	}
-}
-
-// 上传文件
-func (m *defaultContentService) UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (v1.ContentService_UploadContentStreamClient, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.UploadContentStream(ctx, opts...)
-}
-
-// 获取访问URL
-func (m *defaultContentService) GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.GetContentURL(ctx, in, opts...)
 }
 
 // AddArticle 添加文章

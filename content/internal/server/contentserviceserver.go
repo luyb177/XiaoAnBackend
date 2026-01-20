@@ -23,18 +23,6 @@ func NewContentServiceServer(svcCtx *svc.ServiceContext) *ContentServiceServer {
 	}
 }
 
-// 上传文件
-func (s *ContentServiceServer) UploadContentStream(stream v1.ContentService_UploadContentStreamServer) error {
-	l := logic.NewUploadContentStreamLogic(stream.Context(), s.svcCtx)
-	return l.UploadContentStream(stream)
-}
-
-// 获取访问URL
-func (s *ContentServiceServer) GetContentURL(ctx context.Context, in *v1.GetContentURLRequest) (*v1.Response, error) {
-	l := logic.NewGetContentURLLogic(ctx, s.svcCtx)
-	return l.GetContentURL(in)
-}
-
 // AddArticle 添加文章
 func (s *ContentServiceServer) AddArticle(ctx context.Context, in *v1.AddArticleRequest) (*v1.Response, error) {
 	l := logic.NewAddArticleLogic(ctx, s.svcCtx)

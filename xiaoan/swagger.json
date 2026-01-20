@@ -418,8 +418,7 @@
                 "url",
                 "published_at",
                 "author",
-                "tags",
-                "images"
+                "tags"
               ],
               "properties": {
                 "author": {
@@ -433,28 +432,6 @@
                 },
                 "description": {
                   "type": "string"
-                },
-                "images": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "url",
-                      "sort",
-                      "tp"
-                    ],
-                    "properties": {
-                      "sort": {
-                        "type": "integer"
-                      },
-                      "tp": {
-                        "type": "integer"
-                      },
-                      "url": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 },
                 "name": {
                   "type": "string"
@@ -495,10 +472,7 @@
       }
     },
     "/api/content/get-article-content": {
-      "post": {
-        "consumes": [
-          "application/json"
-        ],
+      "get": {
         "produces": [
           "application/json"
         ],
@@ -512,20 +486,10 @@
         "operationId": "contentGetArticleContent",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "article_id"
-              ],
-              "properties": {
-                "article_id": {
-                  "type": "integer"
-                }
-              }
-            }
+            "type": "integer",
+            "name": "article_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -579,8 +543,7 @@
                 "url",
                 "published_at",
                 "author",
-                "tags",
-                "images"
+                "tags"
               ],
               "properties": {
                 "article_id": {
@@ -597,28 +560,6 @@
                 },
                 "description": {
                   "type": "string"
-                },
-                "images": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "url",
-                      "sort",
-                      "tp"
-                    ],
-                    "properties": {
-                      "sort": {
-                        "type": "integer"
-                      },
-                      "tp": {
-                        "type": "integer"
-                      },
-                      "url": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 },
                 "name": {
                   "type": "string"
@@ -637,49 +578,6 @@
                 }
               }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer"
-                },
-                "data": {},
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/content/upload": {
-      "post": {
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "文件内容模块"
-        ],
-        "summary": "上传文件（流式传输到gRPC）",
-        "operationId": "contentUploadContentStream",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "file",
-            "in": "formData",
-            "allowEmptyValue": true
           }
         ],
         "responses": {
@@ -755,7 +653,7 @@
       }
     }
   },
-  "x-date": "2026-01-02 13:48:23",
+  "x-date": "2026-01-20 18:30:19",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

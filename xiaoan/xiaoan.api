@@ -57,39 +57,29 @@ type (
 
 // content 请求模块
 type (
-	UploadContentRequest {
-		file string `form:"file,optional"`
-	}
 	AddArticleRequest {
-		name        string         `json:"name"`
-		description string         `json:"description"`
-		content     string         `json:"content"`
-		cover       string         `json:"cover"`
-		url         string         `json:"url"`
-		publishedAt int64          `json:"published_at"`
-		author      string         `json:"author"`
-		Tags        []string       `json:"tags"`
-		Images      []ArticleImage `json:"images"`
-	}
-	ArticleImage {
-		url  string `json:"url"`
-		sort int64  `json:"sort"`
-		tp   int64  `json:"tp"`
+		name        string   `json:"name"`
+		description string   `json:"description"`
+		content     string   `json:"content"`
+		cover       string   `json:"cover"`
+		url         string   `json:"url"`
+		publishedAt int64    `json:"published_at"`
+		author      string   `json:"author"`
+		Tags        []string `json:"tags"`
 	}
 	GetArticleContentRequest {
-		articleId uint64 `json:"article_id"`
+		articleId uint64 `form:"article_id"`
 	}
 	ModifyArticleRequest {
-		articleId   uint64         `json:"article_id"`
-		name        string         `json:"name"`
-		description string         `json:"description"`
-		content     string         `json:"content"`
-		cover       string         `json:"cover"`
-		url         string         `json:"url"`
-		publishedAt int64          `json:"published_at"`
-		author      string         `json:"author"`
-		Tags        []string       `json:"tags"`
-		Images      []ArticleImage `json:"images"`
+		articleId   uint64   `json:"article_id"`
+		name        string   `json:"name"`
+		description string   `json:"description"`
+		content     string   `json:"content"`
+		cover       string   `json:"cover"`
+		url         string   `json:"url"`
+		publishedAt int64    `json:"published_at"`
+		author      string   `json:"author"`
+		Tags        []string `json:"tags"`
 	}
 )
 
@@ -160,19 +150,6 @@ service xiaoan {
 }
 
 @server (
-	prefix:   /api/content
-	tags:     "文件内容模块"
-	maxBytes: 104857600 // 100M
-	timeout:  60s
-	group:    content
-)
-service xiaoan {
-	@doc "上传文件（流式传输到gRPC）"
-	@handler UploadContentStream
-	post /upload (UploadContentRequest) returns (Response)
-}
-
-@server (
 	prefix: /api/content
 	tags:   "文件内容模块"
 	group:  content
@@ -180,7 +157,7 @@ service xiaoan {
 service xiaoan {
 	@doc "获取文章详细内容"
 	@handler GetArticleContent
-	post /get-article-content (GetArticleContentRequest) returns (Response)
+	get /get-article-content (GetArticleContentRequest) returns (Response)
 }
 
 @server (

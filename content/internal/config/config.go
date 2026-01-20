@@ -8,15 +8,6 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
-	MinioConf MinioConf
 	MysqlConf sqlx.SqlConf
 	RedisConf redis.RedisConf
-}
-
-type MinioConf struct {
-	EndPoint        string
-	AccessKeyID     string
-	SecretAccessKey string
-	UseSSL          bool
-	ContentBucket   string
 }

@@ -19,29 +19,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ContentService_UploadContentStream_FullMethodName = "/content.ContentService/UploadContentStream"
-	ContentService_GetContentURL_FullMethodName       = "/content.ContentService/GetContentURL"
-	ContentService_AddArticle_FullMethodName          = "/content.ContentService/AddArticle"
-	ContentService_GetArticle_FullMethodName          = "/content.ContentService/GetArticle"
-	ContentService_ModifyArticle_FullMethodName       = "/content.ContentService/ModifyArticle"
-	ContentService_AddVideo_FullMethodName            = "/content.ContentService/AddVideo"
-	ContentService_Search_FullMethodName              = "/content.ContentService/Search"
-	ContentService_Like_FullMethodName                = "/content.ContentService/Like"
-	ContentService_Collect_FullMethodName             = "/content.ContentService/Collect"
-	ContentService_AddComment_FullMethodName          = "/content.ContentService/AddComment"
-	ContentService_UpdateComment_FullMethodName       = "/content.ContentService/UpdateComment"
-	ContentService_DeleteComment_FullMethodName       = "/content.ContentService/DeleteComment"
-	ContentService_GetComments_FullMethodName         = "/content.ContentService/GetComments"
+	ContentService_AddArticle_FullMethodName    = "/content.ContentService/AddArticle"
+	ContentService_GetArticle_FullMethodName    = "/content.ContentService/GetArticle"
+	ContentService_ModifyArticle_FullMethodName = "/content.ContentService/ModifyArticle"
+	ContentService_AddVideo_FullMethodName      = "/content.ContentService/AddVideo"
+	ContentService_Search_FullMethodName        = "/content.ContentService/Search"
+	ContentService_Like_FullMethodName          = "/content.ContentService/Like"
+	ContentService_Collect_FullMethodName       = "/content.ContentService/Collect"
+	ContentService_AddComment_FullMethodName    = "/content.ContentService/AddComment"
+	ContentService_UpdateComment_FullMethodName = "/content.ContentService/UpdateComment"
+	ContentService_DeleteComment_FullMethodName = "/content.ContentService/DeleteComment"
+	ContentService_GetComments_FullMethodName   = "/content.ContentService/GetComments"
 )
 
 // ContentServiceClient is the client API for ContentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ContentServiceClient interface {
-	// 上传文件
-	UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadChunk, Response], error)
-	// 获取访问URL
-	GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
 	// AddArticle 添加文章
 	AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
 	// GetArticle 获取文章
@@ -72,29 +66,6 @@ type contentServiceClient struct {
 
 func NewContentServiceClient(cc grpc.ClientConnInterface) ContentServiceClient {
 	return &contentServiceClient{cc}
-}
-
-func (c *contentServiceClient) UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadChunk, Response], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ContentService_ServiceDesc.Streams[0], ContentService_UploadContentStream_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[UploadChunk, Response]{ClientStream: stream}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ContentService_UploadContentStreamClient = grpc.ClientStreamingClient[UploadChunk, Response]
-
-func (c *contentServiceClient) GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_GetContentURL_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *contentServiceClient) AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error) {
@@ -211,10 +182,6 @@ func (c *contentServiceClient) GetComments(ctx context.Context, in *GetCommentsR
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
 type ContentServiceServer interface {
-	// 上传文件
-	UploadContentStream(grpc.ClientStreamingServer[UploadChunk, Response]) error
-	// 获取访问URL
-	GetContentURL(context.Context, *GetContentURLRequest) (*Response, error)
 	// AddArticle 添加文章
 	AddArticle(context.Context, *AddArticleRequest) (*Response, error)
 	// GetArticle 获取文章
@@ -247,12 +214,6 @@ type ContentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedContentServiceServer struct{}
 
-func (UnimplementedContentServiceServer) UploadContentStream(grpc.ClientStreamingServer[UploadChunk, Response]) error {
-	return status.Errorf(codes.Unimplemented, "method UploadContentStream not implemented")
-}
-func (UnimplementedContentServiceServer) GetContentURL(context.Context, *GetContentURLRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetContentURL not implemented")
-}
 func (UnimplementedContentServiceServer) AddArticle(context.Context, *AddArticleRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddArticle not implemented")
 }
@@ -305,31 +266,6 @@ func RegisterContentServiceServer(s grpc.ServiceRegistrar, srv ContentServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ContentService_ServiceDesc, srv)
-}
-
-func _ContentService_UploadContentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ContentServiceServer).UploadContentStream(&grpc.GenericServerStream[UploadChunk, Response]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ContentService_UploadContentStreamServer = grpc.ClientStreamingServer[UploadChunk, Response]
-
-func _ContentService_GetContentURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetContentURLRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).GetContentURL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_GetContentURL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).GetContentURL(ctx, req.(*GetContentURLRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ContentService_AddArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -538,10 +474,6 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ContentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetContentURL",
-			Handler:    _ContentService_GetContentURL_Handler,
-		},
-		{
 			MethodName: "AddArticle",
 			Handler:    _ContentService_AddArticle_Handler,
 		},
@@ -586,12 +518,6 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_GetComments_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "UploadContentStream",
-			Handler:       _ContentService_UploadContentStream_Handler,
-			ClientStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "content.proto",
 }

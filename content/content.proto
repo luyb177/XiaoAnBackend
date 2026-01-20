@@ -55,7 +55,6 @@ message Article {
   uint64 id = 1;
   string name = 2;
   repeated string tag = 3;
-  repeated ArticleImage images = 4;
   string url = 5; // 可能的视频 url
   string description = 6;
   string cover = 7;
@@ -70,13 +69,6 @@ message Article {
   int64 last_modified_by = 16;
   int64 relation_status = 17;
 }
-
-message ArticleImage {
-  string url = 1;
-  int64 sort = 2;  // 图片顺序
-  int64 tp = 3;
-}
-
 // 点赞记录
 message ContentLike {
   uint64 id = 1;
@@ -159,7 +151,6 @@ message AddArticleRequest {
   int64 published_at = 6;              // 发表时间（可选）
 
   repeated string tags = 7;            // 标签
-  repeated ArticleImage images = 8; // 正文图片
 
   string author = 9;
 }
@@ -182,7 +173,6 @@ message ModifyArticleRequest {
   uint64 id = 1;
   string name = 2;
   repeated string tag =  3;
-  repeated ArticleImage images = 4;
   string url = 5;
   string description = 6;
   string cover = 7;
@@ -292,12 +282,6 @@ message Response {
 }
 
 service ContentService {
-  // 上传文件
-  rpc UploadContentStream(stream UploadChunk) returns (Response);
-
-  // 获取访问URL
-  rpc GetContentURL(GetContentURLRequest) returns (Response);
-
   // AddArticle 添加文章
   rpc AddArticle(AddArticleRequest) returns (Response);
 

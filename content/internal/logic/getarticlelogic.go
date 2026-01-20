@@ -64,53 +64,33 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 		}
 	}
 
-	// 异步获取 tag 和 image
+	// 异步获取 tag
 	type tagResult struct {
 		tags []*model.ArticleTag
 		err  error
 	}
-	type imageResult struct {
-		images []*model.ArticleImage
-		err    error
-	}
 
 	tagCh := make(chan tagResult, 1)
-	imageCh := make(chan imageResult, 1)
 
 	go func() {
 		t, err := l.ArticleTagDao.FindManyByArticleId(l.ctx, article.Id)
 		tagCh <- tagResult{tags: t, err: err}
 	}()
 
-	go func() {
-		i, err := l.ArticleImageDao.FindManyByArticleId(l.ctx, article.Id)
-		imageCh <- imageResult{images: i, err: err}
-	}()
-
 	tagsResult := <-tagCh
-	imagesResult := <-imageCh
 
 	if tagsResult.err != nil {
 		l.Logger.Errorf("GetArticle err: %v", tagsResult.err)
 		// 不影响获取文章内容
 	}
-	if imagesResult.err != nil {
-		l.Logger.Errorf("GetArticle err: %v", imagesResult.err)
-		// 不影响获取文章内容
-	}
-
 	// 处理 tag
 	tagsRes := convert.StringsFromArticleTags(tagsResult.tags)
-
-	// 处理 image
-	imagesRes := convert.ArticleImagesToPB(imagesResult.images)
 
 	// 构造返回内容
 	res := &v1.GetArticleResponse{Article: &v1.Article{
 		Id:             article.Id,
 		Name:           article.Name,
 		Tag:            tagsRes,
-		Images:         imagesRes,
 		Url:            article.Url,
 		Description:    article.Description.String,
 		Cover:          article.Cover,
