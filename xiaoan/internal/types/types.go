@@ -14,6 +14,10 @@ type AddArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type DeleteArticleRequest struct {
+	ArticleId uint64 `form:"article_id"`
+}
+
 type GenerateInviteCodeRequest struct {
 	Creator_name string `json:"creator_name"`
 	Department   string `json:"department"`

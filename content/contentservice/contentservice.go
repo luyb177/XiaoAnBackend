@@ -26,6 +26,7 @@ type (
 	CommentItem           = v1.CommentItem
 	ContentCollect        = v1.ContentCollect
 	ContentLike           = v1.ContentLike
+	DeleteArticleRequest  = v1.DeleteArticleRequest
 	DeleteCommentRequest  = v1.DeleteCommentRequest
 	GetArticleRequest     = v1.GetArticleRequest
 	GetArticleResponse    = v1.GetArticleResponse
@@ -53,6 +54,8 @@ type (
 		GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// ModifyArticle 修改文章
 		ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error)
+		// DeleteArticle 删除文章
+		DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// 添加视频
 		AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
@@ -98,6 +101,12 @@ func (m *defaultContentService) GetArticle(ctx context.Context, in *GetArticleRe
 func (m *defaultContentService) ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.ModifyArticle(ctx, in, opts...)
+}
+
+// DeleteArticle 删除文章
+func (m *defaultContentService) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.DeleteArticle(ctx, in, opts...)
 }
 
 // 添加视频

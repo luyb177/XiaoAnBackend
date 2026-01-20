@@ -102,5 +102,6 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 }
 
 func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.ArticleRelationTask) error {
-	return nil
+	// 1. 删除标签
+	return h.ArticleTagDao.DeleteBatchByArticleId(ctx, task.ArticleID)
 }

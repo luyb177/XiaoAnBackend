@@ -169,6 +169,13 @@ message GetArticleResponse {
   Article article = 1;
 }
 
+// DeleteArticleRequest 删除文章
+message DeleteArticleRequest {
+  uint64 id = 1;
+}
+
+
+
 message ModifyArticleRequest {
   uint64 id = 1;
   string name = 2;
@@ -290,6 +297,9 @@ service ContentService {
 
   // ModifyArticle 修改文章
   rpc ModifyArticle(ModifyArticleRequest) returns (Response);
+
+  // DeleteArticle 删除文章
+  rpc DeleteArticle(DeleteArticleRequest) returns (Response);
 
   // 添加视频
   rpc AddVideo(AddVideoRequest) returns (Response);

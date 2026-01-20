@@ -17,19 +17,17 @@ type GetArticleLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	ArticleDao      model.ArticleModel
-	ArticleTagDao   model.ArticleTagModel
-	ArticleImageDao model.ArticleImageModel
+	ArticleDao    model.ArticleModel
+	ArticleTagDao model.ArticleTagModel
 }
 
 func NewGetArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetArticleLogic {
 	return &GetArticleLogic{
-		ctx:             ctx,
-		svcCtx:          svcCtx,
-		Logger:          logx.WithContext(ctx),
-		ArticleDao:      model.NewArticleModel(svcCtx.Mysql),
-		ArticleTagDao:   model.NewArticleTagModel(svcCtx.Mysql),
-		ArticleImageDao: model.NewArticleImageModel(svcCtx.Mysql),
+		ctx:           ctx,
+		svcCtx:        svcCtx,
+		Logger:        logx.WithContext(ctx),
+		ArticleDao:    model.NewArticleModel(svcCtx.Mysql),
+		ArticleTagDao: model.NewArticleTagModel(svcCtx.Mysql),
 	}
 }
 

@@ -89,6 +89,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddArticleHandler(serverCtx),
 				},
 				{
+					// 删除文章
+					Method:  http.MethodDelete,
+					Path:    "/delete-article",
+					Handler: content.DeleteArticleHandler(serverCtx),
+				},
+				{
 					// 修改文章
 					Method:  http.MethodPost,
 					Path:    "/modify-article",

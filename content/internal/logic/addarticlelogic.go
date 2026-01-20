@@ -37,7 +37,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	// 添加文章只有 超级管理员 和 员工 才能添加
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("AddArticle err: 用户未登录或登录状态异常")
+		l.Errorf("AddArticle err: 用户未登录或登录状态异常")
 
 		return &v1.Response{
 			Code:    400,
@@ -47,7 +47,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 
 	// 检验请求体内容
 	if in.Name == "" {
-		l.Logger.Errorf("AddArticle err: 文章名称为空")
+		l.Errorf("AddArticle err: 文章名称为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -55,7 +55,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 	if in.Content == "" {
-		l.Logger.Errorf("AddArticle err: 文章内容为空")
+		l.Errorf("AddArticle err: 文章内容为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -63,7 +63,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 	if in.Description == "" {
-		l.Logger.Errorf("AddArticle err: 文章摘要为空")
+		l.Errorf("AddArticle err: 文章摘要为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -71,7 +71,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 	if in.Cover == "" {
-		l.Logger.Errorf("AddArticle err: 封面为空")
+		l.Errorf("AddArticle err: 封面为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -85,7 +85,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		in.Tags = []string{"默认标签"}
 	}
 	if len(in.Tags) > 10 {
-		l.Logger.Errorf("AddArticle err: 标签数量超出限制")
+		l.Errorf("AddArticle err: 标签数量超出限制")
 
 		return &v1.Response{
 			Code:    400,
@@ -131,7 +131,8 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	})
 
 	if err != nil {
-		l.Logger.Errorf("AddArticle err: %v", err)
+		l.Errorf("AddArticle err: %v", err)
+
 		return &v1.Response{
 			Code:    400,
 			Message: "添加文章失败",
@@ -146,7 +147,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, articleRelationTask)
 	if err != nil {
-		l.Logger.Errorf("AddArticle Enqueue err: %v", err)
+		l.Errorf("AddArticle Enqueue err: %v", err)
 	}
 
 	// 构造返回内容
@@ -157,7 +158,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("AddArticle err: %v", err)
+		l.Errorf("AddArticle err: %v", err)
 
 		return &v1.Response{
 			Code:    500,

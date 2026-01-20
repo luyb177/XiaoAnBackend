@@ -81,6 +81,9 @@ type (
 		author      string   `json:"author"`
 		Tags        []string `json:"tags"`
 	}
+	DeleteArticleRequest {
+		articleId uint64 `form:"article_id"`
+	}
 )
 
 // content 返回模块
@@ -174,5 +177,9 @@ service xiaoan {
 	@doc "修改文章"
 	@handler ModifyArticle
 	post /modify-article (ModifyArticleRequest) returns (Response)
+
+	@doc "删除文章"
+	@handler DeleteArticle
+	delete /delete-article (DeleteArticleRequest) returns (Response)
 }
 
