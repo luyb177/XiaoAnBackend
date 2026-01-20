@@ -224,5 +224,5 @@ func (q *RedisTaskQueue) MoveToDLQWithReason(ctx context.Context, dlqTask *DLQTa
 
 // 最高 base 的 2^5 倍 的延迟
 func calculateDelay(base time.Duration, retry int) time.Duration {
-	return time.Duration(base*(1<<(retry-1))) * time.Second
+	return base * time.Duration(1<<(retry-1))
 }
