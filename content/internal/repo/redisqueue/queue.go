@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
@@ -20,29 +19,6 @@ const (
 const (
 	MaxRetry = 5
 )
-
-// RawTask 通用 task 的实现
-type RawTask struct {
-	TaskID    string          `json:"task_id"`    // 幂等 ID
-	Retry     int             `json:"retry"`      // 当前重试次数
-	MaxRetry  int             `json:"max_retry"`  // 最大重试次数
-	DelaySec  int64           `json:"delay_sec"`  // 下一次 retry 的延迟（秒）
-	Data      json.RawMessage `json:"data"`       // 业务任务
-	CreatedAt int64           `json:"created_at"` // 创建时间
-}
-
-func (t *RawTask) ID() string {
-	return t.TaskID
-}
-
-func (t *RawTask) Payload() []byte {
-	payload, err := json.Marshal(t)
-	// 这里出现错误的话，说明程序可能有问题
-	if err != nil {
-		panic(fmt.Sprintf("RawTask marshal error: %v", err))
-	}
-	return payload
-}
 
 type RedisTaskQueue struct {
 	rds          *redis.Redis
@@ -65,11 +41,15 @@ func NewRedisTaskQueue(rds *redis.Redis, keys taskqueue.QueueKey) *RedisTaskQueu
 
 // Enqueue  task -> 待处理队列
 func (q *RedisTaskQueue) Enqueue(ctx context.Context, task taskqueue.Task) error {
+	payload, err := task.Payload()
+	if err != nil {
+		return err
+	}
 	rawTask := &RawTask{
 		TaskID:    task.ID(),
 		Retry:     0,
 		MaxRetry:  MaxRetry,
-		Data:      task.Payload(),
+		Data:      payload,
 		CreatedAt: time.Now().Unix(),
 	}
 
@@ -103,6 +83,15 @@ func (q *RedisTaskQueue) Dequeue(ctx context.Context) (taskqueue.Task, error) {
 	rawTask := &RawTask{}
 	err = json.Unmarshal(data, rawTask)
 	if err != nil {
+		// 这里 unmarshal 失败，则将任务放入 DLQ
+		dlqTask := NewDLQTask(
+			DLQReasonUnmarshal,
+			DLQStageDequeue,
+			err.Error(),
+			data,
+		)
+
+		err = q.MoveToDLQWithReason(ctx, dlqTask)
 		return nil, err
 	}
 
@@ -111,29 +100,62 @@ func (q *RedisTaskQueue) Dequeue(ctx context.Context) (taskqueue.Task, error) {
 
 // Ack 处理中队列 task -> 删除
 func (q *RedisTaskQueue) Ack(ctx context.Context, task taskqueue.Task) error {
-	_, err := q.rds.LremCtx(ctx, q.keys.Processing, 1, string(task.Payload()))
+	payload, err := task.Payload()
+	if err != nil {
+		return err
+	}
+	_, err = q.rds.LremCtx(ctx, q.keys.Processing, 1, string(payload))
 	return err
 }
 
 // Retry 处理中队列 task -> 延迟队列
 func (q *RedisTaskQueue) Retry(ctx context.Context, task taskqueue.Task, delay time.Duration) error {
-	var rawTask RawTask
-	err := json.Unmarshal(task.Payload(), &rawTask)
+	payload, err := task.Payload()
 	if err != nil {
 		return err
+	}
+
+	var rawTask RawTask
+	err = json.Unmarshal(payload, &rawTask)
+	if err != nil {
+		// 这里 unmarshal 失败，则将任务放入 DLQ
+		dlqTask := NewDLQTask(
+			DLQReasonUnmarshal,
+			DLQStageRetry,
+			err.Error(),
+			payload,
+		)
+		return q.MoveToDLQWithReason(ctx, dlqTask)
+
+	}
+
+	if rawTask.Retry >= rawTask.MaxRetry {
+		dlqTask := NewDLQTask(
+			DLQReasonMaxRetry,
+			DLQStageRetry,
+			"retry count more than MaxRetry",
+			payload,
+		)
+		return q.MoveToDLQWithReason(ctx, dlqTask)
 	}
 
 	rawTask.Retry++
-	if rawTask.Retry > rawTask.MaxRetry {
-		return q.MoveToDLQ(ctx, task)
-	}
+
+	rawTask.DelaySec = int64(calculateDelay(delay, rawTask.Retry).Seconds())
 
 	newPayload, err := json.Marshal(&rawTask)
 	if err != nil {
-		return err
+		// 这里新的 payload marshal 失败，则将任务放入 DLQ
+		dlqTask := NewDLQTask(
+			DLQReasonMarshal,
+			DLQStageRetry,
+			err.Error(),
+			payload,
+		)
+		return q.MoveToDLQWithReason(ctx, dlqTask)
 	}
 
-	score := time.Now().Add(delay).Unix()
+	score := time.Now().Unix() + rawTask.DelaySec
 
 	_, err = q.rds.EvalCtx(
 		ctx,
@@ -142,8 +164,8 @@ func (q *RedisTaskQueue) Retry(ctx context.Context, task taskqueue.Task, delay t
 			q.keys.Processing,
 			q.keys.Retry,
 		},
-		string(task.Payload()), // old payload
-		string(newPayload),     // new payload
+		string(payload),    // old payload
+		string(newPayload), // new payload
 		score,
 	)
 	return err
@@ -165,7 +187,28 @@ func (q *RedisTaskQueue) MoveRetryToPending(ctx context.Context) error {
 	return err
 }
 
+// MoveToDLQ  实现接口
 func (q *RedisTaskQueue) MoveToDLQ(ctx context.Context, task taskqueue.Task) error {
+	payload, err := task.Payload()
+	if err != nil {
+		return err
+	}
+	dlqTask := NewDLQTask(
+		DLQReasonUnknown,
+		DLQStageUnknown,
+		"move to dlq by interface",
+		payload,
+	)
+	return q.MoveToDLQWithReason(ctx, dlqTask)
+}
+
+func (q *RedisTaskQueue) MoveToDLQWithReason(ctx context.Context, dlqTask *DLQTask) error {
+	b, marshalErr := json.Marshal(dlqTask)
+	if marshalErr != nil {
+		// 最终兜底：保证任务不会丢
+		b = dlqTask.RawPayload
+	}
+
 	_, err := q.rds.EvalCtx(
 		ctx,
 		moveProcessingToDLQLua,
@@ -173,7 +216,13 @@ func (q *RedisTaskQueue) MoveToDLQ(ctx context.Context, task taskqueue.Task) err
 			q.keys.Processing,
 			q.keys.DLQ,
 		},
-		string(task.Payload()),
+		string(dlqTask.RawPayload), // old payload
+		string(b),                  // new payload
 	)
 	return err
+}
+
+// 最高 base 的 2^5 倍 的延迟
+func calculateDelay(base time.Duration, retry int) time.Duration {
+	return time.Duration(base*(1<<(retry-1))) * time.Second
 }

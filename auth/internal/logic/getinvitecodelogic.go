@@ -34,7 +34,7 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
 	creator := middleware.MustGetUser(l.ctx)
-	if creator.UID == 0 || creator.Role == "" || creator.Status != 1 {
+	if creator.UID == InvalidUserID || creator.Role == "" || creator.Status != UserStatusNormal {
 		l.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
 
 		return &v1.Response{

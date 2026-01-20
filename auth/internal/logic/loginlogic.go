@@ -79,7 +79,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		}
 	}
 
-	if user.Status != 1 {
+	if user.Status != UserStatusNormal {
 		l.Errorf("Login 用户被禁用")
 
 		return &v1.Response{

@@ -3,8 +3,7 @@ package redisqueue
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
+	"time"
 )
 
 type ArticleRelationTaskType string
@@ -12,8 +11,10 @@ type ArticleRelationTaskType string
 const (
 	// ArticleRelationAdd 添加文章关联内容
 	ArticleRelationAdd ArticleRelationTaskType = "add"
+
 	// ArticleRelationModify 修改文章关联内容
 	ArticleRelationModify ArticleRelationTaskType = "modify"
+
 	// ArticleRelationDelete 删除文章关联内容
 	ArticleRelationDelete ArticleRelationTaskType = "delete"
 )
@@ -24,12 +25,21 @@ type ArticleRelationTask struct {
 	Tags      []string                `json:"tags"`
 }
 
-func NewArticleRelationTask(tp ArticleRelationTaskType, articleID uint64, tags []string) taskqueue.Task {
-	return &ArticleRelationTask{
-		Type:      tp,
-		ArticleID: articleID,
-		Tags:      tags,
+func NewArticleRelationTask(task *ArticleRelationTask) (*RawTask, error) {
+	data, err := json.Marshal(task)
+	if err != nil {
+		return nil, err
 	}
+	now := time.Now().Unix()
+
+	return &RawTask{
+		TaskID:    fmt.Sprintf("article_relation_%s_%d", task.Type, task.ArticleID),
+		Retry:     0,
+		MaxRetry:  MaxRetry,
+		DelaySec:  0,
+		Data:      data,
+		CreatedAt: now,
+	}, nil
 }
 
 // 实现 Task 接口

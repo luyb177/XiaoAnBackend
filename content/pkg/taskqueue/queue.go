@@ -6,8 +6,8 @@ import (
 )
 
 type Task interface {
-	ID() string      // 唯一标识
-	Payload() []byte // 任务序列化内容
+	ID() string               // 唯一标识
+	Payload() ([]byte, error) // 任务序列化内容
 }
 
 // QueueKey 统一管理 队列 的 key

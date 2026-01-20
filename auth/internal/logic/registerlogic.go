@@ -86,7 +86,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 	}
 
 	// 1. 验证邀请码是否失效
-	if code.IsActive != 1 {
+	if code.IsActive != InviteCodeActive {
 		l.Errorf("Register err: 邀请码已失效")
 
 		return &v1.Response{
