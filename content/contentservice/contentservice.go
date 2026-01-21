@@ -18,6 +18,7 @@ type (
 	AddArticleResponse    = v1.AddArticleResponse
 	AddCommentRequest     = v1.AddCommentRequest
 	AddVideoRequest       = v1.AddVideoRequest
+	AddVideoResponse      = v1.AddVideoResponse
 	Article               = v1.Article
 	CollectRequest        = v1.CollectRequest
 	Comic                 = v1.Comic
@@ -28,23 +29,24 @@ type (
 	ContentLike           = v1.ContentLike
 	DeleteArticleRequest  = v1.DeleteArticleRequest
 	DeleteCommentRequest  = v1.DeleteCommentRequest
+	DeleteVideoRequest    = v1.DeleteVideoRequest
 	GetArticleRequest     = v1.GetArticleRequest
 	GetArticleResponse    = v1.GetArticleResponse
 	GetCommentsRequest    = v1.GetCommentsRequest
 	GetCommentsResponse   = v1.GetCommentsResponse
 	GetContentRequest     = v1.GetContentRequest
-	GetContentURLRequest  = v1.GetContentURLRequest
-	GetContentURLResponse = v1.GetContentURLResponse
+	GetVideoRequest       = v1.GetVideoRequest
+	GetVideoResponse      = v1.GetVideoResponse
 	LikeRequest           = v1.LikeRequest
 	ModifyArticleRequest  = v1.ModifyArticleRequest
 	ModifyArticleResponse = v1.ModifyArticleResponse
+	ModifyVideoRequest    = v1.ModifyVideoRequest
+	ModifyVideoResponse   = v1.ModifyVideoResponse
 	Podcast               = v1.Podcast
 	Response              = v1.Response
 	SearchRequest         = v1.SearchRequest
 	SearchResponse        = v1.SearchResponse
 	UpdateCommentRequest  = v1.UpdateCommentRequest
-	UploadChunk           = v1.UploadChunk
-	UploadResponse        = v1.UploadResponse
 	Video                 = v1.Video
 
 	ContentService interface {
@@ -56,8 +58,14 @@ type (
 		ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error)
 		// DeleteArticle 删除文章
 		DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*Response, error)
-		// 添加视频
+		// AddVideo 添加视频
 		AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetVideo 获取视频
+		GetVideo(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*Response, error)
+		// ModifyVideo 修改视频
+		ModifyVideo(ctx context.Context, in *ModifyVideoRequest, opts ...grpc.CallOption) (*Response, error)
+		// DeleteVideo 删除视频
+		DeleteVideo(ctx context.Context, in *DeleteVideoRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 		// 点赞
@@ -109,10 +117,28 @@ func (m *defaultContentService) DeleteArticle(ctx context.Context, in *DeleteArt
 	return client.DeleteArticle(ctx, in, opts...)
 }
 
-// 添加视频
+// AddVideo 添加视频
 func (m *defaultContentService) AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.AddVideo(ctx, in, opts...)
+}
+
+// GetVideo 获取视频
+func (m *defaultContentService) GetVideo(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetVideo(ctx, in, opts...)
+}
+
+// ModifyVideo 修改视频
+func (m *defaultContentService) ModifyVideo(ctx context.Context, in *ModifyVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.ModifyVideo(ctx, in, opts...)
+}
+
+// DeleteVideo 删除视频
+func (m *defaultContentService) DeleteVideo(ctx context.Context, in *DeleteVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.DeleteVideo(ctx, in, opts...)
 }
 
 // 搜索

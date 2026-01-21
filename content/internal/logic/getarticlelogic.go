@@ -34,7 +34,7 @@ func NewGetArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetArt
 // GetArticle 获取文章详细内容，无需登录
 func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, error) {
 	if in.Id <= 0 {
-		l.Logger.Errorf("GetArticle err: 参数错误")
+		l.Errorf("GetArticle err: 参数错误")
 
 		return &v1.Response{
 			Code:    400,
@@ -46,14 +46,14 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 	article, err := l.ArticleDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			l.Logger.Errorf("GetArticle err: 文章不存在")
+			l.Errorf("GetArticle err: 文章不存在")
 
 			return &v1.Response{
 				Code:    404,
 				Message: "文章不存在",
 			}, nil
 		} else {
-			l.Logger.Errorf("GetArticle err: %v", err)
+			l.Errorf("GetArticle err: %v", err)
 
 			return &v1.Response{
 				Code:    500,
@@ -78,7 +78,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 	tagsResult := <-tagCh
 
 	if tagsResult.err != nil {
-		l.Logger.Errorf("GetArticle err: %v", tagsResult.err)
+		l.Errorf("GetArticle err: %v", tagsResult.err)
 		// 不影响获取文章内容
 	}
 	// 处理 tag
@@ -106,7 +106,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("GetArticle err: %v", err)
+		l.Errorf("GetArticle err: %v", err)
 
 		return &v1.Response{
 			Code:    500,
@@ -116,7 +116,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 
 	msg := "获取文章成功"
 	if article.RelationStatus == RelationStatusPending {
-		msg = "文章内容已更新，图片/标签同步中"
+		msg = "文章内容同步中"
 	}
 
 	return &v1.Response{

@@ -3,6 +3,12 @@ import "third_party/google/protobuf/any.proto";
 package content;
 option go_package = "./content/v1";
 
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ===== Model =====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
+
 message Video {
   uint64 id = 1;
   string name = 2;
@@ -11,9 +17,9 @@ message Video {
   string description = 5;
   string cover = 6;
   string author = 7;
-  int64 create_time = 8;
+  int64 published_at = 8;
   int64 created_at = 9;
-  int64 update_time = 10;
+  int64 updated_at = 10;
   uint64 like_count = 11;
   uint64 view_count = 12;
   uint64 collect_count = 13;
@@ -69,7 +75,7 @@ message Article {
   int64 last_modified_by = 16;
   int64 relation_status = 17;
 }
-// 点赞记录
+// ContentLike 点赞记录
 message ContentLike {
   uint64 id = 1;
   string type = 2;  // video,comic,podcast,article,comment
@@ -80,7 +86,7 @@ message ContentLike {
   int64 updated_at = 7;
 }
 
-// 收藏记录
+// ContentCollect 收藏记录
 message ContentCollect {
   uint64 id = 1;
   string type = 2;
@@ -91,7 +97,7 @@ message ContentCollect {
   int64 updated_at = 7;
 }
 
-// 评论
+// Comment 评论
 message Comment {
   uint64 id = 1;
   string type = 2;
@@ -106,31 +112,37 @@ message Comment {
   int64 updated_at = 11;
 }
 
-// 文件分片请求
-message UploadChunk {
-  string filename = 1;
-  bytes data = 2; // 每个分片的二进制内容
-  bool is_last = 3; // 是否最后一片
+
+// 评论详情
+message CommentDetail {
+  uint64 id = 1;
+  string type = 2;
+  uint64 target_id = 3;
+  uint64 user_id = 4;
+  uint64 parent_id = 5; // 为0 则为根评论
+  uint64 reply_comment_id = 6;
+  uint64 reply_user_id = 7;
+  string content = 8;
+  uint64 like_count = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+  bool is_liked = 12; // 用户是否点赞
 }
 
-// 响应
-message UploadResponse {
-  string url = 1;
+// 评论列表项
+message CommentItem {
+  CommentDetail comment = 1;  // 评论本身
+  repeated CommentDetail child_preview = 2;  // 子评论预览 （默认为前3条）
+  int64 child_total = 3;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ==== Request ====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
 
-// 获取访问链接请求
-message GetContentURLRequest {
-  string object_name = 1; // MinIO对象名
-}
-
-// 获取访问链接响应
-message GetContentURLResponse {
-  string url = 1;
-  int64 expires_in = 2; // 有效期秒数
-}
-
-// 添加视频
+// AddVideoRequest 添加视频请求
 message AddVideoRequest {
   string name = 1;
   repeated string tag = 2;
@@ -138,10 +150,32 @@ message AddVideoRequest {
   string description = 4;
   string cover = 5;
   string author = 6;
-  int64 create_time = 7;
+  int64 published_at = 7;
 }
 
-// 添加文章
+// GetVideoRequest 获取视频详细内容请求
+message GetVideoRequest {
+  uint64 id = 1;
+}
+
+// ModifyVideoRequest 修改视频请求
+message ModifyVideoRequest {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string url = 4;
+  string description = 5;
+  string cover = 6;
+  string author = 7;
+  int64 published_at = 8;
+}
+
+// DeleteVideoRequest 删除视频请求
+message DeleteVideoRequest {
+  uint64 id = 1;
+}
+
+// AddArticleRequest 添加文章请求
 message AddArticleRequest {
   string name = 1;                    // 文章标题
   string description = 2;             // 文章摘要
@@ -155,27 +189,17 @@ message AddArticleRequest {
   string author = 9;
 }
 
-message AddArticleResponse {
-  uint64 id =  1;
-  int64 relation_status = 2;
-}
-
-// 获取文章详细内容
+// GetArticleRequest 获取文章详细内容请求
 message GetArticleRequest {
   uint64 id = 1;
 }
 
-message GetArticleResponse {
-  Article article = 1;
-}
-
-// DeleteArticleRequest 删除文章
+// DeleteArticleRequest 删除文章请求
 message DeleteArticleRequest {
   uint64 id = 1;
 }
 
-
-
+// ModifyArticleRequest 修改文章请求
 message ModifyArticleRequest {
   uint64 id = 1;
   string name = 2;
@@ -188,25 +212,12 @@ message ModifyArticleRequest {
   int64 published_at = 11;
 }
 
-message ModifyArticleResponse {
-  uint64 id =  1;
-  int64 relation_status = 2;
-}
-
-
 message SearchRequest {
   string keyword = 1;        // 搜索关键字
   string type = 2;           // video, comic, podcast, article
   repeated string tag = 3;   // 标签筛选
   int64 page = 4;            // 页码
   int64 page_size = 5;       // 每页数量
-}
-
-message SearchResponse {
-  repeated Video videos = 1;
-  repeated Comic comics = 2;
-  repeated Podcast podcasts = 3;
-  repeated Article articles = 4;
 }
 
 // 点赞请求
@@ -247,34 +258,6 @@ message GetCommentsRequest {
   int64 page_size = 4;
 }
 
-// 评论详情
-message CommentDetail {
-  uint64 id = 1;
-  string type = 2;
-  uint64 target_id = 3;
-  uint64 user_id = 4;
-  uint64 parent_id = 5; // 为0 则为根评论
-  uint64 reply_comment_id = 6;
-  uint64 reply_user_id = 7;
-  string content = 8;
-  uint64 like_count = 9;
-  int64 created_at = 10;
-  int64 updated_at = 11;
-  bool is_liked = 12; // 用户是否点赞
-}
-
-// 评论列表项
-message CommentItem {
-  CommentDetail comment = 1;  // 评论本身
-  repeated CommentDetail child_preview = 2;  // 子评论预览 （默认为前3条）
-  int64 child_total = 3;
-}
-
-message GetCommentsResponse {
-  repeated CommentItem comments = 1;  // 评论列表
-  int64 total = 2;  // 总数
-}
-
 // 获取内容请求
 message GetContentRequest {
   string type = 1;
@@ -282,11 +265,67 @@ message GetContentRequest {
 }
 
 
+// ---------------------------------------------------------------------------------------------------------------------
+// ==================
+// ==== Response ====
+// ==================
+// ---------------------------------------------------------------------------------------------------------------------
+
+message AddVideoResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+
+message GetVideoResponse {
+  Video video = 1;
+}
+
+message ModifyVideoResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+message AddArticleResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+message GetArticleResponse {
+  Article article = 1;
+}
+
+message ModifyArticleResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+message SearchResponse {
+  repeated Video videos = 1;
+  repeated Comic comics = 2;
+  repeated Podcast podcasts = 3;
+  repeated Article articles = 4;
+}
+
+
+message GetCommentsResponse {
+  repeated CommentItem comments = 1;  // 评论列表
+  int64 total = 2;  // 总数
+}
+
 message Response {
   int64 code = 1 ;
   string message = 2;
   google.protobuf.Any data = 3;
 }
+
+
+// ------------------------------------------------------------------------------------------------------------------
+// ===============
+// ==== Route ====
+//================
+// ---------------------------------------------------------------------------------------------------------------------
+
 
 service ContentService {
   // AddArticle 添加文章
@@ -301,8 +340,17 @@ service ContentService {
   // DeleteArticle 删除文章
   rpc DeleteArticle(DeleteArticleRequest) returns (Response);
 
-  // 添加视频
+  // AddVideo 添加视频
   rpc AddVideo(AddVideoRequest) returns (Response);
+
+  // GetVideo 获取视频
+  rpc GetVideo(GetVideoRequest) returns (Response);
+
+  // ModifyVideo 修改视频
+  rpc ModifyVideo(ModifyVideoRequest) returns (Response);
+
+  // DeleteVideo 删除视频
+  rpc DeleteVideo(DeleteVideoRequest) returns (Response);
 
   // 搜索
   rpc Search(SearchRequest) returns (Response);

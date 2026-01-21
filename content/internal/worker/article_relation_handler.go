@@ -4,16 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"log"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ArticleRelationHandler struct {
@@ -41,6 +42,7 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 	if err != nil {
 		return err
 	}
+
 	articleTask := tasks.ArticleRelationTask{}
 	err = json.Unmarshal(rawTask.Data, &articleTask)
 	if err != nil {
@@ -72,6 +74,7 @@ func (h *ArticleRelationHandler) handleAdd(ctx context.Context, task *tasks.Arti
 		if err != nil {
 			return err
 		}
+
 		// 2. 更新文章关联状态
 		err = h.ArticleDao.UpdateRelationStatusWithSession(ctx, session, task.ArticleID, logic.RelationStatusNormal)
 		if err != nil {
@@ -84,7 +87,7 @@ func (h *ArticleRelationHandler) handleAdd(ctx context.Context, task *tasks.Arti
 func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.ArticleRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除旧标签
-		err := h.ArticleTagDao.DeleteBatchByArticleId(ctx, task.ArticleID)
+		err := h.ArticleTagDao.DeleteBatchByArticleIdWithSession(ctx, session, task.ArticleID)
 		if err != nil {
 			return err
 		}

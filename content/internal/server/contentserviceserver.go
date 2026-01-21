@@ -47,10 +47,28 @@ func (s *ContentServiceServer) DeleteArticle(ctx context.Context, in *v1.DeleteA
 	return l.DeleteArticle(in)
 }
 
-// 添加视频
+// AddVideo 添加视频
 func (s *ContentServiceServer) AddVideo(ctx context.Context, in *v1.AddVideoRequest) (*v1.Response, error) {
 	l := logic.NewAddVideoLogic(ctx, s.svcCtx)
 	return l.AddVideo(in)
+}
+
+// GetVideo 获取视频
+func (s *ContentServiceServer) GetVideo(ctx context.Context, in *v1.GetVideoRequest) (*v1.Response, error) {
+	l := logic.NewGetVideoLogic(ctx, s.svcCtx)
+	return l.GetVideo(in)
+}
+
+// ModifyVideo 修改视频
+func (s *ContentServiceServer) ModifyVideo(ctx context.Context, in *v1.ModifyVideoRequest) (*v1.Response, error) {
+	l := logic.NewModifyVideoLogic(ctx, s.svcCtx)
+	return l.ModifyVideo(in)
+}
+
+// DeleteVideo 删除视频
+func (s *ContentServiceServer) DeleteVideo(ctx context.Context, in *v1.DeleteVideoRequest) (*v1.Response, error) {
+	l := logic.NewDeleteVideoLogic(ctx, s.svcCtx)
+	return l.DeleteVideo(in)
 }
 
 // 搜索

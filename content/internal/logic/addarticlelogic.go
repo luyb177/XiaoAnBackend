@@ -37,11 +37,11 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	// 添加文章只有 超级管理员 和 员工 才能添加
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("AddArticle err: 用户未登录或登录状态异常")
+		l.Errorf("AddArticle err: 用户未登录或无权限")
 
 		return &v1.Response{
 			Code:    400,
-			Message: "用户未登录或登录状态异常",
+			Message: "用户未登录或无权限",
 		}, nil
 	}
 
@@ -94,9 +94,11 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	}
 
 	// 正式添加文章
+	// 事务
+	// todo 只添加一个不需要事务，暂时先不改
+
 	var article model.Article
 	now := time.Now()
-	// 事务  todo 只删除一个不需要事务，暂时先不改
 	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 添加文章
 		// 1. 构造

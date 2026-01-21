@@ -3,7 +3,9 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"strings"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -24,6 +26,9 @@ type (
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Video) (sql.Result, error)
 		FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error)
 		FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error)
+		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
+		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
+		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 	}
 
 	customVideoModel struct {
@@ -87,4 +92,34 @@ func (m *customVideoModel) FindByVideoTagsAndKeyWord(ctx context.Context, offset
 	var out []*Video
 	err := m.conn.QueryRowsCtx(ctx, &out, quary, args...)
 	return out, err
+}
+
+func (m *customVideoModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {
+	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
+	return err
+}
+
+func (m *customVideoModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
+	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
+}
+
+func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where `id` = ? and `deleted_at` is null limit 1",
+		articleRows,
+		m.table,
+	)
+
+	var resp Video
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	switch {
+	case err == nil:
+		return &resp, nil
+	case errors.Is(err, sqlc.ErrNotFound):
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
 }

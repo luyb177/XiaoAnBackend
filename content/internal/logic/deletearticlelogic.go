@@ -63,7 +63,7 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 		}
 		return &v1.Response{
 			Code:    400,
-			Message: "查询文章失败",
+			Message: "查询文章时出错",
 		}, nil
 	}
 

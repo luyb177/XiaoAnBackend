@@ -48,9 +48,9 @@ func (m *customArticleTagModel) InsertBatch(ctx context.Context, list []*Article
 	valuePlaceholders := make([]string, 0, len(list))
 	args := make([]interface{}, 0, len(list)*3)
 
-	for _, tag := range list {
+	for _, v := range list {
 		valuePlaceholders = append(valuePlaceholders, "(?,?,?)")
-		args = append(args, tag.ArticleId, tag.Tag, tag.DeletedAt)
+		args = append(args, v.ArticleId, v.Tag, v.DeletedAt)
 	}
 
 	query := fmt.Sprintf(

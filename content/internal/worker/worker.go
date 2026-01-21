@@ -29,6 +29,7 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 
 	// 注册处理器
 	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(svcCtx))
+	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(svcCtx))
 
 	return w
 }
