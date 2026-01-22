@@ -12,29 +12,29 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetArticleContentLogic struct {
+type GetVideoContentLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 获取文章详细内容
-func NewGetArticleContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetArticleContentLogic {
-	return &GetArticleContentLogic{
+// NewGetVideoContentLogic 获取视频详细内容
+func NewGetVideoContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetVideoContentLogic {
+	return &GetVideoContentLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GetArticleContentLogic) GetArticleContent(req *types.GetArticleContentRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.GetArticle(l.ctx, &content.GetArticleRequest{
-		Id: req.ArticleId,
+func (l *GetVideoContentLogic) GetVideoContent(req *types.GetVideoContentRequest) (resp *types.Response, err error) {
+	res, _ := l.svcCtx.ContentRpc.GetVideo(l.ctx, &content.GetVideoRequest{
+		Id: req.VideoId,
 	})
 
-	var data *content.GetArticleResponse
+	var data *content.GetVideoResponse
 	if res.Data != nil {
-		data = &content.GetArticleResponse{}
+		data = &content.GetVideoResponse{}
 		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 	}
 

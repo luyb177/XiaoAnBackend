@@ -4,14 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -21,27 +20,22 @@ type ModifyArticleLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	ArticleDao      model.ArticleModel
-	ArticleTagDao   model.ArticleTagModel
-	ArticleImageDao model.ArticleImageModel
+	ArticleDao    model.ArticleModel
+	ArticleTagDao model.ArticleTagModel
 }
 
 func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ModifyArticleLogic {
 	return &ModifyArticleLogic{
-		ctx:             ctx,
-		svcCtx:          svcCtx,
-		Logger:          logx.WithContext(ctx),
-		ArticleDao:      model.NewArticleModel(svcCtx.Mysql),
-		ArticleTagDao:   model.NewArticleTagModel(svcCtx.Mysql),
-		ArticleImageDao: model.NewArticleImageModel(svcCtx.Mysql),
+		ctx:           ctx,
+		svcCtx:        svcCtx,
+		Logger:        logx.WithContext(ctx),
+		ArticleDao:    model.NewArticleModel(svcCtx.Mysql),
+		ArticleTagDao: model.NewArticleTagModel(svcCtx.Mysql),
 	}
 }
 
 // ModifyArticle 修改文章
-// todo 存储修改历史
-// 因为接口比较慢，所以事务中主要新增文章，图片和标签在事务外异步执行
-// 放在异步中的话，需要一个状态来标记异步完成
-// 当然了，异步的话，还是应该使用异步队列的，这样之后可以修复
+// todo: 修改历史
 func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Response, error) {
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
@@ -116,34 +110,6 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 			}, nil
 		}
 	}
-	if len(in.Images) != 0 {
-		for _, image := range in.Images {
-			if image.Url == "" {
-				l.Logger.Errorf("ModifyArticle err: 图片地址为空")
-
-				return &v1.Response{
-					Code:    400,
-					Message: "图片地址为空",
-				}, nil
-			}
-			if image.Sort < 0 {
-				l.Logger.Errorf("ModifyArticle err: 图片排序为负数")
-
-				return &v1.Response{
-					Code:    400,
-					Message: "图片排序为负数",
-				}, nil
-			}
-			if _, ok := ArticleImageMap[image.Tp]; !ok {
-				l.Logger.Errorf("ModifyArticle err: 图片类型错误")
-
-				return &v1.Response{
-					Code:    400,
-					Message: "图片类型错误",
-				}, nil
-			}
-		}
-	}
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = time.Now().Unix()
 	}
@@ -172,6 +138,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	defer cancel()
 
 	// 构造修改内容 事务
+	// todo 不需要事务
 	err = l.svcCtx.Mysql.TransactCtx(txCtx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 更新文章
 		// 1.1 构造
@@ -199,58 +166,16 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 		}, nil
 	}
 
-	go func(articleID uint64, tags []string, images []*v1.ArticleImage) {
-		defer func() {
-			if r := recover(); r != nil {
-				l.Logger.Errorf("panic in async article update: %v", r)
-			}
-		}()
+	articleRelationTask := &tasks.ArticleRelationTask{
+		Type:      tasks.ArticleRelationModify,
+		ArticleID: article.Id,
+		Tags:      in.Tag,
+	}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		const maxRetry = 3
-
-		for attempt := 1; attempt <= maxRetry; attempt++ {
-			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
-				// 1. 删除旧标签
-				if err := l.ArticleTagDao.DeleteBatchByArticleIdWithSession(txCtx, session, articleID); err != nil {
-					return err
-				}
-
-				// 2. 插入新标签
-				tagModels := convert.ArticleTagsFromStrings(articleID, tags)
-				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
-					return err
-				}
-
-				// 3. 删除旧图片
-				if err := l.ArticleImageDao.DeleteBatchByArticleIdWithSession(txCtx, session, articleID); err != nil {
-					return err
-				}
-				// 4. 插入新图片
-				imageModels := convert.ArticleImagesFromPB(articleID, images)
-				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
-					return err
-				}
-
-				// 5. 更新文章的 relation_status 为正常
-				return l.ArticleDao.UpdateRelationStatusWithSession(txCtx, session, articleID, RelationStatusNormal)
-			})
-
-			if err == nil {
-				// 成功执行，退出循环
-				return
-			}
-
-			// 失败，记录日志并稍作延迟重试
-			l.Logger.Errorf("async modify article attempt %d failed: %v", attempt, err)
-			time.Sleep(time.Duration(attempt) * 500 * time.Millisecond) // 指数退避
-		}
-
-		l.Logger.Errorf("async modify article ultimately failed after %d attempts", maxRetry)
-
-	}(in.Id, in.Tag, in.Images)
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, articleRelationTask)
+	if err != nil {
+		l.Logger.Errorf("ModifyArticle Enqueue err: %v", err)
+	}
 
 	// 构造返回值
 	res := &v1.ModifyArticleResponse{

@@ -2,48 +2,46 @@ package content
 
 import (
 	"context"
-
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
-type ModifyArticleLogic struct {
+type ModifyVideoLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 修改文章
-func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ModifyArticleLogic {
-	return &ModifyArticleLogic{
+// NewModifyVideoLogic 修改视频
+func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ModifyVideoLogic {
+	return &ModifyVideoLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
-		Id:          req.ArticleId,
+func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *types.Response, err error) {
+	res, _ := l.svcCtx.ContentRpc.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
+		Id:          req.VideoId,
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Url:         req.Url,
 		Description: req.Description,
 		Cover:       req.Cover,
-		Content:     req.Content,
 		Author:      req.Author,
 		PublishedAt: req.PublishedAt,
 	})
 
-	var data *content.ModifyArticleResponse
-
+	var data *content.ModifyVideoResponse
 	if res.Data != nil {
-		data = &content.ModifyArticleResponse{}
+		data = &content.ModifyVideoResponse{}
 		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 	}
 

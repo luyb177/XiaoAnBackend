@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/server"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/internal/worker"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -26,17 +26,23 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
-	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+	var sg service.ServiceGroup
+
+	rpcServer := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		v1.RegisterContentServiceServer(grpcServer, server.NewContentServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
-	defer s.Stop()
 
-	s.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
+	rpcServer.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
+
+	w := worker.NewWorker(ctx)
+
+	sg.Add(rpcServer)
+	sg.Add(w)
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
-	s.Start()
+	sg.Start()
 }

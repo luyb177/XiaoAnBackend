@@ -4,21 +4,32 @@
 package types
 
 type AddArticleRequest struct {
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Content     string         `json:"content"`
-	Cover       string         `json:"cover"`
-	Url         string         `json:"url"`
-	PublishedAt int64          `json:"published_at"`
-	Author      string         `json:"author"`
-	Tags        []string       `json:"tags"`
-	Images      []ArticleImage `json:"images"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Content     string   `json:"content"`
+	Cover       string   `json:"cover"`
+	Url         string   `json:"url"`
+	PublishedAt int64    `json:"published_at"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
 }
 
-type ArticleImage struct {
-	Url  string `json:"url"`
-	Sort int64  `json:"sort"`
-	Tp   int64  `json:"tp"`
+type AddVideoRequest struct {
+	Name        string   `json:"name"`
+	Url         string   `json:"url"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+	Tags        []string `json:"tags"`
+}
+
+type DeleteArticleRequest struct {
+	ArticleId uint64 `form:"article_id"`
+}
+
+type DeleteVideoRequest struct {
+	VideoId uint64 `form:"video_id"`
 }
 
 type GenerateInviteCodeRequest struct {
@@ -40,12 +51,16 @@ type GetAnswerResponse struct {
 }
 
 type GetArticleContentRequest struct {
-	ArticleId uint64 `json:"article_id"`
+	ArticleId uint64 `form:"article_id"`
 }
 
 type GetInviteCodeRequest struct {
 	Page     int64 `json:"page"`
 	PageSize int64 `json:"page_size"`
+}
+
+type GetVideoContentRequest struct {
+	VideoId uint64 `form:"video_id"`
 }
 
 type LoginRequest struct {
@@ -56,16 +71,26 @@ type LoginRequest struct {
 }
 
 type ModifyArticleRequest struct {
-	ArticleId   uint64         `json:"article_id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Content     string         `json:"content"`
-	Cover       string         `json:"cover"`
-	Url         string         `json:"url"`
-	PublishedAt int64          `json:"published_at"`
-	Author      string         `json:"author"`
-	Tags        []string       `json:"tags"`
-	Images      []ArticleImage `json:"images"`
+	ArticleId   uint64   `json:"article_id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Content     string   `json:"content"`
+	Cover       string   `json:"cover"`
+	Url         string   `json:"url"`
+	PublishedAt int64    `json:"published_at"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
+}
+
+type ModifyVideoRequest struct {
+	VideoId     uint64   `json:"video_id"`
+	Name        string   `json:"name"`
+	Url         string   `json:"url"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+	Tags        []string `json:"tags"`
 }
 
 type RegisterRequest struct {
@@ -83,14 +108,6 @@ type Response struct {
 
 type SendEmailRequest struct {
 	Email string `json:"email"`
-}
-
-type UploadContentRequest struct {
-	File string `form:"file,optional"`
-}
-
-type UploadContentResponse struct {
-	Url string `json:"url"`
 }
 
 type ValidateEmailRequest struct {

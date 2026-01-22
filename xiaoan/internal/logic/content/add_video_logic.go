@@ -12,38 +12,35 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-type ModifyArticleLogic struct {
+type AddVideoLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 修改文章
-func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ModifyArticleLogic {
-	return &ModifyArticleLogic{
+// NewAddVideoLogic 添加视频
+func NewAddVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddVideoLogic {
+	return &AddVideoLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
-		Id:          req.ArticleId,
+func (l *AddVideoLogic) AddVideo(req *types.AddVideoRequest) (resp *types.Response, err error) {
+	res, _ := l.svcCtx.ContentRpc.AddVideo(l.ctx, &content.AddVideoRequest{
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Url:         req.Url,
 		Description: req.Description,
 		Cover:       req.Cover,
-		Content:     req.Content,
 		Author:      req.Author,
 		PublishedAt: req.PublishedAt,
 	})
 
-	var data *content.ModifyArticleResponse
-
+	var data *content.AddVideoResponse
 	if res.Data != nil {
-		data = &content.ModifyArticleResponse{}
+		data = &content.AddVideoResponse{}
 		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
 	}
 

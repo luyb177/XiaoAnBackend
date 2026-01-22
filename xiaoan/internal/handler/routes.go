@@ -5,7 +5,6 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	auth "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/auth"
 	content "github.com/luyb177/XiaoAnBackend/xiaoan/internal/handler/content"
@@ -70,24 +69,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				// 上传文件（流式传输到gRPC）
-				Method:  http.MethodPost,
-				Path:    "/upload",
-				Handler: content.UploadContentStreamHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/api/content"),
-		rest.WithTimeout(60000*time.Millisecond),
-		rest.WithMaxBytes(104857600),
-	)
-
-	server.AddRoutes(
-		[]rest.Route{
-			{
 				// 获取文章详细内容
-				Method:  http.MethodPost,
+				Method:  http.MethodGet,
 				Path:    "/get-article-content",
 				Handler: content.GetArticleContentHandler(serverCtx),
+			},
+			{
+				// 获取视频详细内容
+				Method:  http.MethodGet,
+				Path:    "/get-video-content",
+				Handler: content.GetVideoContentHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/content"),
@@ -104,10 +95,34 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddArticleHandler(serverCtx),
 				},
 				{
+					// 添加视频
+					Method:  http.MethodPost,
+					Path:    "/add-video",
+					Handler: content.AddVideoHandler(serverCtx),
+				},
+				{
+					// 删除文章
+					Method:  http.MethodDelete,
+					Path:    "/delete-article",
+					Handler: content.DeleteArticleHandler(serverCtx),
+				},
+				{
+					// 删除视频
+					Method:  http.MethodDelete,
+					Path:    "/delete-video",
+					Handler: content.DeleteVideoHandler(serverCtx),
+				},
+				{
 					// 修改文章
 					Method:  http.MethodPost,
 					Path:    "/modify-article",
 					Handler: content.ModifyArticleHandler(serverCtx),
+				},
+				{
+					// 修改视频
+					Method:  http.MethodPost,
+					Path:    "/modify-video",
+					Handler: content.ModifyVideoHandler(serverCtx),
 				},
 			}...,
 		),

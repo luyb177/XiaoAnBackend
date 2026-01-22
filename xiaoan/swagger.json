@@ -418,8 +418,7 @@
                 "url",
                 "published_at",
                 "author",
-                "tags",
-                "images"
+                "tags"
               ],
               "properties": {
                 "author": {
@@ -433,28 +432,6 @@
                 },
                 "description": {
                   "type": "string"
-                },
-                "images": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "url",
-                      "sort",
-                      "tp"
-                    ],
-                    "properties": {
-                      "sort": {
-                        "type": "integer"
-                      },
-                      "tp": {
-                        "type": "integer"
-                      },
-                      "url": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 },
                 "name": {
                   "type": "string"
@@ -494,7 +471,7 @@
         }
       }
     },
-    "/api/content/get-article-content": {
+    "/api/content/add-video": {
       "post": {
         "consumes": [
           "application/json"
@@ -508,8 +485,8 @@
         "tags": [
           "文件内容模块"
         ],
-        "summary": "获取文章详细内容",
-        "operationId": "contentGetArticleContent",
+        "summary": "添加视频",
+        "operationId": "contentAddVideo",
         "parameters": [
           {
             "name": "body",
@@ -518,14 +495,207 @@
             "schema": {
               "type": "object",
               "required": [
-                "article_id"
+                "name",
+                "url",
+                "description",
+                "cover",
+                "author",
+                "published_at",
+                "tags"
               ],
               "properties": {
-                "article_id": {
+                "author": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
                   "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-article": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除文章",
+        "operationId": "contentDeleteArticle",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "article_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-video": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除视频",
+        "operationId": "contentDeleteVideo",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "video_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-article-content": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取文章详细内容",
+        "operationId": "contentGetArticleContent",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "article_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-video-content": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取视频详细内容",
+        "operationId": "contentGetVideoContent",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "video_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -579,8 +749,7 @@
                 "url",
                 "published_at",
                 "author",
-                "tags",
-                "images"
+                "tags"
               ],
               "properties": {
                 "article_id": {
@@ -597,28 +766,6 @@
                 },
                 "description": {
                   "type": "string"
-                },
-                "images": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "url",
-                      "sort",
-                      "tp"
-                    ],
-                    "properties": {
-                      "sort": {
-                        "type": "integer"
-                      },
-                      "tp": {
-                        "type": "integer"
-                      },
-                      "url": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 },
                 "name": {
                   "type": "string"
@@ -658,10 +805,10 @@
         }
       }
     },
-    "/api/content/upload": {
+    "/api/content/modify-video": {
       "post": {
         "consumes": [
-          "application/x-www-form-urlencoded"
+          "application/json"
         ],
         "produces": [
           "application/json"
@@ -672,14 +819,55 @@
         "tags": [
           "文件内容模块"
         ],
-        "summary": "上传文件（流式传输到gRPC）",
-        "operationId": "contentUploadContentStream",
+        "summary": "修改视频",
+        "operationId": "contentModifyVideo",
         "parameters": [
           {
-            "type": "string",
-            "name": "file",
-            "in": "formData",
-            "allowEmptyValue": true
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "video_id",
+                "name",
+                "url",
+                "description",
+                "cover",
+                "author",
+                "published_at",
+                "tags"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
+                },
+                "video_id": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -755,7 +943,7 @@
       }
     }
   },
-  "x-date": "2026-01-02 13:48:23",
+  "x-date": "2026-01-22 20:27:17",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

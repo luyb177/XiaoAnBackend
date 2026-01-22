@@ -74,6 +74,9 @@ func (q *RedisTaskQueue) Dequeue(ctx context.Context) (taskqueue.Task, error) {
 	).Bytes()
 
 	if err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return nil, err
+		}
 		if errors.Is(err, redis.Nil) {
 			return nil, nil
 		}

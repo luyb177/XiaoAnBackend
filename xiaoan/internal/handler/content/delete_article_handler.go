@@ -9,17 +9,17 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// GetArticleContentHandler 获取文章详细内容
-func GetArticleContentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+// 删除文章
+func DeleteArticleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.GetArticleContentRequest
+		var req types.DeleteArticleRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := content.NewGetArticleContentLogic(r.Context(), svcCtx)
-		resp, err := l.GetArticleContent(&req)
+		l := content.NewDeleteArticleLogic(r.Context(), svcCtx)
+		resp, err := l.DeleteArticle(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

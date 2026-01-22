@@ -1,0 +1,8 @@
+package tasks
+
+type TaskPrefix string
+
+const (
+	ArticleRelationTaskPrefix TaskPrefix = "article_relation_task"
+	VideoRelationTaskPrefix   TaskPrefix = "video_relation_task"
+)

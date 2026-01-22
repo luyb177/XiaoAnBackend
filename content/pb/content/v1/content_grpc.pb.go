@@ -19,37 +19,43 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ContentService_UploadContentStream_FullMethodName = "/content.ContentService/UploadContentStream"
-	ContentService_GetContentURL_FullMethodName       = "/content.ContentService/GetContentURL"
-	ContentService_AddArticle_FullMethodName          = "/content.ContentService/AddArticle"
-	ContentService_GetArticle_FullMethodName          = "/content.ContentService/GetArticle"
-	ContentService_ModifyArticle_FullMethodName       = "/content.ContentService/ModifyArticle"
-	ContentService_AddVideo_FullMethodName            = "/content.ContentService/AddVideo"
-	ContentService_Search_FullMethodName              = "/content.ContentService/Search"
-	ContentService_Like_FullMethodName                = "/content.ContentService/Like"
-	ContentService_Collect_FullMethodName             = "/content.ContentService/Collect"
-	ContentService_AddComment_FullMethodName          = "/content.ContentService/AddComment"
-	ContentService_UpdateComment_FullMethodName       = "/content.ContentService/UpdateComment"
-	ContentService_DeleteComment_FullMethodName       = "/content.ContentService/DeleteComment"
-	ContentService_GetComments_FullMethodName         = "/content.ContentService/GetComments"
+	ContentService_AddArticle_FullMethodName    = "/content.ContentService/AddArticle"
+	ContentService_GetArticle_FullMethodName    = "/content.ContentService/GetArticle"
+	ContentService_ModifyArticle_FullMethodName = "/content.ContentService/ModifyArticle"
+	ContentService_DeleteArticle_FullMethodName = "/content.ContentService/DeleteArticle"
+	ContentService_AddVideo_FullMethodName      = "/content.ContentService/AddVideo"
+	ContentService_GetVideo_FullMethodName      = "/content.ContentService/GetVideo"
+	ContentService_ModifyVideo_FullMethodName   = "/content.ContentService/ModifyVideo"
+	ContentService_DeleteVideo_FullMethodName   = "/content.ContentService/DeleteVideo"
+	ContentService_Search_FullMethodName        = "/content.ContentService/Search"
+	ContentService_Like_FullMethodName          = "/content.ContentService/Like"
+	ContentService_Collect_FullMethodName       = "/content.ContentService/Collect"
+	ContentService_AddComment_FullMethodName    = "/content.ContentService/AddComment"
+	ContentService_UpdateComment_FullMethodName = "/content.ContentService/UpdateComment"
+	ContentService_DeleteComment_FullMethodName = "/content.ContentService/DeleteComment"
+	ContentService_GetComments_FullMethodName   = "/content.ContentService/GetComments"
 )
 
 // ContentServiceClient is the client API for ContentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ContentServiceClient interface {
-	// 上传文件
-	UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadChunk, Response], error)
-	// 获取访问URL
-	GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error)
 	// AddArticle 添加文章
 	AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error)
 	// GetArticle 获取文章
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Response, error)
 	// ModifyArticle 修改文章
 	ModifyArticle(ctx context.Context, in *ModifyArticleRequest, opts ...grpc.CallOption) (*Response, error)
-	// 添加视频
+	// DeleteArticle 删除文章
+	DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*Response, error)
+	// AddVideo 添加视频
 	AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetVideo 获取视频
+	GetVideo(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*Response, error)
+	// ModifyVideo 修改视频
+	ModifyVideo(ctx context.Context, in *ModifyVideoRequest, opts ...grpc.CallOption) (*Response, error)
+	// DeleteVideo 删除视频
+	DeleteVideo(ctx context.Context, in *DeleteVideoRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 	// 点赞
@@ -72,29 +78,6 @@ type contentServiceClient struct {
 
 func NewContentServiceClient(cc grpc.ClientConnInterface) ContentServiceClient {
 	return &contentServiceClient{cc}
-}
-
-func (c *contentServiceClient) UploadContentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadChunk, Response], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ContentService_ServiceDesc.Streams[0], ContentService_UploadContentStream_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[UploadChunk, Response]{ClientStream: stream}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ContentService_UploadContentStreamClient = grpc.ClientStreamingClient[UploadChunk, Response]
-
-func (c *contentServiceClient) GetContentURL(ctx context.Context, in *GetContentURLRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_GetContentURL_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *contentServiceClient) AddArticle(ctx context.Context, in *AddArticleRequest, opts ...grpc.CallOption) (*Response, error) {
@@ -127,10 +110,50 @@ func (c *contentServiceClient) ModifyArticle(ctx context.Context, in *ModifyArti
 	return out, nil
 }
 
+func (c *contentServiceClient) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_DeleteArticle_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) AddVideo(ctx context.Context, in *AddVideoRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, ContentService_AddVideo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetVideo(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetVideo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ModifyVideo(ctx context.Context, in *ModifyVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_ModifyVideo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) DeleteVideo(ctx context.Context, in *DeleteVideoRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_DeleteVideo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -211,18 +234,22 @@ func (c *contentServiceClient) GetComments(ctx context.Context, in *GetCommentsR
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
 type ContentServiceServer interface {
-	// 上传文件
-	UploadContentStream(grpc.ClientStreamingServer[UploadChunk, Response]) error
-	// 获取访问URL
-	GetContentURL(context.Context, *GetContentURLRequest) (*Response, error)
 	// AddArticle 添加文章
 	AddArticle(context.Context, *AddArticleRequest) (*Response, error)
 	// GetArticle 获取文章
 	GetArticle(context.Context, *GetArticleRequest) (*Response, error)
 	// ModifyArticle 修改文章
 	ModifyArticle(context.Context, *ModifyArticleRequest) (*Response, error)
-	// 添加视频
+	// DeleteArticle 删除文章
+	DeleteArticle(context.Context, *DeleteArticleRequest) (*Response, error)
+	// AddVideo 添加视频
 	AddVideo(context.Context, *AddVideoRequest) (*Response, error)
+	// GetVideo 获取视频
+	GetVideo(context.Context, *GetVideoRequest) (*Response, error)
+	// ModifyVideo 修改视频
+	ModifyVideo(context.Context, *ModifyVideoRequest) (*Response, error)
+	// DeleteVideo 删除视频
+	DeleteVideo(context.Context, *DeleteVideoRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
 	// 点赞
@@ -247,12 +274,6 @@ type ContentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedContentServiceServer struct{}
 
-func (UnimplementedContentServiceServer) UploadContentStream(grpc.ClientStreamingServer[UploadChunk, Response]) error {
-	return status.Errorf(codes.Unimplemented, "method UploadContentStream not implemented")
-}
-func (UnimplementedContentServiceServer) GetContentURL(context.Context, *GetContentURLRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetContentURL not implemented")
-}
 func (UnimplementedContentServiceServer) AddArticle(context.Context, *AddArticleRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddArticle not implemented")
 }
@@ -262,8 +283,20 @@ func (UnimplementedContentServiceServer) GetArticle(context.Context, *GetArticle
 func (UnimplementedContentServiceServer) ModifyArticle(context.Context, *ModifyArticleRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyArticle not implemented")
 }
+func (UnimplementedContentServiceServer) DeleteArticle(context.Context, *DeleteArticleRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
+}
 func (UnimplementedContentServiceServer) AddVideo(context.Context, *AddVideoRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddVideo not implemented")
+}
+func (UnimplementedContentServiceServer) GetVideo(context.Context, *GetVideoRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVideo not implemented")
+}
+func (UnimplementedContentServiceServer) ModifyVideo(context.Context, *ModifyVideoRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyVideo not implemented")
+}
+func (UnimplementedContentServiceServer) DeleteVideo(context.Context, *DeleteVideoRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteVideo not implemented")
 }
 func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
@@ -305,31 +338,6 @@ func RegisterContentServiceServer(s grpc.ServiceRegistrar, srv ContentServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ContentService_ServiceDesc, srv)
-}
-
-func _ContentService_UploadContentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ContentServiceServer).UploadContentStream(&grpc.GenericServerStream[UploadChunk, Response]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ContentService_UploadContentStreamServer = grpc.ClientStreamingServer[UploadChunk, Response]
-
-func _ContentService_GetContentURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetContentURLRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).GetContentURL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_GetContentURL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).GetContentURL(ctx, req.(*GetContentURLRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ContentService_AddArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -386,6 +394,24 @@ func _ContentService_ModifyArticle_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_DeleteArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).DeleteArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_DeleteArticle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).DeleteArticle(ctx, req.(*DeleteArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_AddVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddVideoRequest)
 	if err := dec(in); err != nil {
@@ -400,6 +426,60 @@ func _ContentService_AddVideo_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).AddVideo(ctx, req.(*AddVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetVideo(ctx, req.(*GetVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ModifyVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ModifyVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ModifyVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ModifyVideo(ctx, req.(*ModifyVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_DeleteVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).DeleteVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_DeleteVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).DeleteVideo(ctx, req.(*DeleteVideoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -538,10 +618,6 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ContentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetContentURL",
-			Handler:    _ContentService_GetContentURL_Handler,
-		},
-		{
 			MethodName: "AddArticle",
 			Handler:    _ContentService_AddArticle_Handler,
 		},
@@ -554,8 +630,24 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_ModifyArticle_Handler,
 		},
 		{
+			MethodName: "DeleteArticle",
+			Handler:    _ContentService_DeleteArticle_Handler,
+		},
+		{
 			MethodName: "AddVideo",
 			Handler:    _ContentService_AddVideo_Handler,
+		},
+		{
+			MethodName: "GetVideo",
+			Handler:    _ContentService_GetVideo_Handler,
+		},
+		{
+			MethodName: "ModifyVideo",
+			Handler:    _ContentService_ModifyVideo_Handler,
+		},
+		{
+			MethodName: "DeleteVideo",
+			Handler:    _ContentService_DeleteVideo_Handler,
 		},
 		{
 			MethodName: "Search",
@@ -586,12 +678,6 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_GetComments_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "UploadContentStream",
-			Handler:       _ContentService_UploadContentStream_Handler,
-			ClientStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "content.proto",
 }

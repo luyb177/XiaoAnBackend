@@ -9,10 +9,9 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -20,19 +19,15 @@ type AddArticleLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	ArticleDao      model.ArticleModel
-	ArticleImageDao model.ArticleImageModel
-	ArticleTagDao   model.ArticleTagModel
+	ArticleDao model.ArticleModel
 }
 
 func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArticleLogic {
 	return &AddArticleLogic{
-		ctx:             ctx,
-		svcCtx:          svcCtx,
-		Logger:          logx.WithContext(ctx),
-		ArticleDao:      model.NewArticleModel(svcCtx.Mysql),
-		ArticleImageDao: model.NewArticleImageModel(svcCtx.Mysql),
-		ArticleTagDao:   model.NewArticleTagModel(svcCtx.Mysql),
+		ctx:        ctx,
+		svcCtx:     svcCtx,
+		Logger:     logx.WithContext(ctx),
+		ArticleDao: model.NewArticleModel(svcCtx.Mysql),
 	}
 }
 
@@ -41,17 +36,17 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	// 添加文章只有 超级管理员 和 员工 才能添加
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("AddArticle err: 用户未登录或登录状态异常")
+		l.Errorf("AddArticle err: 用户未登录或无权限")
 
 		return &v1.Response{
 			Code:    400,
-			Message: "用户未登录或登录状态异常",
+			Message: "用户未登录或无权限",
 		}, nil
 	}
 
 	// 检验请求体内容
 	if in.Name == "" {
-		l.Logger.Errorf("AddArticle err: 文章名称为空")
+		l.Errorf("AddArticle err: 文章名称为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -59,7 +54,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 	if in.Content == "" {
-		l.Logger.Errorf("AddArticle err: 文章内容为空")
+		l.Errorf("AddArticle err: 文章内容为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -67,7 +62,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 	if in.Description == "" {
-		l.Logger.Errorf("AddArticle err: 文章摘要为空")
+		l.Errorf("AddArticle err: 文章摘要为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -75,7 +70,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 	if in.Cover == "" {
-		l.Logger.Errorf("AddArticle err: 封面为空")
+		l.Errorf("AddArticle err: 封面为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -89,7 +84,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		in.Tags = []string{"默认标签"}
 	}
 	if len(in.Tags) > 10 {
-		l.Logger.Errorf("AddArticle err: 标签数量超出限制")
+		l.Errorf("AddArticle err: 标签数量超出限制")
 
 		return &v1.Response{
 			Code:    400,
@@ -97,122 +92,56 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
-	if len(in.Images) != 0 {
-		for _, image := range in.Images {
-			if image.Url == "" {
-				l.Logger.Errorf("AddArticle err: 图片地址为空")
-
-				return &v1.Response{
-					Code:    400,
-					Message: "图片地址为空",
-				}, nil
-			}
-			if image.Sort < 0 {
-				l.Logger.Errorf("AddArticle err: 图片排序为负数")
-
-				return &v1.Response{
-					Code:    400,
-					Message: "图片排序为负数",
-				}, nil
-			}
-			if _, ok := ArticleImageMap[image.Tp]; !ok {
-				l.Logger.Errorf("AddArticle err: 图片类型错误")
-
-				return &v1.Response{
-					Code:    400,
-					Message: "图片类型错误",
-				}, nil
-			}
-		}
+	// 添加文章
+	// 1. 构造
+	now := time.Now()
+	article := model.Article{
+		Name:           in.Name,
+		Url:            in.Url,
+		Description:    sql.NullString{String: in.Description, Valid: true},
+		Cover:          in.Cover,
+		Content:        sql.NullString{String: in.Content, Valid: true},
+		Author:         in.Author,
+		PublishedAt:    time.Unix(in.PublishedAt, 0),
+		RelationStatus: RelationStatusPending,
+		LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
+		LikeCount:      0,
+		ViewCount:      0,
+		CollectCount:   0,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
 
-	// 正式添加文章
-	var article model.Article
-	now := time.Now()
-	// 事务
-	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 添加文章
-		// 1. 构造
-		article = model.Article{
-			Name:           in.Name,
-			Url:            in.Url,
-			Description:    sql.NullString{String: in.Description, Valid: true},
-			Cover:          in.Cover,
-			Content:        sql.NullString{String: in.Content, Valid: true},
-			Author:         in.Author,
-			PublishedAt:    time.Unix(in.PublishedAt, 0),
-			RelationStatus: RelationStatusPending,
-			LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
-			LikeCount:      0,
-			ViewCount:      0,
-			CollectCount:   0,
-			CreatedAt:      now,
-			UpdatedAt:      now,
-		}
-
-		result, err := l.ArticleDao.InsertWithSession(ctx, session, &article)
-		if err != nil {
-			return err
-		}
-		id, err := result.LastInsertId()
-		if err != nil {
-			return err
-		}
-		article.Id = uint64(id)
-
-		return nil
-	})
-
+	// 2. 写入
+	result, err := l.ArticleDao.Insert(l.ctx, &article)
 	if err != nil {
-		l.Logger.Errorf("AddArticle err: %v", err)
+		l.Errorf("insert article error: %v", err)
 		return &v1.Response{
 			Code:    400,
 			Message: "添加文章失败",
 		}, nil
 	}
+	// 3. 回写
+	id, err := result.LastInsertId()
+	if err != nil {
+		l.Errorf("get last insert id error: %v", err)
+		return &v1.Response{
+			Code:    400,
+			Message: "添加文章失败",
+		}, nil
+	}
+	article.Id = uint64(id)
 
-	go func(articleID uint64, tags []string, images []*v1.ArticleImage) {
-		defer func() {
-			if r := recover(); r != nil {
-				l.Logger.Errorf("panic in async article update: %v", r)
-			}
-		}()
+	articleRelationTask := &tasks.ArticleRelationTask{
+		Type:      tasks.ArticleRelationAdd,
+		ArticleID: article.Id,
+		Tags:      in.Tags,
+	}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		const maxRetry = 3
-
-		for attempt := 1; attempt <= maxRetry; attempt++ {
-			err := l.svcCtx.Mysql.TransactCtx(ctx, func(txCtx context.Context, session sqlx.Session) error {
-				// 1. 插入新标签
-				tagModels := convert.ArticleTagsFromStrings(articleID, tags)
-				if err := l.ArticleTagDao.InsertBatchWithSession(txCtx, session, tagModels); err != nil {
-					return err
-				}
-				// 2. 插入新图片
-				imageModels := convert.ArticleImagesFromPB(articleID, images)
-				if err := l.ArticleImageDao.InsertBatchWithSession(txCtx, session, imageModels); err != nil {
-					return err
-				}
-
-				// 3. 更新文章的 relation_status 为正常
-				return l.ArticleDao.UpdateRelationStatusWithSession(txCtx, session, articleID, RelationStatusNormal)
-			})
-
-			if err == nil {
-				// 成功执行，退出循环
-				return
-			}
-
-			// 失败，记录日志并稍作延迟重试
-			l.Logger.Errorf("async modify article attempt %d failed: %v", attempt, err)
-			time.Sleep(time.Duration(attempt) * 500 * time.Millisecond) // 指数退避
-		}
-
-		l.Logger.Errorf("async modify article ultimately failed after %d attempts", maxRetry)
-
-	}(article.Id, in.Tags, in.Images)
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, articleRelationTask)
+	if err != nil {
+		l.Errorf("AddArticle Enqueue err: %v", err)
+	}
 
 	// 构造返回内容
 	res := &v1.AddArticleResponse{
@@ -222,7 +151,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("AddArticle err: %v", err)
+		l.Errorf("AddArticle err: %v", err)
 
 		return &v1.Response{
 			Code:    500,
