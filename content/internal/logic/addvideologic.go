@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
@@ -12,7 +13,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -26,9 +26,11 @@ type AddVideoLogic struct {
 
 func NewAddVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddVideoLogic {
 	return &AddVideoLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		ctx:         ctx,
+		svcCtx:      svcCtx,
+		Logger:      logx.WithContext(ctx),
+		videoDao:    model.NewVideoModel(svcCtx.Mysql),
+		videoTagDao: model.NewVideoTagModel(svcCtx.Mysql),
 	}
 }
 
@@ -79,59 +81,56 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 		in.Tag = []string{"默认标签"}
 	}
 
+	fmt.Println(1)
 	// 添加视频
-	// 事务添加
-	// todo 依旧不需要事务
-	var video model.Video
-	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 构造
-		video = model.Video{
-			Name:        in.Name,
-			Url:         in.Url,
-			Description: sql.NullString{String: in.Description, Valid: true},
-			Cover:       in.Cover,
-			Author:      in.Author,
-			// todo 这里的 sql.NullTime 类型可以支持未来的草稿，未发布
-			RelationStatus: RelationStatusPending,
-			LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
-			PublishedAt:    sql.NullTime{Time: time.Unix(in.PublishedAt, 0), Valid: true},
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			LikeCount:      0,
-			ViewCount:      0,
-			CollectCount:   0,
-		}
+	// 1. 构造
+	video := model.Video{
+		Name:        in.Name,
+		Url:         in.Url,
+		Description: sql.NullString{String: in.Description, Valid: true},
+		Cover:       in.Cover,
+		Author:      in.Author,
+		// todo 这里的 sql.NullTime 类型可以支持未来的草稿，未发布
+		RelationStatus: RelationStatusPending,
+		LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
+		PublishedAt:    sql.NullTime{Time: time.Unix(in.PublishedAt, 0), Valid: true},
+		CreatedAt:      now,
+		UpdatedAt:      now,
+		LikeCount:      0,
+		ViewCount:      0,
+		CollectCount:   0,
+	}
 
-		// 2. 插入
-		ret, err := l.videoDao.InsertWithSession(ctx, session, &video)
-		if err != nil {
-			return err
-		}
-
-		// 3. 回写
-		id, err := ret.LastInsertId()
-		if err != nil {
-			return err
-		}
-		video.Id = uint64(id)
-
-		return nil
-	})
-
+	// 2. 插入
+	ret, err := l.videoDao.Insert(l.ctx, &video)
 	if err != nil {
-		l.Errorf("AddVideo err: %v", err)
+		l.Errorf("insert video error: %v", err)
 
 		return &v1.Response{
-			Code:    500,
-			Message: "添加失败",
-		}, err
+			Code:    400,
+			Message: "添加视频失败",
+		}, nil
 	}
+
+	// 3. 回写
+	id, err := ret.LastInsertId()
+	if err != nil {
+		l.Errorf("get last insert id error: %v", err)
+
+		return &v1.Response{
+			Code:    400,
+			Message: "添加视频失败",
+		}, nil
+	}
+	video.Id = uint64(id)
 
 	videoRelationTask := &tasks.VideoRelationTask{
 		Type:    tasks.VideoRelationAdd,
 		VideoID: video.Id,
 		Tags:    in.Tag,
 	}
+
+	fmt.Println(2)
 
 	// 任务
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
@@ -152,12 +151,13 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 		return &v1.Response{
 			Code:    500,
 			Message: "转换类型失败",
-		}, err
+		}, nil
 	}
 
+	fmt.Println(3)
 	return &v1.Response{
 		Code:    200,
 		Message: "添加成功",
 		Data:    resAny,
-	}, err
+	}, nil
 }

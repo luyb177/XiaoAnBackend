@@ -14,8 +14,22 @@ type AddArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type AddVideoRequest struct {
+	Name        string   `json:"name"`
+	Url         string   `json:"url"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+	Tags        []string `json:"tags"`
+}
+
 type DeleteArticleRequest struct {
 	ArticleId uint64 `form:"article_id"`
+}
+
+type DeleteVideoRequest struct {
+	VideoId uint64 `form:"video_id"`
 }
 
 type GenerateInviteCodeRequest struct {
@@ -45,6 +59,10 @@ type GetInviteCodeRequest struct {
 	PageSize int64 `json:"page_size"`
 }
 
+type GetVideoContentRequest struct {
+	VideoId uint64 `form:"video_id"`
+}
+
 type LoginRequest struct {
 	Tp        string `json:"type"`
 	Email     string `json:"email"`
@@ -64,6 +82,17 @@ type ModifyArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type ModifyVideoRequest struct {
+	VideoId     uint64   `json:"video_id"`
+	Name        string   `json:"name"`
+	Url         string   `json:"url"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+	Tags        []string `json:"tags"`
+}
+
 type RegisterRequest struct {
 	Email          string `json:"email"`
 	EmailCode      string `json:"email_code"`
@@ -79,10 +108,6 @@ type Response struct {
 
 type SendEmailRequest struct {
 	Email string `json:"email"`
-}
-
-type UploadContentResponse struct {
-	Url string `json:"url"`
 }
 
 type ValidateEmailRequest struct {
