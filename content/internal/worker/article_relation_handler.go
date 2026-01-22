@@ -3,7 +3,6 @@ package worker
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
@@ -53,7 +52,6 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 
 	switch articleTask.Type {
 	case tasks.ArticleRelationAdd:
-		fmt.Println(1)
 		return h.handleAdd(ctx, &articleTask)
 	case tasks.ArticleRelationModify:
 		return h.handleModify(ctx, &articleTask)

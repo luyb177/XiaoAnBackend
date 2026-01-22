@@ -48,9 +48,9 @@ func (m *customVideoTagModel) InsertBatch(ctx context.Context, list []*VideoTag)
 	valuePlaceholders := make([]string, 0, len(list)) // 生成 占位符
 	valueArgs := make([]interface{}, 0, len(list)*3)  // 存放 插入的参数
 
-	for _, v := range list {
+	for _, tag := range list {
 		valuePlaceholders = append(valuePlaceholders, "(?,?,?)")
-		valueArgs = append(valueArgs, v.VideoId, v.Tag, v.DeletedAt)
+		valueArgs = append(valueArgs, tag.VideoId, tag.Tag, tag.DeletedAt)
 	}
 
 	query := fmt.Sprintf(
@@ -72,9 +72,9 @@ func (m *customVideoTagModel) FindByVideoTags(ctx context.Context, offest int, l
 	placeholders := make([]string, 0, len(tags))
 	valueArgs := make([]interface{}, 0, len(tags)+2) // 占位符中的数据，后两个是 offest 和 limit
 
-	for _, v := range tags {
+	for _, tag := range tags {
 		placeholders = append(placeholders, "?")
-		valueArgs = append(valueArgs, v)
+		valueArgs = append(valueArgs, tag)
 	}
 	valueArgs = append(valueArgs, offest, limit)
 

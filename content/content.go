@@ -40,6 +40,8 @@ func main() {
 	s.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
 
 	//启动 worker
+	// todo 优雅关闭
+	// 日志处理
 	w := worker.NewWorker(ctx)
 	go func() {
 		if err := w.Start(context.Background()); err != nil {

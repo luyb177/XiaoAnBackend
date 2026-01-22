@@ -36,7 +36,7 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 	// 目前是只有超级管理员和员工可以删除文章
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("AddArticle err: 用户未登录或登录状态异常")
+		l.Errorf("DeleteVideo err: 用户未登录或登录状态异常")
 
 		return &v1.Response{
 			Code:    400,
@@ -45,7 +45,7 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 	}
 
 	if in.Id <= 0 {
-		l.Errorf("AddArticle err: 视频ID错误")
+		l.Errorf("DeleteVideo err: 视频ID错误")
 
 		return &v1.Response{
 			Code:    400,

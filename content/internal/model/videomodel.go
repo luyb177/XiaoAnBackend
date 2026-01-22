@@ -108,7 +108,7 @@ func (m *customVideoModel) UpdateRelationStatusWithSession(ctx context.Context, 
 func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `id` = ? and `deleted_at` is null limit 1",
-		articleRows,
+		videoRows,
 		m.table,
 	)
 

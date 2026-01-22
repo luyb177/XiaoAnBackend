@@ -37,7 +37,7 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 	// 目前添加视频也只能由超级管理员或员工添加
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("AddArticle err: 用户未登录或无权限")
+		l.Errorf("AddVideo err: 用户未登录或无权限")
 
 		return &v1.Response{
 			Code:    400,

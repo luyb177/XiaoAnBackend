@@ -36,7 +36,7 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 	// 目前是只有超级管理员和员工可以删除文章
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("AddArticle err: 用户未登录或登录状态异常")
+		l.Errorf("DeleteArticle  err: 用户未登录或登录状态异常")
 
 		return &v1.Response{
 			Code:    400,
