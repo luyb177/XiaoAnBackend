@@ -2,9 +2,10 @@ package worker
 
 import (
 	"context"
+	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
@@ -15,16 +16,36 @@ type Worker struct {
 	logx.Logger
 	taskQueue taskqueue.TaskQueue
 	handlers  map[tasks.TaskPrefix]TaskHandler
+
+	// 用于实现 service 的接口
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
-type TaskHandler interface {
-	Handle(ctx context.Context, task taskqueue.Task) error
+// Start implements service.Service
+func (w *Worker) Start() {
+	w.ctx, w.cancel = context.WithCancel(context.Background())
+
+	w.Info("worker started")
+
+	if err := w.start(w.ctx); err != nil && !errors.Is(err, context.Canceled) {
+		w.Errorf("worker exited with error: %v", err)
+	}
+}
+
+// Stop implements service.Service
+func (w *Worker) Stop() {
+	if w.cancel != nil {
+		w.Info("worker stopping")
+		w.cancel()
+	}
 }
 
 func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w := &Worker{
 		taskQueue: svcCtx.TaskQueue,
 		handlers:  make(map[tasks.TaskPrefix]TaskHandler),
+		Logger:    logx.WithContext(context.Background()),
 	}
 
 	// 注册处理器
@@ -34,12 +55,16 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	return w
 }
 
+type TaskHandler interface {
+	Handle(ctx context.Context, task taskqueue.Task) error
+}
+
 func (w *Worker) RegisterHandler(taskType tasks.TaskPrefix, handler TaskHandler) {
 	w.handlers[taskType] = handler
 }
 
-// Start 启动 Worker
-func (w *Worker) Start(ctx context.Context) error {
+// start 启动 Worker
+func (w *Worker) start(ctx context.Context) error {
 	// 启动重试任务迁移的定时任务
 	go w.startRetryScheduler(ctx)
 
@@ -50,6 +75,9 @@ func (w *Worker) Start(ctx context.Context) error {
 			return ctx.Err()
 		default:
 			if err := w.processTask(ctx); err != nil {
+				if errors.Is(err, context.Canceled) {
+					return nil
+				}
 				w.Errorf("process task error: %v", err)
 			}
 		}
