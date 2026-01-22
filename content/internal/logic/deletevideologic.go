@@ -57,14 +57,14 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			l.Errorf("DeleteArticle err: 视频不存在")
+			l.Errorf("DeleteVideo  err: 视频不存在")
 
 			return &v1.Response{
 				Code:    400,
 				Message: "视频不存在",
 			}, nil
 		}
-		l.Errorf("DeleteArticle err: 查询视频时出错")
+		l.Errorf("DeleteVideo  err: 查询视频时出错")
 		return &v1.Response{
 			Code:    500,
 			Message: "查询视频时出错",
@@ -79,7 +79,7 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 
 	err = l.VideoDao.Update(l.ctx, video)
 	if err != nil {
-		l.Errorf("DeleteArticle err: 删除视频时出错")
+		l.Errorf("DeleteVideo  err: 删除视频时出错")
 		return &v1.Response{
 			Code:    500,
 			Message: "删除视频时出错",
@@ -94,7 +94,7 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 	}
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
 	if err != nil {
-		l.Errorf("DeleteArticle Enqueue err: %v", err)
+		l.Errorf("DeleteVideo  Enqueue err: %v", err)
 	}
 
 	return &v1.Response{

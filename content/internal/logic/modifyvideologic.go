@@ -37,7 +37,7 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response, error) {
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("ModifyArticle err: 用户登录状态异常")
+		l.Logger.Errorf("ModifyVideo err: 用户登录状态异常")
 		return &v1.Response{
 			Code:    400,
 			Message: "用户未登录或者登录状态异常",
@@ -46,28 +46,28 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 
 	// 验证参数
 	if in.Id <= 0 {
-		l.Logger.Errorf("ModifyArticle err: 视频ID不能小于等于0")
+		l.Logger.Errorf("ModifyVideo err: 视频ID不能小于等于0")
 		return &v1.Response{
 			Code:    400,
 			Message: "视频ID不能小于等于0",
 		}, nil
 	}
 	if in.Name == "" {
-		l.Logger.Errorf("ModifyArticle err: 视频名称为空")
+		l.Logger.Errorf("ModifyVideo err: 视频名称为空")
 		return &v1.Response{
 			Code:    400,
 			Message: "视频名称为空",
 		}, nil
 	}
 	if in.Author == "" {
-		l.Logger.Errorf("ModifyArticle err: 视频作者为空")
+		l.Logger.Errorf("ModifyVideo err: 视频作者为空")
 		return &v1.Response{
 			Code:    400,
 			Message: "视频作者为空",
 		}, nil
 	}
 	if in.Description == "" {
-		l.Logger.Errorf("ModifyArticle err: 文章摘要为空")
+		l.Logger.Errorf("ModifyVideo err: 文章摘要为空")
 		return &v1.Response{
 			Code:    400,
 			Message: "文章摘要为空",
@@ -77,7 +77,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 		in.Tag = []string{"默认标签"}
 	}
 	if len(in.Tag) > 10 {
-		l.Logger.Errorf("ModifyArticle err: 标签数量不能超过10")
+		l.Logger.Errorf("ModifyVideo err: 标签数量不能超过10")
 		return &v1.Response{
 			Code:    400,
 			Message: "标签数量不能超过10",
@@ -86,7 +86,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	// 检查标签
 	for _, tag := range in.Tag {
 		if tag == "" {
-			l.Logger.Errorf("ModifyArticle err: 标签不能为空")
+			l.Logger.Errorf("ModifyVideo err: 标签不能为空")
 			return &v1.Response{
 				Code:    400,
 				Message: "标签不能为空",
@@ -102,7 +102,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	video, err := l.VideoDao.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, sqlc.ErrNotFound) {
-			l.Logger.Errorf("ModifyArticle err: 视频不存在")
+			l.Logger.Errorf("ModifyVideo err: 视频不存在")
 			return &v1.Response{
 				Code:    400,
 				Message: "视频不存在",
@@ -126,7 +126,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 
 	err = l.VideoDao.Update(l.ctx, video)
 	if err != nil {
-		l.Logger.Errorf("ModifyArticle err: %v", err)
+		l.Logger.Errorf("ModifyVideo err: %v", err)
 		return &v1.Response{
 			Code:    400,
 			Message: "修改视频出现错误",
@@ -141,7 +141,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	}
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
 	if err != nil {
-		l.Logger.Errorf("ModifyArticle Enqueue err: %v", err)
+		l.Logger.Errorf("ModifyVideo Enqueue err: %v", err)
 	}
 
 	// 4. 构造返回结果
@@ -152,7 +152,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("ModifyArticle err: %v", err)
+		l.Logger.Errorf("ModifyVideo err: %v", err)
 		return &v1.Response{
 			Code:    500,
 			Message: "修改视频出现错误",

@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
@@ -81,7 +80,6 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 		in.Tag = []string{"默认标签"}
 	}
 
-	fmt.Println(1)
 	// 添加视频
 	// 1. 构造
 	video := model.Video{
@@ -130,8 +128,6 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 		Tags:    in.Tag,
 	}
 
-	fmt.Println(2)
-
 	// 任务
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
 	if err != nil {
@@ -154,7 +150,6 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 		}, nil
 	}
 
-	fmt.Println(3)
 	return &v1.Response{
 		Code:    200,
 		Message: "添加成功",
