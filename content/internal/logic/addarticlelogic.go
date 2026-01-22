@@ -12,7 +12,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -93,53 +92,45 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
-	// 正式添加文章
-	// 事务
-	// todo 只添加一个不需要事务，暂时先不改
-
-	var article model.Article
+	// 添加文章
+	// 1. 构造
 	now := time.Now()
-	err := l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 添加文章
-		// 1. 构造
-		article = model.Article{
-			Name:           in.Name,
-			Url:            in.Url,
-			Description:    sql.NullString{String: in.Description, Valid: true},
-			Cover:          in.Cover,
-			Content:        sql.NullString{String: in.Content, Valid: true},
-			Author:         in.Author,
-			PublishedAt:    time.Unix(in.PublishedAt, 0),
-			RelationStatus: RelationStatusPending,
-			LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
-			LikeCount:      0,
-			ViewCount:      0,
-			CollectCount:   0,
-			CreatedAt:      now,
-			UpdatedAt:      now,
-		}
+	article := model.Article{
+		Name:           in.Name,
+		Url:            in.Url,
+		Description:    sql.NullString{String: in.Description, Valid: true},
+		Cover:          in.Cover,
+		Content:        sql.NullString{String: in.Content, Valid: true},
+		Author:         in.Author,
+		PublishedAt:    time.Unix(in.PublishedAt, 0),
+		RelationStatus: RelationStatusPending,
+		LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
+		LikeCount:      0,
+		ViewCount:      0,
+		CollectCount:   0,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
 
-		result, err := l.ArticleDao.InsertWithSession(ctx, session, &article)
-		if err != nil {
-			return err
-		}
-		id, err := result.LastInsertId()
-		if err != nil {
-			return err
-		}
-		article.Id = uint64(id)
-
-		return nil
-	})
-
+	// 2. 写入
+	result, err := l.ArticleDao.Insert(l.ctx, &article)
 	if err != nil {
-		l.Errorf("AddArticle err: %v", err)
-
+		l.Errorf("insert article error: %v", err)
 		return &v1.Response{
 			Code:    400,
 			Message: "添加文章失败",
 		}, nil
 	}
+	// 3. 回写
+	id, err := result.LastInsertId()
+	if err != nil {
+		l.Errorf("get last insert id error: %v", err)
+		return &v1.Response{
+			Code:    400,
+			Message: "添加文章失败",
+		}, nil
+	}
+	article.Id = uint64(id)
 
 	articleRelationTask := &tasks.ArticleRelationTask{
 		Type:      tasks.ArticleRelationAdd,
