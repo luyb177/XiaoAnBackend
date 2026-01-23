@@ -116,7 +116,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 
 	msg := "获取文章成功"
 	if article.RelationStatus == RelationStatusPending {
-		msg = "文章内容同步中"
+		msg = "文章相关内容同步中"
 	}
 
 	return &v1.Response{

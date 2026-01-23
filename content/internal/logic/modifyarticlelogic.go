@@ -4,15 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -39,11 +39,11 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Response, error) {
 	user := middleware.MustGetUser(l.ctx)
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("ModifyArticle err: 用户登录状态异常")
+		l.Logger.Errorf("ModifyArticle err: 用户未登录或者没有权限")
 
 		return &v1.Response{
 			Code:    400,
-			Message: "用户未登录或者登录状态异常",
+			Message: "用户未登录或者没有权限",
 		}, nil
 	}
 
@@ -134,29 +134,21 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 		}, nil
 	}
 
-	txCtx, cancel := context.WithTimeout(l.ctx, 5*time.Second)
-	defer cancel()
+	// 1. 更新文章
+	// 1.1 构造
+	article.Name = in.Name
+	article.Url = in.Url
+	article.Description = sql.NullString{String: in.Description, Valid: true}
+	article.Cover = in.Cover
+	article.Content = sql.NullString{String: in.Content, Valid: true}
+	article.Author = in.Author
+	article.PublishedAt = time.Unix(in.PublishedAt, 0)
+	article.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	// 标记待同步
+	article.RelationStatus = RelationStatusPending
 
-	// 构造修改内容 事务
-	// todo 不需要事务
-	err = l.svcCtx.Mysql.TransactCtx(txCtx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 更新文章
-		// 1.1 构造
-		article.Name = in.Name
-		article.Url = in.Url
-		article.Description = sql.NullString{String: in.Description, Valid: true}
-		article.Cover = in.Cover
-		article.Content = sql.NullString{String: in.Content, Valid: true}
-		article.Author = in.Author
-		article.PublishedAt = time.Unix(in.PublishedAt, 0)
-		article.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
-		// 标记待同步
-		article.RelationStatus = RelationStatusPending
-
-		// 1.2 更新
-		return l.ArticleDao.UpdateWithSession(ctx, session, article)
-	})
-
+	// 1.2 更新
+	err = l.ArticleDao.Update(l.ctx, article)
 	if err != nil {
 		l.Logger.Errorf("ModifyArticle err: %v", err)
 

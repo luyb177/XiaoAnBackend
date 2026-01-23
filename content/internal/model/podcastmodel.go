@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -20,7 +21,10 @@ type (
 	PodcastModel interface {
 		podcastModel
 		withSession(session sqlx.Session) PodcastModel
+		FindOneWithNotDelete(ctx context.Context, id uint64) (*Podcast, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error)
+		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
+		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 	}
 
 	customPodcastModel struct {
@@ -69,4 +73,34 @@ func (m *customPodcastModel) FindByTagsAndKeyWord(ctx context.Context, offset in
 	var out []*Podcast
 	err := m.conn.QueryRowsCtx(ctx, &out, query, args...)
 	return out, err
+}
+
+func (m *customPodcastModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {
+	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
+	return err
+}
+
+func (m *customPodcastModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
+	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
+}
+
+func (m *customPodcastModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Podcast, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where id = ? and `deleted_at` is null limit 1",
+		podcastRows,
+		m.table,
+	)
+
+	var resp Podcast
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	switch {
+	case err == nil:
+		return &resp, nil
+	case errors.Is(err, sqlx.ErrNotFound):
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
 }

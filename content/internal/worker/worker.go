@@ -3,9 +3,9 @@ package worker
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
@@ -24,8 +24,6 @@ type Worker struct {
 
 // Start implements service.Service
 func (w *Worker) Start() {
-	w.ctx, w.cancel = context.WithCancel(context.Background())
-
 	w.Info("worker started")
 
 	if err := w.start(w.ctx); err != nil && !errors.Is(err, context.Canceled) {
@@ -48,9 +46,12 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 		Logger:    logx.WithContext(context.Background()),
 	}
 
+	w.ctx, w.cancel = context.WithCancel(context.Background())
+
 	// 注册处理器
-	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(svcCtx))
-	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(svcCtx))
+	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.PodcastRelationTaskPrefix, NewPodcastRelationHandler(svcCtx, w.ctx))
 
 	return w
 }

@@ -192,9 +192,7 @@ func (l *SearchLogic) SearchPodcast(in *v1.SearchRequest) (*v1.Response, error) 
 			Description: podcast[i].Description.String,
 			Cover:       podcast[i].Cover,
 			Author:      podcast[i].Author,
-			CreateTime:  podcast[i].PublishedAt.Time.Unix(),
 			CreatedAt:   podcast[i].CreatedAt.Unix(),
-			UpdateTime:  podcast[i].UpdatedAt.Unix(),
 			LikeCount:   podcast[i].LikeCount,
 		})
 	}

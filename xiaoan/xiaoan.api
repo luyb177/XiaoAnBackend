@@ -109,6 +109,42 @@ type (
 	DeleteVideoRequest {
 		videoId uint64 `form:"video_id"`
 	}
+	// 播客
+	AddPodcastRequest {
+		name        string                  `json:"name"`
+		url         string                  `json:"url"`
+		description string                  `json:"description"`
+		cover       string                  `json:"cover"`
+		author      string                  `json:"author"`
+		publishedAt int64                   `json:"published_at"`
+		channel     string                  `json:"channel"`
+		status      int64                   `json:"status"`
+		tags        []string                `json:"tags"`
+		highlights  []*PodcastHighlightItem `json:"highlights"`
+	}
+	PodcastHighlightItem {
+		second    uint64 `json:"second"`
+		highlight string `json:"highlight"`
+	}
+	GetPodcastContentRequest {
+		podcastId uint64 `form:"podcast_id"`
+	}
+	ModifyPodcastRequest {
+		podcastId   uint64                  `json:"podcast_id"`
+		name        string                  `json:"name"`
+		url         string                  `json:"url"`
+		description string                  `json:"description"`
+		cover       string                  `json:"cover"`
+		author      string                  `json:"author"`
+		publishedAt int64                   `json:"published_at"`
+		channel     string                  `json:"channel"`
+		status      int64                   `json:"status"`
+		tags        []string                `json:"tags"`
+		highlights  []*PodcastHighlightItem `json:"highlights"`
+	}
+	DeletePodcastRequest {
+		podcastId uint64 `form:"podcast_id"`
+	}
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -210,6 +246,10 @@ service xiaoan {
 	@doc "获取视频详细内容"
 	@handler GetVideoContent
 	get /get-video-content (GetVideoContentRequest) returns (Response)
+
+	@doc "获取播客详细内容"
+	@handler GetPodcastContent
+	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
 }
 
 @server (
@@ -242,5 +282,17 @@ service xiaoan {
 	@doc "删除视频"
 	@handler DeleteVideo
 	delete /delete-video (DeleteVideoRequest) returns (Response)
+
+	@doc "添加播客"
+	@handler AddPodcast
+	post /add-podcast (AddPodcastRequest) returns (Response)
+
+	@doc "修改播客"
+	@handler ModifyPodcast
+	post /modify-podcast (ModifyPodcastRequest) returns (Response)
+
+	@doc "删除播客"
+	@handler DeletePodcast
+	delete /delete-podcast (DeletePodcastRequest) returns (Response)
 }
 

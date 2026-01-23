@@ -98,11 +98,7 @@ func (m *customArticleTagModel) FindManyByArticleId(ctx context.Context, article
 
 	var resp []*ArticleTag
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, articleId)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return resp, err
 }
 
 func (m *customArticleTagModel) DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error {
