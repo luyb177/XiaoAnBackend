@@ -71,7 +71,7 @@ func (m *customPodcastTagModel) InsertBatchWithSession(ctx context.Context, sess
 func (m *customPodcastTagModel) FindManyByPodcastId(ctx context.Context, podcastId uint64) ([]*PodcastTag, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `podcast_id` = ?",
-		podcastRows,
+		podcastTagRows,
 		m.table,
 	)
 

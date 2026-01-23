@@ -62,6 +62,7 @@ func (h *PodcastRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 	case tasks.PodcastRelationDelete:
 		return h.handleDelete(ctx, &podcastTask)
 	default:
+		h.Errorf("unknown task type: %s", podcastTask.Type)
 		return nil
 	}
 }

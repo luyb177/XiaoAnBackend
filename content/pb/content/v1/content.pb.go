@@ -318,10 +318,10 @@ type Podcast struct {
 	ViewCount      uint64                 `protobuf:"varint,12,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
 	CollectCount   uint64                 `protobuf:"varint,13,opt,name=collect_count,json=collectCount,proto3" json:"collect_count,omitempty"`
 	Highlights     []*PodcastHighlight    `protobuf:"bytes,14,rep,name=highlights,proto3" json:"highlights,omitempty"`
-	LastModifiedBy int64                  `protobuf:"varint,16,opt,name=last_modified_by,json=lastModifiedBy,proto3" json:"last_modified_by,omitempty"`
-	RelationStatus int64                  `protobuf:"varint,17,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
-	Channel        string                 `protobuf:"bytes,18,opt,name=channel,proto3" json:"channel,omitempty"`
-	Status         int64                  `protobuf:"varint,19,opt,name=status,proto3" json:"status,omitempty"` // 0: 已发布, 1: 草稿
+	LastModifiedBy int64                  `protobuf:"varint,15,opt,name=last_modified_by,json=lastModifiedBy,proto3" json:"last_modified_by,omitempty"`
+	RelationStatus int64                  `protobuf:"varint,16,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
+	Channel        string                 `protobuf:"bytes,17,opt,name=channel,proto3" json:"channel,omitempty"`
+	Status         int64                  `protobuf:"varint,18,opt,name=status,proto3" json:"status,omitempty"` // 0: 已发布, 1: 草稿
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -3293,10 +3293,10 @@ const file_content_proto_rawDesc = "" +
 	"\n" +
 	"highlights\x18\x0e \x03(\v2\x19.content.PodcastHighlightR\n" +
 	"highlights\x12(\n" +
-	"\x10last_modified_by\x18\x10 \x01(\x03R\x0elastModifiedBy\x12'\n" +
-	"\x0frelation_status\x18\x11 \x01(\x03R\x0erelationStatus\x12\x18\n" +
-	"\achannel\x18\x12 \x01(\tR\achannel\x12\x16\n" +
-	"\x06status\x18\x13 \x01(\x03R\x06status\"H\n" +
+	"\x10last_modified_by\x18\x0f \x01(\x03R\x0elastModifiedBy\x12'\n" +
+	"\x0frelation_status\x18\x10 \x01(\x03R\x0erelationStatus\x12\x18\n" +
+	"\achannel\x18\x11 \x01(\tR\achannel\x12\x16\n" +
+	"\x06status\x18\x12 \x01(\x03R\x06status\"H\n" +
 	"\x10PodcastHighlight\x12\x16\n" +
 	"\x06second\x18\x01 \x01(\x04R\x06second\x12\x1c\n" +
 	"\thighlight\x18\x02 \x01(\tR\thighlight\"\xd2\x03\n" +

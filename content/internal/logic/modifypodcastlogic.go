@@ -70,7 +70,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 		}, nil
 	}
 	if in.Description == "" {
-		l.Errorf("AddPodcast err: 播客描述为空")
+		l.Errorf("ModifyPodcast  err: 播客描述为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -78,7 +78,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 		}, nil
 	}
 	if in.Cover == "" {
-		l.Errorf("AddPodcast err: 播客封面为空")
+		l.Errorf("ModifyPodcast  err: 播客封面为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -86,7 +86,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 		}, nil
 	}
 	if in.Author == "" {
-		l.Errorf("AddPodcast err: 播客作者为空")
+		l.Errorf("ModifyPodcast  err: 播客作者为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -104,7 +104,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 		in.Tags = []string{"默认标签"}
 	}
 	if len(in.Tags) > 10 {
-		l.Errorf("AddPodcast err: 标签数量超出限制")
+		l.Errorf("ModifyPodcast  err: 标签数量超出限制")
 
 		return &v1.Response{
 			Code:    400,
@@ -115,16 +115,10 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 		in.Highlights = []*v1.PodcastHighlight{}
 	}
 	for _, v := range in.Highlights {
-		if v.Second < 0 {
-			return &v1.Response{
-				Code:    400,
-				Message: "highlight 时间为负值",
-			}, nil
-		}
 		if v.Highlight == "" {
 			return &v1.Response{
 				Code:    400,
-				Message: "hightlight 重点未知",
+				Message: "highlight 重点未知",
 			}, nil
 		}
 	}
@@ -161,6 +155,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 	podcast.Channel = in.Channel
 	podcast.Status = in.Status
 	podcast.RelationStatus = RelationStatusPending
+	podcast.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
 
 	err = l.PodcastDao.Update(l.ctx, podcast)
 	if err != nil {

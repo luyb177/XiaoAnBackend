@@ -56,10 +56,10 @@ message Podcast {
   uint64 view_count = 12;
   uint64 collect_count = 13;
   repeated PodcastHighlight highlights = 14;
-  int64 last_modified_by = 16;
-  int64 relation_status = 17;
-  string channel = 18;
-  int64 status = 19; // 0: 已发布, 1: 草稿
+  int64 last_modified_by = 15;
+  int64 relation_status = 16;
+  string channel = 17;
+  int64 status = 18; // 0: 已发布, 1: 草稿
 }
 
 message PodcastHighlight {

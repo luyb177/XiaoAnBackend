@@ -107,16 +107,10 @@ func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, er
 		in.Highlights = []*v1.PodcastHighlight{}
 	}
 	for _, v := range in.Highlights {
-		if v.Second < 0 {
-			return &v1.Response{
-				Code:    400,
-				Message: "highlight 时间为负值",
-			}, nil
-		}
 		if v.Highlight == "" {
 			return &v1.Response{
 				Code:    400,
-				Message: "hightlight 重点未知",
+				Message: "highlight 重点未知",
 			}, nil
 		}
 	}
