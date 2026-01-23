@@ -3,7 +3,6 @@ package worker
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -13,18 +12,21 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ArticleRelationHandler struct {
+	logx.Logger
 	svcCtx        *svc.ServiceContext
 	ArticleDao    model.ArticleModel
 	ArticleTagDao model.ArticleTagModel
 }
 
-func NewArticleRelationHandler(svcCtx *svc.ServiceContext) *ArticleRelationHandler {
+func NewArticleRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ArticleRelationHandler {
 	return &ArticleRelationHandler{
 		svcCtx:        svcCtx,
+		Logger:        logx.WithContext(ctx),
 		ArticleDao:    model.NewArticleModel(svcCtx.Mysql),
 		ArticleTagDao: model.NewArticleTagModel(svcCtx.Mysql),
 	}
@@ -48,7 +50,7 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return err
 	}
 
-	log.Printf("processing article relation task: %+v", articleTask)
+	h.Infof("processing article relation task: %+v", articleTask)
 
 	switch articleTask.Type {
 	case tasks.ArticleRelationAdd:
@@ -58,7 +60,7 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 	case tasks.ArticleRelationDelete:
 		return h.handleDelete(ctx, &articleTask)
 	default:
-		log.Printf("unknown task type: %s", articleTask.Type)
+		h.Errorf("unknown task type: %s", articleTask.Type)
 		return nil
 	}
 }

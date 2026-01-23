@@ -23,6 +23,7 @@ const (
 var noAuthMethods = map[string]struct{}{
 	"/content.ContentService/GetArticle": {},
 	"/content.ContentService/GetVideo":   {},
+	"/content.ContentService/GetPodcast": {},
 }
 
 // UserUnaryInterceptor 用户服务拦截器

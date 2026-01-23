@@ -27,6 +27,10 @@ const (
 	ContentService_GetVideo_FullMethodName      = "/content.ContentService/GetVideo"
 	ContentService_ModifyVideo_FullMethodName   = "/content.ContentService/ModifyVideo"
 	ContentService_DeleteVideo_FullMethodName   = "/content.ContentService/DeleteVideo"
+	ContentService_AddPodcast_FullMethodName    = "/content.ContentService/AddPodcast"
+	ContentService_GetPodcast_FullMethodName    = "/content.ContentService/GetPodcast"
+	ContentService_ModifyPodcast_FullMethodName = "/content.ContentService/ModifyPodcast"
+	ContentService_DeletePodcast_FullMethodName = "/content.ContentService/DeletePodcast"
 	ContentService_Search_FullMethodName        = "/content.ContentService/Search"
 	ContentService_Like_FullMethodName          = "/content.ContentService/Like"
 	ContentService_Collect_FullMethodName       = "/content.ContentService/Collect"
@@ -56,6 +60,14 @@ type ContentServiceClient interface {
 	ModifyVideo(ctx context.Context, in *ModifyVideoRequest, opts ...grpc.CallOption) (*Response, error)
 	// DeleteVideo 删除视频
 	DeleteVideo(ctx context.Context, in *DeleteVideoRequest, opts ...grpc.CallOption) (*Response, error)
+	// AddPodcast 添加播客
+	AddPodcast(ctx context.Context, in *AddPodcastRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetPodcast 获取播客
+	GetPodcast(ctx context.Context, in *GetPodcastRequest, opts ...grpc.CallOption) (*Response, error)
+	// ModifyPodcast 修改播客
+	ModifyPodcast(ctx context.Context, in *ModifyPodcastRequest, opts ...grpc.CallOption) (*Response, error)
+	// DeletePodcast 删除播客
+	DeletePodcast(ctx context.Context, in *DeletePodcastRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 	// 点赞
@@ -160,6 +172,46 @@ func (c *contentServiceClient) DeleteVideo(ctx context.Context, in *DeleteVideoR
 	return out, nil
 }
 
+func (c *contentServiceClient) AddPodcast(ctx context.Context, in *AddPodcastRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_AddPodcast_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetPodcast(ctx context.Context, in *GetPodcastRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetPodcast_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ModifyPodcast(ctx context.Context, in *ModifyPodcastRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_ModifyPodcast_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) DeletePodcast(ctx context.Context, in *DeletePodcastRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_DeletePodcast_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
@@ -250,6 +302,14 @@ type ContentServiceServer interface {
 	ModifyVideo(context.Context, *ModifyVideoRequest) (*Response, error)
 	// DeleteVideo 删除视频
 	DeleteVideo(context.Context, *DeleteVideoRequest) (*Response, error)
+	// AddPodcast 添加播客
+	AddPodcast(context.Context, *AddPodcastRequest) (*Response, error)
+	// GetPodcast 获取播客
+	GetPodcast(context.Context, *GetPodcastRequest) (*Response, error)
+	// ModifyPodcast 修改播客
+	ModifyPodcast(context.Context, *ModifyPodcastRequest) (*Response, error)
+	// DeletePodcast 删除播客
+	DeletePodcast(context.Context, *DeletePodcastRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
 	// 点赞
@@ -297,6 +357,18 @@ func (UnimplementedContentServiceServer) ModifyVideo(context.Context, *ModifyVid
 }
 func (UnimplementedContentServiceServer) DeleteVideo(context.Context, *DeleteVideoRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteVideo not implemented")
+}
+func (UnimplementedContentServiceServer) AddPodcast(context.Context, *AddPodcastRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPodcast not implemented")
+}
+func (UnimplementedContentServiceServer) GetPodcast(context.Context, *GetPodcastRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPodcast not implemented")
+}
+func (UnimplementedContentServiceServer) ModifyPodcast(context.Context, *ModifyPodcastRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyPodcast not implemented")
+}
+func (UnimplementedContentServiceServer) DeletePodcast(context.Context, *DeletePodcastRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePodcast not implemented")
 }
 func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
@@ -484,6 +556,78 @@ func _ContentService_DeleteVideo_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_AddPodcast_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddPodcastRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AddPodcast(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AddPodcast_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AddPodcast(ctx, req.(*AddPodcastRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetPodcast_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPodcastRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetPodcast(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetPodcast_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetPodcast(ctx, req.(*GetPodcastRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ModifyPodcast_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyPodcastRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ModifyPodcast(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ModifyPodcast_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ModifyPodcast(ctx, req.(*ModifyPodcastRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_DeletePodcast_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePodcastRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).DeletePodcast(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_DeletePodcast_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).DeletePodcast(ctx, req.(*DeletePodcastRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchRequest)
 	if err := dec(in); err != nil {
@@ -648,6 +792,22 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteVideo",
 			Handler:    _ContentService_DeleteVideo_Handler,
+		},
+		{
+			MethodName: "AddPodcast",
+			Handler:    _ContentService_AddPodcast_Handler,
+		},
+		{
+			MethodName: "GetPodcast",
+			Handler:    _ContentService_GetPodcast_Handler,
+		},
+		{
+			MethodName: "ModifyPodcast",
+			Handler:    _ContentService_ModifyPodcast_Handler,
+		},
+		{
+			MethodName: "DeletePodcast",
+			Handler:    _ContentService_DeletePodcast_Handler,
 		},
 		{
 			MethodName: "Search",

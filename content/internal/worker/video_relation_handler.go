@@ -3,27 +3,30 @@ package worker
 import (
 	"context"
 	"encoding/json"
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/video/convert"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"log"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/video/convert"
+
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type VideoRelationHandler struct {
+	logx.Logger
 	svcCtx      *svc.ServiceContext
 	VideoDao    model.VideoModel
 	VideoTagDao model.VideoTagModel
 }
 
-func NewVideoRelationHandler(svcCtx *svc.ServiceContext) *VideoRelationHandler {
+func NewVideoRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *VideoRelationHandler {
 	return &VideoRelationHandler{
 		svcCtx:      svcCtx,
+		Logger:      logx.WithContext(ctx),
 		VideoDao:    model.NewVideoModel(svcCtx.Mysql),
 		VideoTagDao: model.NewVideoTagModel(svcCtx.Mysql),
 	}
@@ -47,7 +50,7 @@ func (h *VideoRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 		return err
 	}
 
-	log.Printf("processing video relation task: %+v", videoTask)
+	h.Infof("processing video relation task: %+v", videoTask)
 
 	switch videoTask.Type {
 	case tasks.VideoRelationAdd:
@@ -57,7 +60,7 @@ func (h *VideoRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 	case tasks.VideoRelationDelete:
 		return h.handleDelete(ctx, &videoTask)
 	default:
-		log.Printf("unknown task type: %s", videoTask.Type)
+		h.Errorf("unknown task type: %s", videoTask.Type)
 		return nil
 	}
 }

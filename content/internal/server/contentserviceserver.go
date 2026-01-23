@@ -71,6 +71,30 @@ func (s *ContentServiceServer) DeleteVideo(ctx context.Context, in *v1.DeleteVid
 	return l.DeleteVideo(in)
 }
 
+// AddPodcast 添加播客
+func (s *ContentServiceServer) AddPodcast(ctx context.Context, in *v1.AddPodcastRequest) (*v1.Response, error) {
+	l := logic.NewAddPodcastLogic(ctx, s.svcCtx)
+	return l.AddPodcast(in)
+}
+
+// GetPodcast 获取播客
+func (s *ContentServiceServer) GetPodcast(ctx context.Context, in *v1.GetPodcastRequest) (*v1.Response, error) {
+	l := logic.NewGetPodcastLogic(ctx, s.svcCtx)
+	return l.GetPodcast(in)
+}
+
+// ModifyPodcast 修改播客
+func (s *ContentServiceServer) ModifyPodcast(ctx context.Context, in *v1.ModifyPodcastRequest) (*v1.Response, error) {
+	l := logic.NewModifyPodcastLogic(ctx, s.svcCtx)
+	return l.ModifyPodcast(in)
+}
+
+// DeletePodcast 删除播客
+func (s *ContentServiceServer) DeletePodcast(ctx context.Context, in *v1.DeletePodcastRequest) (*v1.Response, error) {
+	l := logic.NewDeletePodcastLogic(ctx, s.svcCtx)
+	return l.DeletePodcast(in)
+}
+
 // 搜索
 func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
 	l := logic.NewSearchLogic(ctx, s.svcCtx)

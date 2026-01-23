@@ -75,6 +75,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: content.GetArticleContentHandler(serverCtx),
 			},
 			{
+				// 获取播客详细内容
+				Method:  http.MethodGet,
+				Path:    "/get-podcast-content",
+				Handler: content.GetPodcastContentHandler(serverCtx),
+			},
+			{
 				// 获取视频详细内容
 				Method:  http.MethodGet,
 				Path:    "/get-video-content",
@@ -95,6 +101,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddArticleHandler(serverCtx),
 				},
 				{
+					// 添加播客
+					Method:  http.MethodPost,
+					Path:    "/add-podcast",
+					Handler: content.AddPodcastHandler(serverCtx),
+				},
+				{
 					// 添加视频
 					Method:  http.MethodPost,
 					Path:    "/add-video",
@@ -107,6 +119,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.DeleteArticleHandler(serverCtx),
 				},
 				{
+					// 删除播客
+					Method:  http.MethodDelete,
+					Path:    "/delete-podcast",
+					Handler: content.DeletePodcastHandler(serverCtx),
+				},
+				{
 					// 删除视频
 					Method:  http.MethodDelete,
 					Path:    "/delete-video",
@@ -117,6 +135,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/modify-article",
 					Handler: content.ModifyArticleHandler(serverCtx),
+				},
+				{
+					// 修改播客
+					Method:  http.MethodPost,
+					Path:    "/modify-podcast",
+					Handler: content.ModifyPodcastHandler(serverCtx),
 				},
 				{
 					// 修改视频

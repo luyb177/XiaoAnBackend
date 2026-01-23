@@ -14,6 +14,19 @@ type AddArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type AddPodcastRequest struct {
+	Name        string                  `json:"name"`
+	Url         string                  `json:"url"`
+	Description string                  `json:"description"`
+	Cover       string                  `json:"cover"`
+	Author      string                  `json:"author"`
+	PublishedAt int64                   `json:"published_at"`
+	Channel     string                  `json:"channel"`
+	Status      int64                   `json:"status"`
+	Tags        []string                `json:"tags"`
+	Highlights  []*PodcastHighlightItem `json:"highlights"`
+}
+
 type AddVideoRequest struct {
 	Name        string   `json:"name"`
 	Url         string   `json:"url"`
@@ -26,6 +39,10 @@ type AddVideoRequest struct {
 
 type DeleteArticleRequest struct {
 	ArticleId uint64 `form:"article_id"`
+}
+
+type DeletePodcastRequest struct {
+	PodcastId uint64 `form:"podcast_id"`
 }
 
 type DeleteVideoRequest struct {
@@ -59,6 +76,10 @@ type GetInviteCodeRequest struct {
 	PageSize int64 `json:"page_size"`
 }
 
+type GetPodcastContentRequest struct {
+	PodcastId uint64 `form:"podcast_id"`
+}
+
 type GetVideoContentRequest struct {
 	VideoId uint64 `form:"video_id"`
 }
@@ -82,6 +103,20 @@ type ModifyArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type ModifyPodcastRequest struct {
+	PodcastId   uint64                  `json:"podcast_id"`
+	Name        string                  `json:"name"`
+	Url         string                  `json:"url"`
+	Description string                  `json:"description"`
+	Cover       string                  `json:"cover"`
+	Author      string                  `json:"author"`
+	PublishedAt int64                   `json:"published_at"`
+	Channel     string                  `json:"channel"`
+	Status      int64                   `json:"status"`
+	Tags        []string                `json:"tags"`
+	Highlights  []*PodcastHighlightItem `json:"highlights"`
+}
+
 type ModifyVideoRequest struct {
 	VideoId     uint64   `json:"video_id"`
 	Name        string   `json:"name"`
@@ -91,6 +126,11 @@ type ModifyVideoRequest struct {
 	Author      string   `json:"author"`
 	PublishedAt int64    `json:"published_at"`
 	Tags        []string `json:"tags"`
+}
+
+type PodcastHighlightItem struct {
+	Second    uint64 `json:"second"`
+	Highlight string `json:"highlight"`
 }
 
 type RegisterRequest struct {

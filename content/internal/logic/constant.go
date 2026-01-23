@@ -22,16 +22,11 @@ const (
 )
 
 const (
-	ArticleContentImage = iota + 1
-)
-
-var (
-	ArticleImageMap = map[int64]struct{}{
-		ArticleContentImage: {}, // 内容
-	}
+	RelationStatusNormal = iota
+	RelationStatusPending
 )
 
 const (
-	RelationStatusNormal = iota
-	RelationStatusPending
+	PodcastStatusPublished = iota
+	PodcastStatusDraft
 )

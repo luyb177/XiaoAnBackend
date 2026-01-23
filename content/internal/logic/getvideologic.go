@@ -113,7 +113,7 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 
 	msg := "获取视频成功"
 	if video.RelationStatus == RelationStatusPending {
-		msg = "视频内容同步中"
+		msg = "视频相关内容同步中"
 	}
 
 	return &v1.Response{
