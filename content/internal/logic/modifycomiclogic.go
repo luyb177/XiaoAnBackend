@@ -4,16 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"google.golang.org/protobuf/types/known/anypb"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type ModifyComicLogic struct {
@@ -101,7 +101,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 1. 先查询漫画是否存在
+	// 验证漫画存在性
 	comic, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
@@ -144,6 +144,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		Type:    tasks.ComicRelationModify,
 		ComicID: comic.Id,
 		Tags:    in.Tag,
+		UID:     user.UID,
 	}
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, comicRelationTask)

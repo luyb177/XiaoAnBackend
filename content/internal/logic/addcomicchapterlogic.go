@@ -99,7 +99,6 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 			Message: "章节页面不能为空",
 		}, nil
 	}
-
 	for _, url := range in.PageUrls {
 		if url == "" {
 			l.Errorf("AddComicChapter err: 章节页面URL不能为空")
@@ -111,8 +110,25 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 		}
 	}
 
-	// 3. 添加漫画章节
-	// 3.1 插入漫画章节
+	// 验证漫画存在性
+	_, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.ComicId)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			l.Errorf("AddComicChapter err: 漫画不存在")
+
+			return &v1.Response{
+				Code:    404,
+				Message: "漫画不存在",
+			}, nil
+		}
+		l.Errorf("AddComicChapter err: %v", err)
+		return &v1.Response{
+			Code:    500,
+			Message: "查询漫画失败",
+		}, nil
+	}
+
+	// 插入漫画章节
 	chapter := model.ComicChapter{
 		ComicId:        in.ComicId,
 		ChapterNo:      in.ChapterNo,
@@ -155,6 +171,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 	comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 		Type:      tasks.ComicChapterRelationAdd,
 		ComicId:   in.ComicId,
+		UID:       user.UID,
 		ChapterID: chapter.Id,
 		PageUrls:  in.PageUrls,
 	}
@@ -178,6 +195,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 			Message: "封装返回结果失败",
 		}, nil
 	}
+
 	return &v1.Response{
 		Code:    200,
 		Message: "添加漫画章节成功",

@@ -2,12 +2,14 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -97,7 +99,9 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRe
 		}, nil
 	}
 
-	err = l.ComicChapterDao.SoftDelete(l.ctx, comicChapter.Id, int64(user.UID))
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.ComicChapterDao.SoftDelete(l.ctx, comicChapter.Id, deletedAt, modifier)
 	if err != nil {
 		return &v1.Response{
 			Code:    500,
@@ -109,8 +113,8 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRe
 	comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 		Type:      tasks.ComicChapterRelationDelete,
 		ComicId:   in.ComicId,
+		UID:       user.UID,
 		ChapterID: comicChapter.Id,
-		PageUrls:  nil,
 	}
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, comicChapterRelationTask)
 	if err != nil {

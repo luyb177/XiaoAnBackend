@@ -19,8 +19,8 @@ type (
 		FindManyByComicId(ctx context.Context, comicId uint64) ([]*ComicTag, error)
 		InsertBatch(ctx context.Context, list []*ComicTag) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ComicTag) error
-		DeleteBatchByComicId(ctx context.Context, comicId uint64) error
-		DeleteBatchByComicIdWithSession(ctx context.Context, session sqlx.Session, comicId uint64) error
+		SoftDeleteBatchByComicId(ctx context.Context, comicId uint64, deletedAt uint64) error
+		SoftDeleteBatchByComicIdWithSession(ctx context.Context, session sqlx.Session, comicId uint64, deletedAt uint64) error
 	}
 
 	customComicTagModel struct {
@@ -37,6 +37,17 @@ func NewComicTagModel(conn sqlx.SqlConn) ComicTagModel {
 
 func (m *customComicTagModel) withSession(session sqlx.Session) ComicTagModel {
 	return NewComicTagModel(sqlx.NewSqlConnFromSession(session))
+}
+
+func (m *customComicTagModel) FindManyByComicId(ctx context.Context, comicId uint64) ([]*ComicTag, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where `comic_id` = ? and `deleted_at` = 0",
+		comicTagRows,
+		m.table,
+	)
+	var resp []*ComicTag
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, comicId)
+	return resp, mapDBError(err)
 }
 
 func (m *customComicTagModel) InsertBatch(ctx context.Context, list []*ComicTag) error {
@@ -61,32 +72,22 @@ func (m *customComicTagModel) InsertBatch(ctx context.Context, list []*ComicTag)
 	)
 
 	_, err := m.conn.ExecCtx(ctx, query, args...)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customComicTagModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ComicTag) error {
 	return m.withSession(session).InsertBatch(ctx, list)
 }
 
-func (m *customComicTagModel) FindManyByComicId(ctx context.Context, comicId uint64) ([]*ComicTag, error) {
+func (m *customComicTagModel) SoftDeleteBatchByComicId(ctx context.Context, comicId uint64, deletedAt uint64) error {
 	query := fmt.Sprintf(
-		"select %s from %s where `comic_id` = ?",
-		comicTagRows,
+		"update %s set `deleted_at` = ? where `comic_id` = ? and `deleted_at` = 0",
 		m.table,
 	)
-	var resp []*ComicTag
-	err := m.conn.QueryRowsCtx(ctx, &resp, query, comicId)
-	return resp, err
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, comicId)
+	return mapDBError(err)
 }
 
-func (m *customComicTagModel) DeleteBatchByComicId(ctx context.Context, comicId uint64) error {
-	query := fmt.Sprintf(
-		"delete from %s where `comic_id` = ?",
-		m.table,
-	)
-	_, err := m.conn.ExecCtx(ctx, query, comicId)
-	return err
-}
-func (m *customComicTagModel) DeleteBatchByComicIdWithSession(ctx context.Context, session sqlx.Session, comicId uint64) error {
-	return m.withSession(session).DeleteBatchByComicId(ctx, comicId)
+func (m *customComicTagModel) SoftDeleteBatchByComicIdWithSession(ctx context.Context, session sqlx.Session, comicId uint64, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteBatchByComicId(ctx, comicId, deletedAt)
 }

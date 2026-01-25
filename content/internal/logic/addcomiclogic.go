@@ -94,7 +94,7 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	}
 
 	// 添加漫画主体
-	// 1. 构造
+	// 构造
 	comic := model.Comic{
 		Name:           in.Name,
 		Description:    sql.NullString{String: in.Description, Valid: true},
@@ -109,7 +109,7 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 		CollectCount:   0,
 	}
 
-	// 2. 写入数据库
+	// 写入数据库
 	result, err := l.ComicDao.Insert(l.ctx, &comic)
 	if err != nil {
 		l.Errorf("AddComic err: 添加漫画主体失败，%v", err)
@@ -120,7 +120,7 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 		}, nil
 	}
 
-	// 3. 回写
+	// 回写
 	comicId, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddComic err: 获取漫画ID失败，%v", err)
@@ -132,10 +132,11 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	}
 	comic.Id = uint64(comicId)
 
-	// 4. 添加标签
+	// 添加标签
 	comicRelationTask := tasks.ComicRelationTask{
 		Type:    tasks.ComicRelationAdd,
 		ComicID: comic.Id,
+		UID:     user.UID,
 		Tags:    in.Tag,
 	}
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, &comicRelationTask)

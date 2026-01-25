@@ -2,16 +2,15 @@ package logic
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
-	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type GetComicChapterLogic struct {
@@ -49,25 +48,6 @@ func (l *GetComicChapterLogic) GetComicChapter(in *v1.GetComicChapterRequest) (*
 		in.PageSize = 10
 	}
 
-	// 看漫画是否存在
-	_, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.ComicId)
-	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			l.Errorf("GetComicChapter err: 漫画不存在")
-
-			return &v1.Response{
-				Code:    404,
-				Message: "漫画不存在",
-			}, nil
-		}
-		l.Errorf("GetComicChapter err: %v", err)
-
-		return &v1.Response{
-			Code:    500,
-			Message: "获取漫画失败",
-		}, nil
-	}
-
 	offset := (in.Page - 1) * in.PageSize
 
 	chapterModels, err := l.ComicChapterDao.FindManyByComicIDOrderByChapterNo(l.ctx, in.ComicId, offset, in.PageSize)
@@ -79,7 +59,16 @@ func (l *GetComicChapterLogic) GetComicChapter(in *v1.GetComicChapterRequest) (*
 			Message: "获取漫画章节失败",
 		}, nil
 	}
+	if len(chapterModels) == 0 {
+		l.Errorf("GetComicChapter err: 漫画章节不存在")
 
+		return &v1.Response{
+			Code:    404,
+			Message: "漫画章节不存在",
+		}, nil
+	}
+
+	// 确定 msg 的值用于响应
 	type MsgResult struct {
 		msg string
 	}

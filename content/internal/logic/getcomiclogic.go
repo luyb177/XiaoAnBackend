@@ -42,6 +42,21 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		}, nil
 	}
 
+	// 异步获取tag
+	type TagResult struct {
+		tags []*model.ComicTag
+		err  error
+	}
+	tagCh := make(chan TagResult, 1)
+
+	go func() {
+		t, err := l.ComicTagDao.FindManyByComicId(l.ctx, in.Id)
+		tagCh <- TagResult{
+			tags: t,
+			err:  err,
+		}
+	}()
+
 	// 获取漫画
 	comic, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
@@ -61,21 +76,7 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		}, nil
 	}
 
-	// 1. 异步获取tag
-	type TagResult struct {
-		tags []*model.ComicTag
-		err  error
-	}
-	tagCh := make(chan TagResult, 1)
-
-	go func() {
-		t, err := l.ComicTagDao.FindManyByComicId(l.ctx, in.Id)
-		tagCh <- TagResult{
-			tags: t,
-			err:  err,
-		}
-	}()
-
+	// 等待tag结果
 	tagResult := <-tagCh
 	if tagResult.err != nil {
 		l.Errorf("GetComic err: 获取漫画标签失败, %v", tagResult.err)

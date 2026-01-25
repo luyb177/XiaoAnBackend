@@ -33,7 +33,7 @@ type ComicChapterRelationTask struct {
 
 // ID 返回任务 ID
 func (t *ComicChapterRelationTask) ID() string {
-	return fmt.Sprintf("%s:%s:%d", ComicChapterRelationTaskPrefix, t.Type, t.ChapterID)
+	return fmt.Sprintf("%s:%s:%d:%d:%d", ComicChapterRelationTaskPrefix, t.Type, t.ComicId, t.ChapterID, t.UID)
 }
 
 // Payload 返回任务内容

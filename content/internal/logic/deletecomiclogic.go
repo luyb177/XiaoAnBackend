@@ -6,11 +6,10 @@ import (
 	"errors"
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"time"
-
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -71,15 +70,11 @@ func (l *DeleteComicLogic) DeleteComic(in *v1.DeleteComicRequest) (*v1.Response,
 		}, nil
 	}
 
-	comic.LastModifiedBy = sql.NullInt64{
-		Int64: int64(user.UID),
-		Valid: true,
-	}
-	comic.DeletedAt = uint64(time.Now().Unix())
-
-	err = l.ComicDao.Update(l.ctx, comic)
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.ComicDao.SoftDelete(l.ctx, comic.Id, deletedAt, modifier)
 	if err != nil {
-		l.Errorf("DeleteComic err: %v", err)
+		l.Errorf("DeleteComic SoftDelete err: %v", err)
 
 		return &v1.Response{
 			Code:    500,
@@ -91,7 +86,6 @@ func (l *DeleteComicLogic) DeleteComic(in *v1.DeleteComicRequest) (*v1.Response,
 	comicRelationTask := &tasks.ComicRelationTask{
 		Type:    tasks.ComicRelationDelete,
 		ComicID: comic.Id,
-		Tags:    nil,
 		UID:     user.UID,
 	}
 

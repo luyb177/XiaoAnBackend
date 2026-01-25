@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -82,7 +83,8 @@ func (h *ComicRelationHandler) handleAdd(ctx context.Context, task *tasks.ComicR
 func (h *ComicRelationHandler) handleModify(ctx context.Context, task *tasks.ComicRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除旧标签
-		err := h.ComicTagDao.DeleteBatchByComicIdWithSession(ctx, session, task.ComicID)
+		deletedAt := uint64(time.Now().Unix())
+		err := h.ComicTagDao.SoftDeleteBatchByComicIdWithSession(ctx, session, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -102,7 +104,8 @@ func (h *ComicRelationHandler) handleModify(ctx context.Context, task *tasks.Com
 func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.ComicRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除标签
-		err := h.ComicTagDao.DeleteBatchByComicIdWithSession(ctx, session, task.ComicID)
+		deletedAt := uint64(time.Now().Unix())
+		err := h.ComicTagDao.SoftDeleteBatchByComicIdWithSession(ctx, session, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}

@@ -107,7 +107,6 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 			Message: "章节页面不能为空",
 		}, nil
 	}
-
 	for _, url := range in.PageUrls {
 		if url == "" {
 			l.Errorf("ModifyComicChapter err: 章节页面URL不能为空")
@@ -119,41 +118,22 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		}
 	}
 
-	// 1. 验证漫画存在性
-	_, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.ComicId)
+	// 验证漫画章节存在性
+	chapter, err := l.ComicChapterDao.FindOneByComicIDAndChapterID(l.ctx, in.ComicId, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			l.Errorf("ModifyComicChapter err: 漫画不存在")
+			l.Errorf("ModifyComicChapter err: 该漫画章节不存在")
 
 			return &v1.Response{
 				Code:    404,
-				Message: "漫画不存在",
+				Message: "该漫画章节不存在",
 			}, nil
 		}
 		l.Errorf("ModifyComicChapter err: %v", err)
 
 		return &v1.Response{
 			Code:    500,
-			Message: "修改漫画章节失败",
-		}, nil
-	}
-
-	// 2. 验证章节存在性
-	chapter, err := l.ComicChapterDao.FindOneWithNotDelete(l.ctx, in.Id)
-	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			l.Errorf("ModifyComicChapter err: 章节不存在")
-
-			return &v1.Response{
-				Code:    404,
-				Message: "章节不存在",
-			}, nil
-		}
-		l.Errorf("ModifyComicChapter err: %v", err)
-
-		return &v1.Response{
-			Code:    500,
-			Message: "修改漫画章节失败",
+			Message: "查询漫画章节失败",
 		}, nil
 	}
 
@@ -182,6 +162,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		Type:      tasks.ComicChapterRelationModify,
 		ChapterID: chapter.Id,
 		PageUrls:  in.PageUrls,
+		UID:       user.UID,
 	}
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, &comicChapterRelationTask)

@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -10,6 +11,7 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -88,7 +90,8 @@ func (h *ComicChapterRelationHandler) handleAdd(ctx context.Context, task *tasks
 func (h *ComicChapterRelationHandler) handleModify(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除原有章节图片信息
-		err := h.ComicPageDao.DeleteByChapterIDWithSession(ctx, session, task.ChapterID)
+		deletedAt := uint64(time.Now().Unix())
+		err := h.ComicPageDao.SoftDeleteByChapterIDWithSession(ctx, session, task.ChapterID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -107,11 +110,15 @@ func (h *ComicChapterRelationHandler) handleModify(ctx context.Context, task *ta
 
 func (h *ComicChapterRelationHandler) handleDelete(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 章节数-1
 		err := h.ComicDao.DecrChapterCountByComicIDWithSession(ctx, session, task.ComicId)
 		if err != nil {
 			return err
 		}
-		return h.ComicPageDao.DeleteByChapterIDWithSession(ctx, session, task.ChapterID)
+
+		// 删除章节图片信息
+		deletedAt := uint64(time.Now().Unix())
+		return h.ComicPageDao.SoftDeleteByChapterIDWithSession(ctx, session, task.ChapterID, deletedAt)
 	})
 }
 
@@ -128,12 +135,14 @@ func (h *ComicChapterRelationHandler) handleDeleteAll(ctx context.Context, task 
 		for i, chapter := range chapters {
 			ids[i] = chapter.Id
 		}
-		err = h.ComicChapterDao.SoftDeleteByIDsWithSession(ctx, session, ids, int64(task.UID))
+		deletedAt := uint64(time.Now().Unix())
+		modifier := sql.NullInt64{Int64: int64(task.UID), Valid: true}
+		err = h.ComicChapterDao.SoftDeleteByIDsWithSession(ctx, session, ids, deletedAt, modifier)
 		if err != nil {
 			return err
 		}
 
 		// 3. 删除每一个章节的图片信息
-		return h.ComicPageDao.DeleteAllByChapterIDsWithSession(ctx, session, ids)
+		return h.ComicPageDao.SoftDeleteAllByChapterIDsWithSession(ctx, session, ids, deletedAt)
 	})
 }
