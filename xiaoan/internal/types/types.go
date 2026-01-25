@@ -14,6 +14,25 @@ type AddArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type AddComicChapterRequest struct {
+	ComicId     uint64   `json:"comic_id"`
+	ChapterNo   int64    `json:"chapter_no"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Status      int64    `json:"status"`
+	PublishedAt int64    `json:"published_at"`
+	PageUrls    []string `json:"page_urls"`
+}
+
+type AddComicRequest struct {
+	Name        string   `json:"name"`
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+}
+
 type AddPodcastRequest struct {
 	Name        string                  `json:"name"`
 	Url         string                  `json:"url"`
@@ -39,6 +58,15 @@ type AddVideoRequest struct {
 
 type DeleteArticleRequest struct {
 	ArticleId uint64 `form:"article_id"`
+}
+
+type DeleteComicChapterRequest struct {
+	ComicChapterId uint64 `form:"comic_chapter_id"`
+	ComicId        uint64 `form:"comic_id"`
+}
+
+type DeleteComicRequest struct {
+	ComicId uint64 `form:"comic_id"`
 }
 
 type DeletePodcastRequest struct {
@@ -71,6 +99,22 @@ type GetArticleContentRequest struct {
 	ArticleId uint64 `form:"article_id"`
 }
 
+type GetComicChapterRequest struct {
+	ComicId  uint64 `form:"comic_id"`
+	Page     int64  `form:"page"`
+	PageSize int64  `form:"page_size"`
+}
+
+type GetComicPageRequest struct {
+	ComicChapterId uint64 `form:"comic_chapter_id"`
+	Page           int64  `form:"page"`
+	PageSize       int64  `form:"page_size"`
+}
+
+type GetComicRequest struct {
+	ComicId uint64 `form:"comic_id"`
+}
+
 type GetInviteCodeRequest struct {
 	Page     int64 `json:"page"`
 	PageSize int64 `json:"page_size"`
@@ -101,6 +145,27 @@ type ModifyArticleRequest struct {
 	PublishedAt int64    `json:"published_at"`
 	Author      string   `json:"author"`
 	Tags        []string `json:"tags"`
+}
+
+type ModifyComicChapterRequest struct {
+	ComicChapterId uint64   `json:"comic_chapter_id"`
+	ComicId        uint64   `json:"comic_id"`
+	ChapterNo      int64    `json:"chapter_no"`
+	Title          string   `json:"title"`
+	Description    string   `json:"description"`
+	Status         int64    `json:"status"`
+	PublishedAt    int64    `json:"published_at"`
+	PageUrls       []string `json:"page_urls"`
+}
+
+type ModifyComicRequest struct {
+	ComicId     uint64   `json:"comic_id"`
+	Name        string   `json:"name"`
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
 }
 
 type ModifyPodcastRequest struct {

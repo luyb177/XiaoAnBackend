@@ -95,6 +95,60 @@ func (s *ContentServiceServer) DeletePodcast(ctx context.Context, in *v1.DeleteP
 	return l.DeletePodcast(in)
 }
 
+// AddComic 添加漫画
+func (s *ContentServiceServer) AddComic(ctx context.Context, in *v1.AddComicRequest) (*v1.Response, error) {
+	l := logic.NewAddComicLogic(ctx, s.svcCtx)
+	return l.AddComic(in)
+}
+
+// AddComicChapter 添加漫画章节
+func (s *ContentServiceServer) AddComicChapter(ctx context.Context, in *v1.AddComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewAddComicChapterLogic(ctx, s.svcCtx)
+	return l.AddComicChapter(in)
+}
+
+// GetComic 获取漫画
+func (s *ContentServiceServer) GetComic(ctx context.Context, in *v1.GetComicRequest) (*v1.Response, error) {
+	l := logic.NewGetComicLogic(ctx, s.svcCtx)
+	return l.GetComic(in)
+}
+
+// GetComicChapter 获取漫画章节
+func (s *ContentServiceServer) GetComicChapter(ctx context.Context, in *v1.GetComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewGetComicChapterLogic(ctx, s.svcCtx)
+	return l.GetComicChapter(in)
+}
+
+// GetComicPage 获取漫画章节页面
+func (s *ContentServiceServer) GetComicPage(ctx context.Context, in *v1.GetComicPageRequest) (*v1.Response, error) {
+	l := logic.NewGetComicPageLogic(ctx, s.svcCtx)
+	return l.GetComicPage(in)
+}
+
+// ModifyComic 修改漫画
+func (s *ContentServiceServer) ModifyComic(ctx context.Context, in *v1.ModifyComicRequest) (*v1.Response, error) {
+	l := logic.NewModifyComicLogic(ctx, s.svcCtx)
+	return l.ModifyComic(in)
+}
+
+// ModifyComicChapter 修改漫画章节
+func (s *ContentServiceServer) ModifyComicChapter(ctx context.Context, in *v1.ModifyComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewModifyComicChapterLogic(ctx, s.svcCtx)
+	return l.ModifyComicChapter(in)
+}
+
+// DeleteComic 删除漫画
+func (s *ContentServiceServer) DeleteComic(ctx context.Context, in *v1.DeleteComicRequest) (*v1.Response, error) {
+	l := logic.NewDeleteComicLogic(ctx, s.svcCtx)
+	return l.DeleteComic(in)
+}
+
+// DeleteComicChapter 删除漫画章节
+func (s *ContentServiceServer) DeleteComicChapter(ctx context.Context, in *v1.DeleteComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewDeleteComicChapterLogic(ctx, s.svcCtx)
+	return l.DeleteComicChapter(in)
+}
+
 // 搜索
 func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
 	l := logic.NewSearchLogic(ctx, s.svcCtx)

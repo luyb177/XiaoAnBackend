@@ -1,0 +1,186 @@
+package logic
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"time"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+)
+
+type AddComicChapterLogic struct {
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+	logx.Logger
+	ComicDao        model.ComicModel
+	ComicChapterDao model.ComicChapterModel
+}
+
+func NewAddComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddComicChapterLogic {
+	return &AddComicChapterLogic{
+		ctx:             ctx,
+		svcCtx:          svcCtx,
+		Logger:          logx.WithContext(ctx),
+		ComicDao:        model.NewComicModel(svcCtx.Mysql),
+		ComicChapterDao: model.NewComicChapterModel(svcCtx.Mysql),
+	}
+}
+
+// AddComicChapter 添加漫画章节
+func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*v1.Response, error) {
+	user := middleware.MustGetUser(l.ctx)
+	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+		l.Errorf("AddComicChapter err: 用户未登录或无权限")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "用户未登录或无权限",
+		}, nil
+	}
+
+	// 校验参数
+	if in.ComicId <= 0 {
+		l.Errorf("AddComicChapter err: 漫画ID不能为空")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "漫画ID不能为空",
+		}, nil
+	}
+	if in.ChapterNo <= 0 {
+		l.Errorf("AddComicChapter err: 章节号不能为空")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "章节号不能为空",
+		}, nil
+	}
+	if in.Title == "" {
+		l.Errorf("AddComicChapter err: 章节标题不能为空")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "章节标题不能为空",
+		}, nil
+	}
+	if in.Description == "" {
+		l.Errorf("AddComicChapter err: 章节描述不能为空")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "章节描述不能为空",
+		}, nil
+	}
+	if in.Status != ComicStatusPublished && in.Status != ComicStatusDraft {
+		l.Errorf("AddComicChapter err: 章节状态不合法")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "章节状态不合法",
+		}, nil
+	}
+	now := time.Now()
+	if in.PublishedAt <= 0 {
+		in.PublishedAt = now.Unix()
+	}
+	if in.PageUrls == nil || len(in.PageUrls) == 0 {
+		l.Errorf("AddComicChapter err: 章节页面不能为空")
+
+		return &v1.Response{
+			Code:    400,
+			Message: "章节页面不能为空",
+		}, nil
+	}
+
+	for _, url := range in.PageUrls {
+		if url == "" {
+			l.Errorf("AddComicChapter err: 章节页面URL不能为空")
+
+			return &v1.Response{
+				Code:    400,
+				Message: "章节页面URL不能为空",
+			}, nil
+		}
+	}
+
+	// 3. 添加漫画章节
+	// 3.1 插入漫画章节
+	chapter := model.ComicChapter{
+		ComicId:        in.ComicId,
+		ChapterNo:      in.ChapterNo,
+		Title:          in.Title,
+		Description:    sql.NullString{String: in.Description, Valid: true},
+		PageCount:      uint64(len(in.PageUrls)),
+		Status:         in.Status,
+		PublishedAt:    time.Unix(in.PublishedAt, 0),
+		RelationStatus: RelationStatusPending,
+		LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
+	}
+
+	result, err := l.ComicChapterDao.CustomInsert(l.ctx, &chapter)
+	if err != nil {
+		if errors.Is(err, model.ErrDuplicateEntry) {
+			l.Errorf("AddComicChapter err: 该章节号已存在，err: %v", err)
+			return &v1.Response{
+				Code:    400,
+				Message: "该章节号已存在",
+			}, nil
+		}
+
+		l.Errorf("AddComicChapter err: 插入漫画章节失败，err: %v", err)
+		return &v1.Response{
+			Code:    500,
+			Message: "添加漫画章节失败",
+		}, nil
+	}
+	chapterId, err := result.LastInsertId()
+	if err != nil {
+		l.Errorf("AddComicChapter err: 获取插入漫画章节ID失败，err: %v", err)
+		return &v1.Response{
+			Code:    500,
+			Message: "获取插入漫画章节ID失败",
+		}, nil
+	}
+	chapter.Id = uint64(chapterId)
+
+	// 4. 添加漫画章节页面
+	comicChapterRelationTask := &tasks.ComicChapterRelationTask{
+		Type:      tasks.ComicChapterRelationAdd,
+		ComicId:   in.ComicId,
+		ChapterID: chapter.Id,
+		PageUrls:  in.PageUrls,
+	}
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, comicChapterRelationTask)
+	if err != nil {
+		l.Errorf("AddComicChapter err: 添加漫画章节页面任务入队失败，%v", err)
+	}
+
+	// 5. 返回结果
+	res := &v1.AddComicChapterResponse{
+		Id:             chapter.Id,
+		RelationStatus: RelationStatusPending,
+	}
+
+	resAny, err := anypb.New(res)
+	if err != nil {
+		l.Errorf("AddComicChapter err: %v", err)
+
+		return &v1.Response{
+			Code:    500,
+			Message: "封装返回结果失败",
+		}, nil
+	}
+	return &v1.Response{
+		Code:    200,
+		Message: "添加漫画章节成功",
+		Data:    resAny,
+	}, nil
+}

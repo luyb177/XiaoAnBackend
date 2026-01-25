@@ -3,9 +3,6 @@ package content
 import (
 	"context"
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -28,14 +25,21 @@ func NewGetVideoContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 }
 
 func (l *GetVideoContentLogic) GetVideoContent(req *types.GetVideoContentRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.GetVideo(l.ctx, &content.GetVideoRequest{
+	res, err := l.svcCtx.ContentRpc.GetVideo(l.ctx, &content.GetVideoRequest{
 		Id: req.VideoId,
 	})
+
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
 
 	var data *content.GetVideoResponse
 	if res.Data != nil {
 		data = &content.GetVideoResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

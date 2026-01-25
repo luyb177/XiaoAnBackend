@@ -29,17 +29,40 @@ message Comic {
   uint64 id = 1;
   string name = 2;
   repeated string tag = 3;
-  repeated string url = 4;
-  string description = 5;
-  string cover = 6;
-  string author = 7;
-  int64 create_time = 8;
-  int64 created_at = 9;
-  int64 update_time = 10;
-  uint64 like_count = 11;
-  uint64 view_count = 12;
-  uint64 collect_count = 13;
+  string description = 4;
+  string cover = 5;
+  string author = 6;
+  int64 published_at = 7;
+  int64 created_at = 8;
+  int64 updated_at = 9;
+  uint64 like_count = 10;
+  uint64 view_count = 11;
+  uint64 collect_count = 12;
+  uint64 chapter_count = 13;
 }
+
+message ComicChapter {
+  uint64 id = 1;
+  uint64 comic_id = 2;
+  int64 chapter_no = 3;
+  string title = 4;
+  string description = 5;
+  uint64 page_count = 6;
+  int64 status = 7; // 0: 已发布, 1: 草稿
+  int64 published_at = 8;
+  int64 created_at = 9;
+  int64 updated_at = 10;
+}
+
+message ComicPage {
+  uint64 id = 1;
+  uint64 comic_chapter_id = 2;
+  int64 page_no = 3;
+  string url = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+}
+
 
 message Podcast {
   uint64 id = 1;
@@ -260,6 +283,81 @@ message DeletePodcastRequest {
   uint64 id = 1;
 }
 
+// AddComicRequest 添加漫画请求
+message AddComicRequest {
+  string name = 1;
+  repeated string tag = 2;
+  string description = 3;
+  string cover = 4;
+  string author = 5;
+  int64 published_at = 6;
+}
+
+// AddComicChapterRequest 添加漫画章节请求
+message AddComicChapterRequest {
+  uint64 comic_id = 1;
+  int64 chapter_no = 2;
+  string title = 3;
+  string description = 4;
+  int64 status = 5; // 0: 已发布, 1: 草稿
+  int64 published_at = 6;
+  repeated string page_urls = 7;
+}
+
+// GetComicRequest 获取漫画详细内容请求
+message GetComicRequest {
+  uint64 id = 1;
+}
+
+// GetComicChapterRequest 获取漫画章节请求
+message GetComicChapterRequest {
+  uint64 comic_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
+}
+
+// GetComicPageRequest 获取漫画章节页面请求
+message GetComicPageRequest {
+  uint64 comic_chapter_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
+}
+
+// ModifyComicRequest 修改漫画请求
+message ModifyComicRequest {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string description = 4;
+  string cover = 5;
+  string author = 6;
+  int64 published_at = 7;
+}
+
+// ModifyComicChapterRequest 修改漫画章节请求
+message ModifyComicChapterRequest {
+  uint64 id = 1;
+  uint64 comic_id = 2;
+  int64 chapter_no = 3;
+  string title = 4;
+  string description = 5;
+  int64 status = 6; // 0: 已发布, 1: 草稿
+  int64 published_at = 7;
+  repeated string page_urls = 8;
+}
+
+// DeleteComicRequest 删除漫画请求
+message DeleteComicRequest {
+  uint64 id = 1;
+}
+
+// DeleteComicChapterRequest 删除漫画章节请求
+message DeleteComicChapterRequest {
+  uint64 id = 1;
+  uint64 comic_id = 2;
+}
+
+
 message SearchRequest {
   string keyword = 1;        // 搜索关键字
   string type = 2;           // video, comic, podcast, article
@@ -362,6 +460,38 @@ message ModifyPodcastResponse {
   int64 relation_status = 2;
 }
 
+message AddComicResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message AddComicChapterResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message GetComicResponse {
+  Comic comic = 1;
+}
+
+message GetComicChapterResponse {
+  repeated ComicChapter chapters = 1;
+}
+
+message GetComicPageResponse {
+  repeated ComicPage pages = 1;
+}
+
+message ModifyComicResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message ModifyComicChapterResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
 message SearchResponse {
   repeated Video videos = 1;
   repeated Comic comics = 2;
@@ -425,6 +555,33 @@ service ContentService {
 
   // DeletePodcast 删除播客
   rpc DeletePodcast(DeletePodcastRequest) returns (Response);
+
+  // AddComic 添加漫画
+  rpc AddComic(AddComicRequest) returns (Response);
+
+  // AddComicChapter 添加漫画章节
+  rpc AddComicChapter(AddComicChapterRequest) returns (Response);
+
+  // GetComic 获取漫画
+  rpc GetComic(GetComicRequest) returns (Response);
+
+  // GetComicChapter 获取漫画章节
+  rpc GetComicChapter(GetComicChapterRequest) returns (Response);
+
+  // GetComicPage 获取漫画章节页面
+  rpc GetComicPage(GetComicPageRequest) returns (Response);
+
+  // ModifyComic 修改漫画
+  rpc ModifyComic(ModifyComicRequest) returns (Response);
+
+  // ModifyComicChapter 修改漫画章节
+  rpc ModifyComicChapter(ModifyComicChapterRequest) returns (Response);
+
+  // DeleteComic 删除漫画
+  rpc DeleteComic(DeleteComicRequest) returns (Response);
+
+  // DeleteComicChapter 删除漫画章节
+  rpc DeleteComicChapter(DeleteComicChapterRequest) returns (Response);
 
   // 搜索
   rpc Search(SearchRequest) returns (Response);

@@ -88,7 +88,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 			Message: "文章摘要为空",
 		}, nil
 	}
-	if len(in.Tag) == 0 {
+	if len(in.Tag) == 0 || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 	if len(in.Tag) > 10 {

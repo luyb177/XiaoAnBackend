@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -20,7 +21,15 @@ type (
 	ComicModel interface {
 		comicModel
 		withSession(session sqlx.Session) ComicModel
+		IncrChapterCountByComicID(ctx context.Context, comicID uint64) error
+		IncrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error
+		DecrChapterCountByComicID(ctx context.Context, comicID uint64) error
+		DecrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error
+		FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error)
+		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Comic) error
+		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
+		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 	}
 
 	customComicModel struct {
@@ -37,6 +46,26 @@ func NewComicModel(conn sqlx.SqlConn) ComicModel {
 
 func (m *customComicModel) withSession(session sqlx.Session) ComicModel {
 	return NewComicModel(sqlx.NewSqlConnFromSession(session))
+}
+
+func (m *customComicModel) IncrChapterCountByComicID(ctx context.Context, comicID uint64) error {
+	query := fmt.Sprintf("update %s set `chapter_count` = `chapter_count` + 1 where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, comicID)
+	return err
+}
+
+func (m *customComicModel) IncrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error {
+	return m.withSession(session).IncrChapterCountByComicID(ctx, comicID)
+}
+
+func (m *customComicModel) DecrChapterCountByComicID(ctx context.Context, comicID uint64) error {
+	query := fmt.Sprintf("update %s set `chapter_count` = `chapter_count` - 1 where `id` = ? and `chapter_count` > 0", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, comicID)
+	return err
+}
+
+func (m *customComicModel) DecrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error {
+	return m.withSession(session).DecrChapterCountByComicID(ctx, comicID)
 }
 
 func (m *customComicModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error) {
@@ -67,4 +96,38 @@ func (m *customComicModel) FindByTagsAndKeyWord(ctx context.Context, offset int,
 	var out []*Comic
 	err := m.conn.QueryRowsCtx(ctx, &out, query, args...)
 	return out, err
+}
+
+func (m *customComicModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {
+	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
+	return err
+}
+
+func (m *customComicModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
+	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
+}
+
+func (m *customComicModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where `id` = ? and `deleted_at` = 0 limit 1",
+		comicRows,
+		m.table,
+	)
+
+	var resp Comic
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	switch {
+	case err == nil:
+		return &resp, nil
+	case errors.Is(err, sqlx.ErrNotFound):
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *customComicModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *Comic) error {
+	return m.withSession(session).Update(ctx, data)
 }

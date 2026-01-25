@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type AddArticleLogic struct {
@@ -28,7 +26,7 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 }
 
 func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.AddArticle(l.ctx, &content.AddArticleRequest{
+	res, err := l.svcCtx.ContentRpc.AddArticle(l.ctx, &content.AddArticleRequest{
 		Name:        req.Name,
 		Description: req.Description,
 		Content:     req.Content,
@@ -38,11 +36,17 @@ func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.
 		Tags:        req.Tags,
 		Author:      req.Author,
 	})
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
 
 	var data *content.AddArticleResponse
 	if res.Data != nil {
 		data = &content.AddArticleResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

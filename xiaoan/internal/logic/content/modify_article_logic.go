@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type ModifyArticleLogic struct {
@@ -28,7 +26,7 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 }
 
 func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
+	res, err := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
 		Id:          req.ArticleId,
 		Name:        req.Name,
 		Tag:         req.Tags,
@@ -40,11 +38,18 @@ func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (res
 		PublishedAt: req.PublishedAt,
 	})
 
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
+
 	var data *content.ModifyArticleResponse
 
 	if res.Data != nil {
 		data = &content.ModifyArticleResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

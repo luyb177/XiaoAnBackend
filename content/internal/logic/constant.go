@@ -30,3 +30,8 @@ const (
 	PodcastStatusPublished = iota
 	PodcastStatusDraft
 )
+
+const (
+	ComicStatusPublished = iota
+	ComicStatusDraft
+)

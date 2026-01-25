@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type AddVideoLogic struct {
@@ -28,7 +26,7 @@ func NewAddVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddVideo
 }
 
 func (l *AddVideoLogic) AddVideo(req *types.AddVideoRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.AddVideo(l.ctx, &content.AddVideoRequest{
+	res, err := l.svcCtx.ContentRpc.AddVideo(l.ctx, &content.AddVideoRequest{
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Url:         req.Url,
@@ -38,10 +36,17 @@ func (l *AddVideoLogic) AddVideo(req *types.AddVideoRequest) (resp *types.Respon
 		PublishedAt: req.PublishedAt,
 	})
 
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
+
 	var data *content.AddVideoResponse
 	if res.Data != nil {
 		data = &content.AddVideoResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

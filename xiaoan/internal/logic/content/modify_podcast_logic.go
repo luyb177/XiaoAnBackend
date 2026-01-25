@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type ModifyPodcastLogic struct {
@@ -36,7 +34,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(req *types.ModifyPodcastRequest) (res
 		}
 	}
 
-	res, _ := l.svcCtx.ContentRpc.ModifyPodcast(l.ctx, &content.ModifyPodcastRequest{
+	res, err := l.svcCtx.ContentRpc.ModifyPodcast(l.ctx, &content.ModifyPodcastRequest{
 		Id:          req.PodcastId,
 		Name:        req.Name,
 		Url:         req.Url,
@@ -50,10 +48,17 @@ func (l *ModifyPodcastLogic) ModifyPodcast(req *types.ModifyPodcastRequest) (res
 		Highlights:  highlights,
 	})
 
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
+
 	var data *content.ModifyPodcastResponse
 	if res.Data != nil {
 		data = &content.ModifyPodcastResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

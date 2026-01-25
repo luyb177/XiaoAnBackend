@@ -76,6 +76,10 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		Time:  time.Now(),
 		Valid: true,
 	}
+	video.LastModifiedBy = sql.NullInt64{
+		Int64: int64(user.UID),
+		Valid: true,
+	}
 
 	err = l.VideoDao.Update(l.ctx, video)
 	if err != nil {

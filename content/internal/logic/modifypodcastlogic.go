@@ -100,7 +100,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 	if in.Channel == "" {
 		in.Channel = "默认频道"
 	}
-	if in.Tags == nil {
+	if in.Tags == nil || len(in.Tags) == 0 {
 		in.Tags = []string{"默认标签"}
 	}
 	if len(in.Tags) > 10 {

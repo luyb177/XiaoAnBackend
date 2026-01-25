@@ -14,48 +14,66 @@ import (
 )
 
 type (
-	AddArticleRequest     = v1.AddArticleRequest
-	AddArticleResponse    = v1.AddArticleResponse
-	AddCommentRequest     = v1.AddCommentRequest
-	AddPodcastRequest     = v1.AddPodcastRequest
-	AddPodcastResponse    = v1.AddPodcastResponse
-	AddVideoRequest       = v1.AddVideoRequest
-	AddVideoResponse      = v1.AddVideoResponse
-	Article               = v1.Article
-	CollectRequest        = v1.CollectRequest
-	Comic                 = v1.Comic
-	Comment               = v1.Comment
-	CommentDetail         = v1.CommentDetail
-	CommentItem           = v1.CommentItem
-	ContentCollect        = v1.ContentCollect
-	ContentLike           = v1.ContentLike
-	DeleteArticleRequest  = v1.DeleteArticleRequest
-	DeleteCommentRequest  = v1.DeleteCommentRequest
-	DeletePodcastRequest  = v1.DeletePodcastRequest
-	DeleteVideoRequest    = v1.DeleteVideoRequest
-	GetArticleRequest     = v1.GetArticleRequest
-	GetArticleResponse    = v1.GetArticleResponse
-	GetCommentsRequest    = v1.GetCommentsRequest
-	GetCommentsResponse   = v1.GetCommentsResponse
-	GetContentRequest     = v1.GetContentRequest
-	GetPodcastRequest     = v1.GetPodcastRequest
-	GetPodcastResponse    = v1.GetPodcastResponse
-	GetVideoRequest       = v1.GetVideoRequest
-	GetVideoResponse      = v1.GetVideoResponse
-	LikeRequest           = v1.LikeRequest
-	ModifyArticleRequest  = v1.ModifyArticleRequest
-	ModifyArticleResponse = v1.ModifyArticleResponse
-	ModifyPodcastRequest  = v1.ModifyPodcastRequest
-	ModifyPodcastResponse = v1.ModifyPodcastResponse
-	ModifyVideoRequest    = v1.ModifyVideoRequest
-	ModifyVideoResponse   = v1.ModifyVideoResponse
-	Podcast               = v1.Podcast
-	PodcastHighlight      = v1.PodcastHighlight
-	Response              = v1.Response
-	SearchRequest         = v1.SearchRequest
-	SearchResponse        = v1.SearchResponse
-	UpdateCommentRequest  = v1.UpdateCommentRequest
-	Video                 = v1.Video
+	AddArticleRequest          = v1.AddArticleRequest
+	AddArticleResponse         = v1.AddArticleResponse
+	AddComicChapterRequest     = v1.AddComicChapterRequest
+	AddComicChapterResponse    = v1.AddComicChapterResponse
+	AddComicRequest            = v1.AddComicRequest
+	AddComicResponse           = v1.AddComicResponse
+	AddCommentRequest          = v1.AddCommentRequest
+	AddPodcastRequest          = v1.AddPodcastRequest
+	AddPodcastResponse         = v1.AddPodcastResponse
+	AddVideoRequest            = v1.AddVideoRequest
+	AddVideoResponse           = v1.AddVideoResponse
+	Article                    = v1.Article
+	CollectRequest             = v1.CollectRequest
+	Comic                      = v1.Comic
+	ComicChapter               = v1.ComicChapter
+	ComicPage                  = v1.ComicPage
+	Comment                    = v1.Comment
+	CommentDetail              = v1.CommentDetail
+	CommentItem                = v1.CommentItem
+	ContentCollect             = v1.ContentCollect
+	ContentLike                = v1.ContentLike
+	DeleteArticleRequest       = v1.DeleteArticleRequest
+	DeleteComicChapterRequest  = v1.DeleteComicChapterRequest
+	DeleteComicRequest         = v1.DeleteComicRequest
+	DeleteCommentRequest       = v1.DeleteCommentRequest
+	DeletePodcastRequest       = v1.DeletePodcastRequest
+	DeleteVideoRequest         = v1.DeleteVideoRequest
+	GetArticleRequest          = v1.GetArticleRequest
+	GetArticleResponse         = v1.GetArticleResponse
+	GetComicChapterRequest     = v1.GetComicChapterRequest
+	GetComicChapterResponse    = v1.GetComicChapterResponse
+	GetComicPageRequest        = v1.GetComicPageRequest
+	GetComicPageResponse       = v1.GetComicPageResponse
+	GetComicRequest            = v1.GetComicRequest
+	GetComicResponse           = v1.GetComicResponse
+	GetCommentsRequest         = v1.GetCommentsRequest
+	GetCommentsResponse        = v1.GetCommentsResponse
+	GetContentRequest          = v1.GetContentRequest
+	GetPodcastRequest          = v1.GetPodcastRequest
+	GetPodcastResponse         = v1.GetPodcastResponse
+	GetVideoRequest            = v1.GetVideoRequest
+	GetVideoResponse           = v1.GetVideoResponse
+	LikeRequest                = v1.LikeRequest
+	ModifyArticleRequest       = v1.ModifyArticleRequest
+	ModifyArticleResponse      = v1.ModifyArticleResponse
+	ModifyComicChapterRequest  = v1.ModifyComicChapterRequest
+	ModifyComicChapterResponse = v1.ModifyComicChapterResponse
+	ModifyComicRequest         = v1.ModifyComicRequest
+	ModifyComicResponse        = v1.ModifyComicResponse
+	ModifyPodcastRequest       = v1.ModifyPodcastRequest
+	ModifyPodcastResponse      = v1.ModifyPodcastResponse
+	ModifyVideoRequest         = v1.ModifyVideoRequest
+	ModifyVideoResponse        = v1.ModifyVideoResponse
+	Podcast                    = v1.Podcast
+	PodcastHighlight           = v1.PodcastHighlight
+	Response                   = v1.Response
+	SearchRequest              = v1.SearchRequest
+	SearchResponse             = v1.SearchResponse
+	UpdateCommentRequest       = v1.UpdateCommentRequest
+	Video                      = v1.Video
 
 	ContentService interface {
 		// AddArticle 添加文章
@@ -82,6 +100,24 @@ type (
 		ModifyPodcast(ctx context.Context, in *ModifyPodcastRequest, opts ...grpc.CallOption) (*Response, error)
 		// DeletePodcast 删除播客
 		DeletePodcast(ctx context.Context, in *DeletePodcastRequest, opts ...grpc.CallOption) (*Response, error)
+		// AddComic 添加漫画
+		AddComic(ctx context.Context, in *AddComicRequest, opts ...grpc.CallOption) (*Response, error)
+		// AddComicChapter 添加漫画章节
+		AddComicChapter(ctx context.Context, in *AddComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetComic 获取漫画
+		GetComic(ctx context.Context, in *GetComicRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetComicChapter 获取漫画章节
+		GetComicChapter(ctx context.Context, in *GetComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetComicPage 获取漫画章节页面
+		GetComicPage(ctx context.Context, in *GetComicPageRequest, opts ...grpc.CallOption) (*Response, error)
+		// ModifyComic 修改漫画
+		ModifyComic(ctx context.Context, in *ModifyComicRequest, opts ...grpc.CallOption) (*Response, error)
+		// ModifyComicChapter 修改漫画章节
+		ModifyComicChapter(ctx context.Context, in *ModifyComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+		// DeleteComic 删除漫画
+		DeleteComic(ctx context.Context, in *DeleteComicRequest, opts ...grpc.CallOption) (*Response, error)
+		// DeleteComicChapter 删除漫画章节
+		DeleteComicChapter(ctx context.Context, in *DeleteComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 		// 点赞
@@ -179,6 +215,60 @@ func (m *defaultContentService) ModifyPodcast(ctx context.Context, in *ModifyPod
 func (m *defaultContentService) DeletePodcast(ctx context.Context, in *DeletePodcastRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.DeletePodcast(ctx, in, opts...)
+}
+
+// AddComic 添加漫画
+func (m *defaultContentService) AddComic(ctx context.Context, in *AddComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.AddComic(ctx, in, opts...)
+}
+
+// AddComicChapter 添加漫画章节
+func (m *defaultContentService) AddComicChapter(ctx context.Context, in *AddComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.AddComicChapter(ctx, in, opts...)
+}
+
+// GetComic 获取漫画
+func (m *defaultContentService) GetComic(ctx context.Context, in *GetComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetComic(ctx, in, opts...)
+}
+
+// GetComicChapter 获取漫画章节
+func (m *defaultContentService) GetComicChapter(ctx context.Context, in *GetComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetComicChapter(ctx, in, opts...)
+}
+
+// GetComicPage 获取漫画章节页面
+func (m *defaultContentService) GetComicPage(ctx context.Context, in *GetComicPageRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetComicPage(ctx, in, opts...)
+}
+
+// ModifyComic 修改漫画
+func (m *defaultContentService) ModifyComic(ctx context.Context, in *ModifyComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.ModifyComic(ctx, in, opts...)
+}
+
+// ModifyComicChapter 修改漫画章节
+func (m *defaultContentService) ModifyComicChapter(ctx context.Context, in *ModifyComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.ModifyComicChapter(ctx, in, opts...)
+}
+
+// DeleteComic 删除漫画
+func (m *defaultContentService) DeleteComic(ctx context.Context, in *DeleteComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.DeleteComic(ctx, in, opts...)
+}
+
+// DeleteComicChapter 删除漫画章节
+func (m *defaultContentService) DeleteComicChapter(ctx context.Context, in *DeleteComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.DeleteComicChapter(ctx, in, opts...)
 }
 
 // 搜索

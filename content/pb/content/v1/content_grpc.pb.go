@@ -19,25 +19,34 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ContentService_AddArticle_FullMethodName    = "/content.ContentService/AddArticle"
-	ContentService_GetArticle_FullMethodName    = "/content.ContentService/GetArticle"
-	ContentService_ModifyArticle_FullMethodName = "/content.ContentService/ModifyArticle"
-	ContentService_DeleteArticle_FullMethodName = "/content.ContentService/DeleteArticle"
-	ContentService_AddVideo_FullMethodName      = "/content.ContentService/AddVideo"
-	ContentService_GetVideo_FullMethodName      = "/content.ContentService/GetVideo"
-	ContentService_ModifyVideo_FullMethodName   = "/content.ContentService/ModifyVideo"
-	ContentService_DeleteVideo_FullMethodName   = "/content.ContentService/DeleteVideo"
-	ContentService_AddPodcast_FullMethodName    = "/content.ContentService/AddPodcast"
-	ContentService_GetPodcast_FullMethodName    = "/content.ContentService/GetPodcast"
-	ContentService_ModifyPodcast_FullMethodName = "/content.ContentService/ModifyPodcast"
-	ContentService_DeletePodcast_FullMethodName = "/content.ContentService/DeletePodcast"
-	ContentService_Search_FullMethodName        = "/content.ContentService/Search"
-	ContentService_Like_FullMethodName          = "/content.ContentService/Like"
-	ContentService_Collect_FullMethodName       = "/content.ContentService/Collect"
-	ContentService_AddComment_FullMethodName    = "/content.ContentService/AddComment"
-	ContentService_UpdateComment_FullMethodName = "/content.ContentService/UpdateComment"
-	ContentService_DeleteComment_FullMethodName = "/content.ContentService/DeleteComment"
-	ContentService_GetComments_FullMethodName   = "/content.ContentService/GetComments"
+	ContentService_AddArticle_FullMethodName         = "/content.ContentService/AddArticle"
+	ContentService_GetArticle_FullMethodName         = "/content.ContentService/GetArticle"
+	ContentService_ModifyArticle_FullMethodName      = "/content.ContentService/ModifyArticle"
+	ContentService_DeleteArticle_FullMethodName      = "/content.ContentService/DeleteArticle"
+	ContentService_AddVideo_FullMethodName           = "/content.ContentService/AddVideo"
+	ContentService_GetVideo_FullMethodName           = "/content.ContentService/GetVideo"
+	ContentService_ModifyVideo_FullMethodName        = "/content.ContentService/ModifyVideo"
+	ContentService_DeleteVideo_FullMethodName        = "/content.ContentService/DeleteVideo"
+	ContentService_AddPodcast_FullMethodName         = "/content.ContentService/AddPodcast"
+	ContentService_GetPodcast_FullMethodName         = "/content.ContentService/GetPodcast"
+	ContentService_ModifyPodcast_FullMethodName      = "/content.ContentService/ModifyPodcast"
+	ContentService_DeletePodcast_FullMethodName      = "/content.ContentService/DeletePodcast"
+	ContentService_AddComic_FullMethodName           = "/content.ContentService/AddComic"
+	ContentService_AddComicChapter_FullMethodName    = "/content.ContentService/AddComicChapter"
+	ContentService_GetComic_FullMethodName           = "/content.ContentService/GetComic"
+	ContentService_GetComicChapter_FullMethodName    = "/content.ContentService/GetComicChapter"
+	ContentService_GetComicPage_FullMethodName       = "/content.ContentService/GetComicPage"
+	ContentService_ModifyComic_FullMethodName        = "/content.ContentService/ModifyComic"
+	ContentService_ModifyComicChapter_FullMethodName = "/content.ContentService/ModifyComicChapter"
+	ContentService_DeleteComic_FullMethodName        = "/content.ContentService/DeleteComic"
+	ContentService_DeleteComicChapter_FullMethodName = "/content.ContentService/DeleteComicChapter"
+	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
+	ContentService_Like_FullMethodName               = "/content.ContentService/Like"
+	ContentService_Collect_FullMethodName            = "/content.ContentService/Collect"
+	ContentService_AddComment_FullMethodName         = "/content.ContentService/AddComment"
+	ContentService_UpdateComment_FullMethodName      = "/content.ContentService/UpdateComment"
+	ContentService_DeleteComment_FullMethodName      = "/content.ContentService/DeleteComment"
+	ContentService_GetComments_FullMethodName        = "/content.ContentService/GetComments"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -68,6 +77,24 @@ type ContentServiceClient interface {
 	ModifyPodcast(ctx context.Context, in *ModifyPodcastRequest, opts ...grpc.CallOption) (*Response, error)
 	// DeletePodcast 删除播客
 	DeletePodcast(ctx context.Context, in *DeletePodcastRequest, opts ...grpc.CallOption) (*Response, error)
+	// AddComic 添加漫画
+	AddComic(ctx context.Context, in *AddComicRequest, opts ...grpc.CallOption) (*Response, error)
+	// AddComicChapter 添加漫画章节
+	AddComicChapter(ctx context.Context, in *AddComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetComic 获取漫画
+	GetComic(ctx context.Context, in *GetComicRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetComicChapter 获取漫画章节
+	GetComicChapter(ctx context.Context, in *GetComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetComicPage 获取漫画章节页面
+	GetComicPage(ctx context.Context, in *GetComicPageRequest, opts ...grpc.CallOption) (*Response, error)
+	// ModifyComic 修改漫画
+	ModifyComic(ctx context.Context, in *ModifyComicRequest, opts ...grpc.CallOption) (*Response, error)
+	// ModifyComicChapter 修改漫画章节
+	ModifyComicChapter(ctx context.Context, in *ModifyComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+	// DeleteComic 删除漫画
+	DeleteComic(ctx context.Context, in *DeleteComicRequest, opts ...grpc.CallOption) (*Response, error)
+	// DeleteComicChapter 删除漫画章节
+	DeleteComicChapter(ctx context.Context, in *DeleteComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 	// 点赞
@@ -212,6 +239,96 @@ func (c *contentServiceClient) DeletePodcast(ctx context.Context, in *DeletePodc
 	return out, nil
 }
 
+func (c *contentServiceClient) AddComic(ctx context.Context, in *AddComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_AddComic_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) AddComicChapter(ctx context.Context, in *AddComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_AddComicChapter_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetComic(ctx context.Context, in *GetComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetComic_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetComicChapter(ctx context.Context, in *GetComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetComicChapter_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetComicPage(ctx context.Context, in *GetComicPageRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetComicPage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ModifyComic(ctx context.Context, in *ModifyComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_ModifyComic_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ModifyComicChapter(ctx context.Context, in *ModifyComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_ModifyComicChapter_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) DeleteComic(ctx context.Context, in *DeleteComicRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_DeleteComic_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) DeleteComicChapter(ctx context.Context, in *DeleteComicChapterRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_DeleteComicChapter_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
@@ -310,6 +427,24 @@ type ContentServiceServer interface {
 	ModifyPodcast(context.Context, *ModifyPodcastRequest) (*Response, error)
 	// DeletePodcast 删除播客
 	DeletePodcast(context.Context, *DeletePodcastRequest) (*Response, error)
+	// AddComic 添加漫画
+	AddComic(context.Context, *AddComicRequest) (*Response, error)
+	// AddComicChapter 添加漫画章节
+	AddComicChapter(context.Context, *AddComicChapterRequest) (*Response, error)
+	// GetComic 获取漫画
+	GetComic(context.Context, *GetComicRequest) (*Response, error)
+	// GetComicChapter 获取漫画章节
+	GetComicChapter(context.Context, *GetComicChapterRequest) (*Response, error)
+	// GetComicPage 获取漫画章节页面
+	GetComicPage(context.Context, *GetComicPageRequest) (*Response, error)
+	// ModifyComic 修改漫画
+	ModifyComic(context.Context, *ModifyComicRequest) (*Response, error)
+	// ModifyComicChapter 修改漫画章节
+	ModifyComicChapter(context.Context, *ModifyComicChapterRequest) (*Response, error)
+	// DeleteComic 删除漫画
+	DeleteComic(context.Context, *DeleteComicRequest) (*Response, error)
+	// DeleteComicChapter 删除漫画章节
+	DeleteComicChapter(context.Context, *DeleteComicChapterRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
 	// 点赞
@@ -369,6 +504,33 @@ func (UnimplementedContentServiceServer) ModifyPodcast(context.Context, *ModifyP
 }
 func (UnimplementedContentServiceServer) DeletePodcast(context.Context, *DeletePodcastRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePodcast not implemented")
+}
+func (UnimplementedContentServiceServer) AddComic(context.Context, *AddComicRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddComic not implemented")
+}
+func (UnimplementedContentServiceServer) AddComicChapter(context.Context, *AddComicChapterRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddComicChapter not implemented")
+}
+func (UnimplementedContentServiceServer) GetComic(context.Context, *GetComicRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetComic not implemented")
+}
+func (UnimplementedContentServiceServer) GetComicChapter(context.Context, *GetComicChapterRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetComicChapter not implemented")
+}
+func (UnimplementedContentServiceServer) GetComicPage(context.Context, *GetComicPageRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetComicPage not implemented")
+}
+func (UnimplementedContentServiceServer) ModifyComic(context.Context, *ModifyComicRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyComic not implemented")
+}
+func (UnimplementedContentServiceServer) ModifyComicChapter(context.Context, *ModifyComicChapterRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyComicChapter not implemented")
+}
+func (UnimplementedContentServiceServer) DeleteComic(context.Context, *DeleteComicRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComic not implemented")
+}
+func (UnimplementedContentServiceServer) DeleteComicChapter(context.Context, *DeleteComicChapterRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComicChapter not implemented")
 }
 func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
@@ -628,6 +790,168 @@ func _ContentService_DeletePodcast_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_AddComic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddComicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AddComic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AddComic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AddComic(ctx, req.(*AddComicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_AddComicChapter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddComicChapterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AddComicChapter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AddComicChapter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AddComicChapter(ctx, req.(*AddComicChapterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetComic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetComicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetComic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetComic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetComic(ctx, req.(*GetComicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetComicChapter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetComicChapterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetComicChapter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetComicChapter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetComicChapter(ctx, req.(*GetComicChapterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetComicPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetComicPageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetComicPage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetComicPage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetComicPage(ctx, req.(*GetComicPageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ModifyComic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyComicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ModifyComic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ModifyComic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ModifyComic(ctx, req.(*ModifyComicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ModifyComicChapter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyComicChapterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ModifyComicChapter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ModifyComicChapter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ModifyComicChapter(ctx, req.(*ModifyComicChapterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_DeleteComic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteComicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).DeleteComic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_DeleteComic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).DeleteComic(ctx, req.(*DeleteComicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_DeleteComicChapter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteComicChapterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).DeleteComicChapter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_DeleteComicChapter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).DeleteComicChapter(ctx, req.(*DeleteComicChapterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchRequest)
 	if err := dec(in); err != nil {
@@ -808,6 +1132,42 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeletePodcast",
 			Handler:    _ContentService_DeletePodcast_Handler,
+		},
+		{
+			MethodName: "AddComic",
+			Handler:    _ContentService_AddComic_Handler,
+		},
+		{
+			MethodName: "AddComicChapter",
+			Handler:    _ContentService_AddComicChapter_Handler,
+		},
+		{
+			MethodName: "GetComic",
+			Handler:    _ContentService_GetComic_Handler,
+		},
+		{
+			MethodName: "GetComicChapter",
+			Handler:    _ContentService_GetComicChapter_Handler,
+		},
+		{
+			MethodName: "GetComicPage",
+			Handler:    _ContentService_GetComicPage_Handler,
+		},
+		{
+			MethodName: "ModifyComic",
+			Handler:    _ContentService_ModifyComic_Handler,
+		},
+		{
+			MethodName: "ModifyComicChapter",
+			Handler:    _ContentService_ModifyComicChapter_Handler,
+		},
+		{
+			MethodName: "DeleteComic",
+			Handler:    _ContentService_DeleteComic_Handler,
+		},
+		{
+			MethodName: "DeleteComicChapter",
+			Handler:    _ContentService_DeleteComicChapter_Handler,
 		},
 		{
 			MethodName: "Search",
