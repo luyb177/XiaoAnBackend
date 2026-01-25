@@ -60,7 +60,7 @@ func (h *ComicRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 	case tasks.ComicRelationDelete:
 		return h.handleDelete(ctx, &comicTask)
 	default:
-		h.Errorf("unknown comic relation task type: %d", comicTask.Type)
+		h.Errorf("unknown comic relation task type: %v", comicTask.Type)
 		return nil
 	}
 }

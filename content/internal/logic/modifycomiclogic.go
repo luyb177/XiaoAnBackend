@@ -54,7 +54,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		}, nil
 	}
 	if in.Name == "" {
-		l.Errorf("AddComic err: 漫画名称不能为空")
+		l.Errorf("ModifyComic err: 漫画名称不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -62,7 +62,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		}, nil
 	}
 	if in.Description == "" {
-		l.Errorf("AddComic err: 漫画描述不能为空")
+		l.Errorf("ModifyComic err: 漫画描述不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -70,7 +70,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		}, nil
 	}
 	if in.Cover == "" {
-		l.Errorf("AddComic err: 漫画封面不能为空")
+		l.Errorf("ModifyComic err: 漫画封面不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -78,7 +78,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		}, nil
 	}
 	if in.Author == "" {
-		l.Errorf("AddComic err: 漫画作者不能为空")
+		l.Errorf("ModifyComic err: 漫画作者不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -93,7 +93,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 		in.Tag = []string{"默认标签"}
 	}
 	if len(in.Tag) > 10 {
-		l.Errorf("AddComic err: 标签数量不能超过10个")
+		l.Errorf("ModifyComic err: 标签数量不能超过10个")
 
 		return &v1.Response{
 			Code:    400,

@@ -165,7 +165,7 @@ func (m *customComicChapterModel) SoftDeleteByIDs(ctx context.Context, ids []uin
 	query := fmt.Sprintf(`
 		UPDATE %s
 		SET deleted_at = ?, last_modified_by = ?
-		WHERE id IN (%s) AND deleted_at IS 0`,
+		WHERE id IN (%s) AND deleted_at = 0`,
 		m.table,
 		strings.Join(idPlaceholders, ","),
 	)

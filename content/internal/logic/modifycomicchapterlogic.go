@@ -48,7 +48,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 
 	// 验证参数
 	if in.Id <= 0 {
-		l.Errorf("AddComicChapter err: 章节ID不能为空")
+		l.Errorf("ModifyComicChapter err: 章节ID不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -56,7 +56,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		}, nil
 	}
 	if in.ComicId <= 0 {
-		l.Errorf("AddComicChapter err: 漫画ID不能为空")
+		l.Errorf("ModifyComicChapter err: 漫画ID不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -64,7 +64,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		}, nil
 	}
 	if in.ChapterNo <= 0 {
-		l.Errorf("AddComicChapter err: 章节号不能为空")
+		l.Errorf("ModifyComicChapter err: 章节号不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -72,7 +72,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		}, nil
 	}
 	if in.Title == "" {
-		l.Errorf("AddComicChapter err: 章节标题不能为空")
+		l.Errorf("ModifyComicChapter err: 章节标题不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -80,7 +80,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		}, nil
 	}
 	if in.Description == "" {
-		l.Errorf("AddComicChapter err: 章节描述不能为空")
+		l.Errorf("ModifyComicChapter err: 章节描述不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -88,7 +88,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		}, nil
 	}
 	if in.Status != ComicStatusPublished && in.Status != ComicStatusDraft {
-		l.Errorf("AddComicChapter err: 章节状态不合法")
+		l.Errorf("ModifyComicChapter err: 章节状态不合法")
 
 		return &v1.Response{
 			Code:    400,
@@ -100,7 +100,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		in.PublishedAt = now.Unix()
 	}
 	if in.PageUrls == nil || len(in.PageUrls) == 0 {
-		l.Errorf("AddComicChapter err: 章节页面不能为空")
+		l.Errorf("ModifyComicChapter err: 章节页面不能为空")
 
 		return &v1.Response{
 			Code:    400,
@@ -110,7 +110,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 
 	for _, url := range in.PageUrls {
 		if url == "" {
-			l.Errorf("AddComicChapter err: 章节页面URL不能为空")
+			l.Errorf("ModifyComicChapter err: 章节页面URL不能为空")
 
 			return &v1.Response{
 				Code:    400,
