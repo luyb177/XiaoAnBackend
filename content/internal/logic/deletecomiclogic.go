@@ -42,13 +42,18 @@ func (l *DeleteComicLogic) DeleteComic(in *v1.DeleteComicRequest) (*v1.Response,
 		}, nil
 	}
 
-	if in.Id <= 0 {
-		l.Errorf("DeleteComic err: 参数错误")
+	validations := []Validation{
+		{in.Id > 0, "漫画ID不能小于等于0"},
+	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeleteComic err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 软删除漫画

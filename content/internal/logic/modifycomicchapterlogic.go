@@ -47,65 +47,29 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 	}
 
 	// 验证参数
-	if in.Id <= 0 {
-		l.Errorf("ModifyComicChapter err: 章节ID不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节ID不能为空",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "章节ID不能小于等于0"},
+		{in.ComicId > 0, "漫画ID不能为小于等于0"},
+		{in.ChapterNo > 0, "章节号不能为小于等于0"},
+		{in.Title != "", "章节标题不能为空"},
+		{in.Description != "", "章节描述不能为空"},
+		{in.Status == ComicStatusPublished || in.Status == ComicStatusDraft, "章节状态不合法"},
+		{in.PageUrls != nil && len(in.PageUrls) > 0, "章节页面不能为空"},
 	}
-	if in.ComicId <= 0 {
-		l.Errorf("ModifyComicChapter err: 漫画ID不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画ID不能为空",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("ModifyComicChapter err: %s", v.Message)
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.ChapterNo <= 0 {
-		l.Errorf("ModifyComicChapter err: 章节号不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "章节号不能为空",
-		}, nil
-	}
-	if in.Title == "" {
-		l.Errorf("ModifyComicChapter err: 章节标题不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节标题不能为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Errorf("ModifyComicChapter err: 章节描述不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节描述不能为空",
-		}, nil
-	}
-	if in.Status != ComicStatusPublished && in.Status != ComicStatusDraft {
-		l.Errorf("ModifyComicChapter err: 章节状态不合法")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节状态不合法",
-		}, nil
-	}
 	now := time.Now()
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
-	}
-	if in.PageUrls == nil || len(in.PageUrls) == 0 {
-		l.Errorf("ModifyComicChapter err: 章节页面不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节页面不能为空",
-		}, nil
 	}
 	for _, url := range in.PageUrls {
 		if url == "" {

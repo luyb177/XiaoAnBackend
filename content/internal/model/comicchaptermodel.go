@@ -17,13 +17,14 @@ type (
 	ComicChapterModel interface {
 		comicChapterModel
 		withSession(session sqlx.Session) ComicChapterModel
-		CustomInsert(ctx context.Context, data *ComicChapter) (sql.Result, error)
-		CustomInsertWithSession(ctx context.Context, session sqlx.Session, data *ComicChapter) (sql.Result, error)
+		Insert(ctx context.Context, data *ComicChapter) (sql.Result, error)
+		InsertWithSession(ctx context.Context, session sqlx.Session, data *ComicChapter) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*ComicChapter, error)
 		FindOneByComicIDAndChapterNo(ctx context.Context, comicID uint64, chapterNo int64) (*ComicChapter, error)
 		FindOneByComicIDAndChapterID(ctx context.Context, comicID uint64, chapterID uint64) (*ComicChapter, error)
 		FindManyByComicIDOrderByChapterNo(ctx context.Context, comicID uint64, offset, pageSize int64) ([]*ComicChapter, error)
 		FindAllByComicID(ctx context.Context, comicID uint64) ([]*ComicChapter, error)
+		FindAllByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) ([]*ComicChapter, error)
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
@@ -47,14 +48,13 @@ func (m *customComicChapterModel) withSession(session sqlx.Session) ComicChapter
 	return NewComicChapterModel(sqlx.NewSqlConnFromSession(session))
 }
 
-func (m *customComicChapterModel) CustomInsert(ctx context.Context, data *ComicChapter) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, comicChapterRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ComicId, data.ChapterNo, data.Title, data.Description, data.PageCount, data.Status, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.DeletedAt)
+func (m *customComicChapterModel) Insert(ctx context.Context, data *ComicChapter) (sql.Result, error) {
+	ret, err := m.defaultComicChapterModel.Insert(ctx, data)
 	return ret, mapDBError(err)
 }
 
-func (m *customComicChapterModel) CustomInsertWithSession(ctx context.Context, session sqlx.Session, data *ComicChapter) (sql.Result, error) {
-	return m.withSession(session).CustomInsert(ctx, data)
+func (m *customComicChapterModel) InsertWithSession(ctx context.Context, session sqlx.Session, data *ComicChapter) (sql.Result, error) {
+	return m.withSession(session).Insert(ctx, data)
 }
 
 func (m *customComicChapterModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*ComicChapter, error) {
@@ -115,6 +115,10 @@ func (m *customComicChapterModel) FindAllByComicID(ctx context.Context, comicID 
 	var resp []*ComicChapter
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, comicID)
 	return resp, mapDBError(err)
+}
+
+func (m *customComicChapterModel) FindAllByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) ([]*ComicChapter, error) {
+	return m.withSession(session).FindAllByComicID(ctx, comicID)
 }
 
 func (m *customComicChapterModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {

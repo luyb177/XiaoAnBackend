@@ -45,38 +45,25 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	}
 
 	// 校验参数
-	if in.Name == "" {
-		l.Errorf("AddComic err: 漫画名称不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画名称不能为空",
-		}, nil
+	validations := []Validation{
+		{in.Name != "", "漫画名称不能为空"},
+		{in.Description != "", "漫画描述不能为空"},
+		{in.Cover != "", "漫画封面不能为空"},
+		{in.Author != "", "漫画作者不能为空"},
+		{len(in.Tag) <= 10, "漫画标签不能超过10个"},
 	}
-	if in.Description == "" {
-		l.Errorf("AddComic err: 漫画描述不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画描述不能为空",
-		}, nil
-	}
-	if in.Cover == "" {
-		l.Errorf("AddComic err: 漫画封面不能为空")
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("AddComic err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画封面不能为空",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Author == "" {
-		l.Errorf("AddComic err: 漫画作者不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画作者不能为空",
-		}, nil
-	}
+	// 添加默认值
 	now := time.Now()
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
@@ -84,17 +71,8 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	if in.Tag == nil || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
-	if len(in.Tag) > 10 {
-		l.Errorf("AddComic err: 标签数量不能超过10个")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量不能超过10个",
-		}, nil
-	}
 
 	// 添加漫画主体
-	// 构造
 	comic := model.Comic{
 		Name:           in.Name,
 		Description:    sql.NullString{String: in.Description, Valid: true},

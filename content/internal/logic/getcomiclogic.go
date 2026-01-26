@@ -33,13 +33,18 @@ func NewGetComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetComic
 
 // GetComic 获取漫画
 func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
-	if in.Id <= 0 {
-		l.Errorf("GetComic err: 漫画ID不能小于等于0")
+	validations := []Validation{
+		{in.Id > 0, "漫画ID不能小于等于0"},
+	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("GetComic err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画ID不能小于等于0",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 异步获取tag

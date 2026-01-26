@@ -47,58 +47,29 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 	}
 
 	// 校验参数
-	if in.ComicId <= 0 {
-		l.Errorf("AddComicChapter err: 漫画ID不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画ID不能为空",
-		}, nil
+	validations := []Validation{
+		{in.ComicId > 0, "漫画ID不能小于等于0"},
+		{in.ChapterNo > 0, "章节号不能为小于等于0"},
+		{in.Title != "", "章节标题不能为空"},
+		{in.Description != "", "章节描述不能为空"},
+		{in.Status == ComicStatusPublished || in.Status == ComicStatusDraft, "章节状态不合法"},
+		{in.PageUrls != nil && len(in.PageUrls) > 0, "章节页面不能为空"},
 	}
-	if in.ChapterNo <= 0 {
-		l.Errorf("AddComicChapter err: 章节号不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节号不能为空",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("AddComicChapter err: %s", v.Message)
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Title == "" {
-		l.Errorf("AddComicChapter err: 章节标题不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "章节标题不能为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Errorf("AddComicChapter err: 章节描述不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节描述不能为空",
-		}, nil
-	}
-	if in.Status != ComicStatusPublished && in.Status != ComicStatusDraft {
-		l.Errorf("AddComicChapter err: 章节状态不合法")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "章节状态不合法",
-		}, nil
-	}
 	now := time.Now()
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
 	}
-	if in.PageUrls == nil || len(in.PageUrls) == 0 {
-		l.Errorf("AddComicChapter err: 章节页面不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "章节页面不能为空",
-		}, nil
-	}
 	for _, url := range in.PageUrls {
 		if url == "" {
 			l.Errorf("AddComicChapter err: 章节页面URL不能为空")
@@ -141,7 +112,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 		LastModifiedBy: sql.NullInt64{Int64: int64(user.UID), Valid: true},
 	}
 
-	result, err := l.ComicChapterDao.CustomInsert(l.ctx, &chapter)
+	result, err := l.ComicChapterDao.Insert(l.ctx, &chapter)
 	if err != nil {
 		if errors.Is(err, model.ErrDuplicateEntry) {
 			l.Errorf("AddComicChapter err: 该章节号已存在，err: %v", err)
@@ -152,6 +123,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 		}
 
 		l.Errorf("AddComicChapter err: 插入漫画章节失败，err: %v", err)
+
 		return &v1.Response{
 			Code:    500,
 			Message: "添加漫画章节失败",
@@ -160,6 +132,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 	chapterId, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddComicChapter err: 获取插入漫画章节ID失败，err: %v", err)
+
 		return &v1.Response{
 			Code:    500,
 			Message: "获取插入漫画章节ID失败",

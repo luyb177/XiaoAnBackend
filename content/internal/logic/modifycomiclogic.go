@@ -45,60 +45,33 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 	}
 
 	// 验证参数
-	if in.Id <= 0 {
-		l.Logger.Errorf("ModifyComic err: 漫画ID不能小于等于0")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画ID不能小于等于0",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "漫画ID不能小于等于0"},
+		{in.Name != "", "漫画名称不能为空"},
+		{in.Description != "", "漫画描述不能为空"},
+		{in.Cover != "", "漫画封面不能为空"},
+		{in.Author != "", "漫画作者不能为空"},
+		{len(in.Tag) <= 10, "标签数量不能超过10个"},
 	}
-	if in.Name == "" {
-		l.Errorf("ModifyComic err: 漫画名称不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画名称不能为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Errorf("ModifyComic err: 漫画描述不能为空")
+	for _, v := range validations {
+		if !v.Condition {
+			l.Logger.Errorf("ModifyComic err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画描述不能为空",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Cover == "" {
-		l.Errorf("ModifyComic err: 漫画封面不能为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画封面不能为空",
-		}, nil
-	}
-	if in.Author == "" {
-		l.Errorf("ModifyComic err: 漫画作者不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画作者不能为空",
-		}, nil
-	}
+	// 设置默认值
 	now := time.Now()
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
 	}
 	if in.Tag == nil || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
-	}
-	if len(in.Tag) > 10 {
-		l.Errorf("ModifyComic err: 标签数量不能超过10个")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量不能超过10个",
-		}, nil
 	}
 
 	// 验证漫画存在性

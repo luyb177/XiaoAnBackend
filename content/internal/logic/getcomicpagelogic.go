@@ -32,14 +32,20 @@ func NewGetComicPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetC
 
 // GetComicPage 获取漫画章节页面
 func (l *GetComicPageLogic) GetComicPage(in *v1.GetComicPageRequest) (*v1.Response, error) {
-	if in.ComicChapterId <= 0 {
-		l.Errorf("GetComicPage err: 漫画章节ID不能小于等于0")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "漫画章节ID不能小于等于0",
-		}, nil
+	validations := []Validation{
+		{in.ComicChapterId > 0, "漫画章节ID不能小于等于0"},
 	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("GetComicPage err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
+	}
+
 	if in.Page <= 0 {
 		in.Page = 1
 	}

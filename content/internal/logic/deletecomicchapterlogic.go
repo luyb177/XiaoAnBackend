@@ -44,21 +44,20 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRe
 		}, nil
 	}
 
-	if in.Id <= 0 {
-		l.Errorf("DeleteComicChapter err: 参数错误")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "章节ID不能小于等于0"},
+		{in.ComicId > 0, "漫画ID不能小于等于0"},
 	}
-	if in.ComicId <= 0 {
-		l.Errorf("DeleteComicChapter err: 参数错误")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeleteComicChapter err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 检查漫画是否存在
@@ -81,7 +80,7 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRe
 	}
 
 	// 软删除漫画章节
-	comicChapter, err := l.ComicChapterDao.FindOneWithNotDelete(l.ctx, in.Id)
+	comicChapter, err := l.ComicChapterDao.FindOneByComicIDAndChapterID(l.ctx, in.ComicId, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			l.Errorf("DeleteComicChapter err: 漫画章节不存在")

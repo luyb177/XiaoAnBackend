@@ -125,7 +125,7 @@ func (h *ComicChapterRelationHandler) handleDelete(ctx context.Context, task *ta
 func (h *ComicChapterRelationHandler) handleDeleteAll(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 获取该漫画的所有章节
-		chapters, err := h.ComicChapterDao.FindAllByComicID(ctx, task.ComicId)
+		chapters, err := h.ComicChapterDao.FindAllByComicIDWithSession(ctx, session, task.ComicId)
 		if err != nil {
 			return err
 		}
