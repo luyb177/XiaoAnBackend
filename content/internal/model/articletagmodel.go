@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 
@@ -22,8 +21,8 @@ type (
 		FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error)
 		DeleteBatchByArticleId(ctx context.Context, articleId uint64) error
 		DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error
-		SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error
-		SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error
+		SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64) error
+		SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64) error
 	}
 
 	customArticleTagModel struct {
@@ -96,16 +95,16 @@ func (m *customArticleTagModel) DeleteBatchByArticleId(ctx context.Context, arti
 	return mapDBError(err)
 }
 
-func (m *customArticleTagModel) SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error {
+func (m *customArticleTagModel) SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64) error {
 	query := fmt.Sprintf(
-		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `article_id` = ?",
+		"update %s set `deleted_at` = ? where `article_id` = ?",
 		m.table,
 	)
 
-	_, err := m.conn.ExecCtx(ctx, query, deletedAt, modifier, articleId)
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, articleId)
 	return mapDBError(err)
 }
 
-func (m *customArticleTagModel) SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error {
-	return m.withSession(session).SoftDeleteByArticleId(ctx, articleId, deletedAt, modifier)
+func (m *customArticleTagModel) SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteByArticleId(ctx, articleId, deletedAt)
 }

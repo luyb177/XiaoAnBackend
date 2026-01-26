@@ -103,6 +103,7 @@ func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, er
 		LikeCount:      0,
 		ViewCount:      0,
 		CollectCount:   0,
+		DeletedAt:      0,
 		Channel:        in.Channel,
 		Status:         in.Status,
 	}

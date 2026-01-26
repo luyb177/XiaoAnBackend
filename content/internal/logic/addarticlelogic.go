@@ -111,7 +111,6 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	articleRelationTask := &tasks.ArticleRelationTask{
 		Type:      tasks.ArticleRelationAdd,
 		ArticleID: article.Id,
-		UID:       user.UID,
 		Tags:      in.Tags,
 	}
 

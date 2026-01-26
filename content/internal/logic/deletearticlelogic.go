@@ -90,7 +90,6 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 	articleRelationTask := &tasks.ArticleRelationTask{
 		Type:      tasks.ArticleRelationDelete,
 		ArticleID: article.Id,
-		UID:       user.UID,
 		Tags:      nil,
 	}
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, articleRelationTask)

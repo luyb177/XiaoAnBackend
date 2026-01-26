@@ -121,6 +121,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 	podcast.Status = in.Status
 	podcast.RelationStatus = RelationStatusPending
 	podcast.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	podcast.DeletedAt = 0
 
 	err = l.PodcastDao.Update(l.ctx, podcast)
 	if err != nil {

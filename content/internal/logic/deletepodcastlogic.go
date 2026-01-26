@@ -4,13 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
-
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -76,11 +75,11 @@ func (l *DeletePodcastLogic) DeletePodcast(in *v1.DeletePodcastRequest) (*v1.Res
 	}
 
 	// todo 使用 soft delete
-	podcast.DeletedAt = sql.NullTime{Time: time.Now(), Valid: true}
-	podcast.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
-	err = l.PodcastDao.Update(l.ctx, podcast)
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.PodcastDao.SoftDelete(l.ctx, podcast.Id, deletedAt, modifier)
 	if err != nil {
-		l.Errorf("DeletePodcast err: %v", err)
+		l.Errorf("DeletePodcast SoftDelete err: %v", err)
 
 		return &v1.Response{
 			Code:    500,

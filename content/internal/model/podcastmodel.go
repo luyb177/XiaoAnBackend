@@ -2,7 +2,7 @@ package model
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -25,6 +25,7 @@ type (
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error)
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
+		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
 	}
 
 	customPodcastModel struct {
@@ -72,14 +73,14 @@ func (m *customPodcastModel) FindByTagsAndKeyWord(ctx context.Context, offset in
 
 	var out []*Podcast
 	err := m.conn.QueryRowsCtx(ctx, &out, query, args...)
-	return out, err
+	return out, mapDBError(err)
 }
 
 func (m *customPodcastModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {
 	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
 
 	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customPodcastModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
@@ -88,19 +89,21 @@ func (m *customPodcastModel) UpdateRelationStatusWithSession(ctx context.Context
 
 func (m *customPodcastModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Podcast, error) {
 	query := fmt.Sprintf(
-		"select %s from %s where id = ? and `deleted_at` is null limit 1",
+		"select %s from %s where id = ? and `deleted_at` = 0 limit 1",
 		podcastRows,
 		m.table,
 	)
 
 	var resp Podcast
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
-	switch {
-	case err == nil:
-		return &resp, nil
-	case errors.Is(err, sqlx.ErrNotFound):
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
+	return &resp, mapDBError(err)
+}
+
+func (m *customPodcastModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+	query := fmt.Sprintf(
+		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ?",
+		m.table,
+	)
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, modifier, id)
+	return mapDBError(err)
 }

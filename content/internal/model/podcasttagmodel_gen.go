@@ -27,7 +27,7 @@ type (
 	podcastTagModel interface {
 		Insert(ctx context.Context, data *PodcastTag) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*PodcastTag, error)
-		FindOneByPodcastIdTag(ctx context.Context, podcastId uint64, tag string) (*PodcastTag, error)
+		FindOneByPodcastIdTagDeletedAt(ctx context.Context, podcastId uint64, tag string, deletedAt uint64) (*PodcastTag, error)
 		Update(ctx context.Context, data *PodcastTag) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -38,12 +38,12 @@ type (
 	}
 
 	PodcastTag struct {
-		Id        uint64       `db:"id"`
-		PodcastId uint64       `db:"podcast_id"` // 播客ID
-		Tag       string       `db:"tag"`        // 标签
-		CreatedAt time.Time    `db:"created_at"` // 记录创建时间（系统时间）
-		UpdatedAt time.Time    `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt sql.NullTime `db:"deleted_at"` // 软删除时间
+		Id        uint64    `db:"id"`
+		PodcastId uint64    `db:"podcast_id"` // 播客ID
+		Tag       string    `db:"tag"`        // 标签
+		CreatedAt time.Time `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt time.Time `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt uint64    `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 
@@ -74,10 +74,10 @@ func (m *defaultPodcastTagModel) FindOne(ctx context.Context, id uint64) (*Podca
 	}
 }
 
-func (m *defaultPodcastTagModel) FindOneByPodcastIdTag(ctx context.Context, podcastId uint64, tag string) (*PodcastTag, error) {
+func (m *defaultPodcastTagModel) FindOneByPodcastIdTagDeletedAt(ctx context.Context, podcastId uint64, tag string, deletedAt uint64) (*PodcastTag, error) {
 	var resp PodcastTag
-	query := fmt.Sprintf("select %s from %s where `podcast_id` = ? and `tag` = ? limit 1", podcastTagRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, podcastId, tag)
+	query := fmt.Sprintf("select %s from %s where `podcast_id` = ? and `tag` = ? and `deleted_at` = ? limit 1", podcastTagRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, podcastId, tag, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil

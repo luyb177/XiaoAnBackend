@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -89,8 +88,7 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除旧标签
 		deletedAt := uint64(time.Now().Unix())
-		modifier := sql.NullInt64{Int64: int64(deletedAt), Valid: true}
-		err := h.ArticleTagDao.SoftDeleteByArticleIdWithSession(ctx, session, task.ArticleID, deletedAt, modifier)
+		err := h.ArticleTagDao.SoftDeleteByArticleIdWithSession(ctx, session, task.ArticleID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -110,6 +108,5 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.ArticleRelationTask) error {
 	// 1. 删除标签
 	deletedAt := uint64(time.Now().Unix())
-	modifier := sql.NullInt64{Int64: int64(deletedAt), Valid: true}
-	return h.ArticleTagDao.SoftDeleteByArticleId(ctx, task.ArticleID, deletedAt, modifier)
+	return h.ArticleTagDao.SoftDeleteByArticleId(ctx, task.ArticleID, deletedAt)
 }

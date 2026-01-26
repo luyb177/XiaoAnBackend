@@ -108,6 +108,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	article.Author = in.Author
 	article.PublishedAt = time.Unix(in.PublishedAt, 0)
 	article.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	article.DeletedAt = 0
 
 	// 标记待同步
 	article.RelationStatus = RelationStatusPending
@@ -126,7 +127,6 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	articleRelationTask := &tasks.ArticleRelationTask{
 		Type:      tasks.ArticleRelationModify,
 		ArticleID: article.Id,
-		UID:       user.UID,
 		Tags:      in.Tag,
 	}
 
