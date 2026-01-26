@@ -73,6 +73,10 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 		Time:  now,
 		Valid: true,
 	}
+	article.LastModifiedBy = sql.NullInt64{
+		Int64: int64(user.UID),
+		Valid: true,
+	}
 	err = l.ArticleDao.Update(l.ctx, article)
 	if err != nil {
 		l.Errorf("DeleteArticle err: %v", err)

@@ -145,6 +145,63 @@ type (
 	DeletePodcastRequest {
 		podcastId uint64 `form:"podcast_id"`
 	}
+	// 漫画
+	AddComicRequest {
+		name        string   `json:"name"`
+		tags        []string `json:"tags"`
+		description string   `json:"description"`
+		cover       string   `json:"cover"`
+		author      string   `json:"author"`
+		publishedAt int64    `json:"published_at"`
+	}
+	AddComicChapterRequest {
+		comicId     uint64   `json:"comic_id"`
+		chapterNo   int64    `json:"chapter_no"`
+		title       string   `json:"title"`
+		description string   `json:"description"`
+		status      int64    `json:"status"`
+		publishedAt int64    `json:"published_at"`
+		pageUrls    []string `json:"page_urls"`
+	}
+	GetComicRequest {
+		comicId uint64 `form:"comic_id"`
+	}
+	GetComicChapterRequest {
+		comicId  uint64 `form:"comic_id"`
+		page     int64  `form:"page"`
+		pageSize int64  `form:"page_size"`
+	}
+	GetComicPageRequest {
+		comicChapterId uint64 `form:"comic_chapter_id"`
+		page           int64  `form:"page"`
+		pageSize       int64  `form:"page_size"`
+	}
+	ModifyComicRequest {
+		comicId     uint64   `json:"comic_id"`
+		name        string   `json:"name"`
+		tags        []string `json:"tags"`
+		description string   `json:"description"`
+		cover       string   `json:"cover"`
+		author      string   `json:"author"`
+		publishedAt int64    `json:"published_at"`
+	}
+	ModifyComicChapterRequest {
+		comicChapterId uint64   `json:"comic_chapter_id"`
+		comicId        uint64   `json:"comic_id"`
+		chapterNo      int64    `json:"chapter_no"`
+		title          string   `json:"title"`
+		description    string   `json:"description"`
+		status         int64    `json:"status"`
+		publishedAt    int64    `json:"published_at"`
+		pageUrls       []string `json:"page_urls"`
+	}
+	DeleteComicRequest {
+		comicId uint64 `form:"comic_id"`
+	}
+	DeleteComicChapterRequest {
+		comicChapterId uint64 `form:"comic_chapter_id"`
+		comicId        uint64 `form:"comic_id"`
+	}
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -250,6 +307,18 @@ service xiaoan {
 	@doc "获取播客详细内容"
 	@handler GetPodcastContent
 	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
+
+	@doc "获取漫画"
+	@handler GetComic
+	get /get-comic (GetComicRequest) returns (Response)
+
+	@doc "获取漫画章节"
+	@handler GetComicChapter
+	get /get-comic-chapter (GetComicChapterRequest) returns (Response)
+
+	@doc "获取漫画页面"
+	@handler GetComicPage
+	get /get-comic-page (GetComicPageRequest) returns (Response)
 }
 
 @server (
@@ -294,5 +363,29 @@ service xiaoan {
 	@doc "删除播客"
 	@handler DeletePodcast
 	delete /delete-podcast (DeletePodcastRequest) returns (Response)
+
+	@doc "添加漫画"
+	@handler AddComic
+	post /add-comic (AddComicRequest) returns (Response)
+
+	@doc "添加漫画章节"
+	@handler AddComicChapter
+	post /add-comic-chapter (AddComicChapterRequest) returns (Response)
+
+	@doc "修改漫画"
+	@handler ModifyComic
+	post /modify-comic (ModifyComicRequest) returns (Response)
+
+	@doc "修改漫画章节"
+	@handler ModifyComicChapter
+	post /modify-comic-chapter (ModifyComicChapterRequest) returns (Response)
+
+	@doc "删除漫画"
+	@handler DeleteComic
+	delete /delete-comic (DeleteComicRequest) returns (Response)
+
+	@doc "删除漫画章节"
+	@handler DeleteComicChapter
+	delete /delete-comic-chapter (DeleteComicChapterRequest) returns (Response)
 }
 

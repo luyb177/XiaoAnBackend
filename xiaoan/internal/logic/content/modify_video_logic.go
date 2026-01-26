@@ -3,9 +3,6 @@ package content
 import (
 	"context"
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -28,7 +25,7 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 }
 
 func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
+	res, err := l.svcCtx.ContentRpc.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
 		Id:          req.VideoId,
 		Name:        req.Name,
 		Tag:         req.Tags,
@@ -38,11 +35,17 @@ func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *typ
 		Author:      req.Author,
 		PublishedAt: req.PublishedAt,
 	})
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
 
 	var data *content.ModifyVideoResponse
 	if res.Data != nil {
 		data = &content.ModifyVideoResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

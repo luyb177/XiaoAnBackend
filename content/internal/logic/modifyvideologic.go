@@ -73,7 +73,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 			Message: "文章摘要为空",
 		}, nil
 	}
-	if len(in.Tag) == 0 {
+	if in.Tag == nil || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 	if len(in.Tag) > 10 {

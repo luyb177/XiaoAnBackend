@@ -75,6 +75,24 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: content.GetArticleContentHandler(serverCtx),
 			},
 			{
+				// 获取漫画
+				Method:  http.MethodGet,
+				Path:    "/get-comic",
+				Handler: content.GetComicHandler(serverCtx),
+			},
+			{
+				// 获取漫画章节
+				Method:  http.MethodGet,
+				Path:    "/get-comic-chapter",
+				Handler: content.GetComicChapterHandler(serverCtx),
+			},
+			{
+				// 获取漫画页面
+				Method:  http.MethodGet,
+				Path:    "/get-comic-page",
+				Handler: content.GetComicPageHandler(serverCtx),
+			},
+			{
 				// 获取播客详细内容
 				Method:  http.MethodGet,
 				Path:    "/get-podcast-content",
@@ -101,6 +119,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddArticleHandler(serverCtx),
 				},
 				{
+					// 添加漫画
+					Method:  http.MethodPost,
+					Path:    "/add-comic",
+					Handler: content.AddComicHandler(serverCtx),
+				},
+				{
+					// 添加漫画章节
+					Method:  http.MethodPost,
+					Path:    "/add-comic-chapter",
+					Handler: content.AddComicChapterHandler(serverCtx),
+				},
+				{
 					// 添加播客
 					Method:  http.MethodPost,
 					Path:    "/add-podcast",
@@ -119,6 +149,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.DeleteArticleHandler(serverCtx),
 				},
 				{
+					// 删除漫画
+					Method:  http.MethodDelete,
+					Path:    "/delete-comic",
+					Handler: content.DeleteComicHandler(serverCtx),
+				},
+				{
+					// 删除漫画章节
+					Method:  http.MethodDelete,
+					Path:    "/delete-comic-chapter",
+					Handler: content.DeleteComicChapterHandler(serverCtx),
+				},
+				{
 					// 删除播客
 					Method:  http.MethodDelete,
 					Path:    "/delete-podcast",
@@ -135,6 +177,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/modify-article",
 					Handler: content.ModifyArticleHandler(serverCtx),
+				},
+				{
+					// 修改漫画
+					Method:  http.MethodPost,
+					Path:    "/modify-comic",
+					Handler: content.ModifyComicHandler(serverCtx),
+				},
+				{
+					// 修改漫画章节
+					Method:  http.MethodPost,
+					Path:    "/modify-comic-chapter",
+					Handler: content.ModifyComicChapterHandler(serverCtx),
 				},
 				{
 					// 修改播客

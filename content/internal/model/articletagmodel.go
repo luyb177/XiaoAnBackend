@@ -65,28 +65,7 @@ func (m *customArticleTagModel) InsertBatch(ctx context.Context, list []*Article
 }
 
 func (m *customArticleTagModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleTag) error {
-	if len(list) == 0 {
-		return nil
-	}
-
-	// 构造 values
-	valuePlaceholders := make([]string, 0, len(list))
-	args := make([]interface{}, 0, len(list)*3)
-
-	for _, tag := range list {
-		valuePlaceholders = append(valuePlaceholders, "(?,?,?)")
-		args = append(args, tag.ArticleId, tag.Tag, tag.DeletedAt)
-	}
-
-	query := fmt.Sprintf(
-		`INSERT INTO %s (%s) VALUES %s`,
-		m.table,
-		articleTagRowsExpectAutoSet,
-		strings.Join(valuePlaceholders, ","),
-	)
-
-	_, err := session.ExecCtx(ctx, query, args...)
-	return err
+	return m.withSession(session).InsertBatch(ctx, list)
 }
 
 func (m *customArticleTagModel) FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error) {

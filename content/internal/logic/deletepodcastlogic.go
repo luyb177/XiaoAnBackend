@@ -71,6 +71,7 @@ func (l *DeletePodcastLogic) DeletePodcast(in *v1.DeletePodcastRequest) (*v1.Res
 	}
 
 	podcast.DeletedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	podcast.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
 	err = l.PodcastDao.Update(l.ctx, podcast)
 	if err != nil {
 		l.Errorf("DeletePodcast err: %v", err)
