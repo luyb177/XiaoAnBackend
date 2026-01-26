@@ -99,6 +99,7 @@ func (m *customPodcastTagModel) DeleteBatchByPodcastIdWithSession(ctx context.Co
 func (m *customPodcastTagModel) SoftDeleteByPodcastId(ctx context.Context, podcastId uint64, deletedAt uint64) error {
 	query := fmt.Sprintf(
 		"UPDATE %s SET `deleted_at` = ? WHERE `podcast_id` = ?",
+		m.table,
 	)
 
 	_, err := m.conn.ExecCtx(ctx, query, deletedAt, podcastId)

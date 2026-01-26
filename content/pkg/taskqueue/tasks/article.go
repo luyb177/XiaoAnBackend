@@ -28,7 +28,7 @@ type ArticleRelationTask struct {
 
 // ID 返回任务 ID
 func (t *ArticleRelationTask) ID() string {
-	return fmt.Sprintf("%s:%s:%d:%d", ArticleRelationTaskPrefix, t.Type, t.ArticleID)
+	return fmt.Sprintf("%s:%s:%d", ArticleRelationTaskPrefix, t.Type, t.ArticleID)
 }
 
 // Payload 返回任务内容

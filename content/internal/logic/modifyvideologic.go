@@ -49,7 +49,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 		{in.Id > 0, "视频ID不能小于等于0"},
 		{in.Name != "", "视频名称为空"},
 		{in.Author != "", "视频作者为空"},
-		{in.Description != "", "文章摘要为空"},
+		{in.Description != "", "视频描述为空"},
 		{len(in.Tag) <= 10, "标签数量不能超过10"},
 	}
 

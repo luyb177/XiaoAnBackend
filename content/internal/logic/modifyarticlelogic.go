@@ -97,6 +97,11 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 				Message: "文章不存在",
 			}, nil
 		}
+		l.Errorf("ModifyArticle FindOneWithNotDelete err: %v", err)
+		return &v1.Response{
+			Code:    500,
+			Message: "修改文章失败",
+		}, nil
 	}
 
 	// 更新文章

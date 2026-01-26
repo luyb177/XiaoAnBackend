@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"time"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
@@ -11,7 +13,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -71,39 +72,39 @@ func (h *ComicChapterRelationHandler) Handle(ctx context.Context, task taskqueue
 }
 func (h *ComicChapterRelationHandler) handleAdd(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 章节数+1
+		// 章节数+1
 		err := h.ComicDao.IncrChapterCountByComicIDWithSession(ctx, session, task.ComicId)
 		if err != nil {
 			return err
 		}
-		// 2. 添加章节图片信息
+		// 添加章节图片信息
 		comicPageModels := convert.ComicPagesFromStrings(task.ChapterID, task.PageUrls)
 		err = h.ComicPageDao.InsertBatchWithSession(ctx, session, comicPageModels)
 		if err != nil {
 			return err
 		}
-		// 3. 更新章节的关联关系
+		// 更新章节的关联关系
 		return h.ComicChapterDao.UpdateRelationStatusWithSession(ctx, session, task.ChapterID, logic.RelationStatusNormal)
 	})
 }
 
 func (h *ComicChapterRelationHandler) handleModify(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 删除原有章节图片信息
+		// 删除原有章节图片信息
 		deletedAt := uint64(time.Now().Unix())
 		err := h.ComicPageDao.SoftDeleteByChapterIDWithSession(ctx, session, task.ChapterID, deletedAt)
 		if err != nil {
 			return err
 		}
 
-		// 2. 添加新的章节图片信息
+		// 添加新的章节图片信息
 		comicPageModels := convert.ComicPagesFromStrings(task.ChapterID, task.PageUrls)
 		err = h.ComicPageDao.InsertBatchWithSession(ctx, session, comicPageModels)
 		if err != nil {
 			return err
 		}
 
-		// 3. 更新章节的关联关系
+		// 更新章节的关联关系
 		return h.ComicChapterDao.UpdateRelationStatusWithSession(ctx, session, task.ChapterID, logic.RelationStatusNormal)
 	})
 }
@@ -124,13 +125,13 @@ func (h *ComicChapterRelationHandler) handleDelete(ctx context.Context, task *ta
 
 func (h *ComicChapterRelationHandler) handleDeleteAll(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 获取该漫画的所有章节
+		// 获取该漫画的所有章节
 		chapters, err := h.ComicChapterDao.FindAllByComicIDWithSession(ctx, session, task.ComicId)
 		if err != nil {
 			return err
 		}
 
-		// 2. 更新每一个章节的删除状态
+		// 更新每一个章节的删除状态
 		ids := make([]uint64, len(chapters))
 		for i, chapter := range chapters {
 			ids[i] = chapter.Id
@@ -142,7 +143,7 @@ func (h *ComicChapterRelationHandler) handleDeleteAll(ctx context.Context, task 
 			return err
 		}
 
-		// 3. 删除每一个章节的图片信息
+		// 删除每一个章节的图片信息
 		return h.ComicPageDao.SoftDeleteAllByChapterIDsWithSession(ctx, session, ids, deletedAt)
 	})
 }

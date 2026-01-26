@@ -93,20 +93,20 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 			return err
 		}
 
-		// 2. 插入新标签
+		// 插入新标签
 		tagModels := convert.ArticleTagsFromStrings(task.ArticleID, task.Tags)
 		err = h.ArticleTagDao.InsertBatchWithSession(ctx, session, tagModels)
 		if err != nil {
 			return err
 		}
 
-		// 3. 更新文章关联状态
+		// 更新文章关联状态
 		return h.ArticleDao.UpdateRelationStatusWithSession(ctx, session, task.ArticleID, logic.RelationStatusNormal)
 	})
 }
 
 func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.ArticleRelationTask) error {
-	// 1. 删除标签
+	// 删除标签
 	deletedAt := uint64(time.Now().Unix())
 	return h.ArticleTagDao.SoftDeleteByArticleId(ctx, task.ArticleID, deletedAt)
 }
