@@ -48,56 +48,28 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	}
 
 	// 验证参数
-	if in.Id <= 0 {
-		l.Logger.Errorf("ModifyArticle err: 文章ID不能小于等于0")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "文章ID不能小于等于0",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "文章ID不能小于等于0"},
+		{in.Name != "", "文章名称为空"},
+		{in.Author != "", "文章作者为空"},
+		{in.Content != "", "文章内容为空"},
+		{in.Description != "", "文章摘要为空"},
+		{len(in.Tag) <= 10, "标签数量不能超过10"},
 	}
-	if in.Name == "" {
-		l.Logger.Errorf("ModifyArticle err: 文章名称为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "文章名称为空",
-		}, nil
-	}
-	if in.Author == "" {
-		l.Logger.Errorf("ModifyArticle err: 文章作者为空")
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("ModifyArticle err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "文章作者为空",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Content == "" {
-		l.Logger.Errorf("ModifyArticle err: 文章内容为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "文章内容为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Logger.Errorf("ModifyArticle err: 文章摘要为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "文章摘要为空",
-		}, nil
-	}
 	if in.Tag == nil || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
-	}
-	if len(in.Tag) > 10 {
-		l.Logger.Errorf("ModifyArticle err: 标签数量不能超过10")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量不能超过10",
-		}, nil
 	}
 	// 检查标签
 	for _, tag := range in.Tag {

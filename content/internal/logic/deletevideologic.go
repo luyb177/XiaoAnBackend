@@ -44,16 +44,21 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	if in.Id <= 0 {
-		l.Errorf("DeleteVideo err: 视频ID错误")
+	validations := []Validation{
+		{in.Id > 0, "视频ID错误"},
+	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeleteVideo err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "视频ID错误",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
-	// 1. 查询视频是否存在
+	// 查询视频是否存在
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
@@ -71,7 +76,8 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 2. 有 软删除
+	// 有 软删除
+	// todo 使用 soft delete
 	video.DeletedAt = sql.NullTime{
 		Time:  time.Now(),
 		Valid: true,

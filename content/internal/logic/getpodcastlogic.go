@@ -35,13 +35,19 @@ func NewGetPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPod
 
 // GetPodcast 获取播客
 func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, error) {
-	if in.Id <= 0 {
-		l.Errorf("GetPodcast err: 参数错误")
+	validations := []Validation{
+		{in.Id > 0, "播客ID参数错误"},
+	}
 
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("GetPodcast err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 1. 获取播客主体信息

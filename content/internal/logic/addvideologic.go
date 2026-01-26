@@ -19,17 +19,15 @@ type AddVideoLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	videoDao    model.VideoModel
-	videoTagDao model.VideoTagModel
+	VideoDao model.VideoModel
 }
 
 func NewAddVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddVideoLogic {
 	return &AddVideoLogic{
-		ctx:         ctx,
-		svcCtx:      svcCtx,
-		Logger:      logx.WithContext(ctx),
-		videoDao:    model.NewVideoModel(svcCtx.Mysql),
-		videoTagDao: model.NewVideoTagModel(svcCtx.Mysql),
+		ctx:      ctx,
+		svcCtx:   svcCtx,
+		Logger:   logx.WithContext(ctx),
+		VideoDao: model.NewVideoModel(svcCtx.Mysql),
 	}
 }
 
@@ -47,31 +45,26 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 	}
 
 	// 校验参数
-	if in.Name == "" || in.Url == "" {
-		return &v1.Response{
-			Code:    400,
-			Message: "视频名称或视频URL不能为空",
-		}, nil
+	validations := []Validation{
+		{in.Name != "", "视频名称不能为空"},
+		{in.Url != "", "视频URL不能为空"},
+		{in.Description != "", "视频描述不能为空"},
+		{in.Cover != "", "视频封面不能为空"},
+		{in.Author != "", "视频作者不能为空"},
+		{len(in.Tag) <= 10, "视频标签不能超过10个"},
 	}
-	if in.Description == "" {
-		return &v1.Response{
-			Code:    400,
-			Message: "视频描述不能为空",
-		}, nil
-	}
-	if in.Cover == "" {
-		return &v1.Response{
-			Code:    400,
-			Message: "视频封面不能为空",
-		}, nil
-	}
-	if in.Author == "" {
-		return &v1.Response{
-			Code:    400,
-			Message: "视频作者不能为空",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("AddVideo err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
+	// 设置默认值
 	now := time.Now()
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
@@ -100,7 +93,7 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 	}
 
 	// 2. 插入
-	ret, err := l.videoDao.Insert(l.ctx, &video)
+	ret, err := l.VideoDao.Insert(l.ctx, &video)
 	if err != nil {
 		l.Errorf("insert video error: %v", err)
 

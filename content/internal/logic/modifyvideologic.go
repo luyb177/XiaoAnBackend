@@ -45,43 +45,27 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	}
 
 	// 验证参数
-	if in.Id <= 0 {
-		l.Logger.Errorf("ModifyVideo err: 视频ID不能小于等于0")
-		return &v1.Response{
-			Code:    400,
-			Message: "视频ID不能小于等于0",
-		}, nil
+	validatiosns := []Validation{
+		{in.Id > 0, "视频ID不能小于等于0"},
+		{in.Name != "", "视频名称为空"},
+		{in.Author != "", "视频作者为空"},
+		{in.Description != "", "文章摘要为空"},
+		{len(in.Tag) <= 10, "标签数量不能超过10"},
 	}
-	if in.Name == "" {
-		l.Logger.Errorf("ModifyVideo err: 视频名称为空")
-		return &v1.Response{
-			Code:    400,
-			Message: "视频名称为空",
-		}, nil
+
+	for _, v := range validatiosns {
+		if !v.Condition {
+			l.Errorf("ModifyVideo err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Author == "" {
-		l.Logger.Errorf("ModifyVideo err: 视频作者为空")
-		return &v1.Response{
-			Code:    400,
-			Message: "视频作者为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Logger.Errorf("ModifyVideo err: 文章摘要为空")
-		return &v1.Response{
-			Code:    400,
-			Message: "文章摘要为空",
-		}, nil
-	}
+
 	if in.Tag == nil || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
-	}
-	if len(in.Tag) > 10 {
-		l.Logger.Errorf("ModifyVideo err: 标签数量不能超过10")
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量不能超过10",
-		}, nil
 	}
 	// 检查标签
 	for _, tag := range in.Tag {

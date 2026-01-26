@@ -45,54 +45,27 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 	}
 
 	// 验证参数
-	if in.Id <= 0 {
-		l.Logger.Errorf("ModifyPodcast err: 播客ID不能小于等于0")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "播客ID不能小于等于0",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "播客ID不能小于等于0"},
+		{in.Name != "", "播客名称为空"},
+		{in.Url != "", "播客链接为空"},
+		{in.Description != "", "播客描述为空"},
+		{in.Cover != "", "播客封面为空"},
+		{in.Author != "", "播客作者为空"},
+		{len(in.Tags) <= 10, "标签数量超出限制"},
 	}
-	if in.Name == "" {
-		l.Logger.Errorf("ModifyPodcast err: 播客名称为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "播客名称为空",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Logger.Errorf("ModifyPodcast err: %s", v.Message)
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Url == "" {
-		l.Logger.Errorf("ModifyPodcast err: 播客链接为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "播客链接为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Errorf("ModifyPodcast  err: 播客描述为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "播客描述为空",
-		}, nil
-	}
-	if in.Cover == "" {
-		l.Errorf("ModifyPodcast  err: 播客封面为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "播客封面为空",
-		}, nil
-	}
-	if in.Author == "" {
-		l.Errorf("ModifyPodcast  err: 播客作者为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "播客作者为空",
-		}, nil
-	}
+	// 设置默认值
 	now := time.Now()
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
@@ -102,14 +75,6 @@ func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Res
 	}
 	if in.Tags == nil || len(in.Tags) == 0 {
 		in.Tags = []string{"默认标签"}
-	}
-	if len(in.Tags) > 10 {
-		l.Errorf("ModifyPodcast  err: 标签数量超出限制")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量超出限制",
-		}, nil
 	}
 	if in.Highlights == nil {
 		in.Highlights = []*v1.PodcastHighlight{}

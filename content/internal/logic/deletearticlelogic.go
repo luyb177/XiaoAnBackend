@@ -45,11 +45,19 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 	}
 
 	// 请求参数验证
-	if in.Id <= 0 {
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "文章ID参数错误"},
+	}
+
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeleteArticle err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 查询有无
@@ -68,6 +76,7 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 	}
 
 	// 有 软删除
+	// todo 使用 soft delete
 	now := time.Now()
 	article.DeletedAt = sql.NullTime{
 		Time:  now,

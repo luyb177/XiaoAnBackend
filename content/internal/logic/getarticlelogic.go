@@ -33,13 +33,19 @@ func NewGetArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetArt
 
 // GetArticle 获取文章详细内容，无需登录
 func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, error) {
-	if in.Id <= 0 {
-		l.Errorf("GetArticle err: 参数错误")
+	validations := []Validation{
+		{in.Id > 0, "文章ID参数错误"},
+	}
 
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("GetArticle err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 获取文章
@@ -63,6 +69,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 	}
 
 	// 异步获取 tag
+	// todo 获取 tag 移动位置
 	type tagResult struct {
 		tags []*model.ArticleTag
 		err  error

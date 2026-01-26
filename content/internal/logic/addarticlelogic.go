@@ -44,57 +44,33 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		}, nil
 	}
 
-	// 检验请求体内容
-	if in.Name == "" {
-		l.Errorf("AddArticle err: 文章名称为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "文章名称为空",
-		}, nil
+	validations := []Validation{
+		{in.Name != "", "文章名称不能为空"},
+		{in.Content != "", "文章内容不能为空"},
+		{in.Description != "", "文章摘要不能为空"},
+		{in.Cover != "", "封面不能为空"},
+		{len(in.Tags) <= 10, "标签数量超出限制"},
 	}
-	if in.Content == "" {
-		l.Errorf("AddArticle err: 文章内容为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "文章内容为空",
-		}, nil
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("AddArticle err: %s", v.Message)
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Description == "" {
-		l.Errorf("AddArticle err: 文章摘要为空")
 
-		return &v1.Response{
-			Code:    400,
-			Message: "文章摘要为空",
-		}, nil
-	}
-	if in.Cover == "" {
-		l.Errorf("AddArticle err: 封面为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "封面为空",
-		}, nil
-	}
+	// 设置默认值
+	now := time.Now()
 	if in.PublishedAt <= 0 {
-		in.PublishedAt = time.Now().Unix()
+		in.PublishedAt = now.Unix()
 	}
 	if in.Tags == nil || len(in.Tags) == 0 {
 		in.Tags = []string{"默认标签"}
 	}
-	if len(in.Tags) > 10 {
-		l.Errorf("AddArticle err: 标签数量超出限制")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量超出限制",
-		}, nil
-	}
 
 	// 添加文章
-	// 1. 构造
-	now := time.Now()
 	article := model.Article{
 		Name:           in.Name,
 		Url:            in.Url,
@@ -108,11 +84,9 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		LikeCount:      0,
 		ViewCount:      0,
 		CollectCount:   0,
-		CreatedAt:      now,
-		UpdatedAt:      now,
 	}
 
-	// 2. 写入
+	// 写入
 	result, err := l.ArticleDao.Insert(l.ctx, &article)
 	if err != nil {
 		l.Errorf("insert article error: %v", err)
@@ -121,7 +95,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 			Message: "添加文章失败",
 		}, nil
 	}
-	// 3. 回写
+	// 回写
 	id, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("get last insert id error: %v", err)
