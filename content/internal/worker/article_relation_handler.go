@@ -2,7 +2,9 @@ package worker
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -66,16 +68,15 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 }
 
 func (h *ArticleRelationHandler) handleAdd(ctx context.Context, task *tasks.ArticleRelationTask) error {
-	// 事务
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 插入新标签
+		// 插入新标签
 		tagModels := convert.ArticleTagsFromStrings(task.ArticleID, task.Tags)
 		err := h.ArticleTagDao.InsertBatchWithSession(ctx, session, tagModels)
 		if err != nil {
 			return err
 		}
 
-		// 2. 更新文章关联状态
+		// 更新文章关联状态
 		err = h.ArticleDao.UpdateRelationStatusWithSession(ctx, session, task.ArticleID, logic.RelationStatusNormal)
 		if err != nil {
 			return err
@@ -86,8 +87,10 @@ func (h *ArticleRelationHandler) handleAdd(ctx context.Context, task *tasks.Arti
 
 func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.ArticleRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 删除旧标签
-		err := h.ArticleTagDao.DeleteBatchByArticleIdWithSession(ctx, session, task.ArticleID)
+		// 删除旧标签
+		deletedAt := uint64(time.Now().Unix())
+		modifier := sql.NullInt64{Int64: int64(deletedAt), Valid: true}
+		err := h.ArticleTagDao.SoftDeleteByArticleIdWithSession(ctx, session, task.ArticleID, deletedAt, modifier)
 		if err != nil {
 			return err
 		}
@@ -106,5 +109,7 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 
 func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.ArticleRelationTask) error {
 	// 1. 删除标签
-	return h.ArticleTagDao.DeleteBatchByArticleId(ctx, task.ArticleID)
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(deletedAt), Valid: true}
+	return h.ArticleTagDao.SoftDeleteByArticleId(ctx, task.ArticleID, deletedAt, modifier)
 }

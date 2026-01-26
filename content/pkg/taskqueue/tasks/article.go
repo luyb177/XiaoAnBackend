@@ -21,6 +21,7 @@ const (
 type ArticleRelationTask struct {
 	Type      ArticleRelationTaskType `json:"type"`
 	ArticleID uint64                  `json:"article_id"`
+	UID       uint64                  `json:"uid"`
 	Tags      []string                `json:"tags"`
 }
 
@@ -28,7 +29,7 @@ type ArticleRelationTask struct {
 
 // ID 返回任务 ID
 func (t *ArticleRelationTask) ID() string {
-	return fmt.Sprintf("%s:%s:%d", ArticleRelationTaskPrefix, t.Type, t.ArticleID)
+	return fmt.Sprintf("%s:%s:%d:%d", ArticleRelationTaskPrefix, t.Type, t.ArticleID, t.UID)
 }
 
 // Payload 返回任务内容

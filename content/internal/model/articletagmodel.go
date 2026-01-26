@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -21,6 +22,8 @@ type (
 		FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error)
 		DeleteBatchByArticleId(ctx context.Context, articleId uint64) error
 		DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error
+		SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error
+		SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error
 	}
 
 	customArticleTagModel struct {
@@ -61,7 +64,7 @@ func (m *customArticleTagModel) InsertBatch(ctx context.Context, list []*Article
 	)
 
 	_, err := m.conn.ExecCtx(ctx, query, args...)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customArticleTagModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleTag) error {
@@ -70,14 +73,14 @@ func (m *customArticleTagModel) InsertBatchWithSession(ctx context.Context, sess
 
 func (m *customArticleTagModel) FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error) {
 	query := fmt.Sprintf(
-		"select %s from %s where `article_id` = ?",
+		"select %s from %s where `article_id` = ? and `deleted_at` = 0",
 		articleTagRows,
 		m.table,
 	)
 
 	var resp []*ArticleTag
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, articleId)
-	return resp, err
+	return resp, mapDBError(err)
 }
 
 func (m *customArticleTagModel) DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error {
@@ -90,5 +93,19 @@ func (m *customArticleTagModel) DeleteBatchByArticleId(ctx context.Context, arti
 		m.table,
 	)
 	_, err := m.conn.ExecCtx(ctx, query, articleId)
-	return err
+	return mapDBError(err)
+}
+
+func (m *customArticleTagModel) SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error {
+	query := fmt.Sprintf(
+		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `article_id` = ?",
+		m.table,
+	)
+
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, modifier, articleId)
+	return mapDBError(err)
+}
+
+func (m *customArticleTagModel) SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64, modifier sql.NullInt64) error {
+	return m.withSession(session).SoftDeleteByArticleId(ctx, articleId, deletedAt, modifier)
 }

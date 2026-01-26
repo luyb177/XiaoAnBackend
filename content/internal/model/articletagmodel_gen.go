@@ -27,7 +27,7 @@ type (
 	articleTagModel interface {
 		Insert(ctx context.Context, data *ArticleTag) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*ArticleTag, error)
-		FindOneByArticleIdTag(ctx context.Context, articleId uint64, tag string) (*ArticleTag, error)
+		FindOneByArticleIdTagDeletedAt(ctx context.Context, articleId uint64, tag string, deletedAt uint64) (*ArticleTag, error)
 		Update(ctx context.Context, data *ArticleTag) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -38,12 +38,12 @@ type (
 	}
 
 	ArticleTag struct {
-		Id        uint64       `db:"id"`
-		ArticleId uint64       `db:"article_id"` // 文章ID
-		Tag       string       `db:"tag"`        // 标签
-		CreatedAt time.Time    `db:"created_at"` // 创建时间
-		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
-		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间(NULL表示未删除)
+		Id        uint64    `db:"id"`
+		ArticleId uint64    `db:"article_id"` // 文章ID
+		Tag       string    `db:"tag"`        // 标签
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		DeletedAt uint64    `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 
@@ -74,10 +74,10 @@ func (m *defaultArticleTagModel) FindOne(ctx context.Context, id uint64) (*Artic
 	}
 }
 
-func (m *defaultArticleTagModel) FindOneByArticleIdTag(ctx context.Context, articleId uint64, tag string) (*ArticleTag, error) {
+func (m *defaultArticleTagModel) FindOneByArticleIdTagDeletedAt(ctx context.Context, articleId uint64, tag string, deletedAt uint64) (*ArticleTag, error) {
 	var resp ArticleTag
-	query := fmt.Sprintf("select %s from %s where `article_id` = ? and `tag` = ? limit 1", articleTagRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, articleId, tag)
+	query := fmt.Sprintf("select %s from %s where `article_id` = ? and `tag` = ? and `deleted_at` = ? limit 1", articleTagRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, articleId, tag, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil

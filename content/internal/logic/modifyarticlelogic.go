@@ -86,28 +86,20 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 		in.PublishedAt = time.Now().Unix()
 	}
 
-	// 先验证文章是否存在或者是否被删除
-	queryCtx, cancel := context.WithTimeout(l.ctx, 2*time.Second)
-	defer cancel()
+	// 查询文章是否存在
+	article, err := l.ArticleDao.FindOneWithNotDelete(l.ctx, in.Id)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			l.Logger.Errorf("ModifyArticle err: 文章不存在")
 
-	article, err := l.ArticleDao.FindOneWithNotDelete(queryCtx, in.Id)
-	switch {
-	case errors.Is(err, model.ErrNotFound):
-		l.Logger.Errorf("ModifyArticle err: 文章不存在")
-		return &v1.Response{
-			Code:    400,
-			Message: "文章不存在",
-		}, nil
-	case err != nil:
-		l.Logger.Errorf("ModifyArticle err: %v", err)
-		return &v1.Response{
-			Code:    400,
-			Message: "修改文章错误",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: "文章不存在",
+			}, nil
+		}
 	}
 
-	// 1. 更新文章
-	// 1.1 构造
+	// 更新文章
 	article.Name = in.Name
 	article.Url = in.Url
 	article.Description = sql.NullString{String: in.Description, Valid: true}
@@ -116,6 +108,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	article.Author = in.Author
 	article.PublishedAt = time.Unix(in.PublishedAt, 0)
 	article.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
+
 	// 标记待同步
 	article.RelationStatus = RelationStatusPending
 
@@ -133,6 +126,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	articleRelationTask := &tasks.ArticleRelationTask{
 		Type:      tasks.ArticleRelationModify,
 		ArticleID: article.Id,
+		UID:       user.UID,
 		Tags:      in.Tag,
 	}
 

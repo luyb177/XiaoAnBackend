@@ -84,6 +84,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		LikeCount:      0,
 		ViewCount:      0,
 		CollectCount:   0,
+		DeletedAt:      0,
 	}
 
 	// 写入
@@ -95,6 +96,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 			Message: "添加文章失败",
 		}, nil
 	}
+
 	// 回写
 	id, err := result.LastInsertId()
 	if err != nil {
@@ -109,6 +111,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	articleRelationTask := &tasks.ArticleRelationTask{
 		Type:      tasks.ArticleRelationAdd,
 		ArticleID: article.Id,
+		UID:       user.UID,
 		Tags:      in.Tags,
 	}
 

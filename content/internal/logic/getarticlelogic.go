@@ -48,6 +48,19 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 		}
 	}
 
+	// 异步获取 tag
+	type tagResult struct {
+		tags []*model.ArticleTag
+		err  error
+	}
+
+	tagCh := make(chan tagResult, 1)
+
+	go func() {
+		t, err := l.ArticleTagDao.FindManyByArticleId(l.ctx, in.Id)
+		tagCh <- tagResult{tags: t, err: err}
+	}()
+
 	// 获取文章
 	article, err := l.ArticleDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
@@ -68,20 +81,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 		}
 	}
 
-	// 异步获取 tag
-	// todo 获取 tag 移动位置
-	type tagResult struct {
-		tags []*model.ArticleTag
-		err  error
-	}
-
-	tagCh := make(chan tagResult, 1)
-
-	go func() {
-		t, err := l.ArticleTagDao.FindManyByArticleId(l.ctx, article.Id)
-		tagCh <- tagResult{tags: t, err: err}
-	}()
-
+	// 等待 tag 结果
 	tagsResult := <-tagCh
 
 	if tagsResult.err != nil {
@@ -123,7 +123,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 
 	msg := "获取文章成功"
 	if article.RelationStatus == RelationStatusPending {
-		msg = "文章相关内容同步中"
+		msg = "文章相关内容同步中,请稍后刷新查看"
 	}
 
 	return &v1.Response{
