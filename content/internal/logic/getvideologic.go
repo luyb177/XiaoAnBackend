@@ -33,13 +33,18 @@ func NewGetVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetVideo
 
 // GetVideo 获取视频
 func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
-	if in.Id <= 0 {
-		l.Errorf("GetVideo err: 获取视频参数错误")
+	validations := []Validation{
+		{in.Id > 0, "视频ID参数错误"},
+	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("GetVideo err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)

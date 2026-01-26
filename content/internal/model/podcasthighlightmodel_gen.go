@@ -27,7 +27,7 @@ type (
 	podcastHighlightModel interface {
 		Insert(ctx context.Context, data *PodcastHighlight) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*PodcastHighlight, error)
-		FindOneByPodcastIdSecond(ctx context.Context, podcastId uint64, second uint64) (*PodcastHighlight, error)
+		FindOneByPodcastIdSecondDeletedAt(ctx context.Context, podcastId uint64, second uint64, deletedAt uint64) (*PodcastHighlight, error)
 		Update(ctx context.Context, data *PodcastHighlight) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -38,13 +38,13 @@ type (
 	}
 
 	PodcastHighlight struct {
-		Id        uint64       `db:"id"`
-		PodcastId uint64       `db:"podcast_id"` // 播客ID
-		Second    uint64       `db:"second"`     // 时间点（秒）
-		Highlight string       `db:"highlight"`  // 该时间点的重点
-		CreatedAt time.Time    `db:"created_at"` // 记录创建时间（系统时间）
-		UpdatedAt time.Time    `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt sql.NullTime `db:"deleted_at"` // 软删除时间
+		Id        uint64    `db:"id"`
+		PodcastId uint64    `db:"podcast_id"` // 播客ID
+		Second    uint64    `db:"second"`     // 时间点（秒）
+		Highlight string    `db:"highlight"`  // 该时间点的重点
+		CreatedAt time.Time `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt time.Time `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt uint64    `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 
@@ -75,10 +75,10 @@ func (m *defaultPodcastHighlightModel) FindOne(ctx context.Context, id uint64) (
 	}
 }
 
-func (m *defaultPodcastHighlightModel) FindOneByPodcastIdSecond(ctx context.Context, podcastId uint64, second uint64) (*PodcastHighlight, error) {
+func (m *defaultPodcastHighlightModel) FindOneByPodcastIdSecondDeletedAt(ctx context.Context, podcastId uint64, second uint64, deletedAt uint64) (*PodcastHighlight, error) {
 	var resp PodcastHighlight
-	query := fmt.Sprintf("select %s from %s where `podcast_id` = ? and `second` = ? limit 1", podcastHighlightRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, podcastId, second)
+	query := fmt.Sprintf("select %s from %s where `podcast_id` = ? and `second` = ? and `deleted_at` = ? limit 1", podcastHighlightRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, podcastId, second, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil

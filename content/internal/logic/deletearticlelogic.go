@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,11 +45,19 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 	}
 
 	// 请求参数验证
-	if in.Id <= 0 {
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "文章ID参数错误"},
+	}
+
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeleteArticle err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	// 查询有无
@@ -68,21 +76,13 @@ func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Res
 	}
 
 	// 有 软删除
-	now := time.Now()
-	article.DeletedAt = sql.NullTime{
-		Time:  now,
-		Valid: true,
-	}
-	article.LastModifiedBy = sql.NullInt64{
-		Int64: int64(user.UID),
-		Valid: true,
-	}
-	err = l.ArticleDao.Update(l.ctx, article)
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.ArticleDao.SoftDelete(l.ctx, article.Id, deletedAt, modifier)
 	if err != nil {
-		l.Errorf("DeleteArticle err: %v", err)
-
+		l.Errorf("DeleteArticle SoftDelete err: %v", err)
 		return &v1.Response{
-			Code:    400,
+			Code:    500,
 			Message: "删除文章失败",
 		}, nil
 	}

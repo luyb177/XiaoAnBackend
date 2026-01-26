@@ -53,7 +53,7 @@ type (
 		Status         int64          `db:"status"`           // 状态：0正常 1草稿
 		CreatedAt      time.Time      `db:"created_at"`       // 记录创建时间（系统时间）
 		UpdatedAt      time.Time      `db:"updated_at"`       // 记录更新时间（系统时间）
-		DeletedAt      sql.NullTime   `db:"deleted_at"`       // 软删除时间
+		DeletedAt      uint64         `db:"deleted_at"`       // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 

@@ -45,43 +45,27 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	}
 
 	// 验证参数
-	if in.Id <= 0 {
-		l.Logger.Errorf("ModifyVideo err: 视频ID不能小于等于0")
-		return &v1.Response{
-			Code:    400,
-			Message: "视频ID不能小于等于0",
-		}, nil
+	validations := []Validation{
+		{in.Id > 0, "视频ID不能小于等于0"},
+		{in.Name != "", "视频名称为空"},
+		{in.Author != "", "视频作者为空"},
+		{in.Description != "", "视频描述为空"},
+		{len(in.Tag) <= 10, "标签数量不能超过10"},
 	}
-	if in.Name == "" {
-		l.Logger.Errorf("ModifyVideo err: 视频名称为空")
-		return &v1.Response{
-			Code:    400,
-			Message: "视频名称为空",
-		}, nil
+
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("ModifyVideo err: %s", v.Message)
+
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
-	if in.Author == "" {
-		l.Logger.Errorf("ModifyVideo err: 视频作者为空")
-		return &v1.Response{
-			Code:    400,
-			Message: "视频作者为空",
-		}, nil
-	}
-	if in.Description == "" {
-		l.Logger.Errorf("ModifyVideo err: 文章摘要为空")
-		return &v1.Response{
-			Code:    400,
-			Message: "文章摘要为空",
-		}, nil
-	}
+
 	if in.Tag == nil || len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
-	}
-	if len(in.Tag) > 10 {
-		l.Logger.Errorf("ModifyVideo err: 标签数量不能超过10")
-		return &v1.Response{
-			Code:    400,
-			Message: "标签数量不能超过10",
-		}, nil
 	}
 	// 检查标签
 	for _, tag := range in.Tag {
@@ -98,8 +82,8 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 		in.PublishedAt = now.Unix()
 	}
 
-	// 1. 先验证 video 是否存在或者被删除
-	video, err := l.VideoDao.FindOne(l.ctx, in.Id)
+	// 先验证 video 是否存在或者被删除
+	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, sqlc.ErrNotFound) {
 			l.Logger.Errorf("ModifyVideo err: 视频不存在")
@@ -115,7 +99,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 2. 主体部分更新
+	// 主体部分更新
 	video.Name = in.Name
 	video.Url = in.Url
 	video.Description = sql.NullString{String: in.Description, Valid: true}
@@ -133,7 +117,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 3. 标签更新
+	// 标签更新
 	videoRelationTask := &tasks.VideoRelationTask{
 		Type:    tasks.VideoRelationModify,
 		VideoID: video.Id,
@@ -144,7 +128,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 		l.Logger.Errorf("ModifyVideo Enqueue err: %v", err)
 	}
 
-	// 4. 构造返回结果
+	// 构造返回结果
 	res := &v1.ModifyVideoResponse{
 		Id:             video.Id,
 		RelationStatus: RelationStatusPending,

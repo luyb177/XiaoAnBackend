@@ -4,13 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
-
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,13 +42,18 @@ func (l *DeletePodcastLogic) DeletePodcast(in *v1.DeletePodcastRequest) (*v1.Res
 		}, nil
 	}
 
-	if in.Id <= 0 {
-		l.Errorf("DeletePodcast err: 播客ID错误")
+	validations := []Validation{
+		{in.Id > 0, "播客ID错误"},
+	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeletePodcast err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "播客ID错误",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
 	podcast, err := l.PodcastDao.FindOneWithNotDelete(l.ctx, in.Id)
@@ -70,11 +74,12 @@ func (l *DeletePodcastLogic) DeletePodcast(in *v1.DeletePodcastRequest) (*v1.Res
 		}, nil
 	}
 
-	podcast.DeletedAt = sql.NullTime{Time: time.Now(), Valid: true}
-	podcast.LastModifiedBy = sql.NullInt64{Int64: int64(user.UID), Valid: true}
-	err = l.PodcastDao.Update(l.ctx, podcast)
+	// todo 使用 soft delete
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.PodcastDao.SoftDelete(l.ctx, podcast.Id, deletedAt, modifier)
 	if err != nil {
-		l.Errorf("DeletePodcast err: %v", err)
+		l.Errorf("DeletePodcast SoftDelete err: %v", err)
 
 		return &v1.Response{
 			Code:    500,

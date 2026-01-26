@@ -21,6 +21,8 @@ type (
 		FindManyByPodcastId(ctx context.Context, podcastId uint64) ([]*PodcastTag, error)
 		DeleteBatchByPodcastId(ctx context.Context, podcastId uint64) error
 		DeleteBatchByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64) error
+		SoftDeleteByPodcastId(ctx context.Context, podcastId uint64, deletedAt uint64) error
+		SoftDeleteByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64, deletedAt uint64) error
 	}
 
 	customPodcastTagModel struct {
@@ -61,7 +63,7 @@ func (m *customPodcastTagModel) InsertBatch(ctx context.Context, list []*Podcast
 	)
 
 	_, err := m.conn.ExecCtx(ctx, query, args...)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customPodcastTagModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*PodcastTag) error {
@@ -77,7 +79,7 @@ func (m *customPodcastTagModel) FindManyByPodcastId(ctx context.Context, podcast
 
 	var resp []*PodcastTag
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, podcastId)
-	return resp, err
+	return resp, mapDBError(err)
 }
 
 func (m *customPodcastTagModel) DeleteBatchByPodcastId(ctx context.Context, podcastId uint64) error {
@@ -87,9 +89,23 @@ func (m *customPodcastTagModel) DeleteBatchByPodcastId(ctx context.Context, podc
 	)
 
 	_, err := m.conn.ExecCtx(ctx, query, podcastId)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customPodcastTagModel) DeleteBatchByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64) error {
 	return m.withSession(session).DeleteBatchByPodcastId(ctx, podcastId)
+}
+
+func (m *customPodcastTagModel) SoftDeleteByPodcastId(ctx context.Context, podcastId uint64, deletedAt uint64) error {
+	query := fmt.Sprintf(
+		"UPDATE %s SET `deleted_at` = ? WHERE `podcast_id` = ?",
+		m.table,
+	)
+
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, podcastId)
+	return mapDBError(err)
+}
+
+func (m *customPodcastTagModel) SoftDeleteByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteByPodcastId(ctx, podcastId, deletedAt)
 }

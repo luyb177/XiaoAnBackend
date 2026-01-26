@@ -44,16 +44,21 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	if in.Id <= 0 {
-		l.Errorf("DeleteVideo err: 视频ID错误")
+	validations := []Validation{
+		{in.Id > 0, "视频ID错误"},
+	}
+	for _, v := range validations {
+		if !v.Condition {
+			l.Errorf("DeleteVideo err: %s", v.Message)
 
-		return &v1.Response{
-			Code:    400,
-			Message: "视频ID错误",
-		}, nil
+			return &v1.Response{
+				Code:    400,
+				Message: v.Message,
+			}, nil
+		}
 	}
 
-	// 1. 查询视频是否存在
+	// 查询视频是否存在
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
@@ -71,17 +76,10 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 2. 有 软删除
-	video.DeletedAt = sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	}
-	video.LastModifiedBy = sql.NullInt64{
-		Int64: int64(user.UID),
-		Valid: true,
-	}
-
-	err = l.VideoDao.Update(l.ctx, video)
+	// 有 软删除
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.VideoDao.SoftDelete(l.ctx, video.Id, deletedAt, modifier)
 	if err != nil {
 		l.Errorf("DeleteVideo  err: 删除视频时出错")
 		return &v1.Response{
@@ -90,7 +88,7 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 3. 删除相关标签
+	// 删除相关标签
 	videoRelationTask := &tasks.VideoRelationTask{
 		Type:    tasks.VideoRelationDelete,
 		VideoID: video.Id,

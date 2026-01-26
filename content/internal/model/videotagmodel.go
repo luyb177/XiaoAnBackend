@@ -21,6 +21,8 @@ type (
 		FindManyByVideoId(ctx context.Context, videoId uint64) ([]*VideoTag, error)
 		DeleteBatchByVideoId(ctx context.Context, videoId uint64) error
 		DeleteBatchByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64) error
+		SoftDeleteByVideoId(ctx context.Context, videoId uint64, deletedAt uint64) error
+		SoftDeleteByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64, deletedAt uint64) error
 	}
 
 	customVideoTagModel struct {
@@ -60,7 +62,7 @@ func (m *customVideoTagModel) InsertBatch(ctx context.Context, list []*VideoTag)
 		strings.Join(valuePlaceholders, ","),
 	)
 	_, err := m.conn.ExecCtx(ctx, query, valueArgs...)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customVideoTagModel) InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*VideoTag) error {
@@ -85,28 +87,36 @@ func (m *customVideoTagModel) FindByVideoTags(ctx context.Context, offest int, l
 	)
 	var out []*VideoTag
 	err := m.conn.QueryRowsCtx(ctx, &out, query, valueArgs...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	return out, mapDBError(err)
 }
 
 func (m *customVideoTagModel) FindManyByVideoId(ctx context.Context, videoId uint64) ([]*VideoTag, error) {
-	query := fmt.Sprintf("select %s from %s where `video_id` = ?", videoTagRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `video_id` = ? and `deleted_at` = 0", videoTagRows, m.table)
 	var res []*VideoTag
 	err := m.conn.QueryRowsCtx(ctx, &res, query, videoId)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return res, mapDBError(err)
 }
 
 func (m *customVideoTagModel) DeleteBatchByVideoId(ctx context.Context, videoId uint64) error {
 	query := fmt.Sprintf("delete from %s where `video_id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, videoId)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customVideoTagModel) DeleteBatchByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64) error {
 	return m.withSession(session).DeleteBatchByVideoId(ctx, videoId)
+}
+
+func (m *customVideoTagModel) SoftDeleteByVideoId(ctx context.Context, videoId uint64, deletedAt uint64) error {
+	query := fmt.Sprintf(
+		"update %s set `deleted_at` = ? where `video_id` = ?",
+		m.table,
+	)
+
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, videoId)
+	return mapDBError(err)
+}
+
+func (m *customVideoTagModel) SoftDeleteByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteByVideoId(ctx, videoId, deletedAt)
 }

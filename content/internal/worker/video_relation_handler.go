@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -67,27 +68,28 @@ func (h *VideoRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 
 func (h *VideoRelationHandler) handleAdd(ctx context.Context, task *tasks.VideoRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 添加标签
+		// 添加标签
 		tagModels := convert.VideoTagsFromStrings(task.VideoID, task.Tags)
 		err := h.VideoTagDao.InsertBatchWithSession(ctx, session, tagModels)
 		if err != nil {
 			return err
 		}
 
-		// 2. 更新关联状态
+		// 更新关联状态
 		return h.VideoDao.UpdateRelationStatusWithSession(ctx, session, task.VideoID, logic.RelationStatusNormal)
 	})
 }
 
 func (h *VideoRelationHandler) handleModify(ctx context.Context, task *tasks.VideoRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 删除旧标签
-		err := h.VideoTagDao.DeleteBatchByVideoIdWithSession(ctx, session, task.VideoID)
+		// 删除旧标签
+		deletedAt := uint64(time.Now().Unix())
+		err := h.VideoTagDao.SoftDeleteByVideoIdWithSession(ctx, session, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
 
-		// 2. 插入新标签
+		// 插入新标签
 		tagsModel := convert.VideoTagsFromStrings(task.VideoID, task.Tags)
 		err = h.VideoTagDao.InsertBatchWithSession(ctx, session, tagsModel)
 		if err != nil {
@@ -100,5 +102,6 @@ func (h *VideoRelationHandler) handleModify(ctx context.Context, task *tasks.Vid
 }
 
 func (h *VideoRelationHandler) handleDelete(ctx context.Context, task *tasks.VideoRelationTask) error {
-	return h.VideoTagDao.DeleteBatchByVideoId(ctx, task.VideoID)
+	deletedAt := uint64(time.Now().Unix())
+	return h.VideoTagDao.SoftDeleteByVideoId(ctx, task.VideoID, deletedAt)
 }

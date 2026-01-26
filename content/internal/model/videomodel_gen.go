@@ -48,7 +48,7 @@ type (
 		PublishedAt    sql.NullTime   `db:"published_at"`     // 发布时间（业务时间，可修改）
 		CreatedAt      time.Time      `db:"created_at"`       // 记录创建时间（系统时间）
 		UpdatedAt      time.Time      `db:"updated_at"`       // 记录更新时间（系统时间）
-		DeletedAt      sql.NullTime   `db:"deleted_at"`       // 软删除时间
+		DeletedAt      uint64         `db:"deleted_at"`       // 删除时间戳(0=未删除，>0=删除时间)
 		LikeCount      uint64         `db:"like_count"`       // 点赞数
 		ViewCount      uint64         `db:"view_count"`       // 浏览数
 		CollectCount   uint64         `db:"collect_count"`    // 收藏数
