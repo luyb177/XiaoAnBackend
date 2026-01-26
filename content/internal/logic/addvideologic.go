@@ -90,6 +90,7 @@ func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 		LikeCount:      0,
 		ViewCount:      0,
 		CollectCount:   0,
+		DeletedAt:      0,
 	}
 
 	// 2. 插入

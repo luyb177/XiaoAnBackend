@@ -77,17 +77,9 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 	}
 
 	// 有 软删除
-	// todo 使用 soft delete
-	video.DeletedAt = sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	}
-	video.LastModifiedBy = sql.NullInt64{
-		Int64: int64(user.UID),
-		Valid: true,
-	}
-
-	err = l.VideoDao.Update(l.ctx, video)
+	deletedAt := uint64(time.Now().Unix())
+	modifier := sql.NullInt64{Int64: int64(user.UID), Valid: true}
+	err = l.VideoDao.SoftDelete(l.ctx, video.Id, deletedAt, modifier)
 	if err != nil {
 		l.Errorf("DeleteVideo  err: 删除视频时出错")
 		return &v1.Response{
@@ -96,7 +88,7 @@ func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response,
 		}, nil
 	}
 
-	// 3. 删除相关标签
+	// 删除相关标签
 	videoRelationTask := &tasks.VideoRelationTask{
 		Type:    tasks.VideoRelationDelete,
 		VideoID: video.Id,
