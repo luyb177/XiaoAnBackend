@@ -37,19 +37,21 @@ type (
 	}
 
 	Video struct {
-		Id           uint64         `db:"id"`            // 视频ID
-		Name         string         `db:"name"`          // 视频名称
-		Url          string         `db:"url"`           // 视频URL
-		Description  sql.NullString `db:"description"`   // 视频描述
-		Cover        string         `db:"cover"`         // 封面图URL
-		Author       string         `db:"author"`        // 作者
-		PublishedAt  sql.NullTime   `db:"published_at"`  // 发布时间（业务时间，可修改）
-		CreatedAt    time.Time      `db:"created_at"`    // 记录创建时间（系统时间）
-		UpdatedAt    time.Time      `db:"updated_at"`    // 记录更新时间（系统时间）
-		DeletedAt    sql.NullTime   `db:"deleted_at"`    // 软删除时间
-		LikeCount    uint64         `db:"like_count"`    // 点赞数
-		ViewCount    uint64         `db:"view_count"`    // 浏览数
-		CollectCount uint64         `db:"collect_count"` // 收藏数
+		Id             uint64         `db:"id"`               // 视频ID
+		Name           string         `db:"name"`             // 视频名称
+		Url            string         `db:"url"`              // 视频URL
+		Description    sql.NullString `db:"description"`      // 视频描述
+		Cover          string         `db:"cover"`            // 封面图URL
+		Author         string         `db:"author"`           // 作者
+		RelationStatus int64          `db:"relation_status"`  // 0正常 1待同步
+		LastModifiedBy sql.NullInt64  `db:"last_modified_by"` // 最后修改人ID
+		PublishedAt    sql.NullTime   `db:"published_at"`     // 发布时间（业务时间，可修改）
+		CreatedAt      time.Time      `db:"created_at"`       // 记录创建时间（系统时间）
+		UpdatedAt      time.Time      `db:"updated_at"`       // 记录更新时间（系统时间）
+		DeletedAt      uint64         `db:"deleted_at"`       // 删除时间戳(0=未删除，>0=删除时间)
+		LikeCount      uint64         `db:"like_count"`       // 点赞数
+		ViewCount      uint64         `db:"view_count"`       // 浏览数
+		CollectCount   uint64         `db:"collect_count"`    // 收藏数
 	}
 )
 
@@ -81,14 +83,14 @@ func (m *defaultVideoModel) FindOne(ctx context.Context, id uint64) (*Video, err
 }
 
 func (m *defaultVideoModel) Insert(ctx context.Context, data *Video) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, videoRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, videoRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.RelationStatus, data.LastModifiedBy, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount)
 	return ret, err
 }
 
 func (m *defaultVideoModel) Update(ctx context.Context, data *Video) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, videoRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.RelationStatus, data.LastModifiedBy, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.Id)
 	return err
 }
 

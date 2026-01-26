@@ -6,10 +6,11 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/content"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 修改文章
+// ModifyArticleHandler 修改文章
 func ModifyArticleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.ModifyArticleRequest

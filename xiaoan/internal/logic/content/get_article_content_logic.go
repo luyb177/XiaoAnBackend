@@ -3,9 +3,6 @@ package content
 import (
 	"context"
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -18,7 +15,7 @@ type GetArticleContentLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// NewGetArticleContentLogic 获取文章详细内容
+// 获取文章详细内容
 func NewGetArticleContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetArticleContentLogic {
 	return &GetArticleContentLogic{
 		Logger: logx.WithContext(ctx),
@@ -28,14 +25,21 @@ func NewGetArticleContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *GetArticleContentLogic) GetArticleContent(req *types.GetArticleContentRequest) (resp *types.Response, err error) {
-	res, _ := l.svcCtx.ContentRpc.GetArticle(l.ctx, &content.GetArticleRequest{
+	res, err := l.svcCtx.ContentRpc.GetArticle(l.ctx, &content.GetArticleRequest{
 		Id: req.ArticleId,
 	})
+
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
 
 	var data *content.GetArticleResponse
 	if res.Data != nil {
 		data = &content.GetArticleResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

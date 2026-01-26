@@ -2,29 +2,34 @@ package svc
 
 import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
+
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
-	Config      config.Config
-	MinioClient *minio.Client
-	Mysql       sqlx.SqlConn
+	Config    config.Config
+	Mysql     sqlx.SqlConn
+	TaskQueue taskqueue.TaskQueue
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	minioClient, err := minio.New(c.MinioConf.EndPoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(c.MinioConf.AccessKeyID, c.MinioConf.SecretAccessKey, ""),
-		Secure: c.MinioConf.UseSSL,
-	})
-	if err != nil {
-		logx.Errorf("minio new error: %v", err)
+	keys := taskqueue.QueueKey{
+		Pending:    "content:pending",
+		Processing: "content:processing",
+		Retry:      "content:retry",
+		DLQ:        "content:dlq",
 	}
+	tq := redisqueue.NewRedisTaskQueue(
+		redis.MustNewRedis(c.RedisConf),
+		keys,
+	)
+
 	return &ServiceContext{
-		Config:      c,
-		MinioClient: minioClient,
-		Mysql:       sqlx.NewMysql(c.MysqlConf.DataSource),
+		Config:    c,
+		Mysql:     sqlx.NewMysql(c.MysqlConf.DataSource),
+		TaskQueue: tq,
 	}
 }

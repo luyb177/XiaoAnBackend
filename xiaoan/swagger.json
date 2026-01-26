@@ -418,8 +418,7 @@
                 "url",
                 "published_at",
                 "author",
-                "tags",
-                "images"
+                "tags"
               ],
               "properties": {
                 "author": {
@@ -433,28 +432,6 @@
                 },
                 "description": {
                   "type": "string"
-                },
-                "images": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "url",
-                      "sort",
-                      "tp"
-                    ],
-                    "properties": {
-                      "sort": {
-                        "type": "integer"
-                      },
-                      "tp": {
-                        "type": "integer"
-                      },
-                      "url": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 },
                 "name": {
                   "type": "string"
@@ -494,7 +471,7 @@
         }
       }
     },
-    "/api/content/get-article-content": {
+    "/api/content/add-comic": {
       "post": {
         "consumes": [
           "application/json"
@@ -508,8 +485,8 @@
         "tags": [
           "文件内容模块"
         ],
-        "summary": "获取文章详细内容",
-        "operationId": "contentGetArticleContent",
+        "summary": "添加漫画",
+        "operationId": "contentAddComic",
         "parameters": [
           {
             "name": "body",
@@ -518,14 +495,789 @@
             "schema": {
               "type": "object",
               "required": [
-                "article_id"
+                "name",
+                "tags",
+                "description",
+                "cover",
+                "author",
+                "published_at"
               ],
               "properties": {
-                "article_id": {
+                "author": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
                   "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/add-comic-chapter": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "添加漫画章节",
+        "operationId": "contentAddComicChapter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "comic_id",
+                "chapter_no",
+                "title",
+                "description",
+                "status",
+                "published_at",
+                "page_urls"
+              ],
+              "properties": {
+                "chapter_no": {
+                  "type": "integer"
+                },
+                "comic_id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "page_urls": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/add-podcast": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "添加播客",
+        "operationId": "contentAddPodcast",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "url",
+                "description",
+                "cover",
+                "author",
+                "published_at",
+                "channel",
+                "status",
+                "tags",
+                "highlights"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "highlights": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "second",
+                      "highlight"
+                    ],
+                    "properties": {
+                      "highlight": {
+                        "type": "string"
+                      },
+                      "second": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/add-video": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "添加视频",
+        "operationId": "contentAddVideo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "url",
+                "description",
+                "cover",
+                "author",
+                "published_at",
+                "tags"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-article": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除文章",
+        "operationId": "contentDeleteArticle",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "article_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-comic": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除漫画",
+        "operationId": "contentDeleteComic",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comic_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-comic-chapter": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除漫画章节",
+        "operationId": "contentDeleteComicChapter",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comic_chapter_id",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "comic_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-podcast": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除播客",
+        "operationId": "contentDeletePodcast",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "podcast_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/delete-video": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除视频",
+        "operationId": "contentDeleteVideo",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "video_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-article-content": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取文章详细内容",
+        "operationId": "contentGetArticleContent",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "article_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-comic": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取漫画",
+        "operationId": "contentGetComic",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comic_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-comic-chapter": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取漫画章节",
+        "operationId": "contentGetComicChapter",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comic_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-comic-page": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取漫画页面",
+        "operationId": "contentGetComicPage",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comic_chapter_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-podcast-content": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取播客详细内容",
+        "operationId": "contentGetPodcastContent",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "podcast_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-video-content": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取视频详细内容",
+        "operationId": "contentGetVideoContent",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "video_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -579,8 +1331,7 @@
                 "url",
                 "published_at",
                 "author",
-                "tags",
-                "images"
+                "tags"
               ],
               "properties": {
                 "article_id": {
@@ -597,28 +1348,6 @@
                 },
                 "description": {
                   "type": "string"
-                },
-                "images": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "url",
-                      "sort",
-                      "tp"
-                    ],
-                    "properties": {
-                      "sort": {
-                        "type": "integer"
-                      },
-                      "tp": {
-                        "type": "integer"
-                      },
-                      "url": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 },
                 "name": {
                   "type": "string"
@@ -658,10 +1387,10 @@
         }
       }
     },
-    "/api/content/upload": {
+    "/api/content/modify-comic": {
       "post": {
         "consumes": [
-          "application/x-www-form-urlencoded"
+          "application/json"
         ],
         "produces": [
           "application/json"
@@ -672,14 +1401,330 @@
         "tags": [
           "文件内容模块"
         ],
-        "summary": "上传文件（流式传输到gRPC）",
-        "operationId": "contentUploadContentStream",
+        "summary": "修改漫画",
+        "operationId": "contentModifyComic",
         "parameters": [
           {
-            "type": "string",
-            "name": "file",
-            "in": "formData",
-            "allowEmptyValue": true
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "comic_id",
+                "name",
+                "tags",
+                "description",
+                "cover",
+                "author",
+                "published_at"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "comic_id": {
+                  "type": "integer"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/modify-comic-chapter": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "修改漫画章节",
+        "operationId": "contentModifyComicChapter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "comic_chapter_id",
+                "comic_id",
+                "chapter_no",
+                "title",
+                "description",
+                "status",
+                "published_at",
+                "page_urls"
+              ],
+              "properties": {
+                "chapter_no": {
+                  "type": "integer"
+                },
+                "comic_chapter_id": {
+                  "type": "integer"
+                },
+                "comic_id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "page_urls": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/modify-podcast": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "修改播客",
+        "operationId": "contentModifyPodcast",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "podcast_id",
+                "name",
+                "url",
+                "description",
+                "cover",
+                "author",
+                "published_at",
+                "channel",
+                "status",
+                "tags",
+                "highlights"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "highlights": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "second",
+                      "highlight"
+                    ],
+                    "properties": {
+                      "highlight": {
+                        "type": "string"
+                      },
+                      "second": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "name": {
+                  "type": "string"
+                },
+                "podcast_id": {
+                  "type": "integer"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/modify-video": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "修改视频",
+        "operationId": "contentModifyVideo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "video_id",
+                "name",
+                "url",
+                "description",
+                "cover",
+                "author",
+                "published_at",
+                "tags"
+              ],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "cover": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "published_at": {
+                  "type": "integer"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "url": {
+                  "type": "string"
+                },
+                "video_id": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -755,7 +1800,7 @@
       }
     }
   },
-  "x-date": "2026-01-02 13:48:23",
+  "x-date": "2026-01-25 13:43:50",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

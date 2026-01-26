@@ -23,18 +23,6 @@ func NewContentServiceServer(svcCtx *svc.ServiceContext) *ContentServiceServer {
 	}
 }
 
-// 上传文件
-func (s *ContentServiceServer) UploadContentStream(stream v1.ContentService_UploadContentStreamServer) error {
-	l := logic.NewUploadContentStreamLogic(stream.Context(), s.svcCtx)
-	return l.UploadContentStream(stream)
-}
-
-// 获取访问URL
-func (s *ContentServiceServer) GetContentURL(ctx context.Context, in *v1.GetContentURLRequest) (*v1.Response, error) {
-	l := logic.NewGetContentURLLogic(ctx, s.svcCtx)
-	return l.GetContentURL(in)
-}
-
 // AddArticle 添加文章
 func (s *ContentServiceServer) AddArticle(ctx context.Context, in *v1.AddArticleRequest) (*v1.Response, error) {
 	l := logic.NewAddArticleLogic(ctx, s.svcCtx)
@@ -53,10 +41,112 @@ func (s *ContentServiceServer) ModifyArticle(ctx context.Context, in *v1.ModifyA
 	return l.ModifyArticle(in)
 }
 
-// 添加视频
+// DeleteArticle 删除文章
+func (s *ContentServiceServer) DeleteArticle(ctx context.Context, in *v1.DeleteArticleRequest) (*v1.Response, error) {
+	l := logic.NewDeleteArticleLogic(ctx, s.svcCtx)
+	return l.DeleteArticle(in)
+}
+
+// AddVideo 添加视频
 func (s *ContentServiceServer) AddVideo(ctx context.Context, in *v1.AddVideoRequest) (*v1.Response, error) {
 	l := logic.NewAddVideoLogic(ctx, s.svcCtx)
 	return l.AddVideo(in)
+}
+
+// GetVideo 获取视频
+func (s *ContentServiceServer) GetVideo(ctx context.Context, in *v1.GetVideoRequest) (*v1.Response, error) {
+	l := logic.NewGetVideoLogic(ctx, s.svcCtx)
+	return l.GetVideo(in)
+}
+
+// ModifyVideo 修改视频
+func (s *ContentServiceServer) ModifyVideo(ctx context.Context, in *v1.ModifyVideoRequest) (*v1.Response, error) {
+	l := logic.NewModifyVideoLogic(ctx, s.svcCtx)
+	return l.ModifyVideo(in)
+}
+
+// DeleteVideo 删除视频
+func (s *ContentServiceServer) DeleteVideo(ctx context.Context, in *v1.DeleteVideoRequest) (*v1.Response, error) {
+	l := logic.NewDeleteVideoLogic(ctx, s.svcCtx)
+	return l.DeleteVideo(in)
+}
+
+// AddPodcast 添加播客
+func (s *ContentServiceServer) AddPodcast(ctx context.Context, in *v1.AddPodcastRequest) (*v1.Response, error) {
+	l := logic.NewAddPodcastLogic(ctx, s.svcCtx)
+	return l.AddPodcast(in)
+}
+
+// GetPodcast 获取播客
+func (s *ContentServiceServer) GetPodcast(ctx context.Context, in *v1.GetPodcastRequest) (*v1.Response, error) {
+	l := logic.NewGetPodcastLogic(ctx, s.svcCtx)
+	return l.GetPodcast(in)
+}
+
+// ModifyPodcast 修改播客
+func (s *ContentServiceServer) ModifyPodcast(ctx context.Context, in *v1.ModifyPodcastRequest) (*v1.Response, error) {
+	l := logic.NewModifyPodcastLogic(ctx, s.svcCtx)
+	return l.ModifyPodcast(in)
+}
+
+// DeletePodcast 删除播客
+func (s *ContentServiceServer) DeletePodcast(ctx context.Context, in *v1.DeletePodcastRequest) (*v1.Response, error) {
+	l := logic.NewDeletePodcastLogic(ctx, s.svcCtx)
+	return l.DeletePodcast(in)
+}
+
+// AddComic 添加漫画
+func (s *ContentServiceServer) AddComic(ctx context.Context, in *v1.AddComicRequest) (*v1.Response, error) {
+	l := logic.NewAddComicLogic(ctx, s.svcCtx)
+	return l.AddComic(in)
+}
+
+// AddComicChapter 添加漫画章节
+func (s *ContentServiceServer) AddComicChapter(ctx context.Context, in *v1.AddComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewAddComicChapterLogic(ctx, s.svcCtx)
+	return l.AddComicChapter(in)
+}
+
+// GetComic 获取漫画
+func (s *ContentServiceServer) GetComic(ctx context.Context, in *v1.GetComicRequest) (*v1.Response, error) {
+	l := logic.NewGetComicLogic(ctx, s.svcCtx)
+	return l.GetComic(in)
+}
+
+// GetComicChapter 获取漫画章节
+func (s *ContentServiceServer) GetComicChapter(ctx context.Context, in *v1.GetComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewGetComicChapterLogic(ctx, s.svcCtx)
+	return l.GetComicChapter(in)
+}
+
+// GetComicPage 获取漫画章节页面
+func (s *ContentServiceServer) GetComicPage(ctx context.Context, in *v1.GetComicPageRequest) (*v1.Response, error) {
+	l := logic.NewGetComicPageLogic(ctx, s.svcCtx)
+	return l.GetComicPage(in)
+}
+
+// ModifyComic 修改漫画
+func (s *ContentServiceServer) ModifyComic(ctx context.Context, in *v1.ModifyComicRequest) (*v1.Response, error) {
+	l := logic.NewModifyComicLogic(ctx, s.svcCtx)
+	return l.ModifyComic(in)
+}
+
+// ModifyComicChapter 修改漫画章节
+func (s *ContentServiceServer) ModifyComicChapter(ctx context.Context, in *v1.ModifyComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewModifyComicChapterLogic(ctx, s.svcCtx)
+	return l.ModifyComicChapter(in)
+}
+
+// DeleteComic 删除漫画
+func (s *ContentServiceServer) DeleteComic(ctx context.Context, in *v1.DeleteComicRequest) (*v1.Response, error) {
+	l := logic.NewDeleteComicLogic(ctx, s.svcCtx)
+	return l.DeleteComic(in)
+}
+
+// DeleteComicChapter 删除漫画章节
+func (s *ContentServiceServer) DeleteComicChapter(ctx context.Context, in *v1.DeleteComicChapterRequest) (*v1.Response, error) {
+	l := logic.NewDeleteComicChapterLogic(ctx, s.svcCtx)
+	return l.DeleteComicChapter(in)
 }
 
 // 搜索

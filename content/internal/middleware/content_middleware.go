@@ -3,7 +3,8 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/content/utils"
+
+	"github.com/luyb177/XiaoAnBackend/content/pkg/auth"
 
 	"google.golang.org/grpc"
 )
@@ -20,7 +21,12 @@ const (
 //
 //	/<proto包名>.<ServiceName>/<MethodName>
 var noAuthMethods = map[string]struct{}{
-	"/content.ContentService/GetArticle": {},
+	"/content.ContentService/GetArticle":      {},
+	"/content.ContentService/GetVideo":        {},
+	"/content.ContentService/GetPodcast":      {},
+	"/content.ContentService/GetComic":        {},
+	"/content.ContentService/GetComicChapter": {},
+	"/content.ContentService/GetComicPage":    {},
 }
 
 // UserUnaryInterceptor 用户服务拦截器
@@ -31,7 +37,7 @@ func UserUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.Unary
 	}
 
 	// 2. 需要鉴权的接口，从 metadata 取用户信息
-	uid, role, status, err := utils.GetUserFromMetadata(ctx)
+	uid, role, status, err := auth.GetUserFromMetadata(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("用户未登录或登录状态异常,%v", err)
 	}

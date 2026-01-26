@@ -4,21 +4,77 @@
 package types
 
 type AddArticleRequest struct {
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Content     string         `json:"content"`
-	Cover       string         `json:"cover"`
-	Url         string         `json:"url"`
-	PublishedAt int64          `json:"published_at"`
-	Author      string         `json:"author"`
-	Tags        []string       `json:"tags"`
-	Images      []ArticleImage `json:"images"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Content     string   `json:"content"`
+	Cover       string   `json:"cover"`
+	Url         string   `json:"url"`
+	PublishedAt int64    `json:"published_at"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
 }
 
-type ArticleImage struct {
-	Url  string `json:"url"`
-	Sort int64  `json:"sort"`
-	Tp   int64  `json:"tp"`
+type AddComicChapterRequest struct {
+	ComicId     uint64   `json:"comic_id"`
+	ChapterNo   int64    `json:"chapter_no"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Status      int64    `json:"status"`
+	PublishedAt int64    `json:"published_at"`
+	PageUrls    []string `json:"page_urls"`
+}
+
+type AddComicRequest struct {
+	Name        string   `json:"name"`
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+}
+
+type AddPodcastRequest struct {
+	Name        string                  `json:"name"`
+	Url         string                  `json:"url"`
+	Description string                  `json:"description"`
+	Cover       string                  `json:"cover"`
+	Author      string                  `json:"author"`
+	PublishedAt int64                   `json:"published_at"`
+	Channel     string                  `json:"channel"`
+	Status      int64                   `json:"status"`
+	Tags        []string                `json:"tags"`
+	Highlights  []*PodcastHighlightItem `json:"highlights"`
+}
+
+type AddVideoRequest struct {
+	Name        string   `json:"name"`
+	Url         string   `json:"url"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+	Tags        []string `json:"tags"`
+}
+
+type DeleteArticleRequest struct {
+	ArticleId uint64 `form:"article_id"`
+}
+
+type DeleteComicChapterRequest struct {
+	ComicChapterId uint64 `form:"comic_chapter_id"`
+	ComicId        uint64 `form:"comic_id"`
+}
+
+type DeleteComicRequest struct {
+	ComicId uint64 `form:"comic_id"`
+}
+
+type DeletePodcastRequest struct {
+	PodcastId uint64 `form:"podcast_id"`
+}
+
+type DeleteVideoRequest struct {
+	VideoId uint64 `form:"video_id"`
 }
 
 type GenerateInviteCodeRequest struct {
@@ -40,12 +96,36 @@ type GetAnswerResponse struct {
 }
 
 type GetArticleContentRequest struct {
-	ArticleId uint64 `json:"article_id"`
+	ArticleId uint64 `form:"article_id"`
+}
+
+type GetComicChapterRequest struct {
+	ComicId  uint64 `form:"comic_id"`
+	Page     int64  `form:"page"`
+	PageSize int64  `form:"page_size"`
+}
+
+type GetComicPageRequest struct {
+	ComicChapterId uint64 `form:"comic_chapter_id"`
+	Page           int64  `form:"page"`
+	PageSize       int64  `form:"page_size"`
+}
+
+type GetComicRequest struct {
+	ComicId uint64 `form:"comic_id"`
 }
 
 type GetInviteCodeRequest struct {
 	Page     int64 `json:"page"`
 	PageSize int64 `json:"page_size"`
+}
+
+type GetPodcastContentRequest struct {
+	PodcastId uint64 `form:"podcast_id"`
+}
+
+type GetVideoContentRequest struct {
+	VideoId uint64 `form:"video_id"`
 }
 
 type LoginRequest struct {
@@ -56,16 +136,66 @@ type LoginRequest struct {
 }
 
 type ModifyArticleRequest struct {
-	ArticleId   uint64         `json:"article_id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Content     string         `json:"content"`
-	Cover       string         `json:"cover"`
-	Url         string         `json:"url"`
-	PublishedAt int64          `json:"published_at"`
-	Author      string         `json:"author"`
-	Tags        []string       `json:"tags"`
-	Images      []ArticleImage `json:"images"`
+	ArticleId   uint64   `json:"article_id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Content     string   `json:"content"`
+	Cover       string   `json:"cover"`
+	Url         string   `json:"url"`
+	PublishedAt int64    `json:"published_at"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
+}
+
+type ModifyComicChapterRequest struct {
+	ComicChapterId uint64   `json:"comic_chapter_id"`
+	ComicId        uint64   `json:"comic_id"`
+	ChapterNo      int64    `json:"chapter_no"`
+	Title          string   `json:"title"`
+	Description    string   `json:"description"`
+	Status         int64    `json:"status"`
+	PublishedAt    int64    `json:"published_at"`
+	PageUrls       []string `json:"page_urls"`
+}
+
+type ModifyComicRequest struct {
+	ComicId     uint64   `json:"comic_id"`
+	Name        string   `json:"name"`
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+}
+
+type ModifyPodcastRequest struct {
+	PodcastId   uint64                  `json:"podcast_id"`
+	Name        string                  `json:"name"`
+	Url         string                  `json:"url"`
+	Description string                  `json:"description"`
+	Cover       string                  `json:"cover"`
+	Author      string                  `json:"author"`
+	PublishedAt int64                   `json:"published_at"`
+	Channel     string                  `json:"channel"`
+	Status      int64                   `json:"status"`
+	Tags        []string                `json:"tags"`
+	Highlights  []*PodcastHighlightItem `json:"highlights"`
+}
+
+type ModifyVideoRequest struct {
+	VideoId     uint64   `json:"video_id"`
+	Name        string   `json:"name"`
+	Url         string   `json:"url"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	PublishedAt int64    `json:"published_at"`
+	Tags        []string `json:"tags"`
+}
+
+type PodcastHighlightItem struct {
+	Second    uint64 `json:"second"`
+	Highlight string `json:"highlight"`
 }
 
 type RegisterRequest struct {
@@ -83,14 +213,6 @@ type Response struct {
 
 type SendEmailRequest struct {
 	Email string `json:"email"`
-}
-
-type UploadContentRequest struct {
-	File string `form:"file,optional"`
-}
-
-type UploadContentResponse struct {
-	Url string `json:"url"`
 }
 
 type ValidateEmailRequest struct {

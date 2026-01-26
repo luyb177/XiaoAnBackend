@@ -2,8 +2,8 @@ package qa
 
 import (
 	"context"
-	qa "github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 
+	qa "github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 

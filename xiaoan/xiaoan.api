@@ -5,7 +5,12 @@ info (
 	version: "v1.0"
 )
 
-// 用户请求模块
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ==== Request ====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
+// auth 模块
 type (
 	SendEmailRequest {
 		email string `json:"email"`
@@ -41,62 +46,173 @@ type (
 	}
 )
 
-// 问答请求模块
+// qa 模块
 type (
 	GetAnswerRequest {
 		question string `json:"question"`
 	}
 )
 
+// content 模块
+type (
+	// 文章
+	AddArticleRequest {
+		name        string   `json:"name"`
+		description string   `json:"description"`
+		content     string   `json:"content"`
+		cover       string   `json:"cover"`
+		url         string   `json:"url"`
+		publishedAt int64    `json:"published_at"`
+		author      string   `json:"author"`
+		tags        []string `json:"tags"`
+	}
+	GetArticleContentRequest {
+		articleId uint64 `form:"article_id"`
+	}
+	ModifyArticleRequest {
+		articleId   uint64   `json:"article_id"`
+		name        string   `json:"name"`
+		description string   `json:"description"`
+		content     string   `json:"content"`
+		cover       string   `json:"cover"`
+		url         string   `json:"url"`
+		publishedAt int64    `json:"published_at"`
+		author      string   `json:"author"`
+		tags        []string `json:"tags"`
+	}
+	DeleteArticleRequest {
+		articleId uint64 `form:"article_id"`
+	}
+	// 视频
+	AddVideoRequest {
+		name        string   `json:"name"`
+		url         string   `json:"url"`
+		description string   `json:"description"`
+		cover       string   `json:"cover"`
+		author      string   `json:"author"`
+		publishedAt int64    `json:"published_at"`
+		tags        []string `json:"tags"`
+	}
+	GetVideoContentRequest {
+		videoId uint64 `form:"video_id"`
+	}
+	ModifyVideoRequest {
+		videoId     uint64   `json:"video_id"`
+		name        string   `json:"name"`
+		url         string   `json:"url"`
+		description string   `json:"description"`
+		cover       string   `json:"cover"`
+		author      string   `json:"author"`
+		publishedAt int64    `json:"published_at"`
+		tags        []string `json:"tags"`
+	}
+	DeleteVideoRequest {
+		videoId uint64 `form:"video_id"`
+	}
+	// 播客
+	AddPodcastRequest {
+		name        string                  `json:"name"`
+		url         string                  `json:"url"`
+		description string                  `json:"description"`
+		cover       string                  `json:"cover"`
+		author      string                  `json:"author"`
+		publishedAt int64                   `json:"published_at"`
+		channel     string                  `json:"channel"`
+		status      int64                   `json:"status"`
+		tags        []string                `json:"tags"`
+		highlights  []*PodcastHighlightItem `json:"highlights"`
+	}
+	PodcastHighlightItem {
+		second    uint64 `json:"second"`
+		highlight string `json:"highlight"`
+	}
+	GetPodcastContentRequest {
+		podcastId uint64 `form:"podcast_id"`
+	}
+	ModifyPodcastRequest {
+		podcastId   uint64                  `json:"podcast_id"`
+		name        string                  `json:"name"`
+		url         string                  `json:"url"`
+		description string                  `json:"description"`
+		cover       string                  `json:"cover"`
+		author      string                  `json:"author"`
+		publishedAt int64                   `json:"published_at"`
+		channel     string                  `json:"channel"`
+		status      int64                   `json:"status"`
+		tags        []string                `json:"tags"`
+		highlights  []*PodcastHighlightItem `json:"highlights"`
+	}
+	DeletePodcastRequest {
+		podcastId uint64 `form:"podcast_id"`
+	}
+	// 漫画
+	AddComicRequest {
+		name        string   `json:"name"`
+		tags        []string `json:"tags"`
+		description string   `json:"description"`
+		cover       string   `json:"cover"`
+		author      string   `json:"author"`
+		publishedAt int64    `json:"published_at"`
+	}
+	AddComicChapterRequest {
+		comicId     uint64   `json:"comic_id"`
+		chapterNo   int64    `json:"chapter_no"`
+		title       string   `json:"title"`
+		description string   `json:"description"`
+		status      int64    `json:"status"`
+		publishedAt int64    `json:"published_at"`
+		pageUrls    []string `json:"page_urls"`
+	}
+	GetComicRequest {
+		comicId uint64 `form:"comic_id"`
+	}
+	GetComicChapterRequest {
+		comicId  uint64 `form:"comic_id"`
+		page     int64  `form:"page"`
+		pageSize int64  `form:"page_size"`
+	}
+	GetComicPageRequest {
+		comicChapterId uint64 `form:"comic_chapter_id"`
+		page           int64  `form:"page"`
+		pageSize       int64  `form:"page_size"`
+	}
+	ModifyComicRequest {
+		comicId     uint64   `json:"comic_id"`
+		name        string   `json:"name"`
+		tags        []string `json:"tags"`
+		description string   `json:"description"`
+		cover       string   `json:"cover"`
+		author      string   `json:"author"`
+		publishedAt int64    `json:"published_at"`
+	}
+	ModifyComicChapterRequest {
+		comicChapterId uint64   `json:"comic_chapter_id"`
+		comicId        uint64   `json:"comic_id"`
+		chapterNo      int64    `json:"chapter_no"`
+		title          string   `json:"title"`
+		description    string   `json:"description"`
+		status         int64    `json:"status"`
+		publishedAt    int64    `json:"published_at"`
+		pageUrls       []string `json:"page_urls"`
+	}
+	DeleteComicRequest {
+		comicId uint64 `form:"comic_id"`
+	}
+	DeleteComicChapterRequest {
+		comicChapterId uint64 `form:"comic_chapter_id"`
+		comicId        uint64 `form:"comic_id"`
+	}
+)
+
+// ---------------------------------------------------------------------------------------------------------------------
+// ==================
+// ==== Response ====
+// ==================
+// ---------------------------------------------------------------------------------------------------------------------
 // 问答返回模块
 type (
 	GetAnswerResponse {
 		answer string `json:"answer"`
-	}
-)
-
-// content 请求模块
-type (
-	UploadContentRequest {
-		file string `form:"file,optional"`
-	}
-	AddArticleRequest {
-		name        string         `json:"name"`
-		description string         `json:"description"`
-		content     string         `json:"content"`
-		cover       string         `json:"cover"`
-		url         string         `json:"url"`
-		publishedAt int64          `json:"published_at"`
-		author      string         `json:"author"`
-		Tags        []string       `json:"tags"`
-		Images      []ArticleImage `json:"images"`
-	}
-	ArticleImage {
-		url  string `json:"url"`
-		sort int64  `json:"sort"`
-		tp   int64  `json:"tp"`
-	}
-	GetArticleContentRequest {
-		articleId uint64 `json:"article_id"`
-	}
-	ModifyArticleRequest {
-		articleId   uint64         `json:"article_id"`
-		name        string         `json:"name"`
-		description string         `json:"description"`
-		content     string         `json:"content"`
-		cover       string         `json:"cover"`
-		url         string         `json:"url"`
-		publishedAt int64          `json:"published_at"`
-		author      string         `json:"author"`
-		Tags        []string       `json:"tags"`
-		Images      []ArticleImage `json:"images"`
-	}
-)
-
-// content 返回模块
-type (
-	UploadContentResponse {
-		url string `json:"url"`
 	}
 )
 
@@ -109,6 +225,11 @@ type (
 	}
 )
 
+// ---------------------------------------------------------------------------------------------------------------------
+// ======================
+// ======== auth ========
+// ======================
+// ---------------------------------------------------------------------------------------------------------------------
 @server (
 	prefix: /api/auth
 	tags:   "认证模块"
@@ -148,6 +269,11 @@ service xiaoan {
 	post /get-invite-code (GetInviteCodeRequest) returns (Response)
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// ======================
+// ========= qa =========
+// ======================
+// ---------------------------------------------------------------------------------------------------------------------
 @server (
 	prefix: /api/qa
 	tags:   "问答模块"
@@ -159,19 +285,11 @@ service xiaoan {
 	post /answer (GetAnswerRequest) returns (Response)
 }
 
-@server (
-	prefix:   /api/content
-	tags:     "文件内容模块"
-	maxBytes: 104857600 // 100M
-	timeout:  60s
-	group:    content
-)
-service xiaoan {
-	@doc "上传文件（流式传输到gRPC）"
-	@handler UploadContentStream
-	post /upload (UploadContentRequest) returns (Response)
-}
-
+// ---------------------------------------------------------------------------------------------------------------------
+// ======================
+// ======= content ======
+// ======================
+// ---------------------------------------------------------------------------------------------------------------------
 @server (
 	prefix: /api/content
 	tags:   "文件内容模块"
@@ -180,7 +298,27 @@ service xiaoan {
 service xiaoan {
 	@doc "获取文章详细内容"
 	@handler GetArticleContent
-	post /get-article-content (GetArticleContentRequest) returns (Response)
+	get /get-article-content (GetArticleContentRequest) returns (Response)
+
+	@doc "获取视频详细内容"
+	@handler GetVideoContent
+	get /get-video-content (GetVideoContentRequest) returns (Response)
+
+	@doc "获取播客详细内容"
+	@handler GetPodcastContent
+	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
+
+	@doc "获取漫画"
+	@handler GetComic
+	get /get-comic (GetComicRequest) returns (Response)
+
+	@doc "获取漫画章节"
+	@handler GetComicChapter
+	get /get-comic-chapter (GetComicChapterRequest) returns (Response)
+
+	@doc "获取漫画页面"
+	@handler GetComicPage
+	get /get-comic-page (GetComicPageRequest) returns (Response)
 }
 
 @server (
@@ -197,5 +335,57 @@ service xiaoan {
 	@doc "修改文章"
 	@handler ModifyArticle
 	post /modify-article (ModifyArticleRequest) returns (Response)
+
+	@doc "删除文章"
+	@handler DeleteArticle
+	delete /delete-article (DeleteArticleRequest) returns (Response)
+
+	@doc "添加视频"
+	@handler AddVideo
+	post /add-video (AddVideoRequest) returns (Response)
+
+	@doc "修改视频"
+	@handler ModifyVideo
+	post /modify-video (ModifyVideoRequest) returns (Response)
+
+	@doc "删除视频"
+	@handler DeleteVideo
+	delete /delete-video (DeleteVideoRequest) returns (Response)
+
+	@doc "添加播客"
+	@handler AddPodcast
+	post /add-podcast (AddPodcastRequest) returns (Response)
+
+	@doc "修改播客"
+	@handler ModifyPodcast
+	post /modify-podcast (ModifyPodcastRequest) returns (Response)
+
+	@doc "删除播客"
+	@handler DeletePodcast
+	delete /delete-podcast (DeletePodcastRequest) returns (Response)
+
+	@doc "添加漫画"
+	@handler AddComic
+	post /add-comic (AddComicRequest) returns (Response)
+
+	@doc "添加漫画章节"
+	@handler AddComicChapter
+	post /add-comic-chapter (AddComicChapterRequest) returns (Response)
+
+	@doc "修改漫画"
+	@handler ModifyComic
+	post /modify-comic (ModifyComicRequest) returns (Response)
+
+	@doc "修改漫画章节"
+	@handler ModifyComicChapter
+	post /modify-comic-chapter (ModifyComicChapterRequest) returns (Response)
+
+	@doc "删除漫画"
+	@handler DeleteComic
+	delete /delete-comic (DeleteComicRequest) returns (Response)
+
+	@doc "删除漫画章节"
+	@handler DeleteComicChapter
+	delete /delete-comic-chapter (DeleteComicChapterRequest) returns (Response)
 }
 

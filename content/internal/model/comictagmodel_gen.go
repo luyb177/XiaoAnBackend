@@ -27,7 +27,7 @@ type (
 	comicTagModel interface {
 		Insert(ctx context.Context, data *ComicTag) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*ComicTag, error)
-		FindOneByComicIdTag(ctx context.Context, comicId uint64, tag string) (*ComicTag, error)
+		FindOneByComicIdTagDeletedAt(ctx context.Context, comicId uint64, tag string, deletedAt uint64) (*ComicTag, error)
 		Update(ctx context.Context, data *ComicTag) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -38,12 +38,12 @@ type (
 	}
 
 	ComicTag struct {
-		Id        uint64       `db:"id"`
-		ComicId   uint64       `db:"comic_id"`   // 漫画ID
-		Tag       string       `db:"tag"`        // 标签
-		CreatedAt time.Time    `db:"created_at"` // 创建时间
-		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
-		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间(NULL表示未删除)
+		Id        uint64    `db:"id"`
+		ComicId   uint64    `db:"comic_id"`   // 漫画ID
+		Tag       string    `db:"tag"`        // 标签
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		DeletedAt uint64    `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 
@@ -74,10 +74,10 @@ func (m *defaultComicTagModel) FindOne(ctx context.Context, id uint64) (*ComicTa
 	}
 }
 
-func (m *defaultComicTagModel) FindOneByComicIdTag(ctx context.Context, comicId uint64, tag string) (*ComicTag, error) {
+func (m *defaultComicTagModel) FindOneByComicIdTagDeletedAt(ctx context.Context, comicId uint64, tag string, deletedAt uint64) (*ComicTag, error) {
 	var resp ComicTag
-	query := fmt.Sprintf("select %s from %s where `comic_id` = ? and `tag` = ? limit 1", comicTagRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, comicId, tag)
+	query := fmt.Sprintf("select %s from %s where `comic_id` = ? and `tag` = ? and `deleted_at` = ? limit 1", comicTagRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, comicId, tag, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil

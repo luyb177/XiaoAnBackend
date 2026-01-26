@@ -3,10 +3,10 @@ package model
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"strings"
+
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ ArticleModel = (*customArticleModel)(nil)
@@ -21,12 +21,13 @@ type (
 	ArticleModel interface {
 		articleModel
 		withSession(session sqlx.Session) ArticleModel
-		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error)
+		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
+		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
 	}
 
 	customArticleModel struct {
@@ -77,26 +78,19 @@ func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset in
 
 	var out []*Article
 	err := m.conn.QueryRowsCtx(ctx, &out, query, args...)
-	return out, err
+	return out, mapDBError(err)
 }
 
 func (m *customArticleModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error) {
 	query := fmt.Sprintf(
-		"select %s from %s where `id` = ? and `deleted_at` is null limit 1",
+		"select %s from %s where `id` = ? and `deleted_at` = 0 limit 1",
 		articleRows,
 		m.table,
 	)
 
 	var resp Article
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
-	switch {
-	case err == nil:
-		return &resp, nil
-	case errors.Is(err, sqlx.ErrNotFound):
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
+	return &resp, mapDBError(err)
 }
 
 func (m *customArticleModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error {
@@ -107,9 +101,19 @@ func (m *customArticleModel) UpdateRelationStatus(ctx context.Context, id uint64
 	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
 
 	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
-	return err
+	return mapDBError(err)
 }
 
 func (m *customArticleModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
 	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
+}
+
+func (m *customArticleModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+	query := fmt.Sprintf(
+		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ?",
+		m.table,
+	)
+
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, modifier, id)
+	return mapDBError(err)
 }

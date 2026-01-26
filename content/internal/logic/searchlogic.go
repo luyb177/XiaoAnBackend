@@ -3,13 +3,13 @@ package logic
 import (
 	"context"
 	"fmt"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 const (
@@ -109,9 +109,7 @@ func (l *SearchLogic) SearchVideo(in *v1.SearchRequest) (*v1.Response, error) {
 			Description:  video[i].Description.String,
 			Cover:        video[i].Cover,
 			Author:       video[i].Author,
-			CreateTime:   video[i].PublishedAt.Time.Unix(),
 			CreatedAt:    video[i].CreatedAt.Unix(),
-			UpdateTime:   video[i].UpdatedAt.Unix(),
 			LikeCount:    video[i].LikeCount,
 			ViewCount:    video[i].ViewCount,
 			CollectCount: video[i].CollectCount,
@@ -152,9 +150,7 @@ func (l *SearchLogic) SearchComic(in *v1.SearchRequest) (*v1.Response, error) {
 			Description:  comic[i].Description.String,
 			Cover:        comic[i].Cover,
 			Author:       comic[i].Author,
-			CreateTime:   comic[i].PublishedAt.Unix(),
 			CreatedAt:    comic[i].CreatedAt.Unix(),
-			UpdateTime:   comic[i].UpdatedAt.Unix(),
 			LikeCount:    comic[i].LikeCount,
 			ViewCount:    comic[i].ViewCount,
 			CollectCount: comic[i].CollectCount,
@@ -194,9 +190,7 @@ func (l *SearchLogic) SearchPodcast(in *v1.SearchRequest) (*v1.Response, error) 
 			Description: podcast[i].Description.String,
 			Cover:       podcast[i].Cover,
 			Author:      podcast[i].Author,
-			CreateTime:  podcast[i].PublishedAt.Time.Unix(),
 			CreatedAt:   podcast[i].CreatedAt.Unix(),
-			UpdateTime:  podcast[i].UpdatedAt.Unix(),
 			LikeCount:   podcast[i].LikeCount,
 		})
 	}

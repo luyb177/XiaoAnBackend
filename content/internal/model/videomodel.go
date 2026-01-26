@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"strings"
+
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ VideoModel = (*customVideoModel)(nil)
@@ -23,6 +24,10 @@ type (
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Video) (sql.Result, error)
 		FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error)
 		FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error)
+		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
+		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
+		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
+		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
 	}
 
 	customVideoModel struct {
@@ -45,15 +50,24 @@ func (m *customVideoModel) InsertWithSession(ctx context.Context, session sqlx.S
 	return m.withSession(session).Insert(ctx, data)
 }
 
+func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error) {
+	query := fmt.Sprintf(
+		"select %s from %s where `id` = ? and `deleted_at` = 0 limit 1",
+		videoRows,
+		m.table,
+	)
+
+	var resp Video
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	return &resp, mapDBError(err)
+}
+
 func (m *customVideoModel) FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error) {
 	kw := "%" + keyword + "%"
 	query := fmt.Sprintf("select %s from %s where name like ? or description like ? or author like ? limit ?, ?", videoRows, m.table)
 	var out []*Video
 	err := m.conn.QueryRowsCtx(ctx, &out, query, kw, kw, kw, offset, limit)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	return out, mapDBError(err)
 }
 
 func (m *customVideoModel) FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error) {
@@ -85,5 +99,26 @@ func (m *customVideoModel) FindByVideoTagsAndKeyWord(ctx context.Context, offset
 
 	var out []*Video
 	err := m.conn.QueryRowsCtx(ctx, &out, quary, args...)
-	return out, err
+	return out, mapDBError(err)
+}
+
+func (m *customVideoModel) UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error {
+	query := fmt.Sprintf("update %s set `relation_status` = ? where `id` = ?", m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query, relationStatus, id)
+	return mapDBError(err)
+}
+
+func (m *customVideoModel) UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error {
+	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
+}
+
+func (m *customVideoModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+	query := fmt.Sprintf(
+		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ?",
+		m.table,
+	)
+
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, modifier, id)
+	return mapDBError(err)
 }

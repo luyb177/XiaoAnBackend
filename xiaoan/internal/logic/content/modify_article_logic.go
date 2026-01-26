@@ -2,10 +2,8 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -28,20 +26,10 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 }
 
 func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (resp *types.Response, err error) {
-	images := make([]*content.ArticleImage, len(req.Images))
-	for i, v := range req.Images {
-		images[i] = &content.ArticleImage{
-			Url:  v.Url,
-			Sort: v.Sort,
-			Tp:   v.Tp,
-		}
-	}
-
-	res, _ := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
+	res, err := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
 		Id:          req.ArticleId,
 		Name:        req.Name,
 		Tag:         req.Tags,
-		Images:      images,
 		Url:         req.Url,
 		Description: req.Description,
 		Cover:       req.Cover,
@@ -50,11 +38,18 @@ func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (res
 		PublishedAt: req.PublishedAt,
 	})
 
+	if err != nil {
+		return &types.Response{
+			Code:    400,
+			Message: err.Error(),
+		}, nil
+	}
+
 	var data *content.ModifyArticleResponse
 
 	if res.Data != nil {
 		data = &content.ModifyArticleResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+		_ = res.Data.UnmarshalTo(data)
 	}
 
 	return &types.Response{

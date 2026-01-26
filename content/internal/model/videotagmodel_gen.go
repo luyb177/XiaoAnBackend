@@ -27,7 +27,7 @@ type (
 	videoTagModel interface {
 		Insert(ctx context.Context, data *VideoTag) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*VideoTag, error)
-		FindOneByVideoIdTag(ctx context.Context, videoId uint64, tag string) (*VideoTag, error)
+		FindOneByVideoIdTagDeletedAt(ctx context.Context, videoId uint64, tag string, deletedAt uint64) (*VideoTag, error)
 		Update(ctx context.Context, data *VideoTag) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -38,12 +38,12 @@ type (
 	}
 
 	VideoTag struct {
-		Id        uint64       `db:"id"`
-		VideoId   uint64       `db:"video_id"`   // 视频ID
-		Tag       string       `db:"tag"`        // 标签
-		CreatedAt time.Time    `db:"created_at"` // 记录创建时间（系统时间）
-		UpdatedAt time.Time    `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt sql.NullTime `db:"deleted_at"` // 软删除时间
+		Id        uint64    `db:"id"`
+		VideoId   uint64    `db:"video_id"`   // 视频ID
+		Tag       string    `db:"tag"`        // 标签
+		CreatedAt time.Time `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt time.Time `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt uint64    `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 
@@ -74,10 +74,10 @@ func (m *defaultVideoTagModel) FindOne(ctx context.Context, id uint64) (*VideoTa
 	}
 }
 
-func (m *defaultVideoTagModel) FindOneByVideoIdTag(ctx context.Context, videoId uint64, tag string) (*VideoTag, error) {
+func (m *defaultVideoTagModel) FindOneByVideoIdTagDeletedAt(ctx context.Context, videoId uint64, tag string, deletedAt uint64) (*VideoTag, error) {
 	var resp VideoTag
-	query := fmt.Sprintf("select %s from %s where `video_id` = ? and `tag` = ? limit 1", videoTagRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, videoId, tag)
+	query := fmt.Sprintf("select %s from %s where `video_id` = ? and `tag` = ? and `deleted_at` = ? limit 1", videoTagRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, videoId, tag, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil

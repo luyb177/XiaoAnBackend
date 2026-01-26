@@ -3,6 +3,12 @@ import "third_party/google/protobuf/any.proto";
 package content;
 option go_package = "./content/v1";
 
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ===== Model =====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
+
 message Video {
   uint64 id = 1;
   string name = 2;
@@ -11,9 +17,9 @@ message Video {
   string description = 5;
   string cover = 6;
   string author = 7;
-  int64 create_time = 8;
+  int64 published_at = 8;
   int64 created_at = 9;
-  int64 update_time = 10;
+  int64 updated_at = 10;
   uint64 like_count = 11;
   uint64 view_count = 12;
   uint64 collect_count = 13;
@@ -23,17 +29,40 @@ message Comic {
   uint64 id = 1;
   string name = 2;
   repeated string tag = 3;
-  repeated string url = 4;
-  string description = 5;
-  string cover = 6;
-  string author = 7;
-  int64 create_time = 8;
-  int64 created_at = 9;
-  int64 update_time = 10;
-  uint64 like_count = 11;
-  uint64 view_count = 12;
-  uint64 collect_count = 13;
+  string description = 4;
+  string cover = 5;
+  string author = 6;
+  int64 published_at = 7;
+  int64 created_at = 8;
+  int64 updated_at = 9;
+  uint64 like_count = 10;
+  uint64 view_count = 11;
+  uint64 collect_count = 12;
+  uint64 chapter_count = 13;
 }
+
+message ComicChapter {
+  uint64 id = 1;
+  uint64 comic_id = 2;
+  int64 chapter_no = 3;
+  string title = 4;
+  string description = 5;
+  uint64 page_count = 6;
+  int64 status = 7; // 0: 已发布, 1: 草稿
+  int64 published_at = 8;
+  int64 created_at = 9;
+  int64 updated_at = 10;
+}
+
+message ComicPage {
+  uint64 id = 1;
+  uint64 comic_chapter_id = 2;
+  int64 page_no = 3;
+  string url = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+}
+
 
 message Podcast {
   uint64 id = 1;
@@ -43,19 +72,28 @@ message Podcast {
   string description = 5;
   string cover = 6;
   string author = 7;
-  int64 create_time = 8;
+  int64 published_at = 8;
   int64 created_at = 9;
-  int64 update_time = 10;
+  int64 updated_at = 10;
   uint64 like_count = 11;
   uint64 view_count = 12;
   uint64 collect_count = 13;
+  repeated PodcastHighlight highlights = 14;
+  int64 last_modified_by = 15;
+  int64 relation_status = 16;
+  string channel = 17;
+  int64 status = 18; // 0: 已发布, 1: 草稿
+}
+
+message PodcastHighlight {
+  uint64 second = 1;
+  string highlight = 2;
 }
 
 message Article {
   uint64 id = 1;
   string name = 2;
   repeated string tag = 3;
-  repeated ArticleImage images = 4;
   string url = 5; // 可能的视频 url
   string description = 6;
   string cover = 7;
@@ -70,14 +108,7 @@ message Article {
   int64 last_modified_by = 16;
   int64 relation_status = 17;
 }
-
-message ArticleImage {
-  string url = 1;
-  int64 sort = 2;  // 图片顺序
-  int64 tp = 3;
-}
-
-// 点赞记录
+// ContentLike 点赞记录
 message ContentLike {
   uint64 id = 1;
   string type = 2;  // video,comic,podcast,article,comment
@@ -88,7 +119,7 @@ message ContentLike {
   int64 updated_at = 7;
 }
 
-// 收藏记录
+// ContentCollect 收藏记录
 message ContentCollect {
   uint64 id = 1;
   string type = 2;
@@ -99,7 +130,7 @@ message ContentCollect {
   int64 updated_at = 7;
 }
 
-// 评论
+// Comment 评论
 message Comment {
   uint64 id = 1;
   string type = 2;
@@ -114,31 +145,36 @@ message Comment {
   int64 updated_at = 11;
 }
 
-// 文件分片请求
-message UploadChunk {
-  string filename = 1;
-  bytes data = 2; // 每个分片的二进制内容
-  bool is_last = 3; // 是否最后一片
+// 评论详情
+message CommentDetail {
+  uint64 id = 1;
+  string type = 2;
+  uint64 target_id = 3;
+  uint64 user_id = 4;
+  uint64 parent_id = 5; // 为0 则为根评论
+  uint64 reply_comment_id = 6;
+  uint64 reply_user_id = 7;
+  string content = 8;
+  uint64 like_count = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+  bool is_liked = 12; // 用户是否点赞
 }
 
-// 响应
-message UploadResponse {
-  string url = 1;
+// 评论列表项
+message CommentItem {
+  CommentDetail comment = 1;  // 评论本身
+  repeated CommentDetail child_preview = 2;  // 子评论预览 （默认为前3条）
+  int64 child_total = 3;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ==== Request ====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
 
-// 获取访问链接请求
-message GetContentURLRequest {
-  string object_name = 1; // MinIO对象名
-}
-
-// 获取访问链接响应
-message GetContentURLResponse {
-  string url = 1;
-  int64 expires_in = 2; // 有效期秒数
-}
-
-// 添加视频
+// AddVideoRequest 添加视频请求
 message AddVideoRequest {
   string name = 1;
   repeated string tag = 2;
@@ -146,10 +182,32 @@ message AddVideoRequest {
   string description = 4;
   string cover = 5;
   string author = 6;
-  int64 create_time = 7;
+  int64 published_at = 7;
 }
 
-// 添加文章
+// GetVideoRequest 获取视频详细内容请求
+message GetVideoRequest {
+  uint64 id = 1;
+}
+
+// ModifyVideoRequest 修改视频请求
+message ModifyVideoRequest {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string url = 4;
+  string description = 5;
+  string cover = 6;
+  string author = 7;
+  int64 published_at = 8;
+}
+
+// DeleteVideoRequest 删除视频请求
+message DeleteVideoRequest {
+  uint64 id = 1;
+}
+
+// AddArticleRequest 添加文章请求
 message AddArticleRequest {
   string name = 1;                    // 文章标题
   string description = 2;             // 文章摘要
@@ -159,30 +217,25 @@ message AddArticleRequest {
   int64 published_at = 6;              // 发表时间（可选）
 
   repeated string tags = 7;            // 标签
-  repeated ArticleImage images = 8; // 正文图片
 
   string author = 9;
 }
 
-message AddArticleResponse {
-  uint64 id =  1;
-  int64 relation_status = 2;
-}
-
-// 获取文章详细内容
+// GetArticleRequest 获取文章详细内容请求
 message GetArticleRequest {
   uint64 id = 1;
 }
 
-message GetArticleResponse {
-  Article article = 1;
+// DeleteArticleRequest 删除文章请求
+message DeleteArticleRequest {
+  uint64 id = 1;
 }
 
+// ModifyArticleRequest 修改文章请求
 message ModifyArticleRequest {
   uint64 id = 1;
   string name = 2;
   repeated string tag =  3;
-  repeated ArticleImage images = 4;
   string url = 5;
   string description = 6;
   string cover = 7;
@@ -191,9 +244,117 @@ message ModifyArticleRequest {
   int64 published_at = 11;
 }
 
-message ModifyArticleResponse {
-  uint64 id =  1;
-  int64 relation_status = 2;
+// AddPodcastRequest 添加播客请求
+message AddPodcastRequest {
+  string name = 1;
+  string url = 2;
+  string description = 3;
+  string cover = 4;
+  string author = 5;
+  int64 published_at = 6;
+  string channel = 7;
+  int64 status = 8; // 0: 已发布, 1: 草稿
+  repeated string tags = 9;
+  repeated PodcastHighlight highlights = 10;
+}
+
+// GetPodcastRequest 获取播客详细内容请求
+message GetPodcastRequest {
+  uint64 id = 1;
+}
+
+// ModifyPodcastRequest 修改播客请求
+message ModifyPodcastRequest {
+  uint64 id = 1;
+  string name = 2;
+  string url = 3;
+  string description = 4;
+  string cover = 5;
+  string author = 6;
+  int64 published_at = 7;
+  string channel = 8;
+  int64 status = 9; // 0: 已发布, 1: 草稿
+  repeated string tags = 10;
+  repeated PodcastHighlight highlights = 11;
+}
+
+// DeletePodcastRequest 删除播客请求
+message DeletePodcastRequest {
+  uint64 id = 1;
+}
+
+// AddComicRequest 添加漫画请求
+message AddComicRequest {
+  string name = 1;
+  repeated string tag = 2;
+  string description = 3;
+  string cover = 4;
+  string author = 5;
+  int64 published_at = 6;
+}
+
+// AddComicChapterRequest 添加漫画章节请求
+message AddComicChapterRequest {
+  uint64 comic_id = 1;
+  int64 chapter_no = 2;
+  string title = 3;
+  string description = 4;
+  int64 status = 5; // 0: 已发布, 1: 草稿
+  int64 published_at = 6;
+  repeated string page_urls = 7;
+}
+
+// GetComicRequest 获取漫画详细内容请求
+message GetComicRequest {
+  uint64 id = 1;
+}
+
+// GetComicChapterRequest 获取漫画章节请求
+message GetComicChapterRequest {
+  uint64 comic_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
+}
+
+// GetComicPageRequest 获取漫画章节页面请求
+message GetComicPageRequest {
+  uint64 comic_chapter_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
+}
+
+// ModifyComicRequest 修改漫画请求
+message ModifyComicRequest {
+  uint64 id = 1;
+  string name = 2;
+  repeated string tag = 3;
+  string description = 4;
+  string cover = 5;
+  string author = 6;
+  int64 published_at = 7;
+}
+
+// ModifyComicChapterRequest 修改漫画章节请求
+message ModifyComicChapterRequest {
+  uint64 id = 1;
+  uint64 comic_id = 2;
+  int64 chapter_no = 3;
+  string title = 4;
+  string description = 5;
+  int64 status = 6; // 0: 已发布, 1: 草稿
+  int64 published_at = 7;
+  repeated string page_urls = 8;
+}
+
+// DeleteComicRequest 删除漫画请求
+message DeleteComicRequest {
+  uint64 id = 1;
+}
+
+// DeleteComicChapterRequest 删除漫画章节请求
+message DeleteComicChapterRequest {
+  uint64 id = 1;
+  uint64 comic_id = 2;
 }
 
 
@@ -203,13 +364,6 @@ message SearchRequest {
   repeated string tag = 3;   // 标签筛选
   int64 page = 4;            // 页码
   int64 page_size = 5;       // 每页数量
-}
-
-message SearchResponse {
-  repeated Video videos = 1;
-  repeated Comic comics = 2;
-  repeated Podcast podcasts = 3;
-  repeated Article articles = 4;
 }
 
 // 点赞请求
@@ -250,34 +404,6 @@ message GetCommentsRequest {
   int64 page_size = 4;
 }
 
-// 评论详情
-message CommentDetail {
-  uint64 id = 1;
-  string type = 2;
-  uint64 target_id = 3;
-  uint64 user_id = 4;
-  uint64 parent_id = 5; // 为0 则为根评论
-  uint64 reply_comment_id = 6;
-  uint64 reply_user_id = 7;
-  string content = 8;
-  uint64 like_count = 9;
-  int64 created_at = 10;
-  int64 updated_at = 11;
-  bool is_liked = 12; // 用户是否点赞
-}
-
-// 评论列表项
-message CommentItem {
-  CommentDetail comment = 1;  // 评论本身
-  repeated CommentDetail child_preview = 2;  // 子评论预览 （默认为前3条）
-  int64 child_total = 3;
-}
-
-message GetCommentsResponse {
-  repeated CommentItem comments = 1;  // 评论列表
-  int64 total = 2;  // 总数
-}
-
 // 获取内容请求
 message GetContentRequest {
   string type = 1;
@@ -285,19 +411,115 @@ message GetContentRequest {
 }
 
 
+// ---------------------------------------------------------------------------------------------------------------------
+// ==================
+// ==== Response ====
+// ==================
+// ---------------------------------------------------------------------------------------------------------------------
+
+message AddVideoResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+
+message GetVideoResponse {
+  Video video = 1;
+}
+
+message ModifyVideoResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+message AddArticleResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+message GetArticleResponse {
+  Article article = 1;
+}
+
+message ModifyArticleResponse {
+  uint64 id =  1;
+  int64 relation_status = 2;
+}
+
+message AddPodcastResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message GetPodcastResponse {
+  Podcast podcast = 1;
+}
+
+message ModifyPodcastResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message AddComicResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message AddComicChapterResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message GetComicResponse {
+  Comic comic = 1;
+}
+
+message GetComicChapterResponse {
+  repeated ComicChapter chapters = 1;
+}
+
+message GetComicPageResponse {
+  repeated ComicPage pages = 1;
+}
+
+message ModifyComicResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message ModifyComicChapterResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message SearchResponse {
+  repeated Video videos = 1;
+  repeated Comic comics = 2;
+  repeated Podcast podcasts = 3;
+  repeated Article articles = 4;
+}
+
+
+message GetCommentsResponse {
+  repeated CommentItem comments = 1;  // 评论列表
+  int64 total = 2;  // 总数
+}
+
 message Response {
   int64 code = 1 ;
   string message = 2;
   google.protobuf.Any data = 3;
 }
 
+
+// ------------------------------------------------------------------------------------------------------------------
+// ===============
+// ==== Route ====
+//================
+// ---------------------------------------------------------------------------------------------------------------------
+
+
 service ContentService {
-  // 上传文件
-  rpc UploadContentStream(stream UploadChunk) returns (Response);
-
-  // 获取访问URL
-  rpc GetContentURL(GetContentURLRequest) returns (Response);
-
   // AddArticle 添加文章
   rpc AddArticle(AddArticleRequest) returns (Response);
 
@@ -307,8 +529,59 @@ service ContentService {
   // ModifyArticle 修改文章
   rpc ModifyArticle(ModifyArticleRequest) returns (Response);
 
-  // 添加视频
+  // DeleteArticle 删除文章
+  rpc DeleteArticle(DeleteArticleRequest) returns (Response);
+
+  // AddVideo 添加视频
   rpc AddVideo(AddVideoRequest) returns (Response);
+
+  // GetVideo 获取视频
+  rpc GetVideo(GetVideoRequest) returns (Response);
+
+  // ModifyVideo 修改视频
+  rpc ModifyVideo(ModifyVideoRequest) returns (Response);
+
+  // DeleteVideo 删除视频
+  rpc DeleteVideo(DeleteVideoRequest) returns (Response);
+
+  // AddPodcast 添加播客
+  rpc AddPodcast(AddPodcastRequest) returns (Response);
+
+  // GetPodcast 获取播客
+  rpc GetPodcast(GetPodcastRequest) returns (Response);
+
+  // ModifyPodcast 修改播客
+  rpc ModifyPodcast(ModifyPodcastRequest) returns (Response);
+
+  // DeletePodcast 删除播客
+  rpc DeletePodcast(DeletePodcastRequest) returns (Response);
+
+  // AddComic 添加漫画
+  rpc AddComic(AddComicRequest) returns (Response);
+
+  // AddComicChapter 添加漫画章节
+  rpc AddComicChapter(AddComicChapterRequest) returns (Response);
+
+  // GetComic 获取漫画
+  rpc GetComic(GetComicRequest) returns (Response);
+
+  // GetComicChapter 获取漫画章节
+  rpc GetComicChapter(GetComicChapterRequest) returns (Response);
+
+  // GetComicPage 获取漫画章节页面
+  rpc GetComicPage(GetComicPageRequest) returns (Response);
+
+  // ModifyComic 修改漫画
+  rpc ModifyComic(ModifyComicRequest) returns (Response);
+
+  // ModifyComicChapter 修改漫画章节
+  rpc ModifyComicChapter(ModifyComicChapterRequest) returns (Response);
+
+  // DeleteComic 删除漫画
+  rpc DeleteComic(DeleteComicRequest) returns (Response);
+
+  // DeleteComicChapter 删除漫画章节
+  rpc DeleteComicChapter(DeleteComicChapterRequest) returns (Response);
 
   // 搜索
   rpc Search(SearchRequest) returns (Response);
