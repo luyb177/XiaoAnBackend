@@ -202,6 +202,18 @@ type (
 		comicChapterId uint64 `form:"comic_chapter_id"`
 		comicId        uint64 `form:"comic_id"`
 	}
+	AddCommentRequest {
+		contentType    string `json:"content_type"`
+		contentId      uint64 `json:"content_id"`
+		userName       string `json:"user_name"`
+		avatar         string `json:"avatar"`
+		ipLocation     string `json:"ip_location"`
+		parentId       uint64 `json:"parent_id"`
+		replyCommentId uint64 `json:"reply_comment_id"`
+		replyUserId    uint64 `json:"reply_user_id"`
+		commentText    string `json:"comment_text"`
+		status         uint64 `json:"status"`
+	}
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -387,5 +399,9 @@ service xiaoan {
 	@doc "删除漫画章节"
 	@handler DeleteComicChapter
 	delete /delete-comic-chapter (DeleteComicChapterRequest) returns (Response)
+
+	@doc "添加评论"
+	@handler AddComment
+	post /add-comment (AddCommentRequest) returns (Response)
 }
 

@@ -33,6 +33,19 @@ type AddComicRequest struct {
 	PublishedAt int64    `json:"published_at"`
 }
 
+type AddCommentRequest struct {
+	ContentType    string `json:"content_type"`
+	ContentId      uint64 `json:"content_id"`
+	UserName       string `json:"user_name"`
+	Avatar         string `json:"avatar"`
+	IpLocation     string `json:"ip_location"`
+	ParentId       uint64 `json:"parent_id"`
+	ReplyCommentId uint64 `json:"reply_comment_id"`
+	ReplyUserId    uint64 `json:"reply_user_id"`
+	CommentText    string `json:"comment_text"`
+	Status         uint64 `json:"status"`
+}
+
 type AddPodcastRequest struct {
 	Name        string                  `json:"name"`
 	Url         string                  `json:"url"`

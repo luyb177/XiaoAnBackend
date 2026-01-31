@@ -627,6 +627,95 @@
         }
       }
     },
+    "/api/content/add-comment": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "添加评论",
+        "operationId": "contentAddComment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id",
+                "user_name",
+                "avatar",
+                "ip_location",
+                "parent_id",
+                "reply_comment_id",
+                "reply_user_id",
+                "comment_text",
+                "status"
+              ],
+              "properties": {
+                "avatar": {
+                  "type": "string"
+                },
+                "comment_text": {
+                  "type": "string"
+                },
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "ip_location": {
+                  "type": "string"
+                },
+                "parent_id": {
+                  "type": "integer"
+                },
+                "reply_comment_id": {
+                  "type": "integer"
+                },
+                "reply_user_id": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "integer"
+                },
+                "user_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/add-podcast": {
       "post": {
         "consumes": [
@@ -1800,7 +1889,7 @@
       }
     }
   },
-  "x-date": "2026-01-25 13:43:50",
+  "x-date": "2026-01-28 16:39:14",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

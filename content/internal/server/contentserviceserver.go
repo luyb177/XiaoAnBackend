@@ -149,6 +149,24 @@ func (s *ContentServiceServer) DeleteComicChapter(ctx context.Context, in *v1.De
 	return l.DeleteComicChapter(in)
 }
 
+// AddComment 添加评论
+func (s *ContentServiceServer) AddComment(ctx context.Context, in *v1.AddCommentRequest) (*v1.Response, error) {
+	l := logic.NewAddCommentLogic(ctx, s.svcCtx)
+	return l.AddComment(in)
+}
+
+// DeleteComment 删除评论
+func (s *ContentServiceServer) DeleteComment(ctx context.Context, in *v1.DeleteCommentRequest) (*v1.Response, error) {
+	l := logic.NewDeleteCommentLogic(ctx, s.svcCtx)
+	return l.DeleteComment(in)
+}
+
+// GetComment 获取评论
+func (s *ContentServiceServer) GetComment(ctx context.Context, in *v1.GetCommentRequest) (*v1.Response, error) {
+	l := logic.NewGetCommentLogic(ctx, s.svcCtx)
+	return l.GetComment(in)
+}
+
 // 搜索
 func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
 	l := logic.NewSearchLogic(ctx, s.svcCtx)
@@ -165,28 +183,4 @@ func (s *ContentServiceServer) Like(ctx context.Context, in *v1.LikeRequest) (*v
 func (s *ContentServiceServer) Collect(ctx context.Context, in *v1.CollectRequest) (*v1.Response, error) {
 	l := logic.NewCollectLogic(ctx, s.svcCtx)
 	return l.Collect(in)
-}
-
-// 添加评论
-func (s *ContentServiceServer) AddComment(ctx context.Context, in *v1.AddCommentRequest) (*v1.Response, error) {
-	l := logic.NewAddCommentLogic(ctx, s.svcCtx)
-	return l.AddComment(in)
-}
-
-// 修改评论
-func (s *ContentServiceServer) UpdateComment(ctx context.Context, in *v1.UpdateCommentRequest) (*v1.Response, error) {
-	l := logic.NewUpdateCommentLogic(ctx, s.svcCtx)
-	return l.UpdateComment(in)
-}
-
-// 删除评论
-func (s *ContentServiceServer) DeleteComment(ctx context.Context, in *v1.DeleteCommentRequest) (*v1.Response, error) {
-	l := logic.NewDeleteCommentLogic(ctx, s.svcCtx)
-	return l.DeleteComment(in)
-}
-
-// 获取根评论
-func (s *ContentServiceServer) GetComments(ctx context.Context, in *v1.GetCommentsRequest) (*v1.Response, error) {
-	l := logic.NewGetCommentsLogic(ctx, s.svcCtx)
-	return l.GetComments(in)
 }

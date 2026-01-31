@@ -54,6 +54,7 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w.RegisterHandler(tasks.PodcastRelationTaskPrefix, NewPodcastRelationHandler(svcCtx, w.ctx))
 	w.RegisterHandler(tasks.ComicRelationTaskPrefix, NewComicRelationHandler(svcCtx, w.ctx))
 	w.RegisterHandler(tasks.ComicChapterRelationTaskPrefix, NewComicChapterRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(svcCtx, w.ctx))
 
 	return w
 }

@@ -23,9 +23,16 @@ type (
 		withSession(session sqlx.Session) ComicModel
 		IncrChapterCountByComicID(ctx context.Context, comicID uint64) error
 		IncrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error
+		IncrCommentCount(ctx context.Context, comicID uint64) (sql.Result, error)
+		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64) (sql.Result, error)
+		DecrCommentCount(ctx context.Context, comicID uint64) (sql.Result, error)
+		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, comicID uint64, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64, count uint64) (sql.Result, error)
 		DecrChapterCountByComicID(ctx context.Context, comicID uint64) error
 		DecrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error)
+		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comic, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Comic) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
@@ -59,6 +66,36 @@ func (m *customComicModel) IncrChapterCountByComicIDWithSession(ctx context.Cont
 	return m.withSession(session).IncrChapterCountByComicID(ctx, comicID)
 }
 
+func (m *customComicModel) IncrCommentCount(ctx context.Context, comicID uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` + 1 where `id` = ? and `deleted_at` = 0", m.table)
+	result, err := m.conn.ExecCtx(ctx, query, comicID)
+	return result, mapDBError(err)
+}
+
+func (m *customComicModel) IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCommentCount(ctx, comicID)
+}
+
+func (m *customComicModel) DecrCommentCount(ctx context.Context, comicID uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - 1 where `id` = ? and `comment_count` > 0 and `deleted_at` = 0", m.table)
+	result, err := m.conn.ExecCtx(ctx, query, comicID)
+	return result, mapDBError(err)
+}
+
+func (m *customComicModel) DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCount(ctx, comicID)
+}
+
+func (m *customComicModel) DecrCommentCountByCount(ctx context.Context, comicID uint64, count uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - ? where `id` = ? and `comment_count` >= ? and `deleted_at` = 0", m.table)
+	result, err := m.conn.ExecCtx(ctx, query, count, comicID, count)
+	return result, mapDBError(err)
+}
+
+func (m *customComicModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64, count uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCountByCount(ctx, comicID, count)
+}
+
 func (m *customComicModel) DecrChapterCountByComicID(ctx context.Context, comicID uint64) error {
 	query := fmt.Sprintf("update %s set `chapter_count` = `chapter_count` - 1 where `id` = ? and `chapter_count` > 0", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, comicID)
@@ -79,6 +116,10 @@ func (m *customComicModel) FindOneWithNotDelete(ctx context.Context, id uint64) 
 	var resp Comic
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	return &resp, mapDBError(err)
+}
+
+func (m *customComicModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comic, error) {
+	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
 func (m *customComicModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error) {

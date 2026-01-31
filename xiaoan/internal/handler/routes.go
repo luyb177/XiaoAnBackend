@@ -131,6 +131,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddComicChapterHandler(serverCtx),
 				},
 				{
+					// 添加评论
+					Method:  http.MethodPost,
+					Path:    "/add-comment",
+					Handler: content.AddCommentHandler(serverCtx),
+				},
+				{
 					// 添加播客
 					Method:  http.MethodPost,
 					Path:    "/add-podcast",

@@ -37,7 +37,7 @@ func NewAddComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *A
 // AddComicChapter 添加漫画章节
 func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*v1.Response, error) {
 	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if user.UID <= InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		l.Errorf("AddComicChapter err: 用户未登录或无权限")
 
 		return &v1.Response{

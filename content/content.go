@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/server"
