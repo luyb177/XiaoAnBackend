@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comment/convert"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -57,16 +56,8 @@ func (l *GetRootCommentLogic) GetRootComment(in *v1.GetRootCommentRequest) (*v1.
 		return internal("获取根评论失败"), nil
 	}
 
-	for _, comment := range rootCommentsModel {
-		fmt.Printf("%+v\n", comment)
-	}
-
 	// todo 是否点赞
 	rootCommentPB := convert.PBFromComment(rootCommentsModel)
-
-	for _, comment := range rootCommentPB {
-		fmt.Printf("%+v\n", comment)
-	}
 
 	res := &v1.GetCommentResponse{Comments: rootCommentPB}
 

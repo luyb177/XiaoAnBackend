@@ -43,6 +43,9 @@ func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, er
 		return resp, nil
 	}
 
+	// TODO: user.Nickname user.Avatar 未来可以使用RPC调用服务来获取用户最新信息
+	//
+	// TODO: IP地址的话需要 网关 来获取一下，不再是客户端传递了
 	now := time.Now()
 	comment := &model.Comment{
 		Type:            in.Type,
@@ -118,7 +121,7 @@ func (l *AddCommentLogic) validate(in *v1.AddCommentRequest) *v1.Response {
 	case !isValidContentType(in.Type):
 		return bad("评论类型不合法")
 	case in.TargetId <= 0:
-		return bad("评论目标ID不能为负值")
+		return bad("评论目标ID必须大于0")
 	case in.Nickname == "":
 		return bad("评论昵称不能为空")
 	case in.Avatar == "":
@@ -127,12 +130,6 @@ func (l *AddCommentLogic) validate(in *v1.AddCommentRequest) *v1.Response {
 		return bad("评论IP地址不能为空")
 	case in.Content == "":
 		return bad("评论内容不能为空")
-	case in.ParentId < 0:
-		return bad("评论父ID不能小于0")
-	case in.ReplyCommentId < 0:
-		return bad("评论回复ID不能小于0")
-	case in.ReplyUserId < 0:
-		return bad("评论回复用户ID不能小于0")
 	case !isValidCommentStatus(in.Status):
 		return bad("评论状态不合法")
 	}

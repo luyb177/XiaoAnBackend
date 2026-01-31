@@ -81,7 +81,7 @@ func (l *GetSubCommentLogic) validate(in *v1.GetSubCommentRequest) *v1.Response 
 	case in.ContentType != ContentTypeArticle && in.ContentType != ContentTypeComic && in.ContentType != ContentTypeVideo && in.ContentType != ContentTypePodcast:
 		return bad("内容类型不合法")
 	case in.ContentId <= 0:
-		return bad("内容IDb不合法")
+		return bad("内容ID不合法")
 	case in.ParentCommentId <= 0:
 		return bad("父评论ID不合法")
 	}

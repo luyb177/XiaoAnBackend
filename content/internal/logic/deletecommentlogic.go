@@ -40,7 +40,7 @@ func (l *DeleteCommentLogic) DeleteComment(in *v1.DeleteCommentRequest) (*v1.Res
 	// 参数校验
 	if in.Id <= 0 {
 		l.Errorf("DeleteComment err: 参数校验失败, 评论ID无效")
-		bad("评论ID无效")
+		return bad("评论ID无效"), nil
 	}
 
 	// 获取一下评论
