@@ -82,6 +82,7 @@ func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, er
 		ContentID:      in.TargetId,
 		UID:            user.UID,
 		CommentID:      comment.Id,
+		ParentID:       in.ParentId,
 		ReplyCommentID: in.ReplyCommentId,
 		ReplyUserID:    in.ReplyUserId,
 	}

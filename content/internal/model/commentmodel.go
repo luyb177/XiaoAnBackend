@@ -26,6 +26,8 @@ type (
 		FindOneByTypeAndCommentId(ctx context.Context, tp string, commentId uint64) (*Comment, error)
 		FindOneByTypeAndCommentIdWithSession(ctx context.Context, session sqlx.Session, tp string, commentId uint64) (*Comment, error)
 		FindOneWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comment, error)
+		FindRootByTypeAndTargetId(ctx context.Context, tp string, targetId uint64, offset int64, limit int64) (list []*Comment, err error)
+		FindSubByTypeAndTargetIdAndParentId(ctx context.Context, tp string, targetId uint64, parentId uint64, offset int64, limit int64) (list []*Comment, err error)
 		MarkCommentAsCounted(ctx context.Context, commentId uint64) (sql.Result, error)
 		MarkCommentAsCountedWithSession(ctx context.Context, session sqlx.Session, commentId uint64) (sql.Result, error)
 		UnmarkCommentAsCounted(ctx context.Context, commentId uint64) (sql.Result, error)
@@ -95,6 +97,36 @@ func (m *customCommentModel) FindOneWithSession(ctx context.Context, session sql
 
 func (m *customCommentModel) FindOneByTypeAndCommentIdWithSession(ctx context.Context, session sqlx.Session, tp string, commentId uint64) (*Comment, error) {
 	return m.withSession(session).FindOneByTypeAndCommentId(ctx, tp, commentId)
+}
+
+func (m *customCommentModel) FindRootByTypeAndTargetId(ctx context.Context, tp string, targetId uint64, offset int64, limit int64) (list []*Comment, err error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+		where type = ? and target_id = ? and parent_id = 0 and deleted_at = 0 and status = 0
+		order by like_count desc, created_at desc
+		limit ? offset ?`,
+		commentRows,
+		m.table,
+	)
+
+	var out []*Comment
+	err = m.conn.QueryRowsCtx(ctx, &out, query, tp, targetId, limit, offset)
+	return out, mapDBError(err)
+}
+
+func (m *customCommentModel) FindSubByTypeAndTargetIdAndParentId(ctx context.Context, tp string, targetId uint64, parentId uint64, offset int64, limit int64) (list []*Comment, err error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+		where type = ? and target_id = ? and parent_id = ? and deleted_at = 0 and status = 0
+		order by like_count desc, created_at desc
+		limit ? offset ?`,
+		commentRows,
+		m.table,
+	)
+
+	var out []*Comment
+	err = m.conn.QueryRowsCtx(ctx, &out, query, tp, targetId, parentId, limit, offset)
+	return out, mapDBError(err)
 }
 
 func (m *customCommentModel) MarkCommentAsCounted(ctx context.Context, commentId uint64) (sql.Result, error) {

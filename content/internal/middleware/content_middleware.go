@@ -27,6 +27,8 @@ var noAuthMethods = map[string]struct{}{
 	"/content.ContentService/GetComic":        {},
 	"/content.ContentService/GetComicChapter": {},
 	"/content.ContentService/GetComicPage":    {},
+	"/content.ContentService/GetRootComment":  {},
+	"/content.ContentService/GetSubComment":   {},
 }
 
 // UserUnaryInterceptor 用户服务拦截器

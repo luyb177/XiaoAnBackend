@@ -109,6 +109,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 		CollectCount:   article.CollectCount,
 		LastModifiedBy: article.LastModifiedBy.Int64,
 		RelationStatus: article.RelationStatus,
+		CommentCount:   article.CommentCount,
 	}}
 
 	resAny, err := anypb.New(res)

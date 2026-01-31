@@ -363,11 +363,19 @@ message DeleteCommentRequest {
   uint64 id = 1;
 }
 
-message GetCommentRequest {
+message GetRootCommentRequest {
   string content_type = 1;
   uint64 content_id = 2;
   int64 page = 3;
   int64 page_size = 4;
+}
+
+message GetSubCommentRequest {
+  string content_type = 1;
+  uint64 content_id = 2;
+  uint64 parent_comment_id = 3;
+  int64 page = 4;
+  int64 page_size = 5;
 }
 
 message SearchRequest {
@@ -483,7 +491,11 @@ message AddCommentResponse {
 }
 
 message GetCommentResponse {
+  repeated Comment comments = 1;
+}
 
+message GetSubCommentResponse {
+  repeated Comment comments = 1;
 }
 
 message SearchResponse {
@@ -577,8 +589,11 @@ service ContentService {
   // DeleteComment 删除评论
   rpc DeleteComment(DeleteCommentRequest) returns (Response);
 
-  // GetComment 获取评论
-  rpc GetComment(GetCommentRequest) returns (Response);
+  // GetRootComment 获取评论
+  rpc GetRootComment(GetRootCommentRequest) returns (Response);
+
+  // GetSubComment 获取子评论
+  rpc GetSubComment(GetSubCommentRequest) returns (Response);
 
   // 搜索
   rpc Search(SearchRequest) returns (Response);

@@ -1038,6 +1038,49 @@
         }
       }
     },
+    "/api/content/delete-comment": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除评论",
+        "operationId": "contentDeleteComment",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comment_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/delete-podcast": {
       "delete": {
         "consumes": [
@@ -1325,6 +1368,128 @@
           {
             "type": "integer",
             "name": "podcast_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-root-comment": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取根评论",
+        "operationId": "contentGetRootComment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "content_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "content_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-sub-comment": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取子评论",
+        "operationId": "contentGetSubComment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "content_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "content_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "parent_comment_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
             "in": "query",
             "required": true
           }
@@ -1889,7 +2054,7 @@
       }
     }
   },
-  "x-date": "2026-01-28 16:39:14",
+  "x-date": "2026-01-31 20:15:36",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

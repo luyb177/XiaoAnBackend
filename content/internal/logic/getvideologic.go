@@ -104,6 +104,7 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		LikeCount:    video.LikeCount,
 		ViewCount:    video.ViewCount,
 		CollectCount: video.CollectCount,
+		CommentCount: video.CommentCount,
 	}}
 
 	resAny, err := anypb.New(res)

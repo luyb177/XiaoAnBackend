@@ -48,11 +48,13 @@ type (
 	GetComicPageResponse       = v1.GetComicPageResponse
 	GetComicRequest            = v1.GetComicRequest
 	GetComicResponse           = v1.GetComicResponse
-	GetCommentRequest          = v1.GetCommentRequest
 	GetCommentResponse         = v1.GetCommentResponse
 	GetContentRequest          = v1.GetContentRequest
 	GetPodcastRequest          = v1.GetPodcastRequest
 	GetPodcastResponse         = v1.GetPodcastResponse
+	GetRootCommentRequest      = v1.GetRootCommentRequest
+	GetSubCommentRequest       = v1.GetSubCommentRequest
+	GetSubCommentResponse      = v1.GetSubCommentResponse
 	GetVideoRequest            = v1.GetVideoRequest
 	GetVideoResponse           = v1.GetVideoResponse
 	LikeRequest                = v1.LikeRequest
@@ -120,8 +122,10 @@ type (
 		AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error)
 		// DeleteComment 删除评论
 		DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
-		// GetComment 获取评论
-		GetComment(ctx context.Context, in *GetCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetRootComment 获取评论
+		GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetSubComment 获取子评论
+		GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 		// 点赞
@@ -279,10 +283,16 @@ func (m *defaultContentService) DeleteComment(ctx context.Context, in *DeleteCom
 	return client.DeleteComment(ctx, in, opts...)
 }
 
-// GetComment 获取评论
-func (m *defaultContentService) GetComment(ctx context.Context, in *GetCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+// GetRootComment 获取评论
+func (m *defaultContentService) GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.GetComment(ctx, in, opts...)
+	return client.GetRootComment(ctx, in, opts...)
+}
+
+// GetSubComment 获取子评论
+func (m *defaultContentService) GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetSubComment(ctx, in, opts...)
 }
 
 // 搜索

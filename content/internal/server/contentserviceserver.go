@@ -161,10 +161,16 @@ func (s *ContentServiceServer) DeleteComment(ctx context.Context, in *v1.DeleteC
 	return l.DeleteComment(in)
 }
 
-// GetComment 获取评论
-func (s *ContentServiceServer) GetComment(ctx context.Context, in *v1.GetCommentRequest) (*v1.Response, error) {
-	l := logic.NewGetCommentLogic(ctx, s.svcCtx)
-	return l.GetComment(in)
+// GetRootComment 获取评论
+func (s *ContentServiceServer) GetRootComment(ctx context.Context, in *v1.GetRootCommentRequest) (*v1.Response, error) {
+	l := logic.NewGetRootCommentLogic(ctx, s.svcCtx)
+	return l.GetRootComment(in)
+}
+
+// GetSubComment 获取子评论
+func (s *ContentServiceServer) GetSubComment(ctx context.Context, in *v1.GetSubCommentRequest) (*v1.Response, error) {
+	l := logic.NewGetSubCommentLogic(ctx, s.svcCtx)
+	return l.GetSubComment(in)
 }
 
 // 搜索

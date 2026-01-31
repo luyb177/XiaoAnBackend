@@ -63,7 +63,7 @@ func (l *DeleteCommentLogic) DeleteComment(in *v1.DeleteCommentRequest) (*v1.Res
 	}
 
 	deletedAt := uint64(time.Now().Unix())
-	err = l.CommentDao.SoftDelete(l.ctx, comment.Id, deletedAt)
+	err = l.CommentDao.UserSoftDelete(l.ctx, comment.Id, deletedAt)
 	if err != nil {
 		l.Errorf("DeleteComment err: 删除评论失败, id=%d, err=%v", in.Id, err)
 		return bad("删除评论失败"), nil

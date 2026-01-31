@@ -3003,7 +3003,7 @@ func (x *DeleteCommentRequest) GetId() uint64 {
 	return 0
 }
 
-type GetCommentRequest struct {
+type GetRootCommentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ContentType   string                 `protobuf:"bytes,1,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
 	ContentId     uint64                 `protobuf:"varint,2,opt,name=content_id,json=contentId,proto3" json:"content_id,omitempty"`
@@ -3013,20 +3013,20 @@ type GetCommentRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetCommentRequest) Reset() {
-	*x = GetCommentRequest{}
+func (x *GetRootCommentRequest) Reset() {
+	*x = GetRootCommentRequest{}
 	mi := &file_content_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetCommentRequest) String() string {
+func (x *GetRootCommentRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetCommentRequest) ProtoMessage() {}
+func (*GetRootCommentRequest) ProtoMessage() {}
 
-func (x *GetCommentRequest) ProtoReflect() protoreflect.Message {
+func (x *GetRootCommentRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_content_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3038,33 +3038,109 @@ func (x *GetCommentRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetCommentRequest.ProtoReflect.Descriptor instead.
-func (*GetCommentRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetRootCommentRequest.ProtoReflect.Descriptor instead.
+func (*GetRootCommentRequest) Descriptor() ([]byte, []int) {
 	return file_content_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *GetCommentRequest) GetContentType() string {
+func (x *GetRootCommentRequest) GetContentType() string {
 	if x != nil {
 		return x.ContentType
 	}
 	return ""
 }
 
-func (x *GetCommentRequest) GetContentId() uint64 {
+func (x *GetRootCommentRequest) GetContentId() uint64 {
 	if x != nil {
 		return x.ContentId
 	}
 	return 0
 }
 
-func (x *GetCommentRequest) GetPage() int64 {
+func (x *GetRootCommentRequest) GetPage() int64 {
 	if x != nil {
 		return x.Page
 	}
 	return 0
 }
 
-func (x *GetCommentRequest) GetPageSize() int64 {
+func (x *GetRootCommentRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+type GetSubCommentRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ContentType     string                 `protobuf:"bytes,1,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	ContentId       uint64                 `protobuf:"varint,2,opt,name=content_id,json=contentId,proto3" json:"content_id,omitempty"`
+	ParentCommentId uint64                 `protobuf:"varint,3,opt,name=parent_comment_id,json=parentCommentId,proto3" json:"parent_comment_id,omitempty"`
+	Page            int64                  `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize        int64                  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetSubCommentRequest) Reset() {
+	*x = GetSubCommentRequest{}
+	mi := &file_content_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSubCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSubCommentRequest) ProtoMessage() {}
+
+func (x *GetSubCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSubCommentRequest.ProtoReflect.Descriptor instead.
+func (*GetSubCommentRequest) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *GetSubCommentRequest) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *GetSubCommentRequest) GetContentId() uint64 {
+	if x != nil {
+		return x.ContentId
+	}
+	return 0
+}
+
+func (x *GetSubCommentRequest) GetParentCommentId() uint64 {
+	if x != nil {
+		return x.ParentCommentId
+	}
+	return 0
+}
+
+func (x *GetSubCommentRequest) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GetSubCommentRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -3084,7 +3160,7 @@ type SearchRequest struct {
 
 func (x *SearchRequest) Reset() {
 	*x = SearchRequest{}
-	mi := &file_content_proto_msgTypes[34]
+	mi := &file_content_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3096,7 +3172,7 @@ func (x *SearchRequest) String() string {
 func (*SearchRequest) ProtoMessage() {}
 
 func (x *SearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[34]
+	mi := &file_content_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3109,7 +3185,7 @@ func (x *SearchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchRequest.ProtoReflect.Descriptor instead.
 func (*SearchRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{34}
+	return file_content_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *SearchRequest) GetKeyword() string {
@@ -3158,7 +3234,7 @@ type LikeRequest struct {
 
 func (x *LikeRequest) Reset() {
 	*x = LikeRequest{}
-	mi := &file_content_proto_msgTypes[35]
+	mi := &file_content_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3170,7 +3246,7 @@ func (x *LikeRequest) String() string {
 func (*LikeRequest) ProtoMessage() {}
 
 func (x *LikeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[35]
+	mi := &file_content_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3183,7 +3259,7 @@ func (x *LikeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LikeRequest.ProtoReflect.Descriptor instead.
 func (*LikeRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{35}
+	return file_content_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *LikeRequest) GetType() string {
@@ -3210,7 +3286,7 @@ type CollectRequest struct {
 
 func (x *CollectRequest) Reset() {
 	*x = CollectRequest{}
-	mi := &file_content_proto_msgTypes[36]
+	mi := &file_content_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3222,7 +3298,7 @@ func (x *CollectRequest) String() string {
 func (*CollectRequest) ProtoMessage() {}
 
 func (x *CollectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[36]
+	mi := &file_content_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3235,7 +3311,7 @@ func (x *CollectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CollectRequest.ProtoReflect.Descriptor instead.
 func (*CollectRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{36}
+	return file_content_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *CollectRequest) GetType() string {
@@ -3263,7 +3339,7 @@ type GetContentRequest struct {
 
 func (x *GetContentRequest) Reset() {
 	*x = GetContentRequest{}
-	mi := &file_content_proto_msgTypes[37]
+	mi := &file_content_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3275,7 +3351,7 @@ func (x *GetContentRequest) String() string {
 func (*GetContentRequest) ProtoMessage() {}
 
 func (x *GetContentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[37]
+	mi := &file_content_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3288,7 +3364,7 @@ func (x *GetContentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContentRequest.ProtoReflect.Descriptor instead.
 func (*GetContentRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{37}
+	return file_content_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetContentRequest) GetType() string {
@@ -3315,7 +3391,7 @@ type AddVideoResponse struct {
 
 func (x *AddVideoResponse) Reset() {
 	*x = AddVideoResponse{}
-	mi := &file_content_proto_msgTypes[38]
+	mi := &file_content_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3327,7 +3403,7 @@ func (x *AddVideoResponse) String() string {
 func (*AddVideoResponse) ProtoMessage() {}
 
 func (x *AddVideoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[38]
+	mi := &file_content_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3340,7 +3416,7 @@ func (x *AddVideoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddVideoResponse.ProtoReflect.Descriptor instead.
 func (*AddVideoResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{38}
+	return file_content_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *AddVideoResponse) GetId() uint64 {
@@ -3366,7 +3442,7 @@ type GetVideoResponse struct {
 
 func (x *GetVideoResponse) Reset() {
 	*x = GetVideoResponse{}
-	mi := &file_content_proto_msgTypes[39]
+	mi := &file_content_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3378,7 +3454,7 @@ func (x *GetVideoResponse) String() string {
 func (*GetVideoResponse) ProtoMessage() {}
 
 func (x *GetVideoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[39]
+	mi := &file_content_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3391,7 +3467,7 @@ func (x *GetVideoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVideoResponse.ProtoReflect.Descriptor instead.
 func (*GetVideoResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{39}
+	return file_content_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GetVideoResponse) GetVideo() *Video {
@@ -3411,7 +3487,7 @@ type ModifyVideoResponse struct {
 
 func (x *ModifyVideoResponse) Reset() {
 	*x = ModifyVideoResponse{}
-	mi := &file_content_proto_msgTypes[40]
+	mi := &file_content_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3423,7 +3499,7 @@ func (x *ModifyVideoResponse) String() string {
 func (*ModifyVideoResponse) ProtoMessage() {}
 
 func (x *ModifyVideoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[40]
+	mi := &file_content_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3436,7 +3512,7 @@ func (x *ModifyVideoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyVideoResponse.ProtoReflect.Descriptor instead.
 func (*ModifyVideoResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{40}
+	return file_content_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ModifyVideoResponse) GetId() uint64 {
@@ -3463,7 +3539,7 @@ type AddArticleResponse struct {
 
 func (x *AddArticleResponse) Reset() {
 	*x = AddArticleResponse{}
-	mi := &file_content_proto_msgTypes[41]
+	mi := &file_content_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3475,7 +3551,7 @@ func (x *AddArticleResponse) String() string {
 func (*AddArticleResponse) ProtoMessage() {}
 
 func (x *AddArticleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[41]
+	mi := &file_content_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3488,7 +3564,7 @@ func (x *AddArticleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddArticleResponse.ProtoReflect.Descriptor instead.
 func (*AddArticleResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{41}
+	return file_content_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AddArticleResponse) GetId() uint64 {
@@ -3514,7 +3590,7 @@ type GetArticleResponse struct {
 
 func (x *GetArticleResponse) Reset() {
 	*x = GetArticleResponse{}
-	mi := &file_content_proto_msgTypes[42]
+	mi := &file_content_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3526,7 +3602,7 @@ func (x *GetArticleResponse) String() string {
 func (*GetArticleResponse) ProtoMessage() {}
 
 func (x *GetArticleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[42]
+	mi := &file_content_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3539,7 +3615,7 @@ func (x *GetArticleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetArticleResponse.ProtoReflect.Descriptor instead.
 func (*GetArticleResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{42}
+	return file_content_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetArticleResponse) GetArticle() *Article {
@@ -3559,7 +3635,7 @@ type ModifyArticleResponse struct {
 
 func (x *ModifyArticleResponse) Reset() {
 	*x = ModifyArticleResponse{}
-	mi := &file_content_proto_msgTypes[43]
+	mi := &file_content_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3571,7 +3647,7 @@ func (x *ModifyArticleResponse) String() string {
 func (*ModifyArticleResponse) ProtoMessage() {}
 
 func (x *ModifyArticleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[43]
+	mi := &file_content_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3584,7 +3660,7 @@ func (x *ModifyArticleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyArticleResponse.ProtoReflect.Descriptor instead.
 func (*ModifyArticleResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{43}
+	return file_content_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ModifyArticleResponse) GetId() uint64 {
@@ -3611,7 +3687,7 @@ type AddPodcastResponse struct {
 
 func (x *AddPodcastResponse) Reset() {
 	*x = AddPodcastResponse{}
-	mi := &file_content_proto_msgTypes[44]
+	mi := &file_content_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3623,7 +3699,7 @@ func (x *AddPodcastResponse) String() string {
 func (*AddPodcastResponse) ProtoMessage() {}
 
 func (x *AddPodcastResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[44]
+	mi := &file_content_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3636,7 +3712,7 @@ func (x *AddPodcastResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPodcastResponse.ProtoReflect.Descriptor instead.
 func (*AddPodcastResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{44}
+	return file_content_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *AddPodcastResponse) GetId() uint64 {
@@ -3662,7 +3738,7 @@ type GetPodcastResponse struct {
 
 func (x *GetPodcastResponse) Reset() {
 	*x = GetPodcastResponse{}
-	mi := &file_content_proto_msgTypes[45]
+	mi := &file_content_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3674,7 +3750,7 @@ func (x *GetPodcastResponse) String() string {
 func (*GetPodcastResponse) ProtoMessage() {}
 
 func (x *GetPodcastResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[45]
+	mi := &file_content_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3687,7 +3763,7 @@ func (x *GetPodcastResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPodcastResponse.ProtoReflect.Descriptor instead.
 func (*GetPodcastResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{45}
+	return file_content_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetPodcastResponse) GetPodcast() *Podcast {
@@ -3707,7 +3783,7 @@ type ModifyPodcastResponse struct {
 
 func (x *ModifyPodcastResponse) Reset() {
 	*x = ModifyPodcastResponse{}
-	mi := &file_content_proto_msgTypes[46]
+	mi := &file_content_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3719,7 +3795,7 @@ func (x *ModifyPodcastResponse) String() string {
 func (*ModifyPodcastResponse) ProtoMessage() {}
 
 func (x *ModifyPodcastResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[46]
+	mi := &file_content_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3732,7 +3808,7 @@ func (x *ModifyPodcastResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyPodcastResponse.ProtoReflect.Descriptor instead.
 func (*ModifyPodcastResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{46}
+	return file_content_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ModifyPodcastResponse) GetId() uint64 {
@@ -3759,7 +3835,7 @@ type AddComicResponse struct {
 
 func (x *AddComicResponse) Reset() {
 	*x = AddComicResponse{}
-	mi := &file_content_proto_msgTypes[47]
+	mi := &file_content_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3771,7 +3847,7 @@ func (x *AddComicResponse) String() string {
 func (*AddComicResponse) ProtoMessage() {}
 
 func (x *AddComicResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[47]
+	mi := &file_content_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3784,7 +3860,7 @@ func (x *AddComicResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddComicResponse.ProtoReflect.Descriptor instead.
 func (*AddComicResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{47}
+	return file_content_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *AddComicResponse) GetId() uint64 {
@@ -3811,7 +3887,7 @@ type AddComicChapterResponse struct {
 
 func (x *AddComicChapterResponse) Reset() {
 	*x = AddComicChapterResponse{}
-	mi := &file_content_proto_msgTypes[48]
+	mi := &file_content_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3823,7 +3899,7 @@ func (x *AddComicChapterResponse) String() string {
 func (*AddComicChapterResponse) ProtoMessage() {}
 
 func (x *AddComicChapterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[48]
+	mi := &file_content_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3836,7 +3912,7 @@ func (x *AddComicChapterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddComicChapterResponse.ProtoReflect.Descriptor instead.
 func (*AddComicChapterResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{48}
+	return file_content_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *AddComicChapterResponse) GetId() uint64 {
@@ -3862,7 +3938,7 @@ type GetComicResponse struct {
 
 func (x *GetComicResponse) Reset() {
 	*x = GetComicResponse{}
-	mi := &file_content_proto_msgTypes[49]
+	mi := &file_content_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3874,7 +3950,7 @@ func (x *GetComicResponse) String() string {
 func (*GetComicResponse) ProtoMessage() {}
 
 func (x *GetComicResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[49]
+	mi := &file_content_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3887,7 +3963,7 @@ func (x *GetComicResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComicResponse.ProtoReflect.Descriptor instead.
 func (*GetComicResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{49}
+	return file_content_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *GetComicResponse) GetComic() *Comic {
@@ -3906,7 +3982,7 @@ type GetComicChapterResponse struct {
 
 func (x *GetComicChapterResponse) Reset() {
 	*x = GetComicChapterResponse{}
-	mi := &file_content_proto_msgTypes[50]
+	mi := &file_content_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3918,7 +3994,7 @@ func (x *GetComicChapterResponse) String() string {
 func (*GetComicChapterResponse) ProtoMessage() {}
 
 func (x *GetComicChapterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[50]
+	mi := &file_content_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3931,7 +4007,7 @@ func (x *GetComicChapterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComicChapterResponse.ProtoReflect.Descriptor instead.
 func (*GetComicChapterResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{50}
+	return file_content_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GetComicChapterResponse) GetChapters() []*ComicChapter {
@@ -3950,7 +4026,7 @@ type GetComicPageResponse struct {
 
 func (x *GetComicPageResponse) Reset() {
 	*x = GetComicPageResponse{}
-	mi := &file_content_proto_msgTypes[51]
+	mi := &file_content_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3962,7 +4038,7 @@ func (x *GetComicPageResponse) String() string {
 func (*GetComicPageResponse) ProtoMessage() {}
 
 func (x *GetComicPageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[51]
+	mi := &file_content_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3975,7 +4051,7 @@ func (x *GetComicPageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComicPageResponse.ProtoReflect.Descriptor instead.
 func (*GetComicPageResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{51}
+	return file_content_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GetComicPageResponse) GetPages() []*ComicPage {
@@ -3995,7 +4071,7 @@ type ModifyComicResponse struct {
 
 func (x *ModifyComicResponse) Reset() {
 	*x = ModifyComicResponse{}
-	mi := &file_content_proto_msgTypes[52]
+	mi := &file_content_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4007,7 +4083,7 @@ func (x *ModifyComicResponse) String() string {
 func (*ModifyComicResponse) ProtoMessage() {}
 
 func (x *ModifyComicResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[52]
+	mi := &file_content_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4020,7 +4096,7 @@ func (x *ModifyComicResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyComicResponse.ProtoReflect.Descriptor instead.
 func (*ModifyComicResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{52}
+	return file_content_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ModifyComicResponse) GetId() uint64 {
@@ -4047,7 +4123,7 @@ type ModifyComicChapterResponse struct {
 
 func (x *ModifyComicChapterResponse) Reset() {
 	*x = ModifyComicChapterResponse{}
-	mi := &file_content_proto_msgTypes[53]
+	mi := &file_content_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4059,7 +4135,7 @@ func (x *ModifyComicChapterResponse) String() string {
 func (*ModifyComicChapterResponse) ProtoMessage() {}
 
 func (x *ModifyComicChapterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[53]
+	mi := &file_content_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4072,7 +4148,7 @@ func (x *ModifyComicChapterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyComicChapterResponse.ProtoReflect.Descriptor instead.
 func (*ModifyComicChapterResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{53}
+	return file_content_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ModifyComicChapterResponse) GetId() uint64 {
@@ -4099,7 +4175,7 @@ type AddCommentResponse struct {
 
 func (x *AddCommentResponse) Reset() {
 	*x = AddCommentResponse{}
-	mi := &file_content_proto_msgTypes[54]
+	mi := &file_content_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4111,7 +4187,7 @@ func (x *AddCommentResponse) String() string {
 func (*AddCommentResponse) ProtoMessage() {}
 
 func (x *AddCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[54]
+	mi := &file_content_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4124,7 +4200,7 @@ func (x *AddCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddCommentResponse.ProtoReflect.Descriptor instead.
 func (*AddCommentResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{54}
+	return file_content_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *AddCommentResponse) GetId() uint64 {
@@ -4143,13 +4219,14 @@ func (x *AddCommentResponse) GetRelationStatus() int64 {
 
 type GetCommentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comments      []*Comment             `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetCommentResponse) Reset() {
 	*x = GetCommentResponse{}
-	mi := &file_content_proto_msgTypes[55]
+	mi := &file_content_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4161,7 +4238,7 @@ func (x *GetCommentResponse) String() string {
 func (*GetCommentResponse) ProtoMessage() {}
 
 func (x *GetCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[55]
+	mi := &file_content_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4174,7 +4251,58 @@ func (x *GetCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCommentResponse.ProtoReflect.Descriptor instead.
 func (*GetCommentResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{55}
+	return file_content_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *GetCommentResponse) GetComments() []*Comment {
+	if x != nil {
+		return x.Comments
+	}
+	return nil
+}
+
+type GetSubCommentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comments      []*Comment             `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSubCommentResponse) Reset() {
+	*x = GetSubCommentResponse{}
+	mi := &file_content_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSubCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSubCommentResponse) ProtoMessage() {}
+
+func (x *GetSubCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSubCommentResponse.ProtoReflect.Descriptor instead.
+func (*GetSubCommentResponse) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *GetSubCommentResponse) GetComments() []*Comment {
+	if x != nil {
+		return x.Comments
+	}
+	return nil
 }
 
 type SearchResponse struct {
@@ -4189,7 +4317,7 @@ type SearchResponse struct {
 
 func (x *SearchResponse) Reset() {
 	*x = SearchResponse{}
-	mi := &file_content_proto_msgTypes[56]
+	mi := &file_content_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4201,7 +4329,7 @@ func (x *SearchResponse) String() string {
 func (*SearchResponse) ProtoMessage() {}
 
 func (x *SearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[56]
+	mi := &file_content_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4214,7 +4342,7 @@ func (x *SearchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchResponse.ProtoReflect.Descriptor instead.
 func (*SearchResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{56}
+	return file_content_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *SearchResponse) GetVideos() []*Video {
@@ -4256,7 +4384,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_content_proto_msgTypes[57]
+	mi := &file_content_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4268,7 +4396,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[57]
+	mi := &file_content_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4281,7 +4409,7 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Response.ProtoReflect.Descriptor instead.
 func (*Response) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{57}
+	return file_content_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *Response) GetCode() int64 {
@@ -4612,13 +4740,20 @@ const file_content_proto_rawDesc = "" +
 	"\x06status\x18\n" +
 	" \x01(\x04R\x06status\"&\n" +
 	"\x14DeleteCommentRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"\x86\x01\n" +
-	"\x11GetCommentRequest\x12!\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\"\x8a\x01\n" +
+	"\x15GetRootCommentRequest\x12!\n" +
 	"\fcontent_type\x18\x01 \x01(\tR\vcontentType\x12\x1d\n" +
 	"\n" +
 	"content_id\x18\x02 \x01(\x04R\tcontentId\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x03R\bpageSize\"\x80\x01\n" +
+	"\tpage_size\x18\x04 \x01(\x03R\bpageSize\"\xb5\x01\n" +
+	"\x14GetSubCommentRequest\x12!\n" +
+	"\fcontent_type\x18\x01 \x01(\tR\vcontentType\x12\x1d\n" +
+	"\n" +
+	"content_id\x18\x02 \x01(\x04R\tcontentId\x12*\n" +
+	"\x11parent_comment_id\x18\x03 \x01(\x04R\x0fparentCommentId\x12\x12\n" +
+	"\x04page\x18\x04 \x01(\x03R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\x05 \x01(\x03R\bpageSize\"\x80\x01\n" +
 	"\rSearchRequest\x12\x18\n" +
 	"\akeyword\x18\x01 \x01(\tR\akeyword\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x10\n" +
@@ -4679,8 +4814,11 @@ const file_content_proto_rawDesc = "" +
 	"\x0frelation_status\x18\x02 \x01(\x03R\x0erelationStatus\"M\n" +
 	"\x12AddCommentResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12'\n" +
-	"\x0fRelation_status\x18\x02 \x01(\x03R\x0eRelationStatus\"\x14\n" +
-	"\x12GetCommentResponse\"\xbc\x01\n" +
+	"\x0fRelation_status\x18\x02 \x01(\x03R\x0eRelationStatus\"B\n" +
+	"\x12GetCommentResponse\x12,\n" +
+	"\bcomments\x18\x01 \x03(\v2\x10.content.CommentR\bcomments\"E\n" +
+	"\x15GetSubCommentResponse\x12,\n" +
+	"\bcomments\x18\x01 \x03(\v2\x10.content.CommentR\bcomments\"\xbc\x01\n" +
 	"\x0eSearchResponse\x12&\n" +
 	"\x06videos\x18\x01 \x03(\v2\x0e.content.VideoR\x06videos\x12&\n" +
 	"\x06comics\x18\x02 \x03(\v2\x0e.content.ComicR\x06comics\x12,\n" +
@@ -4689,7 +4827,7 @@ const file_content_proto_rawDesc = "" +
 	"\bResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12(\n" +
-	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data2\xb3\r\n" +
+	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data2\xfe\r\n" +
 	"\x0eContentService\x12;\n" +
 	"\n" +
 	"AddArticle\x12\x1a.content.AddArticleRequest\x1a\x11.content.Response\x12;\n" +
@@ -4718,9 +4856,9 @@ const file_content_proto_rawDesc = "" +
 	"\x12DeleteComicChapter\x12\".content.DeleteComicChapterRequest\x1a\x11.content.Response\x12;\n" +
 	"\n" +
 	"AddComment\x12\x1a.content.AddCommentRequest\x1a\x11.content.Response\x12A\n" +
-	"\rDeleteComment\x12\x1d.content.DeleteCommentRequest\x1a\x11.content.Response\x12;\n" +
-	"\n" +
-	"GetComment\x12\x1a.content.GetCommentRequest\x1a\x11.content.Response\x123\n" +
+	"\rDeleteComment\x12\x1d.content.DeleteCommentRequest\x1a\x11.content.Response\x12C\n" +
+	"\x0eGetRootComment\x12\x1e.content.GetRootCommentRequest\x1a\x11.content.Response\x12A\n" +
+	"\rGetSubComment\x12\x1d.content.GetSubCommentRequest\x1a\x11.content.Response\x123\n" +
 	"\x06Search\x12\x16.content.SearchRequest\x1a\x11.content.Response\x12/\n" +
 	"\x04Like\x12\x14.content.LikeRequest\x1a\x11.content.Response\x125\n" +
 	"\aCollect\x12\x17.content.collectRequest\x1a\x11.content.ResponseB\x0eZ\f./content/v1b\x06proto3"
@@ -4737,7 +4875,7 @@ func file_content_proto_rawDescGZIP() []byte {
 	return file_content_proto_rawDescData
 }
 
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
 var file_content_proto_goTypes = []any{
 	(*Video)(nil),                      // 0: content.Video
 	(*Comic)(nil),                      // 1: content.Comic
@@ -4772,32 +4910,34 @@ var file_content_proto_goTypes = []any{
 	(*DeleteComicChapterRequest)(nil),  // 30: content.DeleteComicChapterRequest
 	(*AddCommentRequest)(nil),          // 31: content.AddCommentRequest
 	(*DeleteCommentRequest)(nil),       // 32: content.DeleteCommentRequest
-	(*GetCommentRequest)(nil),          // 33: content.GetCommentRequest
-	(*SearchRequest)(nil),              // 34: content.SearchRequest
-	(*LikeRequest)(nil),                // 35: content.LikeRequest
-	(*CollectRequest)(nil),             // 36: content.collectRequest
-	(*GetContentRequest)(nil),          // 37: content.GetContentRequest
-	(*AddVideoResponse)(nil),           // 38: content.AddVideoResponse
-	(*GetVideoResponse)(nil),           // 39: content.GetVideoResponse
-	(*ModifyVideoResponse)(nil),        // 40: content.ModifyVideoResponse
-	(*AddArticleResponse)(nil),         // 41: content.AddArticleResponse
-	(*GetArticleResponse)(nil),         // 42: content.GetArticleResponse
-	(*ModifyArticleResponse)(nil),      // 43: content.ModifyArticleResponse
-	(*AddPodcastResponse)(nil),         // 44: content.AddPodcastResponse
-	(*GetPodcastResponse)(nil),         // 45: content.GetPodcastResponse
-	(*ModifyPodcastResponse)(nil),      // 46: content.ModifyPodcastResponse
-	(*AddComicResponse)(nil),           // 47: content.AddComicResponse
-	(*AddComicChapterResponse)(nil),    // 48: content.AddComicChapterResponse
-	(*GetComicResponse)(nil),           // 49: content.GetComicResponse
-	(*GetComicChapterResponse)(nil),    // 50: content.GetComicChapterResponse
-	(*GetComicPageResponse)(nil),       // 51: content.GetComicPageResponse
-	(*ModifyComicResponse)(nil),        // 52: content.ModifyComicResponse
-	(*ModifyComicChapterResponse)(nil), // 53: content.ModifyComicChapterResponse
-	(*AddCommentResponse)(nil),         // 54: content.AddCommentResponse
-	(*GetCommentResponse)(nil),         // 55: content.GetCommentResponse
-	(*SearchResponse)(nil),             // 56: content.SearchResponse
-	(*Response)(nil),                   // 57: content.Response
-	(*anypb.Any)(nil),                  // 58: google.protobuf.Any
+	(*GetRootCommentRequest)(nil),      // 33: content.GetRootCommentRequest
+	(*GetSubCommentRequest)(nil),       // 34: content.GetSubCommentRequest
+	(*SearchRequest)(nil),              // 35: content.SearchRequest
+	(*LikeRequest)(nil),                // 36: content.LikeRequest
+	(*CollectRequest)(nil),             // 37: content.collectRequest
+	(*GetContentRequest)(nil),          // 38: content.GetContentRequest
+	(*AddVideoResponse)(nil),           // 39: content.AddVideoResponse
+	(*GetVideoResponse)(nil),           // 40: content.GetVideoResponse
+	(*ModifyVideoResponse)(nil),        // 41: content.ModifyVideoResponse
+	(*AddArticleResponse)(nil),         // 42: content.AddArticleResponse
+	(*GetArticleResponse)(nil),         // 43: content.GetArticleResponse
+	(*ModifyArticleResponse)(nil),      // 44: content.ModifyArticleResponse
+	(*AddPodcastResponse)(nil),         // 45: content.AddPodcastResponse
+	(*GetPodcastResponse)(nil),         // 46: content.GetPodcastResponse
+	(*ModifyPodcastResponse)(nil),      // 47: content.ModifyPodcastResponse
+	(*AddComicResponse)(nil),           // 48: content.AddComicResponse
+	(*AddComicChapterResponse)(nil),    // 49: content.AddComicChapterResponse
+	(*GetComicResponse)(nil),           // 50: content.GetComicResponse
+	(*GetComicChapterResponse)(nil),    // 51: content.GetComicChapterResponse
+	(*GetComicPageResponse)(nil),       // 52: content.GetComicPageResponse
+	(*ModifyComicResponse)(nil),        // 53: content.ModifyComicResponse
+	(*ModifyComicChapterResponse)(nil), // 54: content.ModifyComicChapterResponse
+	(*AddCommentResponse)(nil),         // 55: content.AddCommentResponse
+	(*GetCommentResponse)(nil),         // 56: content.GetCommentResponse
+	(*GetSubCommentResponse)(nil),      // 57: content.GetSubCommentResponse
+	(*SearchResponse)(nil),             // 58: content.SearchResponse
+	(*Response)(nil),                   // 59: content.Response
+	(*anypb.Any)(nil),                  // 60: google.protobuf.Any
 }
 var file_content_proto_depIdxs = []int32{
 	5,  // 0: content.Podcast.highlights:type_name -> content.PodcastHighlight
@@ -4809,70 +4949,74 @@ var file_content_proto_depIdxs = []int32{
 	1,  // 6: content.GetComicResponse.comic:type_name -> content.Comic
 	2,  // 7: content.GetComicChapterResponse.chapters:type_name -> content.ComicChapter
 	3,  // 8: content.GetComicPageResponse.pages:type_name -> content.ComicPage
-	0,  // 9: content.SearchResponse.videos:type_name -> content.Video
-	1,  // 10: content.SearchResponse.comics:type_name -> content.Comic
-	4,  // 11: content.SearchResponse.podcasts:type_name -> content.Podcast
-	6,  // 12: content.SearchResponse.articles:type_name -> content.Article
-	58, // 13: content.Response.data:type_name -> google.protobuf.Any
-	14, // 14: content.ContentService.AddArticle:input_type -> content.AddArticleRequest
-	15, // 15: content.ContentService.GetArticle:input_type -> content.GetArticleRequest
-	17, // 16: content.ContentService.ModifyArticle:input_type -> content.ModifyArticleRequest
-	16, // 17: content.ContentService.DeleteArticle:input_type -> content.DeleteArticleRequest
-	10, // 18: content.ContentService.AddVideo:input_type -> content.AddVideoRequest
-	11, // 19: content.ContentService.GetVideo:input_type -> content.GetVideoRequest
-	12, // 20: content.ContentService.ModifyVideo:input_type -> content.ModifyVideoRequest
-	13, // 21: content.ContentService.DeleteVideo:input_type -> content.DeleteVideoRequest
-	18, // 22: content.ContentService.AddPodcast:input_type -> content.AddPodcastRequest
-	19, // 23: content.ContentService.GetPodcast:input_type -> content.GetPodcastRequest
-	20, // 24: content.ContentService.ModifyPodcast:input_type -> content.ModifyPodcastRequest
-	21, // 25: content.ContentService.DeletePodcast:input_type -> content.DeletePodcastRequest
-	22, // 26: content.ContentService.AddComic:input_type -> content.AddComicRequest
-	23, // 27: content.ContentService.AddComicChapter:input_type -> content.AddComicChapterRequest
-	24, // 28: content.ContentService.GetComic:input_type -> content.GetComicRequest
-	25, // 29: content.ContentService.GetComicChapter:input_type -> content.GetComicChapterRequest
-	26, // 30: content.ContentService.GetComicPage:input_type -> content.GetComicPageRequest
-	27, // 31: content.ContentService.ModifyComic:input_type -> content.ModifyComicRequest
-	28, // 32: content.ContentService.ModifyComicChapter:input_type -> content.ModifyComicChapterRequest
-	29, // 33: content.ContentService.DeleteComic:input_type -> content.DeleteComicRequest
-	30, // 34: content.ContentService.DeleteComicChapter:input_type -> content.DeleteComicChapterRequest
-	31, // 35: content.ContentService.AddComment:input_type -> content.AddCommentRequest
-	32, // 36: content.ContentService.DeleteComment:input_type -> content.DeleteCommentRequest
-	33, // 37: content.ContentService.GetComment:input_type -> content.GetCommentRequest
-	34, // 38: content.ContentService.Search:input_type -> content.SearchRequest
-	35, // 39: content.ContentService.Like:input_type -> content.LikeRequest
-	36, // 40: content.ContentService.Collect:input_type -> content.collectRequest
-	57, // 41: content.ContentService.AddArticle:output_type -> content.Response
-	57, // 42: content.ContentService.GetArticle:output_type -> content.Response
-	57, // 43: content.ContentService.ModifyArticle:output_type -> content.Response
-	57, // 44: content.ContentService.DeleteArticle:output_type -> content.Response
-	57, // 45: content.ContentService.AddVideo:output_type -> content.Response
-	57, // 46: content.ContentService.GetVideo:output_type -> content.Response
-	57, // 47: content.ContentService.ModifyVideo:output_type -> content.Response
-	57, // 48: content.ContentService.DeleteVideo:output_type -> content.Response
-	57, // 49: content.ContentService.AddPodcast:output_type -> content.Response
-	57, // 50: content.ContentService.GetPodcast:output_type -> content.Response
-	57, // 51: content.ContentService.ModifyPodcast:output_type -> content.Response
-	57, // 52: content.ContentService.DeletePodcast:output_type -> content.Response
-	57, // 53: content.ContentService.AddComic:output_type -> content.Response
-	57, // 54: content.ContentService.AddComicChapter:output_type -> content.Response
-	57, // 55: content.ContentService.GetComic:output_type -> content.Response
-	57, // 56: content.ContentService.GetComicChapter:output_type -> content.Response
-	57, // 57: content.ContentService.GetComicPage:output_type -> content.Response
-	57, // 58: content.ContentService.ModifyComic:output_type -> content.Response
-	57, // 59: content.ContentService.ModifyComicChapter:output_type -> content.Response
-	57, // 60: content.ContentService.DeleteComic:output_type -> content.Response
-	57, // 61: content.ContentService.DeleteComicChapter:output_type -> content.Response
-	57, // 62: content.ContentService.AddComment:output_type -> content.Response
-	57, // 63: content.ContentService.DeleteComment:output_type -> content.Response
-	57, // 64: content.ContentService.GetComment:output_type -> content.Response
-	57, // 65: content.ContentService.Search:output_type -> content.Response
-	57, // 66: content.ContentService.Like:output_type -> content.Response
-	57, // 67: content.ContentService.Collect:output_type -> content.Response
-	41, // [41:68] is the sub-list for method output_type
-	14, // [14:41] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	7,  // 9: content.GetCommentResponse.comments:type_name -> content.Comment
+	7,  // 10: content.GetSubCommentResponse.comments:type_name -> content.Comment
+	0,  // 11: content.SearchResponse.videos:type_name -> content.Video
+	1,  // 12: content.SearchResponse.comics:type_name -> content.Comic
+	4,  // 13: content.SearchResponse.podcasts:type_name -> content.Podcast
+	6,  // 14: content.SearchResponse.articles:type_name -> content.Article
+	60, // 15: content.Response.data:type_name -> google.protobuf.Any
+	14, // 16: content.ContentService.AddArticle:input_type -> content.AddArticleRequest
+	15, // 17: content.ContentService.GetArticle:input_type -> content.GetArticleRequest
+	17, // 18: content.ContentService.ModifyArticle:input_type -> content.ModifyArticleRequest
+	16, // 19: content.ContentService.DeleteArticle:input_type -> content.DeleteArticleRequest
+	10, // 20: content.ContentService.AddVideo:input_type -> content.AddVideoRequest
+	11, // 21: content.ContentService.GetVideo:input_type -> content.GetVideoRequest
+	12, // 22: content.ContentService.ModifyVideo:input_type -> content.ModifyVideoRequest
+	13, // 23: content.ContentService.DeleteVideo:input_type -> content.DeleteVideoRequest
+	18, // 24: content.ContentService.AddPodcast:input_type -> content.AddPodcastRequest
+	19, // 25: content.ContentService.GetPodcast:input_type -> content.GetPodcastRequest
+	20, // 26: content.ContentService.ModifyPodcast:input_type -> content.ModifyPodcastRequest
+	21, // 27: content.ContentService.DeletePodcast:input_type -> content.DeletePodcastRequest
+	22, // 28: content.ContentService.AddComic:input_type -> content.AddComicRequest
+	23, // 29: content.ContentService.AddComicChapter:input_type -> content.AddComicChapterRequest
+	24, // 30: content.ContentService.GetComic:input_type -> content.GetComicRequest
+	25, // 31: content.ContentService.GetComicChapter:input_type -> content.GetComicChapterRequest
+	26, // 32: content.ContentService.GetComicPage:input_type -> content.GetComicPageRequest
+	27, // 33: content.ContentService.ModifyComic:input_type -> content.ModifyComicRequest
+	28, // 34: content.ContentService.ModifyComicChapter:input_type -> content.ModifyComicChapterRequest
+	29, // 35: content.ContentService.DeleteComic:input_type -> content.DeleteComicRequest
+	30, // 36: content.ContentService.DeleteComicChapter:input_type -> content.DeleteComicChapterRequest
+	31, // 37: content.ContentService.AddComment:input_type -> content.AddCommentRequest
+	32, // 38: content.ContentService.DeleteComment:input_type -> content.DeleteCommentRequest
+	33, // 39: content.ContentService.GetRootComment:input_type -> content.GetRootCommentRequest
+	34, // 40: content.ContentService.GetSubComment:input_type -> content.GetSubCommentRequest
+	35, // 41: content.ContentService.Search:input_type -> content.SearchRequest
+	36, // 42: content.ContentService.Like:input_type -> content.LikeRequest
+	37, // 43: content.ContentService.Collect:input_type -> content.collectRequest
+	59, // 44: content.ContentService.AddArticle:output_type -> content.Response
+	59, // 45: content.ContentService.GetArticle:output_type -> content.Response
+	59, // 46: content.ContentService.ModifyArticle:output_type -> content.Response
+	59, // 47: content.ContentService.DeleteArticle:output_type -> content.Response
+	59, // 48: content.ContentService.AddVideo:output_type -> content.Response
+	59, // 49: content.ContentService.GetVideo:output_type -> content.Response
+	59, // 50: content.ContentService.ModifyVideo:output_type -> content.Response
+	59, // 51: content.ContentService.DeleteVideo:output_type -> content.Response
+	59, // 52: content.ContentService.AddPodcast:output_type -> content.Response
+	59, // 53: content.ContentService.GetPodcast:output_type -> content.Response
+	59, // 54: content.ContentService.ModifyPodcast:output_type -> content.Response
+	59, // 55: content.ContentService.DeletePodcast:output_type -> content.Response
+	59, // 56: content.ContentService.AddComic:output_type -> content.Response
+	59, // 57: content.ContentService.AddComicChapter:output_type -> content.Response
+	59, // 58: content.ContentService.GetComic:output_type -> content.Response
+	59, // 59: content.ContentService.GetComicChapter:output_type -> content.Response
+	59, // 60: content.ContentService.GetComicPage:output_type -> content.Response
+	59, // 61: content.ContentService.ModifyComic:output_type -> content.Response
+	59, // 62: content.ContentService.ModifyComicChapter:output_type -> content.Response
+	59, // 63: content.ContentService.DeleteComic:output_type -> content.Response
+	59, // 64: content.ContentService.DeleteComicChapter:output_type -> content.Response
+	59, // 65: content.ContentService.AddComment:output_type -> content.Response
+	59, // 66: content.ContentService.DeleteComment:output_type -> content.Response
+	59, // 67: content.ContentService.GetRootComment:output_type -> content.Response
+	59, // 68: content.ContentService.GetSubComment:output_type -> content.Response
+	59, // 69: content.ContentService.Search:output_type -> content.Response
+	59, // 70: content.ContentService.Like:output_type -> content.Response
+	59, // 71: content.ContentService.Collect:output_type -> content.Response
+	44, // [44:72] is the sub-list for method output_type
+	16, // [16:44] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }
@@ -4886,7 +5030,7 @@ func file_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   58,
+			NumMessages:   60,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
