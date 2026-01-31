@@ -21,7 +21,14 @@ type (
 	PodcastModel interface {
 		podcastModel
 		withSession(session sqlx.Session) PodcastModel
+		IncrCommentCount(ctx context.Context, podcastID uint64) (sql.Result, error)
+		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error)
+		DecrCommentCount(ctx context.Context, podcastID uint64) (sql.Result, error)
+		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, podcastID uint64, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64, count uint64) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Podcast, error)
+		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Podcast, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error)
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
@@ -42,6 +49,36 @@ func NewPodcastModel(conn sqlx.SqlConn) PodcastModel {
 
 func (m *customPodcastModel) withSession(session sqlx.Session) PodcastModel {
 	return NewPodcastModel(sqlx.NewSqlConnFromSession(session))
+}
+
+func (m *customPodcastModel) IncrCommentCount(ctx context.Context, podcastID uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` + 1 where `id` = ? and `deleted_at` = 0", m.table)
+	result, err := m.conn.ExecCtx(ctx, query, podcastID)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCommentCount(ctx, podcastID)
+}
+
+func (m *customPodcastModel) DecrCommentCount(ctx context.Context, podcastID uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - 1 where `id` = ? and `comment_count` > 0 and `deleted_at` = 0", m.table)
+	result, err := m.conn.ExecCtx(ctx, query, podcastID)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCount(ctx, podcastID)
+}
+
+func (m *customPodcastModel) DecrCommentCountByCount(ctx context.Context, podcastID uint64, count uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - ? where `id` = ? and `comment_count` >= ? and `deleted_at` = 0", m.table)
+	result, err := m.conn.ExecCtx(ctx, query, count, podcastID, count)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64, count uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCountByCount(ctx, podcastID, count)
 }
 
 func (m *customPodcastModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error) {
@@ -97,6 +134,10 @@ func (m *customPodcastModel) FindOneWithNotDelete(ctx context.Context, id uint64
 	var resp Podcast
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	return &resp, mapDBError(err)
+}
+
+func (m *customPodcastModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Podcast, error) {
+	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
 func (m *customPodcastModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {

@@ -99,6 +99,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: content.GetPodcastContentHandler(serverCtx),
 			},
 			{
+				// 获取根评论
+				Method:  http.MethodGet,
+				Path:    "/get-root-comment",
+				Handler: content.GetRootCommentHandler(serverCtx),
+			},
+			{
+				// 获取子评论
+				Method:  http.MethodGet,
+				Path:    "/get-sub-comment",
+				Handler: content.GetSubCommentHandler(serverCtx),
+			},
+			{
 				// 获取视频详细内容
 				Method:  http.MethodGet,
 				Path:    "/get-video-content",
@@ -131,6 +143,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddComicChapterHandler(serverCtx),
 				},
 				{
+					// 添加评论
+					Method:  http.MethodPost,
+					Path:    "/add-comment",
+					Handler: content.AddCommentHandler(serverCtx),
+				},
+				{
 					// 添加播客
 					Method:  http.MethodPost,
 					Path:    "/add-podcast",
@@ -159,6 +177,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodDelete,
 					Path:    "/delete-comic-chapter",
 					Handler: content.DeleteComicChapterHandler(serverCtx),
+				},
+				{
+					// 删除评论
+					Method:  http.MethodDelete,
+					Path:    "/delete-comment",
+					Handler: content.DeleteCommentHandler(serverCtx),
 				},
 				{
 					// 删除播客

@@ -8,6 +8,13 @@ const (
 )
 
 const (
+	ContentTypeArticle = "article"
+	ContentTypePodcast = "podcast"
+	ContentTypeComic   = "comic"
+	ContentTypeVideo   = "video"
+)
+
+const (
 	// InvalidUserID 不存在的ID
 	InvalidUserID = iota
 )
@@ -34,4 +41,14 @@ const (
 const (
 	ComicStatusPublished = iota
 	ComicStatusDraft
+)
+
+const (
+	CommentStatusNormal = iota
+	CommentStatusCheck
+	CommentStatusShield
+)
+
+const (
+	RootCommentParentID = 0
 )

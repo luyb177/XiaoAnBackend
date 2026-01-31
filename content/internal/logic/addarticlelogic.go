@@ -35,7 +35,7 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, error) {
 	// 添加文章只有 超级管理员 和 员工 才能添加
 	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if user.UID <= InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		l.Errorf("AddArticle err: 用户未登录或无权限")
 
 		return &v1.Response{
@@ -84,6 +84,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 		LikeCount:      0,
 		ViewCount:      0,
 		CollectCount:   0,
+		CommentCount:   0,
 		DeletedAt:      0,
 	}
 

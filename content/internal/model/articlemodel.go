@@ -22,8 +22,15 @@ type (
 		articleModel
 		withSession(session sqlx.Session) ArticleModel
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error)
+		IncrCommentCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrCommentCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, id uint64, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, id uint64, count uint64) (sql.Result, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
+		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Article, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
@@ -48,6 +55,45 @@ func (m *customArticleModel) withSession(session sqlx.Session) ArticleModel {
 
 func (m *customArticleModel) InsertWithSession(ctx context.Context, session sqlx.Session, data *Article) (sql.Result, error) {
 	return m.withSession(session).Insert(ctx, data)
+}
+
+func (m *customArticleModel) IncrCommentCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(
+		"update %s set `comment_count` = `comment_count` + 1 where `id` = ? and deleted_at = 0",
+		m.table,
+	)
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCommentCount(ctx, id)
+}
+
+func (m *customArticleModel) DecrCommentCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(
+		"update %s set `comment_count` = `comment_count` - 1 where id = ? and comment_count > 0 and deleted_at = 0",
+		m.table,
+	)
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCount(ctx, id)
+}
+
+func (m *customArticleModel) DecrCommentCountByCount(ctx context.Context, id uint64, count uint64) (sql.Result, error) {
+	query := fmt.Sprintf(
+		"update %s set `comment_count` = `comment_count` - ? where id = ? and comment_count >= ? and deleted_at = 0",
+		m.table,
+	)
+	result, err := m.conn.ExecCtx(ctx, query, count, id, count)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, id uint64, count uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCountByCount(ctx, id, count)
 }
 
 func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error) {
@@ -91,6 +137,10 @@ func (m *customArticleModel) FindOneWithNotDelete(ctx context.Context, id uint64
 	var resp Article
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	return &resp, mapDBError(err)
+}
+
+func (m *customArticleModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Article, error) {
+	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
 func (m *customArticleModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error {

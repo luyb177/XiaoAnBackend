@@ -23,6 +23,7 @@ message Video {
   uint64 like_count = 11;
   uint64 view_count = 12;
   uint64 collect_count = 13;
+  uint64 comment_count = 14;
 }
 
 message Comic {
@@ -39,6 +40,7 @@ message Comic {
   uint64 view_count = 11;
   uint64 collect_count = 12;
   uint64 chapter_count = 13;
+  uint64 comment_count = 14;
 }
 
 message ComicChapter {
@@ -83,6 +85,7 @@ message Podcast {
   int64 relation_status = 16;
   string channel = 17;
   int64 status = 18; // 0: 已发布, 1: 草稿
+  uint64 comment_count = 19;
 }
 
 message PodcastHighlight {
@@ -107,7 +110,30 @@ message Article {
   uint64 collect_count = 15;
   int64 last_modified_by = 16;
   int64 relation_status = 17;
+  uint64 comment_count = 18;
 }
+
+// Comment 评论
+message Comment {
+  uint64 id = 1;
+  string type = 2; // video,comic,podcast,article
+  uint64 target_id = 3;
+  uint64 user_id = 4;
+  string nickname = 5;
+  string avatar = 6;
+  string ip_location = 7;
+  uint64 parent_id = 8; // 为0 则为根评论
+  uint64 reply_comment_id = 9;
+  uint64 reply_user_id = 10;
+  string content = 11;
+  uint64 like_count = 12;
+  uint64 sub_comment_count = 13;
+  uint64 status = 14; // 0: 正常, 1: 审核中, 2: 屏蔽
+  int64 created_at = 15;
+  int64 updated_at = 16;
+  bool is_liked = 17; // 用户是否点赞
+}
+
 // ContentLike 点赞记录
 message ContentLike {
   uint64 id = 1;
@@ -128,44 +154,6 @@ message ContentCollect {
   string status = 5;
   int64 created_at = 6;
   int64 updated_at = 7;
-}
-
-// Comment 评论
-message Comment {
-  uint64 id = 1;
-  string type = 2;
-  uint64 target_id = 3;
-  uint64 user_id = 4;
-  uint64 parent_id = 5; // 为0 则为根评论
-  uint64 reply_comment_id = 6;
-  uint64 reply_user_id = 7;
-  string content = 8;
-  uint64 like_count = 9;
-  int64 created_at = 10;
-  int64 updated_at = 11;
-}
-
-// 评论详情
-message CommentDetail {
-  uint64 id = 1;
-  string type = 2;
-  uint64 target_id = 3;
-  uint64 user_id = 4;
-  uint64 parent_id = 5; // 为0 则为根评论
-  uint64 reply_comment_id = 6;
-  uint64 reply_user_id = 7;
-  string content = 8;
-  uint64 like_count = 9;
-  int64 created_at = 10;
-  int64 updated_at = 11;
-  bool is_liked = 12; // 用户是否点赞
-}
-
-// 评论列表项
-message CommentItem {
-  CommentDetail comment = 1;  // 评论本身
-  repeated CommentDetail child_preview = 2;  // 子评论预览 （默认为前3条）
-  int64 child_total = 3;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -357,6 +345,38 @@ message DeleteComicChapterRequest {
   uint64 comic_id = 2;
 }
 
+// 添加评论
+message AddCommentRequest {
+  string type = 1;
+  uint64 target_id = 2;
+  string nickname = 3;
+  string avatar = 4;
+  string ip_location = 5;
+  uint64 parent_id = 6; // 为0 则为根评论
+  uint64 reply_comment_id = 7;
+  uint64 reply_user_id = 8;
+  string content = 9;
+  uint64 status = 10; // 0: 正常, 1: 审核中, 2: 屏蔽
+}
+
+message DeleteCommentRequest {
+  uint64 id = 1;
+}
+
+message GetRootCommentRequest {
+  string content_type = 1;
+  uint64 content_id = 2;
+  int64 page = 3;
+  int64 page_size = 4;
+}
+
+message GetSubCommentRequest {
+  string content_type = 1;
+  uint64 content_id = 2;
+  uint64 parent_comment_id = 3;
+  int64 page = 4;
+  int64 page_size = 5;
+}
 
 message SearchRequest {
   string keyword = 1;        // 搜索关键字
@@ -375,33 +395,6 @@ message LikeRequest {
 message collectRequest {
   string type = 1;
   uint64 target_id = 2;
-}
-
-// 添加评论
-message AddCommentRequest {
-  string type = 1;
-  uint64 target_id = 2;
-  uint64 parent_id = 4;
-  uint64 reply_comment_id = 5;
-  uint64 reply_user_id = 6;
-  string content = 7;
-}
-
-// 修改评论
-message UpdateCommentRequest {
-  uint64 id = 1;
-  string content = 2;
-}
-
-message DeleteCommentRequest {
-  uint64 id = 1;
-}
-
-message GetCommentsRequest {
-  string type = 1;
-  uint64 target_id = 2;
-  int64 page = 3;
-  int64 page_size = 4;
 }
 
 // 获取内容请求
@@ -492,17 +485,24 @@ message ModifyComicChapterResponse {
   int64 relation_status = 2;
 }
 
+message AddCommentResponse {
+  uint64 id = 1;
+  int64 relation_status = 2;
+}
+
+message GetCommentResponse {
+  repeated Comment comments = 1;
+}
+
+message GetSubCommentResponse {
+  repeated Comment comments = 1;
+}
+
 message SearchResponse {
   repeated Video videos = 1;
   repeated Comic comics = 2;
   repeated Podcast podcasts = 3;
   repeated Article articles = 4;
-}
-
-
-message GetCommentsResponse {
-  repeated CommentItem comments = 1;  // 评论列表
-  int64 total = 2;  // 总数
 }
 
 message Response {
@@ -583,6 +583,18 @@ service ContentService {
   // DeleteComicChapter 删除漫画章节
   rpc DeleteComicChapter(DeleteComicChapterRequest) returns (Response);
 
+  // AddComment 添加评论
+  rpc AddComment(AddCommentRequest) returns (Response);
+
+  // DeleteComment 删除评论
+  rpc DeleteComment(DeleteCommentRequest) returns (Response);
+
+  // GetRootComment 获取评论
+  rpc GetRootComment(GetRootCommentRequest) returns (Response);
+
+  // GetSubComment 获取子评论
+  rpc GetSubComment(GetSubCommentRequest) returns (Response);
+
   // 搜索
   rpc Search(SearchRequest) returns (Response);
 
@@ -591,16 +603,4 @@ service ContentService {
 
   // 收藏
   rpc Collect(collectRequest) returns (Response);
-
-  // 添加评论
-  rpc AddComment(AddCommentRequest) returns (Response);
-
-  // 修改评论
-  rpc UpdateComment(UpdateCommentRequest) returns (Response);
-
-  // 删除评论
-  rpc DeleteComment(DeleteCommentRequest) returns (Response);
-
-  // 获取根评论
-  rpc GetComments(GetCommentsRequest) returns (Response);
 }

@@ -21,6 +21,7 @@ type (
 	AddComicRequest            = v1.AddComicRequest
 	AddComicResponse           = v1.AddComicResponse
 	AddCommentRequest          = v1.AddCommentRequest
+	AddCommentResponse         = v1.AddCommentResponse
 	AddPodcastRequest          = v1.AddPodcastRequest
 	AddPodcastResponse         = v1.AddPodcastResponse
 	AddVideoRequest            = v1.AddVideoRequest
@@ -31,8 +32,6 @@ type (
 	ComicChapter               = v1.ComicChapter
 	ComicPage                  = v1.ComicPage
 	Comment                    = v1.Comment
-	CommentDetail              = v1.CommentDetail
-	CommentItem                = v1.CommentItem
 	ContentCollect             = v1.ContentCollect
 	ContentLike                = v1.ContentLike
 	DeleteArticleRequest       = v1.DeleteArticleRequest
@@ -49,11 +48,13 @@ type (
 	GetComicPageResponse       = v1.GetComicPageResponse
 	GetComicRequest            = v1.GetComicRequest
 	GetComicResponse           = v1.GetComicResponse
-	GetCommentsRequest         = v1.GetCommentsRequest
-	GetCommentsResponse        = v1.GetCommentsResponse
+	GetCommentResponse         = v1.GetCommentResponse
 	GetContentRequest          = v1.GetContentRequest
 	GetPodcastRequest          = v1.GetPodcastRequest
 	GetPodcastResponse         = v1.GetPodcastResponse
+	GetRootCommentRequest      = v1.GetRootCommentRequest
+	GetSubCommentRequest       = v1.GetSubCommentRequest
+	GetSubCommentResponse      = v1.GetSubCommentResponse
 	GetVideoRequest            = v1.GetVideoRequest
 	GetVideoResponse           = v1.GetVideoResponse
 	LikeRequest                = v1.LikeRequest
@@ -72,7 +73,6 @@ type (
 	Response                   = v1.Response
 	SearchRequest              = v1.SearchRequest
 	SearchResponse             = v1.SearchResponse
-	UpdateCommentRequest       = v1.UpdateCommentRequest
 	Video                      = v1.Video
 
 	ContentService interface {
@@ -118,20 +118,20 @@ type (
 		DeleteComic(ctx context.Context, in *DeleteComicRequest, opts ...grpc.CallOption) (*Response, error)
 		// DeleteComicChapter 删除漫画章节
 		DeleteComicChapter(ctx context.Context, in *DeleteComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+		// AddComment 添加评论
+		AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// DeleteComment 删除评论
+		DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetRootComment 获取评论
+		GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetSubComment 获取子评论
+		GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 		// 点赞
 		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
 		// 收藏
 		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
-		// 添加评论
-		AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error)
-		// 修改评论
-		UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error)
-		// 删除评论
-		DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
-		// 获取根评论
-		GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultContentService struct {
@@ -271,6 +271,30 @@ func (m *defaultContentService) DeleteComicChapter(ctx context.Context, in *Dele
 	return client.DeleteComicChapter(ctx, in, opts...)
 }
 
+// AddComment 添加评论
+func (m *defaultContentService) AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.AddComment(ctx, in, opts...)
+}
+
+// DeleteComment 删除评论
+func (m *defaultContentService) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.DeleteComment(ctx, in, opts...)
+}
+
+// GetRootComment 获取评论
+func (m *defaultContentService) GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetRootComment(ctx, in, opts...)
+}
+
+// GetSubComment 获取子评论
+func (m *defaultContentService) GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetSubComment(ctx, in, opts...)
+}
+
 // 搜索
 func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
@@ -287,28 +311,4 @@ func (m *defaultContentService) Like(ctx context.Context, in *LikeRequest, opts 
 func (m *defaultContentService) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.Collect(ctx, in, opts...)
-}
-
-// 添加评论
-func (m *defaultContentService) AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.AddComment(ctx, in, opts...)
-}
-
-// 修改评论
-func (m *defaultContentService) UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.UpdateComment(ctx, in, opts...)
-}
-
-// 删除评论
-func (m *defaultContentService) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.DeleteComment(ctx, in, opts...)
-}
-
-// 获取根评论
-func (m *defaultContentService) GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.GetComments(ctx, in, opts...)
 }

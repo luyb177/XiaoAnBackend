@@ -8,4 +8,5 @@ const (
 	PodcastRelationTaskPrefix      TaskPrefix = "podcast_relation_task"
 	ComicRelationTaskPrefix        TaskPrefix = "comic_relation_task"
 	ComicChapterRelationTaskPrefix TaskPrefix = "comic_chapter_relation_task"
+	CommentRelationTaskPrefix      TaskPrefix = "comment_relation_task"
 )
