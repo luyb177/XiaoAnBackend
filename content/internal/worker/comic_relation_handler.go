@@ -22,6 +22,7 @@ type ComicRelationHandler struct {
 	svcCtx      *svc.ServiceContext
 	ComicDao    model.ComicModel
 	ComicTagDao model.ComicTagModel
+	CommentDao  model.CommentModel
 }
 
 func NewComicRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ComicRelationHandler {
@@ -30,6 +31,7 @@ func NewComicRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *C
 		Logger:      logx.WithContext(ctx),
 		ComicDao:    model.NewComicModel(svcCtx.Mysql),
 		ComicTagDao: model.NewComicTagModel(svcCtx.Mysql),
+		CommentDao:  model.NewCommentModel(svcCtx.Mysql),
 	}
 }
 
@@ -110,7 +112,13 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 			return err
 		}
 
-		// 2. 删除对应的全部章节
+		// 2. 删除评论
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 3. 删除对应的全部章节
 		comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 			Type:    tasks.ComicChapterRelationDeleteAll,
 			ComicId: task.ComicID,

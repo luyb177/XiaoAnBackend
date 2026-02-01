@@ -22,6 +22,8 @@ type VideoRelationHandler struct {
 	svcCtx      *svc.ServiceContext
 	VideoDao    model.VideoModel
 	VideoTagDao model.VideoTagModel
+
+	CommentDao model.CommentModel
 }
 
 func NewVideoRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *VideoRelationHandler {
@@ -30,6 +32,7 @@ func NewVideoRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *V
 		Logger:      logx.WithContext(ctx),
 		VideoDao:    model.NewVideoModel(svcCtx.Mysql),
 		VideoTagDao: model.NewVideoTagModel(svcCtx.Mysql),
+		CommentDao:  model.NewCommentModel(svcCtx.Mysql),
 	}
 }
 
@@ -102,6 +105,16 @@ func (h *VideoRelationHandler) handleModify(ctx context.Context, task *tasks.Vid
 }
 
 func (h *VideoRelationHandler) handleDelete(ctx context.Context, task *tasks.VideoRelationTask) error {
-	deletedAt := uint64(time.Now().Unix())
-	return h.VideoTagDao.SoftDeleteByVideoId(ctx, task.VideoID, deletedAt)
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 删除标签
+		deletedAt := uint64(time.Now().Unix())
+		err := h.VideoTagDao.SoftDeleteByVideoId(ctx, task.VideoID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除评论
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		return err
+	})
 }
