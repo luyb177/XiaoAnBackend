@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	contentIp2region "github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 
 	"github.com/lionsoul2014/ip2region/binding/golang/service"
@@ -23,22 +24,19 @@ func NewIPMiddleware(cfg config.IP2RegionConfig) *IPMiddleware {
 	// 1. 创建 v4 配置
 	v4Config, err := service.NewV4Config(service.VIndexCache, cfg.V4, 20)
 	if err != nil {
-		l.Errorf("NewIPMiddleware err: %v", err)
-		return nil
+		logx.Must(err)
 	}
 
 	// 2. 创建 v6 配置
 	v6Config, err := service.NewV6Config(service.VIndexCache, cfg.V6, 20)
 	if err != nil {
-		l.Errorf("NewIPMiddleware err: %v", err)
-		return nil
+		logx.Must(err)
 	}
 
 	// 3. 创建 ip2region 实例
 	ip2region, err := service.NewIp2Region(v4Config, v6Config)
 	if err != nil {
-		l.Errorf("NewIPMiddleware err: %v", err)
-		return nil
+		logx.Must(err)
 	}
 
 	return &IPMiddleware{
@@ -66,16 +64,16 @@ func (m *IPMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		ctx := r.Context()
 
 		if ip != "" {
-			ctx = metadata.AppendToOutgoingContext(ctx, "x-client-ip", ip)
+			ctx = metadata.AppendToOutgoingContext(ctx, contentIp2region.MdKeyClientIP, ip)
 		}
 		if ipLocation != nil {
 			ctx = metadata.AppendToOutgoingContext(
 				ctx,
-				"x-geo-country", ipLocation.Country,
-				"x-geo-province", ipLocation.Province,
-				"x-geo-city", ipLocation.City,
-				"x-geo-isp", ipLocation.ISP,
-				"x-geo-iso", ipLocation.ISOCode,
+				contentIp2region.MdKeyGeoCountry, ipLocation.Country,
+				contentIp2region.MdKeyGeoProvince, ipLocation.Province,
+				contentIp2region.MdKeyGeoCity, ipLocation.City,
+				contentIp2region.MdKeyGeoISP, ipLocation.ISP,
+				contentIp2region.MdKeyGeoISO, ipLocation.ISOCode,
 			)
 		}
 

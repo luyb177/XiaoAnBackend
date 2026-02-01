@@ -37,10 +37,7 @@ func NewModifyComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // ModifyComicChapter 修改漫画章节
 func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok {
-		return bad("用户未登录或状态异常"), nil
-	}
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

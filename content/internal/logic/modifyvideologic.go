@@ -36,10 +36,7 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 // ModifyVideo 修改视频
 func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok {
-		return bad("用户未登录或状态异常"), nil
-	}
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

@@ -35,10 +35,7 @@ func NewModifyComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 // ModifyComic 修改漫画
 func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok {
-		return bad("用户未登录或状态异常"), nil
-	}
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

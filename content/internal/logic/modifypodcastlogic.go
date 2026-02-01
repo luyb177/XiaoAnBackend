@@ -35,10 +35,7 @@ func NewModifyPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 // ModifyPodcast 修改播客
 func (l *ModifyPodcastLogic) ModifyPodcast(in *v1.ModifyPodcastRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok {
-		return bad("用户未登录或状态异常"), nil
-	}
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

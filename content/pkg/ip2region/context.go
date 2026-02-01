@@ -5,6 +5,15 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const (
+	MdKeyClientIP    = "x-client-ip"
+	MdKeyGeoCountry  = "x-geo-country"
+	MdKeyGeoProvince = "x-geo-province"
+	MdKeyGeoCity     = "x-geo-city"
+	MdKeyGeoISP      = "x-geo-isp"
+	MdKeyGeoISO      = "x-geo-iso"
+)
+
 type IPLocation struct {
 	ClientIP string
 	Country  string
@@ -28,12 +37,12 @@ func GetIPFromMetadata(ctx context.Context) *IPLocation {
 	}
 
 	loc := &IPLocation{
-		ClientIP: get("x-client-ip"),
-		Country:  get("x-geo-country"),
-		Province: get("x-geo-province"),
-		City:     get("x-geo-city"),
-		ISP:      get("x-geo-isp"),
-		ISOCode:  get("x-geo-iso"),
+		ClientIP: get(MdKeyClientIP),
+		Country:  get(MdKeyGeoCountry),
+		Province: get(MdKeyGeoProvince),
+		City:     get(MdKeyGeoCity),
+		ISP:      get(MdKeyGeoISP),
+		ISOCode:  get(MdKeyGeoISO),
 	}
 
 	// 连 IP 都没有，直接认为“无定位信息”

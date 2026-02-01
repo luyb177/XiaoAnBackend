@@ -35,13 +35,9 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, error) {
 	// 添加文章只有 超级管理员 和 员工 才能添加
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok {
+	if !ok || user.UID <= InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
-	if user.UID <= InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		return bad("用户未登录或状态异常"), nil
-	}
-
 	validations := []Validation{
 		{in.Name != "", "文章名称不能为空"},
 		{in.Content != "", "文章内容不能为空"},
