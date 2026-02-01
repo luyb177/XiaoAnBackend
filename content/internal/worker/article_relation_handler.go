@@ -22,6 +22,7 @@ type ArticleRelationHandler struct {
 	svcCtx        *svc.ServiceContext
 	ArticleDao    model.ArticleModel
 	ArticleTagDao model.ArticleTagModel
+	CommentDao    model.CommentModel
 }
 
 func NewArticleRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ArticleRelationHandler {
@@ -30,6 +31,7 @@ func NewArticleRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) 
 		Logger:        logx.WithContext(ctx),
 		ArticleDao:    model.NewArticleModel(svcCtx.Mysql),
 		ArticleTagDao: model.NewArticleTagModel(svcCtx.Mysql),
+		CommentDao:    model.NewCommentModel(svcCtx.Mysql),
 	}
 }
 
@@ -106,7 +108,15 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 }
 
 func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.ArticleRelationTask) error {
-	// 删除标签
-	deletedAt := uint64(time.Now().Unix())
-	return h.ArticleTagDao.SoftDeleteByArticleId(ctx, task.ArticleID, deletedAt)
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 删除标签
+		deletedAt := uint64(time.Now().Unix())
+		err := h.ArticleTagDao.SoftDeleteByArticleIdWithSession(ctx, session, task.ArticleID, deletedAt)
+		if err != nil {
+			return err
+		}
+		// 删除评论
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		return err
+	})
 }
