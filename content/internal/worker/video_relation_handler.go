@@ -108,7 +108,7 @@ func (h *VideoRelationHandler) handleDelete(ctx context.Context, task *tasks.Vid
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.VideoTagDao.SoftDeleteByVideoId(ctx, task.VideoID, deletedAt)
+		err := h.VideoTagDao.SoftDeleteByVideoIdWithSession(ctx, session, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
