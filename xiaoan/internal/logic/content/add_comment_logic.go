@@ -31,7 +31,6 @@ func (l *AddCommentLogic) AddComment(req *types.AddCommentRequest) (resp *types.
 		TargetId:       req.ContentId,
 		Nickname:       req.UserName,
 		Avatar:         req.Avatar,
-		IpLocation:     req.IpLocation,
 		ParentId:       req.ParentId,
 		ReplyCommentId: req.ReplyCommentId,
 		ReplyUserId:    req.ReplyUserId,

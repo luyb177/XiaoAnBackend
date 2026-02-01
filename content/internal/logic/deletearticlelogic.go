@@ -34,14 +34,12 @@ func NewDeleteArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 // DeleteArticle 删除文章
 func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Response, error) {
 	// 目前是只有超级管理员和员工可以删除文章
-	user := middleware.MustGetUser(l.ctx)
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok {
+		return bad("用户未登录或状态异常"), nil
+	}
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("DeleteArticle  err: 用户未登录或登录状态异常")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或登录状态异常",
-		}, nil
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	// 请求参数验证

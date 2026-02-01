@@ -32,7 +32,10 @@ func NewDeleteCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 
 // DeleteComment 删除评论
 func (l *DeleteCommentLogic) DeleteComment(in *v1.DeleteCommentRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok {
+		return bad("用户未登录或状态异常"), nil
+	}
 	if user.UID <= InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}

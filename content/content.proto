@@ -351,12 +351,11 @@ message AddCommentRequest {
   uint64 target_id = 2;
   string nickname = 3;
   string avatar = 4;
-  string ip_location = 5;
-  uint64 parent_id = 6; // 为0 则为根评论
-  uint64 reply_comment_id = 7;
-  uint64 reply_user_id = 8;
-  string content = 9;
-  uint64 status = 10; // 0: 正常, 1: 审核中, 2: 屏蔽
+  uint64 parent_id = 5; // 为0 则为根评论
+  uint64 reply_comment_id = 6;
+  uint64 reply_user_id = 7;
+  string content = 8;
+  uint64 status = 9; // 0: 正常, 1: 审核中, 2: 屏蔽
 }
 
 message DeleteCommentRequest {

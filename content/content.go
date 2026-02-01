@@ -37,7 +37,9 @@ func main() {
 		}
 	})
 
+	// 中间件
 	rpcServer.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
+	rpcServer.AddUnaryInterceptors(middleware.IPUnaryInterceptor)
 
 	w := worker.NewWorker(ctx)
 

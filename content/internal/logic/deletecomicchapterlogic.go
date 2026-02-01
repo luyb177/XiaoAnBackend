@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,14 +35,12 @@ func NewDeleteComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // DeleteComicChapter 删除漫画章节
 func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok {
+		return bad("用户未登录或状态异常"), nil
+	}
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("DeleteComicChapter  err: 用户未登录或登录状态异常")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或登录状态异常",
-		}, nil
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	validations := []Validation{

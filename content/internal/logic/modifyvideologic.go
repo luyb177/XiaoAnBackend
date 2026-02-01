@@ -35,13 +35,12 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 
 // ModifyVideo 修改视频
 func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok {
+		return bad("用户未登录或状态异常"), nil
+	}
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("ModifyVideo err: 用户登录状态异常")
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或者登录状态异常",
-		}, nil
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	// 验证参数
@@ -70,7 +69,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	// 检查标签
 	for _, tag := range in.Tag {
 		if tag == "" {
-			l.Logger.Errorf("ModifyVideo err: 标签不能为空")
+			l.Errorf("ModifyVideo err: 标签不能为空")
 			return &v1.Response{
 				Code:    400,
 				Message: "标签不能为空",
@@ -86,7 +85,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, sqlc.ErrNotFound) {
-			l.Logger.Errorf("ModifyVideo err: 视频不存在")
+			l.Errorf("ModifyVideo err: 视频不存在")
 			return &v1.Response{
 				Code:    400,
 				Message: "视频不存在",
@@ -110,7 +109,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 
 	err = l.VideoDao.Update(l.ctx, video)
 	if err != nil {
-		l.Logger.Errorf("ModifyVideo err: %v", err)
+		l.Errorf("ModifyVideo err: %v", err)
 		return &v1.Response{
 			Code:    400,
 			Message: "修改视频出现错误",
@@ -125,7 +124,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 	}
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
 	if err != nil {
-		l.Logger.Errorf("ModifyVideo Enqueue err: %v", err)
+		l.Errorf("ModifyVideo Enqueue err: %v", err)
 	}
 
 	// 构造返回结果
@@ -136,7 +135,7 @@ func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response,
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("ModifyVideo err: %v", err)
+		l.Errorf("ModifyVideo err: %v", err)
 		return &v1.Response{
 			Code:    500,
 			Message: "修改视频出现错误",

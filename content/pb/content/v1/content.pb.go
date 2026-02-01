@@ -2849,12 +2849,11 @@ type AddCommentRequest struct {
 	TargetId       uint64                 `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
 	Nickname       string                 `protobuf:"bytes,3,opt,name=nickname,proto3" json:"nickname,omitempty"`
 	Avatar         string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	IpLocation     string                 `protobuf:"bytes,5,opt,name=ip_location,json=ipLocation,proto3" json:"ip_location,omitempty"`
-	ParentId       uint64                 `protobuf:"varint,6,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"` // 为0 则为根评论
-	ReplyCommentId uint64                 `protobuf:"varint,7,opt,name=reply_comment_id,json=replyCommentId,proto3" json:"reply_comment_id,omitempty"`
-	ReplyUserId    uint64                 `protobuf:"varint,8,opt,name=reply_user_id,json=replyUserId,proto3" json:"reply_user_id,omitempty"`
-	Content        string                 `protobuf:"bytes,9,opt,name=content,proto3" json:"content,omitempty"`
-	Status         uint64                 `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"` // 0: 正常, 1: 审核中, 2: 屏蔽
+	ParentId       uint64                 `protobuf:"varint,5,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"` // 为0 则为根评论
+	ReplyCommentId uint64                 `protobuf:"varint,6,opt,name=reply_comment_id,json=replyCommentId,proto3" json:"reply_comment_id,omitempty"`
+	ReplyUserId    uint64                 `protobuf:"varint,7,opt,name=reply_user_id,json=replyUserId,proto3" json:"reply_user_id,omitempty"`
+	Content        string                 `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	Status         uint64                 `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"` // 0: 正常, 1: 审核中, 2: 屏蔽
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2913,13 +2912,6 @@ func (x *AddCommentRequest) GetNickname() string {
 func (x *AddCommentRequest) GetAvatar() string {
 	if x != nil {
 		return x.Avatar
-	}
-	return ""
-}
-
-func (x *AddCommentRequest) GetIpLocation() string {
-	if x != nil {
-		return x.IpLocation
 	}
 	return ""
 }
@@ -4168,7 +4160,7 @@ func (x *ModifyComicChapterResponse) GetRelationStatus() int64 {
 type AddCommentResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	RelationStatus int64                  `protobuf:"varint,2,opt,name=Relation_status,json=RelationStatus,proto3" json:"Relation_status,omitempty"`
+	RelationStatus int64                  `protobuf:"varint,2,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -4725,20 +4717,17 @@ const file_content_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\"F\n" +
 	"\x19DeleteComicChapterRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x19\n" +
-	"\bcomic_id\x18\x02 \x01(\x04R\acomicId\"\xb6\x02\n" +
+	"\bcomic_id\x18\x02 \x01(\x04R\acomicId\"\x95\x02\n" +
 	"\x11AddCommentRequest\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1b\n" +
 	"\ttarget_id\x18\x02 \x01(\x04R\btargetId\x12\x1a\n" +
 	"\bnickname\x18\x03 \x01(\tR\bnickname\x12\x16\n" +
-	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x1f\n" +
-	"\vip_location\x18\x05 \x01(\tR\n" +
-	"ipLocation\x12\x1b\n" +
-	"\tparent_id\x18\x06 \x01(\x04R\bparentId\x12(\n" +
-	"\x10reply_comment_id\x18\a \x01(\x04R\x0ereplyCommentId\x12\"\n" +
-	"\rreply_user_id\x18\b \x01(\x04R\vreplyUserId\x12\x18\n" +
-	"\acontent\x18\t \x01(\tR\acontent\x12\x16\n" +
-	"\x06status\x18\n" +
-	" \x01(\x04R\x06status\"&\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x1b\n" +
+	"\tparent_id\x18\x05 \x01(\x04R\bparentId\x12(\n" +
+	"\x10reply_comment_id\x18\x06 \x01(\x04R\x0ereplyCommentId\x12\"\n" +
+	"\rreply_user_id\x18\a \x01(\x04R\vreplyUserId\x12\x18\n" +
+	"\acontent\x18\b \x01(\tR\acontent\x12\x16\n" +
+	"\x06status\x18\t \x01(\x04R\x06status\"&\n" +
 	"\x14DeleteCommentRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\"\x8a\x01\n" +
 	"\x15GetRootCommentRequest\x12!\n" +
@@ -4814,7 +4803,7 @@ const file_content_proto_rawDesc = "" +
 	"\x0frelation_status\x18\x02 \x01(\x03R\x0erelationStatus\"M\n" +
 	"\x12AddCommentResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12'\n" +
-	"\x0fRelation_status\x18\x02 \x01(\x03R\x0eRelationStatus\"B\n" +
+	"\x0frelation_status\x18\x02 \x01(\x03R\x0erelationStatus\"B\n" +
 	"\x12GetCommentResponse\x12,\n" +
 	"\bcomments\x18\x01 \x03(\v2\x10.content.CommentR\bcomments\"E\n" +
 	"\x15GetSubCommentResponse\x12,\n" +

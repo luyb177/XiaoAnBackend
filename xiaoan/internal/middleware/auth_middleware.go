@@ -49,12 +49,14 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		md := metadata.New(map[string]string{
-			"user_id":     strconv.FormatUint(claims.UserId, 10),
-			"user_role":   claims.UserRole,
-			"user_status": strconv.FormatUint(uint64(claims.UserStatus), 10),
-		})
-		ctx := metadata.NewOutgoingContext(r.Context(), md)
+		ctx := r.Context()
+		ctx = metadata.AppendToOutgoingContext(
+			ctx,
+			"user_id", strconv.FormatUint(claims.UserId, 10),
+			"user_role", claims.UserRole,
+			"user_status", strconv.FormatUint(uint64(claims.UserStatus), 10),
+		)
+
 		next(w, r.WithContext(ctx))
 	}
 }

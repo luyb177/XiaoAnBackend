@@ -2,16 +2,16 @@ package logic
 
 import (
 	"context"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"google.golang.org/protobuf/types/known/anypb"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type AddCommentLogic struct {
@@ -32,9 +32,17 @@ func NewAddCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddCom
 
 // AddComment 添加评论 最终一致性
 func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok {
+		return bad("用户未登录或状态异常"), nil
+	}
 	if user.UID <= InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
+	}
+
+	ip, ok := middleware.GetIPInfo(l.ctx)
+	if !ok {
+		ip = middleware.DefaultIPInfo()
 	}
 
 	// 参数校验
@@ -44,8 +52,6 @@ func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, er
 	}
 
 	// TODO: user.Nickname user.Avatar 未来可以使用RPC调用服务来获取用户最新信息
-	//
-	// TODO: IP地址的话需要 网关 来获取一下，不再是客户端传递了
 	now := time.Now()
 	comment := &model.Comment{
 		Type:            in.Type,
@@ -53,7 +59,7 @@ func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, er
 		UserId:          user.UID,
 		Nickname:        in.Nickname,
 		Avatar:          in.Avatar,
-		IpLocation:      in.IpLocation,
+		IpLocation:      ip.City, // 使用 城市
 		ParentId:        in.ParentId,
 		ReplyCommentId:  in.ReplyCommentId,
 		ReplyUserId:     in.ReplyUserId,
@@ -126,8 +132,6 @@ func (l *AddCommentLogic) validate(in *v1.AddCommentRequest) *v1.Response {
 		return bad("评论昵称不能为空")
 	case in.Avatar == "":
 		return bad("评论头像不能为空")
-	case in.IpLocation == "":
-		return bad("评论IP地址不能为空")
 	case in.Content == "":
 		return bad("评论内容不能为空")
 	case !isValidCommentStatus(in.Status):

@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,14 +33,12 @@ func NewDeletePodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 
 // DeletePodcast 删除播客
 func (l *DeletePodcastLogic) DeletePodcast(in *v1.DeletePodcastRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok {
+		return bad("用户未登录或状态异常"), nil
+	}
 	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("DeletePodcast err: 用户未登录或登录状态异常")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或登录状态异常",
-		}, nil
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	validations := []Validation{
