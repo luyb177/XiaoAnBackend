@@ -8,15 +8,21 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const (
+	MdKeyUserID     = "user_id"
+	MdKeyUserRole   = "user_role"
+	MdKeyUserStatus = "user_status"
+)
+
 func GetUserFromMetadata(ctx context.Context) (uint64, string, int64, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return 0, "", 0, errors.New("metadata missing")
 	}
 
-	uidStr := md.Get("user_id")
-	role := md.Get("user_role")
-	statusStr := md.Get("user_status")
+	uidStr := md.Get(MdKeyUserID)
+	role := md.Get(MdKeyUserRole)
+	statusStr := md.Get(MdKeyUserStatus)
 
 	//fmt.Println("uidStr", uidStr)
 	//fmt.Println("role", role)

@@ -38,7 +38,6 @@ type AddCommentRequest struct {
 	ContentId      uint64 `json:"content_id"`
 	UserName       string `json:"user_name"`
 	Avatar         string `json:"avatar"`
-	IpLocation     string `json:"ip_location"`
 	ParentId       uint64 `json:"parent_id"`
 	ReplyCommentId uint64 `json:"reply_comment_id"`
 	ReplyUserId    uint64 `json:"reply_user_id"`

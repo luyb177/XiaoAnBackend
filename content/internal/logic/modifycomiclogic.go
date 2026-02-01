@@ -34,14 +34,9 @@ func NewModifyComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 
 // ModifyComic 修改漫画
 func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("ModifyComic err: 用户未登录或者没有权限")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或者没有权限",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	// 验证参数
@@ -56,7 +51,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 
 	for _, v := range validations {
 		if !v.Condition {
-			l.Logger.Errorf("ModifyComic err: %s", v.Message)
+			l.Errorf("ModifyComic err: %s", v.Message)
 
 			return &v1.Response{
 				Code:    400,
@@ -78,14 +73,14 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 	comic, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			l.Logger.Errorf("ModifyComic err: 漫画不存在")
+			l.Errorf("ModifyComic err: 漫画不存在")
 
 			return &v1.Response{
 				Code:    404,
 				Message: "漫画不存在",
 			}, nil
 		}
-		l.Logger.Errorf("ModifyComic err: %v", err)
+		l.Errorf("ModifyComic err: %v", err)
 
 		return &v1.Response{
 			Code:    500,
@@ -104,7 +99,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 
 	err = l.ComicDao.Update(l.ctx, comic)
 	if err != nil {
-		l.Logger.Errorf("ModifyComic err: %v", err)
+		l.Errorf("ModifyComic err: %v", err)
 
 		return &v1.Response{
 			Code:    500,
@@ -122,7 +117,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, comicRelationTask)
 	if err != nil {
-		l.Logger.Errorf("ModifyComic Enqueue err: %v", err)
+		l.Errorf("ModifyComic Enqueue err: %v", err)
 	}
 
 	res := &v1.ModifyComicResponse{
@@ -132,7 +127,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("ModifyComic err: %v", err)
+		l.Errorf("ModifyComic err: %v", err)
 
 		return &v1.Response{
 			Code:    500,

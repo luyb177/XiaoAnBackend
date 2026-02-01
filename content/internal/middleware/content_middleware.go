@@ -12,9 +12,7 @@ import (
 type ctxKey string
 
 const (
-	ctxKeyUserID     ctxKey = "user_id"
-	ctxKeyUserRole   ctxKey = "user_role"
-	ctxKeyUserStatus ctxKey = "user_status"
+	ctxKeyUser ctxKey = "user"
 )
 
 // 不需要鉴权的方法
@@ -45,9 +43,11 @@ func UserUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.Unary
 	}
 
 	// 3. 写入 context，供 logic 使用
-	ctx = context.WithValue(ctx, ctxKeyUserID, uid)
-	ctx = context.WithValue(ctx, ctxKeyUserRole, role)
-	ctx = context.WithValue(ctx, ctxKeyUserStatus, status)
+	ctx = context.WithValue(ctx, ctxKeyUser, &UserInfo{
+		UID:    uid,
+		Role:   role,
+		Status: status,
+	})
 
 	return handler(ctx, req)
 }

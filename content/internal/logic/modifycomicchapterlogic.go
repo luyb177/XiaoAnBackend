@@ -36,14 +36,9 @@ func NewModifyComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // ModifyComicChapter 修改漫画章节
 func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("ModifyComicChapter err: 用户未登录或者没有权限")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或者没有权限",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	// 验证参数

@@ -17,6 +17,7 @@ type ServiceContext struct {
 	QARpc          qa.QAServiceClient
 	ContentRpc     content.ContentServiceClient
 	AuthMiddleware rest.Middleware
+	IPMiddleware   rest.Middleware
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -29,5 +30,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		QARpc:          qa.NewQAServiceClient(qc),
 		ContentRpc:     content.NewContentServiceClient(cc),
 		AuthMiddleware: middleware.NewAuthMiddleware(c.JWTConfig).Handle,
+		IPMiddleware:   middleware.NewIPMiddleware(c.IP2RegionConfig).Handle,
 	}
 }

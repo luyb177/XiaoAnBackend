@@ -34,14 +34,9 @@ func NewDeleteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 // DeleteVideo 删除视频
 func (l *DeleteVideoLogic) DeleteVideo(in *v1.DeleteVideoRequest) (*v1.Response, error) {
 	// 目前是只有超级管理员和员工可以删除视频
-	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("DeleteVideo err: 用户未登录或登录状态异常")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或登录状态异常",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	validations := []Validation{

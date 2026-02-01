@@ -34,14 +34,9 @@ func NewAddPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddPod
 // AddPodcast 添加播客
 func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, error) {
 	// 添加播客只有 超级管理员 和 员工 才能添加
-	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Errorf("AddPodcast err: 用户未登录或无权限")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或无权限",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	// 检验请求体内容
