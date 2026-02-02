@@ -40,13 +40,13 @@ const (
 	ContentService_ModifyComicChapter_FullMethodName = "/content.ContentService/ModifyComicChapter"
 	ContentService_DeleteComic_FullMethodName        = "/content.ContentService/DeleteComic"
 	ContentService_DeleteComicChapter_FullMethodName = "/content.ContentService/DeleteComicChapter"
+	ContentService_AddComment_FullMethodName         = "/content.ContentService/AddComment"
+	ContentService_DeleteComment_FullMethodName      = "/content.ContentService/DeleteComment"
+	ContentService_GetRootComment_FullMethodName     = "/content.ContentService/GetRootComment"
+	ContentService_GetSubComment_FullMethodName      = "/content.ContentService/GetSubComment"
 	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
 	ContentService_Like_FullMethodName               = "/content.ContentService/Like"
 	ContentService_Collect_FullMethodName            = "/content.ContentService/Collect"
-	ContentService_AddComment_FullMethodName         = "/content.ContentService/AddComment"
-	ContentService_UpdateComment_FullMethodName      = "/content.ContentService/UpdateComment"
-	ContentService_DeleteComment_FullMethodName      = "/content.ContentService/DeleteComment"
-	ContentService_GetComments_FullMethodName        = "/content.ContentService/GetComments"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -95,20 +95,20 @@ type ContentServiceClient interface {
 	DeleteComic(ctx context.Context, in *DeleteComicRequest, opts ...grpc.CallOption) (*Response, error)
 	// DeleteComicChapter 删除漫画章节
 	DeleteComicChapter(ctx context.Context, in *DeleteComicChapterRequest, opts ...grpc.CallOption) (*Response, error)
+	// AddComment 添加评论
+	AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	// DeleteComment 删除评论
+	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetRootComment 获取评论
+	GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetSubComment 获取子评论
+	GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 	// 点赞
 	Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
 	// 收藏
 	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
-	// 添加评论
-	AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error)
-	// 修改评论
-	UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error)
-	// 删除评论
-	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
-	// 获取根评论
-	GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type contentServiceClient struct {
@@ -329,6 +329,46 @@ func (c *contentServiceClient) DeleteComicChapter(ctx context.Context, in *Delet
 	return out, nil
 }
 
+func (c *contentServiceClient) AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_AddComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_DeleteComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetRootComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetSubComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
@@ -353,46 +393,6 @@ func (c *contentServiceClient) Collect(ctx context.Context, in *CollectRequest, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, ContentService_Collect_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *contentServiceClient) AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_AddComment_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *contentServiceClient) UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_UpdateComment_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *contentServiceClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_DeleteComment_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *contentServiceClient) GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_GetComments_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -445,20 +445,20 @@ type ContentServiceServer interface {
 	DeleteComic(context.Context, *DeleteComicRequest) (*Response, error)
 	// DeleteComicChapter 删除漫画章节
 	DeleteComicChapter(context.Context, *DeleteComicChapterRequest) (*Response, error)
+	// AddComment 添加评论
+	AddComment(context.Context, *AddCommentRequest) (*Response, error)
+	// DeleteComment 删除评论
+	DeleteComment(context.Context, *DeleteCommentRequest) (*Response, error)
+	// GetRootComment 获取评论
+	GetRootComment(context.Context, *GetRootCommentRequest) (*Response, error)
+	// GetSubComment 获取子评论
+	GetSubComment(context.Context, *GetSubCommentRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
 	// 点赞
 	Like(context.Context, *LikeRequest) (*Response, error)
 	// 收藏
 	Collect(context.Context, *CollectRequest) (*Response, error)
-	// 添加评论
-	AddComment(context.Context, *AddCommentRequest) (*Response, error)
-	// 修改评论
-	UpdateComment(context.Context, *UpdateCommentRequest) (*Response, error)
-	// 删除评论
-	DeleteComment(context.Context, *DeleteCommentRequest) (*Response, error)
-	// 获取根评论
-	GetComments(context.Context, *GetCommentsRequest) (*Response, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -532,6 +532,18 @@ func (UnimplementedContentServiceServer) DeleteComic(context.Context, *DeleteCom
 func (UnimplementedContentServiceServer) DeleteComicChapter(context.Context, *DeleteComicChapterRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteComicChapter not implemented")
 }
+func (UnimplementedContentServiceServer) AddComment(context.Context, *AddCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddComment not implemented")
+}
+func (UnimplementedContentServiceServer) DeleteComment(context.Context, *DeleteCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
+}
+func (UnimplementedContentServiceServer) GetRootComment(context.Context, *GetRootCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRootComment not implemented")
+}
+func (UnimplementedContentServiceServer) GetSubComment(context.Context, *GetSubCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubComment not implemented")
+}
 func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
@@ -540,18 +552,6 @@ func (UnimplementedContentServiceServer) Like(context.Context, *LikeRequest) (*R
 }
 func (UnimplementedContentServiceServer) Collect(context.Context, *CollectRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")
-}
-func (UnimplementedContentServiceServer) AddComment(context.Context, *AddCommentRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddComment not implemented")
-}
-func (UnimplementedContentServiceServer) UpdateComment(context.Context, *UpdateCommentRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateComment not implemented")
-}
-func (UnimplementedContentServiceServer) DeleteComment(context.Context, *DeleteCommentRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
-}
-func (UnimplementedContentServiceServer) GetComments(context.Context, *GetCommentsRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetComments not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -952,6 +952,78 @@ func _ContentService_DeleteComicChapter_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_AddComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AddComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AddComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AddComment(ctx, req.(*AddCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_DeleteComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).DeleteComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_DeleteComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).DeleteComment(ctx, req.(*DeleteCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetRootComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRootCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetRootComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetRootComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetRootComment(ctx, req.(*GetRootCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetSubComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetSubComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetSubComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetSubComment(ctx, req.(*GetSubCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchRequest)
 	if err := dec(in); err != nil {
@@ -1002,78 +1074,6 @@ func _ContentService_Collect_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).Collect(ctx, req.(*CollectRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ContentService_AddComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).AddComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_AddComment_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).AddComment(ctx, req.(*AddCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ContentService_UpdateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).UpdateComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_UpdateComment_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).UpdateComment(ctx, req.(*UpdateCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ContentService_DeleteComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).DeleteComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_DeleteComment_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).DeleteComment(ctx, req.(*DeleteCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ContentService_GetComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCommentsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).GetComments(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_GetComments_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).GetComments(ctx, req.(*GetCommentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1170,6 +1170,22 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_DeleteComicChapter_Handler,
 		},
 		{
+			MethodName: "AddComment",
+			Handler:    _ContentService_AddComment_Handler,
+		},
+		{
+			MethodName: "DeleteComment",
+			Handler:    _ContentService_DeleteComment_Handler,
+		},
+		{
+			MethodName: "GetRootComment",
+			Handler:    _ContentService_GetRootComment_Handler,
+		},
+		{
+			MethodName: "GetSubComment",
+			Handler:    _ContentService_GetSubComment_Handler,
+		},
+		{
 			MethodName: "Search",
 			Handler:    _ContentService_Search_Handler,
 		},
@@ -1180,22 +1196,6 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Collect",
 			Handler:    _ContentService_Collect_Handler,
-		},
-		{
-			MethodName: "AddComment",
-			Handler:    _ContentService_AddComment_Handler,
-		},
-		{
-			MethodName: "UpdateComment",
-			Handler:    _ContentService_UpdateComment_Handler,
-		},
-		{
-			MethodName: "DeleteComment",
-			Handler:    _ContentService_DeleteComment_Handler,
-		},
-		{
-			MethodName: "GetComments",
-			Handler:    _ContentService_GetComments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

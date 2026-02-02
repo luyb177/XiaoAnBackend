@@ -22,9 +22,16 @@ type (
 		videoModel
 		withSession(session sqlx.Session) VideoModel
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Video) (sql.Result, error)
+		IncrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error)
+		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
+		DecrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error)
+		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, videoId uint64, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64, count uint64) (sql.Result, error)
 		FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error)
 		FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
+		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Video, error)
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
@@ -50,6 +57,39 @@ func (m *customVideoModel) InsertWithSession(ctx context.Context, session sqlx.S
 	return m.withSession(session).Insert(ctx, data)
 }
 
+func (m *customVideoModel) IncrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` + 1 where `id` = ? and `deleted_at` = 0", m.table)
+
+	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCommentCount(ctx, videoId)
+}
+
+func (m *customVideoModel) DecrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - 1 where `id` = ? and `comment_count` > 0 and `deleted_at` =0", m.table)
+
+	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCount(ctx, videoId)
+}
+
+func (m *customVideoModel) DecrCommentCountByCount(ctx context.Context, videoId uint64, count uint64) (sql.Result, error) {
+	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - ? where `id` = ? and `comment_count` >= ? and `deleted_at` =0", m.table)
+
+	result, err := m.conn.ExecCtx(ctx, query, count, videoId, count)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64, count uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCountByCount(ctx, videoId, count)
+}
+
 func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `id` = ? and `deleted_at` = 0 limit 1",
@@ -60,6 +100,10 @@ func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) 
 	var resp Video
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	return &resp, mapDBError(err)
+}
+
+func (m *customVideoModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Video, error) {
+	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
 func (m *customVideoModel) FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error) {

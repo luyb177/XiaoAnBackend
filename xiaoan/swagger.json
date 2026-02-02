@@ -627,6 +627,95 @@
         }
       }
     },
+    "/api/content/add-comment": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "添加评论",
+        "operationId": "contentAddComment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id",
+                "user_name",
+                "avatar",
+                "ip_location",
+                "parent_id",
+                "reply_comment_id",
+                "reply_user_id",
+                "comment_text",
+                "status"
+              ],
+              "properties": {
+                "avatar": {
+                  "type": "string"
+                },
+                "comment_text": {
+                  "type": "string"
+                },
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "ip_location": {
+                  "type": "string"
+                },
+                "parent_id": {
+                  "type": "integer"
+                },
+                "reply_comment_id": {
+                  "type": "integer"
+                },
+                "reply_user_id": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "integer"
+                },
+                "user_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/add-podcast": {
       "post": {
         "consumes": [
@@ -949,6 +1038,49 @@
         }
       }
     },
+    "/api/content/delete-comment": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "删除评论",
+        "operationId": "contentDeleteComment",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "comment_id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/delete-podcast": {
       "delete": {
         "consumes": [
@@ -1236,6 +1368,128 @@
           {
             "type": "integer",
             "name": "podcast_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-root-comment": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取根评论",
+        "operationId": "contentGetRootComment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "content_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "content_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-sub-comment": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取子评论",
+        "operationId": "contentGetSubComment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "content_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "content_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "parent_comment_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
             "in": "query",
             "required": true
           }
@@ -1800,7 +2054,7 @@
       }
     }
   },
-  "x-date": "2026-01-25 13:43:50",
+  "x-date": "2026-02-01 15:53:01",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

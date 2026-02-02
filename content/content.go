@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/server"
@@ -36,7 +37,9 @@ func main() {
 		}
 	})
 
+	// 中间件
 	rpcServer.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
+	rpcServer.AddUnaryInterceptors(middleware.IPUnaryInterceptor)
 
 	w := worker.NewWorker(ctx)
 

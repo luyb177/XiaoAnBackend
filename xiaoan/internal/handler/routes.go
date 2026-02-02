@@ -16,38 +16,41 @@ import (
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 登录
-				Method:  http.MethodPost,
-				Path:    "/login",
-				Handler: auth.LoginHandler(serverCtx),
-			},
-			{
-				// 注册
-				Method:  http.MethodPost,
-				Path:    "/register",
-				Handler: auth.RegisterHandler(serverCtx),
-			},
-			{
-				// 发送邮箱验证码
-				Method:  http.MethodPost,
-				Path:    "/send-email",
-				Handler: auth.SendEmailHandler(serverCtx),
-			},
-			{
-				// 验证邮箱验证码
-				Method:  http.MethodPost,
-				Path:    "/validate-email",
-				Handler: auth.ValidateEmailHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.IPMiddleware},
+			[]rest.Route{
+				{
+					// 登录
+					Method:  http.MethodPost,
+					Path:    "/login",
+					Handler: auth.LoginHandler(serverCtx),
+				},
+				{
+					// 注册
+					Method:  http.MethodPost,
+					Path:    "/register",
+					Handler: auth.RegisterHandler(serverCtx),
+				},
+				{
+					// 发送邮箱验证码
+					Method:  http.MethodPost,
+					Path:    "/send-email",
+					Handler: auth.SendEmailHandler(serverCtx),
+				},
+				{
+					// 验证邮箱验证码
+					Method:  http.MethodPost,
+					Path:    "/validate-email",
+					Handler: auth.ValidateEmailHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/auth"),
 	)
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.IPMiddleware},
 			[]rest.Route{
 				{
 					// 生成邀请码
@@ -67,50 +70,65 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 获取文章详细内容
-				Method:  http.MethodGet,
-				Path:    "/get-article-content",
-				Handler: content.GetArticleContentHandler(serverCtx),
-			},
-			{
-				// 获取漫画
-				Method:  http.MethodGet,
-				Path:    "/get-comic",
-				Handler: content.GetComicHandler(serverCtx),
-			},
-			{
-				// 获取漫画章节
-				Method:  http.MethodGet,
-				Path:    "/get-comic-chapter",
-				Handler: content.GetComicChapterHandler(serverCtx),
-			},
-			{
-				// 获取漫画页面
-				Method:  http.MethodGet,
-				Path:    "/get-comic-page",
-				Handler: content.GetComicPageHandler(serverCtx),
-			},
-			{
-				// 获取播客详细内容
-				Method:  http.MethodGet,
-				Path:    "/get-podcast-content",
-				Handler: content.GetPodcastContentHandler(serverCtx),
-			},
-			{
-				// 获取视频详细内容
-				Method:  http.MethodGet,
-				Path:    "/get-video-content",
-				Handler: content.GetVideoContentHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.IPMiddleware},
+			[]rest.Route{
+				{
+					// 获取文章详细内容
+					Method:  http.MethodGet,
+					Path:    "/get-article-content",
+					Handler: content.GetArticleContentHandler(serverCtx),
+				},
+				{
+					// 获取漫画
+					Method:  http.MethodGet,
+					Path:    "/get-comic",
+					Handler: content.GetComicHandler(serverCtx),
+				},
+				{
+					// 获取漫画章节
+					Method:  http.MethodGet,
+					Path:    "/get-comic-chapter",
+					Handler: content.GetComicChapterHandler(serverCtx),
+				},
+				{
+					// 获取漫画页面
+					Method:  http.MethodGet,
+					Path:    "/get-comic-page",
+					Handler: content.GetComicPageHandler(serverCtx),
+				},
+				{
+					// 获取播客详细内容
+					Method:  http.MethodGet,
+					Path:    "/get-podcast-content",
+					Handler: content.GetPodcastContentHandler(serverCtx),
+				},
+				{
+					// 获取根评论
+					Method:  http.MethodGet,
+					Path:    "/get-root-comment",
+					Handler: content.GetRootCommentHandler(serverCtx),
+				},
+				{
+					// 获取子评论
+					Method:  http.MethodGet,
+					Path:    "/get-sub-comment",
+					Handler: content.GetSubCommentHandler(serverCtx),
+				},
+				{
+					// 获取视频详细内容
+					Method:  http.MethodGet,
+					Path:    "/get-video-content",
+					Handler: content.GetVideoContentHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/content"),
 	)
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.IPMiddleware},
 			[]rest.Route{
 				{
 					// 添加文章
@@ -129,6 +147,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/add-comic-chapter",
 					Handler: content.AddComicChapterHandler(serverCtx),
+				},
+				{
+					// 添加评论
+					Method:  http.MethodPost,
+					Path:    "/add-comment",
+					Handler: content.AddCommentHandler(serverCtx),
 				},
 				{
 					// 添加播客
@@ -159,6 +183,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodDelete,
 					Path:    "/delete-comic-chapter",
 					Handler: content.DeleteComicChapterHandler(serverCtx),
+				},
+				{
+					// 删除评论
+					Method:  http.MethodDelete,
+					Path:    "/delete-comment",
+					Handler: content.DeleteCommentHandler(serverCtx),
 				},
 				{
 					// 删除播客
@@ -208,14 +238,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 获取答案
-				Method:  http.MethodPost,
-				Path:    "/answer",
-				Handler: qa.GetAnswerHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.IPMiddleware},
+			[]rest.Route{
+				{
+					// 获取答案
+					Method:  http.MethodPost,
+					Path:    "/answer",
+					Handler: qa.GetAnswerHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/qa"),
 	)
 }

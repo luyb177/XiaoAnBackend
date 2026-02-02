@@ -134,6 +134,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		RelationStatus: podcast.RelationStatus,
 		Channel:        podcast.Channel,
 		Status:         podcast.Status,
+		CommentCount:   podcast.CommentCount,
 	}}
 
 	resAny, err := anypb.New(res)

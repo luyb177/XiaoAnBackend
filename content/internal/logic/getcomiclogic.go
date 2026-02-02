@@ -103,6 +103,7 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		ViewCount:    comic.ViewCount,
 		CollectCount: comic.CollectCount,
 		ChapterCount: comic.ChapterCount,
+		CommentCount: comic.CommentCount,
 	}}
 
 	reaAny, err := anypb.New(res)

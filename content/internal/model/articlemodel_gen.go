@@ -49,6 +49,7 @@ type (
 		LastModifiedBy sql.NullInt64  `db:"last_modified_by"` // 最后修改人ID
 		LikeCount      uint64         `db:"like_count"`       // 点赞数
 		ViewCount      uint64         `db:"view_count"`       // 浏览数
+		CommentCount   uint64         `db:"comment_count"`    // 评论数
 		CollectCount   uint64         `db:"collect_count"`    // 收藏数
 		CreatedAt      time.Time      `db:"created_at"`       // 记录创建时间（系统时间）
 		UpdatedAt      time.Time      `db:"updated_at"`       // 记录更新时间（系统时间）
@@ -84,14 +85,14 @@ func (m *defaultArticleModel) FindOne(ctx context.Context, id uint64) (*Article,
 }
 
 func (m *defaultArticleModel) Insert(ctx context.Context, data *Article) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, articleRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, articleRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.LikeCount, data.ViewCount, data.CommentCount, data.CollectCount, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultArticleModel) Update(ctx context.Context, data *Article) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, articleRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.LikeCount, data.ViewCount, data.CollectCount, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Content, data.Author, data.PublishedAt, data.RelationStatus, data.LastModifiedBy, data.LikeCount, data.ViewCount, data.CommentCount, data.CollectCount, data.DeletedAt, data.Id)
 	return err
 }
 

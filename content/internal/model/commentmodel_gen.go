@@ -37,18 +37,25 @@ type (
 	}
 
 	Comment struct {
-		Id             uint64       `db:"id"`               // 评论ID
-		Type           string       `db:"type"`             // 内容类型: video, comic, podcast, article
-		TargetId       uint64       `db:"target_id"`        // 目标内容ID
-		UserId         uint64       `db:"user_id"`          // 评论用户ID
-		ParentId       uint64       `db:"parent_id"`        // 父评论ID(0表示一级评论)
-		ReplyCommentId uint64       `db:"reply_comment_id"` // 回复的评论ID
-		ReplyUserId    uint64       `db:"reply_user_id"`    // 回复的用户ID
-		Content        string       `db:"content"`          // 评论内容
-		LikeCount      uint64       `db:"like_count"`       // 点赞数
-		CreatedAt      time.Time    `db:"created_at"`       // 创建时间
-		UpdatedAt      time.Time    `db:"updated_at"`       // 更新时间
-		DeletedAt      sql.NullTime `db:"deleted_at"`       // 删除时间(NULL表示未删除)
+		Id              uint64    `db:"id"`                // 评论ID
+		Type            string    `db:"type"`              // 内容类型: video, comic, podcast, article
+		TargetId        uint64    `db:"target_id"`         // 目标内容ID
+		UserId          uint64    `db:"user_id"`           // 评论用户ID
+		Nickname        string    `db:"nickname"`          // 用户昵称快照
+		Avatar          string    `db:"avatar"`            // 用户头像URL快照
+		IpLocation      string    `db:"ip_location"`       // IP归属地(省/国家)
+		ParentId        uint64    `db:"parent_id"`         // 父评论ID(0=一级评论)
+		ReplyCommentId  uint64    `db:"reply_comment_id"`  // 回复的评论ID
+		ReplyUserId     uint64    `db:"reply_user_id"`     // 回复的用户ID
+		Content         string    `db:"content"`           // 评论内容
+		IsCounted       int64     `db:"is_counted"`        // 是否已计入内容评论数
+		Status          uint64    `db:"status"`            // 状态: 0正常 1审核中 2屏蔽
+		LikeCount       uint64    `db:"like_count"`        // 点赞数
+		SubCommentCount uint64    `db:"sub_comment_count"` // 子评论数量(仅一级评论有效)
+		Remark          string    `db:"remark"`            // 状态备注/原因
+		CreatedAt       time.Time `db:"created_at"`        // 创建时间
+		UpdatedAt       time.Time `db:"updated_at"`        // 更新时间
+		DeletedAt       uint64    `db:"deleted_at"`        // 删除时间戳(0=未删除)
 	}
 )
 
@@ -80,14 +87,14 @@ func (m *defaultCommentModel) FindOne(ctx context.Context, id uint64) (*Comment,
 }
 
 func (m *defaultCommentModel) Insert(ctx context.Context, data *Comment) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, commentRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.ParentId, data.ReplyCommentId, data.ReplyUserId, data.Content, data.LikeCount, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, commentRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.Nickname, data.Avatar, data.IpLocation, data.ParentId, data.ReplyCommentId, data.ReplyUserId, data.Content, data.IsCounted, data.Status, data.LikeCount, data.SubCommentCount, data.Remark, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultCommentModel) Update(ctx context.Context, data *Comment) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, commentRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.ParentId, data.ReplyCommentId, data.ReplyUserId, data.Content, data.LikeCount, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.Nickname, data.Avatar, data.IpLocation, data.ParentId, data.ReplyCommentId, data.ReplyUserId, data.Content, data.IsCounted, data.Status, data.LikeCount, data.SubCommentCount, data.Remark, data.DeletedAt, data.Id)
 	return err
 }
 

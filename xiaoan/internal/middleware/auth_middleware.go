@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/content/pkg/auth"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/pkg/ijwt"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
@@ -49,12 +50,14 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		md := metadata.New(map[string]string{
-			"user_id":     strconv.FormatUint(claims.UserId, 10),
-			"user_role":   claims.UserRole,
-			"user_status": strconv.FormatUint(uint64(claims.UserStatus), 10),
-		})
-		ctx := metadata.NewOutgoingContext(r.Context(), md)
+		ctx := r.Context()
+		ctx = metadata.AppendToOutgoingContext(
+			ctx,
+			auth.MdKeyUserID, strconv.FormatUint(claims.UserId, 10),
+			auth.MdKeyUserRole, claims.UserRole,
+			auth.MdKeyUserStatus, strconv.FormatUint(uint64(claims.UserStatus), 10),
+		)
+
 		next(w, r.WithContext(ctx))
 	}
 }

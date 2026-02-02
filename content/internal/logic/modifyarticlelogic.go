@@ -37,14 +37,9 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 // ModifyArticle 修改文章
 // todo: 修改历史
 func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Response, error) {
-	user := middleware.MustGetUser(l.ctx)
-	if user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
-		l.Logger.Errorf("ModifyArticle err: 用户未登录或者没有权限")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或者没有权限",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
 	}
 
 	// 验证参数
@@ -74,7 +69,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	// 检查标签
 	for _, tag := range in.Tag {
 		if tag == "" {
-			l.Logger.Errorf("ModifyArticle err: 标签不能为空")
+			l.Errorf("ModifyArticle err: 标签不能为空")
 
 			return &v1.Response{
 				Code:    400,
@@ -90,7 +85,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	article, err := l.ArticleDao.FindOneWithNotDelete(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			l.Logger.Errorf("ModifyArticle err: 文章不存在")
+			l.Errorf("ModifyArticle err: 文章不存在")
 
 			return &v1.Response{
 				Code:    400,
@@ -121,7 +116,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 	// 1.2 更新
 	err = l.ArticleDao.Update(l.ctx, article)
 	if err != nil {
-		l.Logger.Errorf("ModifyArticle err: %v", err)
+		l.Errorf("ModifyArticle err: %v", err)
 
 		return &v1.Response{
 			Code:    400,
@@ -137,7 +132,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, articleRelationTask)
 	if err != nil {
-		l.Logger.Errorf("ModifyArticle Enqueue err: %v", err)
+		l.Errorf("ModifyArticle Enqueue err: %v", err)
 	}
 
 	// 构造返回值
@@ -148,7 +143,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 
 	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Logger.Errorf("ModifyArticle err: %v", err)
+		l.Errorf("ModifyArticle err: %v", err)
 
 		return &v1.Response{
 			Code:    500,

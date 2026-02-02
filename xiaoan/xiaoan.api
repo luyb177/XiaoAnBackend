@@ -202,6 +202,33 @@ type (
 		comicChapterId uint64 `form:"comic_chapter_id"`
 		comicId        uint64 `form:"comic_id"`
 	}
+	AddCommentRequest {
+		contentType    string `json:"content_type"`
+		contentId      uint64 `json:"content_id"`
+		userName       string `json:"user_name"`
+		avatar         string `json:"avatar"`
+		parentId       uint64 `json:"parent_id"`
+		replyCommentId uint64 `json:"reply_comment_id"`
+		replyUserId    uint64 `json:"reply_user_id"`
+		commentText    string `json:"comment_text"`
+		status         uint64 `json:"status"`
+	}
+	DeleteCommentRequest {
+		commentId uint64 `form:"comment_id"`
+	}
+	GetRootCommentRequest {
+		contentType string `form:"content_type"`
+		contentId   uint64 `form:"content_id"`
+		page        int64  `form:"page"`
+		pageSize    int64  `form:"page_size"`
+	}
+	GetSubCommentRequest {
+		contentType     string `form:"content_type"`
+		contentId       uint64 `form:"content_id"`
+		parentCommentId uint64 `form:"parent_comment_id"`
+		page            int64  `form:"page"`
+		pageSize        int64  `form:"page_size"`
+	}
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -231,9 +258,10 @@ type (
 // ======================
 // ---------------------------------------------------------------------------------------------------------------------
 @server (
-	prefix: /api/auth
-	tags:   "认证模块"
-	group:  auth
+	prefix:     /api/auth
+	tags:       "认证模块"
+	group:      auth
+	middleware: IPMiddleware
 )
 service xiaoan {
 	@doc "发送邮箱验证码"
@@ -257,7 +285,7 @@ service xiaoan {
 	prefix:     /api/auth
 	tags:       "认证模块"
 	group:      auth
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,IPMiddleware
 )
 service xiaoan {
 	@doc "生成邀请码"
@@ -275,9 +303,10 @@ service xiaoan {
 // ======================
 // ---------------------------------------------------------------------------------------------------------------------
 @server (
-	prefix: /api/qa
-	tags:   "问答模块"
-	group:  qa
+	prefix:     /api/qa
+	tags:       "问答模块"
+	group:      qa
+	middleware: IPMiddleware
 )
 service xiaoan {
 	@doc "获取答案"
@@ -291,9 +320,10 @@ service xiaoan {
 // ======================
 // ---------------------------------------------------------------------------------------------------------------------
 @server (
-	prefix: /api/content
-	tags:   "文件内容模块"
-	group:  content
+	prefix:     /api/content
+	tags:       "文件内容模块"
+	group:      content
+	middleware: IPMiddleware
 )
 service xiaoan {
 	@doc "获取文章详细内容"
@@ -319,13 +349,21 @@ service xiaoan {
 	@doc "获取漫画页面"
 	@handler GetComicPage
 	get /get-comic-page (GetComicPageRequest) returns (Response)
+
+	@doc "获取根评论"
+	@handler GetRootComment
+	get /get-root-comment (GetRootCommentRequest) returns (Response)
+
+	@doc "获取子评论"
+	@handler GetSubComment
+	get /get-sub-comment (GetSubCommentRequest) returns (Response)
 }
 
 @server (
 	prefix:     /api/content
 	tags:       "文件内容模块"
 	group:      content
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,IPMiddleware
 )
 service xiaoan {
 	@doc "添加文章"
@@ -387,5 +425,13 @@ service xiaoan {
 	@doc "删除漫画章节"
 	@handler DeleteComicChapter
 	delete /delete-comic-chapter (DeleteComicChapterRequest) returns (Response)
+
+	@doc "添加评论"
+	@handler AddComment
+	post /add-comment (AddCommentRequest) returns (Response)
+
+	@doc "删除评论"
+	@handler DeleteComment
+	delete /delete-comment (DeleteCommentRequest) returns (Response)
 }
 

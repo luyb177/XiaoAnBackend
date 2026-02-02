@@ -33,6 +33,18 @@ type AddComicRequest struct {
 	PublishedAt int64    `json:"published_at"`
 }
 
+type AddCommentRequest struct {
+	ContentType    string `json:"content_type"`
+	ContentId      uint64 `json:"content_id"`
+	UserName       string `json:"user_name"`
+	Avatar         string `json:"avatar"`
+	ParentId       uint64 `json:"parent_id"`
+	ReplyCommentId uint64 `json:"reply_comment_id"`
+	ReplyUserId    uint64 `json:"reply_user_id"`
+	CommentText    string `json:"comment_text"`
+	Status         uint64 `json:"status"`
+}
+
 type AddPodcastRequest struct {
 	Name        string                  `json:"name"`
 	Url         string                  `json:"url"`
@@ -67,6 +79,10 @@ type DeleteComicChapterRequest struct {
 
 type DeleteComicRequest struct {
 	ComicId uint64 `form:"comic_id"`
+}
+
+type DeleteCommentRequest struct {
+	CommentId uint64 `form:"comment_id"`
 }
 
 type DeletePodcastRequest struct {
@@ -122,6 +138,21 @@ type GetInviteCodeRequest struct {
 
 type GetPodcastContentRequest struct {
 	PodcastId uint64 `form:"podcast_id"`
+}
+
+type GetRootCommentRequest struct {
+	ContentType string `form:"content_type"`
+	ContentId   uint64 `form:"content_id"`
+	Page        int64  `form:"page"`
+	PageSize    int64  `form:"page_size"`
+}
+
+type GetSubCommentRequest struct {
+	ContentType     string `form:"content_type"`
+	ContentId       uint64 `form:"content_id"`
+	ParentCommentId uint64 `form:"parent_comment_id"`
+	Page            int64  `form:"page"`
+	PageSize        int64  `form:"page_size"`
 }
 
 type GetVideoContentRequest struct {

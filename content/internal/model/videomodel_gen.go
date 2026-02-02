@@ -52,6 +52,7 @@ type (
 		LikeCount      uint64         `db:"like_count"`       // 点赞数
 		ViewCount      uint64         `db:"view_count"`       // 浏览数
 		CollectCount   uint64         `db:"collect_count"`    // 收藏数
+		CommentCount   uint64         `db:"comment_count"`    // 评论数
 	}
 )
 
@@ -83,14 +84,14 @@ func (m *defaultVideoModel) FindOne(ctx context.Context, id uint64) (*Video, err
 }
 
 func (m *defaultVideoModel) Insert(ctx context.Context, data *Video) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, videoRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.RelationStatus, data.LastModifiedBy, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, videoRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.RelationStatus, data.LastModifiedBy, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.CommentCount)
 	return ret, err
 }
 
 func (m *defaultVideoModel) Update(ctx context.Context, data *Video) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, videoRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.RelationStatus, data.LastModifiedBy, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Url, data.Description, data.Cover, data.Author, data.RelationStatus, data.LastModifiedBy, data.PublishedAt, data.DeletedAt, data.LikeCount, data.ViewCount, data.CollectCount, data.CommentCount, data.Id)
 	return err
 }
 
