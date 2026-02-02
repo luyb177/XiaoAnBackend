@@ -31,6 +31,10 @@ type (
 		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64, count uint64) (sql.Result, error)
 		DecrChapterCountByComicID(ctx context.Context, comicID uint64) error
 		DecrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error
+		IncrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comic, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error)
@@ -104,6 +108,37 @@ func (m *customComicModel) DecrChapterCountByComicID(ctx context.Context, comicI
 
 func (m *customComicModel) DecrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error {
 	return m.withSession(session).DecrChapterCountByComicID(ctx, comicID)
+}
+
+func (m *customComicModel) IncrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s 
+		set like_count = like_count + 1 
+		where id = ? and deleted_at = 0`,
+		m.table)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customComicModel) IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrLikeCount(ctx, id)
+}
+
+func (m *customComicModel) DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set like_count = like_count - 1
+		where id = ? and like_count > 0 and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customComicModel) DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrLikeCount(ctx, id)
 }
 
 func (m *customComicModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error) {

@@ -655,7 +655,6 @@
                 "content_id",
                 "user_name",
                 "avatar",
-                "ip_location",
                 "parent_id",
                 "reply_comment_id",
                 "reply_user_id",
@@ -673,9 +672,6 @@
                   "type": "integer"
                 },
                 "content_type": {
-                  "type": "string"
-                },
-                "ip_location": {
                   "type": "string"
                 },
                 "parent_id": {
@@ -1553,6 +1549,63 @@
         }
       }
     },
+    "/api/content/like": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "点赞",
+        "operationId": "contentLike",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id"
+              ],
+              "properties": {
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/modify-article": {
       "post": {
         "consumes": [
@@ -2000,6 +2053,63 @@
         }
       }
     },
+    "/api/content/unlike": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "取消点赞",
+        "operationId": "contentUnlike",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id"
+              ],
+              "properties": {
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/qa/answer": {
       "post": {
         "consumes": [
@@ -2054,7 +2164,7 @@
       }
     }
   },
-  "x-date": "2026-02-01 15:53:01",
+  "x-date": "2026-02-02 21:13:49",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

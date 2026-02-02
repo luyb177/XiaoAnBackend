@@ -28,6 +28,10 @@ type (
 		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
 		DecrCommentCountByCount(ctx context.Context, videoId uint64, count uint64) (sql.Result, error)
 		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64, count uint64) (sql.Result, error)
+		IncrLikeCount(ctx context.Context, videoId uint64) (sql.Result, error)
+		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
+		DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error)
 		FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
@@ -88,6 +92,37 @@ func (m *customVideoModel) DecrCommentCountByCount(ctx context.Context, videoId 
 
 func (m *customVideoModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64, count uint64) (sql.Result, error) {
 	return m.withSession(session).DecrCommentCountByCount(ctx, videoId, count)
+}
+
+func (m *customVideoModel) IncrLikeCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set like_count = like_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table)
+
+	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
+	return m.withSession(session).IncrLikeCount(ctx, videoId)
+}
+
+func (m *customVideoModel) DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set like_count = like_count - 1
+		where id = ? and like_count > 0 and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrLikeCount(ctx, id)
 }
 
 func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error) {

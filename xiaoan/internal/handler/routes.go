@@ -71,63 +71,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.IPMiddleware},
-			[]rest.Route{
-				{
-					// 获取文章详细内容
-					Method:  http.MethodGet,
-					Path:    "/get-article-content",
-					Handler: content.GetArticleContentHandler(serverCtx),
-				},
-				{
-					// 获取漫画
-					Method:  http.MethodGet,
-					Path:    "/get-comic",
-					Handler: content.GetComicHandler(serverCtx),
-				},
-				{
-					// 获取漫画章节
-					Method:  http.MethodGet,
-					Path:    "/get-comic-chapter",
-					Handler: content.GetComicChapterHandler(serverCtx),
-				},
-				{
-					// 获取漫画页面
-					Method:  http.MethodGet,
-					Path:    "/get-comic-page",
-					Handler: content.GetComicPageHandler(serverCtx),
-				},
-				{
-					// 获取播客详细内容
-					Method:  http.MethodGet,
-					Path:    "/get-podcast-content",
-					Handler: content.GetPodcastContentHandler(serverCtx),
-				},
-				{
-					// 获取根评论
-					Method:  http.MethodGet,
-					Path:    "/get-root-comment",
-					Handler: content.GetRootCommentHandler(serverCtx),
-				},
-				{
-					// 获取子评论
-					Method:  http.MethodGet,
-					Path:    "/get-sub-comment",
-					Handler: content.GetSubCommentHandler(serverCtx),
-				},
-				{
-					// 获取视频详细内容
-					Method:  http.MethodGet,
-					Path:    "/get-video-content",
-					Handler: content.GetVideoContentHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/api/content"),
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.IPMiddleware},
 			[]rest.Route{
 				{
@@ -203,6 +146,60 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.DeleteVideoHandler(serverCtx),
 				},
 				{
+					// 获取文章详细内容
+					Method:  http.MethodGet,
+					Path:    "/get-article-content",
+					Handler: content.GetArticleContentHandler(serverCtx),
+				},
+				{
+					// 获取漫画
+					Method:  http.MethodGet,
+					Path:    "/get-comic",
+					Handler: content.GetComicHandler(serverCtx),
+				},
+				{
+					// 获取漫画章节
+					Method:  http.MethodGet,
+					Path:    "/get-comic-chapter",
+					Handler: content.GetComicChapterHandler(serverCtx),
+				},
+				{
+					// 获取漫画页面
+					Method:  http.MethodGet,
+					Path:    "/get-comic-page",
+					Handler: content.GetComicPageHandler(serverCtx),
+				},
+				{
+					// 获取播客详细内容
+					Method:  http.MethodGet,
+					Path:    "/get-podcast-content",
+					Handler: content.GetPodcastContentHandler(serverCtx),
+				},
+				{
+					// 获取根评论
+					Method:  http.MethodGet,
+					Path:    "/get-root-comment",
+					Handler: content.GetRootCommentHandler(serverCtx),
+				},
+				{
+					// 获取子评论
+					Method:  http.MethodGet,
+					Path:    "/get-sub-comment",
+					Handler: content.GetSubCommentHandler(serverCtx),
+				},
+				{
+					// 获取视频详细内容
+					Method:  http.MethodGet,
+					Path:    "/get-video-content",
+					Handler: content.GetVideoContentHandler(serverCtx),
+				},
+				{
+					// 点赞
+					Method:  http.MethodPost,
+					Path:    "/like",
+					Handler: content.LikeHandler(serverCtx),
+				},
+				{
 					// 修改文章
 					Method:  http.MethodPost,
 					Path:    "/modify-article",
@@ -231,6 +228,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/modify-video",
 					Handler: content.ModifyVideoHandler(serverCtx),
+				},
+				{
+					// 取消点赞
+					Method:  http.MethodPost,
+					Path:    "/unlike",
+					Handler: content.UnlikeHandler(serverCtx),
 				},
 			}...,
 		),

@@ -44,8 +44,9 @@ const (
 	ContentService_DeleteComment_FullMethodName      = "/content.ContentService/DeleteComment"
 	ContentService_GetRootComment_FullMethodName     = "/content.ContentService/GetRootComment"
 	ContentService_GetSubComment_FullMethodName      = "/content.ContentService/GetSubComment"
-	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
 	ContentService_Like_FullMethodName               = "/content.ContentService/Like"
+	ContentService_Unlike_FullMethodName             = "/content.ContentService/Unlike"
+	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
 	ContentService_Collect_FullMethodName            = "/content.ContentService/Collect"
 )
 
@@ -103,10 +104,12 @@ type ContentServiceClient interface {
 	GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error)
 	// GetSubComment 获取子评论
 	GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	// Like 点赞
+	Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
+	// Unlike 取消点赞
+	Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
-	// 点赞
-	Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
 	// 收藏
 	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
 }
@@ -369,20 +372,30 @@ func (c *contentServiceClient) GetSubComment(ctx context.Context, in *GetSubComm
 	return out, nil
 }
 
-func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *contentServiceClient) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_Search_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ContentService_Like_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contentServiceClient) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *contentServiceClient) Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_Like_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ContentService_Unlike_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_Search_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -453,10 +466,12 @@ type ContentServiceServer interface {
 	GetRootComment(context.Context, *GetRootCommentRequest) (*Response, error)
 	// GetSubComment 获取子评论
 	GetSubComment(context.Context, *GetSubCommentRequest) (*Response, error)
+	// Like 点赞
+	Like(context.Context, *LikeRequest) (*Response, error)
+	// Unlike 取消点赞
+	Unlike(context.Context, *UnlikeRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
-	// 点赞
-	Like(context.Context, *LikeRequest) (*Response, error)
 	// 收藏
 	Collect(context.Context, *CollectRequest) (*Response, error)
 	mustEmbedUnimplementedContentServiceServer()
@@ -544,11 +559,14 @@ func (UnimplementedContentServiceServer) GetRootComment(context.Context, *GetRoo
 func (UnimplementedContentServiceServer) GetSubComment(context.Context, *GetSubCommentRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubComment not implemented")
 }
-func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
-}
 func (UnimplementedContentServiceServer) Like(context.Context, *LikeRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Like not implemented")
+}
+func (UnimplementedContentServiceServer) Unlike(context.Context, *UnlikeRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Unlike not implemented")
+}
+func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
 func (UnimplementedContentServiceServer) Collect(context.Context, *CollectRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")
@@ -1024,24 +1042,6 @@ func _ContentService_GetSubComment_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).Search(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_Search_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).Search(ctx, req.(*SearchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ContentService_Like_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LikeRequest)
 	if err := dec(in); err != nil {
@@ -1056,6 +1056,42 @@ func _ContentService_Like_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).Like(ctx, req.(*LikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_Unlike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnlikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).Unlike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_Unlike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).Unlike(ctx, req.(*UnlikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_Search_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).Search(ctx, req.(*SearchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1186,12 +1222,16 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_GetSubComment_Handler,
 		},
 		{
-			MethodName: "Search",
-			Handler:    _ContentService_Search_Handler,
-		},
-		{
 			MethodName: "Like",
 			Handler:    _ContentService_Like_Handler,
+		},
+		{
+			MethodName: "Unlike",
+			Handler:    _ContentService_Unlike_Handler,
+		},
+		{
+			MethodName: "Search",
+			Handler:    _ContentService_Search_Handler,
 		},
 		{
 			MethodName: "Collect",

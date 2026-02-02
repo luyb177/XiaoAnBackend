@@ -33,7 +33,7 @@ func NewAddCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddCom
 // AddComment 添加评论 最终一致性
 func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID <= InvalidUserID || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

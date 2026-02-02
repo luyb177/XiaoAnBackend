@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -35,19 +36,13 @@ func NewGetPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPod
 
 // GetPodcast 获取播客
 func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, error) {
-	validations := []Validation{
-		{in.Id > 0, "播客ID参数错误"},
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	for _, v := range validations {
-		if !v.Condition {
-			l.Errorf("GetPodcast err: %s", v.Message)
-
-			return &v1.Response{
-				Code:    400,
-				Message: v.Message,
-			}, nil
-		}
+	if in.Id == 0 {
+		return bad("播客ID不合法"), nil
 	}
 
 	// 1. 获取播客主体信息
@@ -69,13 +64,24 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		}, nil
 	}
 
-	// 2. 获取播客标签消息
+	// 2. 异步获取 tag like
 	type TagResult struct {
 		podcastTags []*model.PodcastTag
 		err         error
 	}
 
+	type LikeResult struct {
+		liked bool
+		err   error
+	}
+	type HighlightResult struct {
+		highlights []*model.PodcastHighlight
+		err        error
+	}
+
 	tagCh := make(chan TagResult, 1)
+	likeCh := make(chan LikeResult, 1)
+	highlightCh := make(chan HighlightResult, 1)
 
 	go func() {
 		tags, err := l.PodcastTagDao.FindManyByPodcastId(l.ctx, in.Id)
@@ -85,12 +91,13 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		}
 	}()
 
-	// 3. 获取播客 highlight 信息
-	type HighlightResult struct {
-		highlights []*model.PodcastHighlight
-		err        error
-	}
-	highlightCh := make(chan HighlightResult, 1)
+	go func() {
+		liked, err := l.svcCtx.LikeRepo.HasLiked(l.ctx, user.UID, ContentTypePodcast, in.Id)
+		likeCh <- LikeResult{
+			liked: liked,
+			err:   err,
+		}
+	}()
 
 	go func() {
 		highlights, err := l.PodcastHighlightDao.FindManyByPodcastId(l.ctx, in.Id)
@@ -101,13 +108,17 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	}()
 
 	tagResult := <-tagCh
-	highlightResult := <-highlightCh
 	if tagResult.err != nil {
-		l.Errorf("GetPodcast err: %v", tagResult.err)
+		l.Errorf("GetPodcast err: 获取tag错误 %v", tagResult.err)
 		// 不影响获取播客内容
 	}
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetPodcast err: 获取点赞情况错误 %v", likeResult.err)
+	}
+	highlightResult := <-highlightCh
 	if highlightResult.err != nil {
-		l.Errorf("GetPodcast err: %v", highlightResult.err)
+		l.Errorf("GetPodcast err: 获取重点时间点错误 %v", highlightResult.err)
 		// 不影响获取播客内容
 	}
 
@@ -135,6 +146,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		Channel:        podcast.Channel,
 		Status:         podcast.Status,
 		CommentCount:   podcast.CommentCount,
+		IsLiked:        likeResult.liked,
 	}}
 
 	resAny, err := anypb.New(res)

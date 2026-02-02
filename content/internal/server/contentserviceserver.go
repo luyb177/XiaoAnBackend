@@ -173,16 +173,22 @@ func (s *ContentServiceServer) GetSubComment(ctx context.Context, in *v1.GetSubC
 	return l.GetSubComment(in)
 }
 
+// Like 点赞
+func (s *ContentServiceServer) Like(ctx context.Context, in *v1.LikeRequest) (*v1.Response, error) {
+	l := logic.NewLikeLogic(ctx, s.svcCtx)
+	return l.Like(in)
+}
+
+// Unlike 取消点赞
+func (s *ContentServiceServer) Unlike(ctx context.Context, in *v1.UnlikeRequest) (*v1.Response, error) {
+	l := logic.NewUnlikeLogic(ctx, s.svcCtx)
+	return l.Unlike(in)
+}
+
 // 搜索
 func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
 	l := logic.NewSearchLogic(ctx, s.svcCtx)
 	return l.Search(in)
-}
-
-// 点赞
-func (s *ContentServiceServer) Like(ctx context.Context, in *v1.LikeRequest) (*v1.Response, error) {
-	l := logic.NewLikeLogic(ctx, s.svcCtx)
-	return l.Like(in)
 }
 
 // 收藏

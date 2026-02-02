@@ -19,19 +19,21 @@ import (
 
 type ComicRelationHandler struct {
 	logx.Logger
-	svcCtx      *svc.ServiceContext
-	ComicDao    model.ComicModel
-	ComicTagDao model.ComicTagModel
-	CommentDao  model.CommentModel
+	svcCtx         *svc.ServiceContext
+	ComicDao       model.ComicModel
+	ComicTagDao    model.ComicTagModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
 func NewComicRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ComicRelationHandler {
 	return &ComicRelationHandler{
-		svcCtx:      svcCtx,
-		Logger:      logx.WithContext(ctx),
-		ComicDao:    model.NewComicModel(svcCtx.Mysql),
-		ComicTagDao: model.NewComicTagModel(svcCtx.Mysql),
-		CommentDao:  model.NewCommentModel(svcCtx.Mysql),
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		ComicDao:       model.NewComicModel(svcCtx.Mysql),
+		ComicTagDao:    model.NewComicTagModel(svcCtx.Mysql),
+		CommentDao:     model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
@@ -114,6 +116,12 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 
 		// 2. 删除评论
 		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}

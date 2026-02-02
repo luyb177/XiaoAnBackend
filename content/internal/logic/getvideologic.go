@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -33,18 +34,13 @@ func NewGetVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetVideo
 
 // GetVideo 获取视频
 func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
-	validations := []Validation{
-		{in.Id > 0, "视频ID参数错误"},
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
-	for _, v := range validations {
-		if !v.Condition {
-			l.Errorf("GetVideo err: %s", v.Message)
 
-			return &v1.Response{
-				Code:    400,
-				Message: v.Message,
-			}, nil
-		}
+	if in.Id == 0 {
+		return bad("视频ID不合法"), nil
 	}
 
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
@@ -59,19 +55,21 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		}
 
 		l.Errorf("GetVideo err: %v", err)
-		return &v1.Response{
-			Code:    500,
-			Message: "获取视频失败",
-		}, nil
+		return internal("获取视频失败"), nil
 	}
 
-	// 异步获取tag
+	// 异步获取tag like
 	type tagResult struct {
 		tags []*model.VideoTag
 		err  error
 	}
+	type LikeResult struct {
+		liked bool
+		err   error
+	}
 
 	tagCh := make(chan tagResult, 1)
+	likeCh := make(chan LikeResult, 1)
 
 	go func() {
 		tags, err := l.VideoTagDao.FindManyByVideoId(l.ctx, video.Id)
@@ -80,12 +78,24 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 			err:  err,
 		}
 	}()
+	go func() {
+		liked, err := l.svcCtx.LikeRepo.HasLiked(l.ctx, user.UID, ContentTypeVideo, in.Id)
+		likeCh <- LikeResult{
+			liked: liked,
+			err:   err,
+		}
+	}()
 
 	tagsResult := <-tagCh
 	if tagsResult.err != nil {
 		l.Errorf("GetVideo err: %v", tagsResult.err)
 		// 不影响获取视频内容
 	}
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetPodcast err: 获取点赞情况错误 %v", likeResult.err)
+	}
+
 	// 处理 tag
 	tagsRes := convert.StringsFromVideoTags(tagsResult.tags)
 
@@ -105,6 +115,7 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		ViewCount:    video.ViewCount,
 		CollectCount: video.CollectCount,
 		CommentCount: video.CommentCount,
+		IsLiked:      likeResult.liked,
 	}}
 
 	resAny, err := anypb.New(res)
