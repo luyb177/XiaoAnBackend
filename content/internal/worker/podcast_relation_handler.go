@@ -67,6 +67,8 @@ func (h *PodcastRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return h.handleModify(ctx, &podcastTask)
 	case tasks.PodcastRelationDelete:
 		return h.handleDelete(ctx, &podcastTask)
+	case tasks.PodcastRelationGet:
+		return h.handleGet(ctx, &podcastTask)
 	default:
 		h.Errorf("unknown task type: %s", podcastTask.Type)
 		return nil
@@ -148,6 +150,14 @@ func (h *PodcastRelationHandler) handleDelete(ctx context.Context, task *tasks.P
 
 		// 删除点赞
 		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
+		return err
+	})
+}
+
+func (h *PodcastRelationHandler) handleGet(ctx context.Context, task *tasks.PodcastRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加博客浏览量
+		_, err := h.PodcastDao.IncrViewCountWithSession(ctx, session, task.PodcastID)
 		return err
 	})
 }

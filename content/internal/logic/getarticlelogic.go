@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -56,6 +57,19 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 			l.Errorf("GetArticle err: %v", err)
 			return internal("获取文章失败"), nil
 		}
+	}
+
+	// 入队
+	articleRelationTask := &tasks.ArticleRelationTask{
+		Type:      tasks.ArticleRelationGet,
+		ArticleID: in.Id,
+		Tags:      nil,
+	}
+
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, articleRelationTask)
+	if err != nil {
+		l.Errorf("GetArticle err: 入队获取文章相关内容失败, %v", err)
+		// 不影响获取文章内容
 	}
 
 	// 异步获取 tag like

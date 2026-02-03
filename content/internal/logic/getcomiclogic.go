@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -57,6 +58,19 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		l.Errorf("GetComic err: %v", err)
 
 		return internal("获取漫画失败"), nil
+	}
+
+	// 入队
+	comicRelationTask := &tasks.ComicRelationTask{
+		Type:    tasks.ComicRelationGet,
+		ComicID: in.Id,
+		UID:     user.UID,
+		Tags:    nil,
+	}
+
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, comicRelationTask)
+	if err != nil {
+		l.Errorf("GetComic err: 入队获取漫画相关内容失败, %v", err)
 	}
 
 	// 异步获取tag like

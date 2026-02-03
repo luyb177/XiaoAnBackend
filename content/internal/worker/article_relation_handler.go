@@ -64,6 +64,8 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return h.handleModify(ctx, &articleTask)
 	case tasks.ArticleRelationDelete:
 		return h.handleDelete(ctx, &articleTask)
+	case tasks.ArticleRelationGet:
+		return h.handleGet(ctx, &articleTask)
 	default:
 		h.Errorf("unknown task type: %s", articleTask.Type)
 		return nil
@@ -125,6 +127,14 @@ func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.A
 
 		// 删除点赞
 		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		return err
+	})
+}
+
+func (h *ArticleRelationHandler) handleGet(ctx context.Context, task *tasks.ArticleRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加 文章浏览量
+		_, err := h.ArticleDao.IncrViewCountWithSession(ctx, session, task.ArticleID)
 		return err
 	})
 }

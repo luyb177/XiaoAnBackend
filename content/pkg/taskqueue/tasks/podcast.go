@@ -18,6 +18,9 @@ const (
 
 	// PodcastRelationDelete 删除播客关联内容
 	PodcastRelationDelete PodcastRelationTaskType = "delete"
+
+	// PodcastRelationGet 获取播客
+	PodcastRelationGet PodcastRelationTaskType = "get"
 )
 
 type PodcastRelationTask struct {

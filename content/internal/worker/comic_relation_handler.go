@@ -64,6 +64,8 @@ func (h *ComicRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 		return h.handleModify(ctx, &comicTask)
 	case tasks.ComicRelationDelete:
 		return h.handleDelete(ctx, &comicTask)
+	case tasks.ComicRelationGet:
+		return h.handleGet(ctx, &comicTask)
 	default:
 		h.Errorf("unknown comic relation task type: %v", comicTask.Type)
 		return nil
@@ -134,5 +136,13 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 		}
 
 		return h.svcCtx.TaskQueue.Enqueue(ctx, comicChapterRelationTask)
+	})
+}
+
+func (h *ComicRelationHandler) handleGet(ctx context.Context, task *tasks.ComicRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加 漫画浏览量
+		_, err := h.ComicDao.IncrViewCountWithSession(ctx, session, task.ComicID)
+		return err
 	})
 }

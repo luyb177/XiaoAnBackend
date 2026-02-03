@@ -31,6 +31,8 @@ type (
 		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error)
 		DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
 		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		IncrViewCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrViewCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Podcast, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Podcast, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error)
@@ -114,6 +116,22 @@ func (m *customPodcastModel) DecrLikeCount(ctx context.Context, id uint64) (sql.
 
 func (m *customPodcastModel) DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
 	return m.withSession(session).DecrLikeCount(ctx, id)
+}
+
+func (m *customPodcastModel) IncrViewCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set view_count = view_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) IncrViewCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrViewCount(ctx, id)
 }
 
 func (m *customPodcastModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error) {

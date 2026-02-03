@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -62,6 +63,19 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 			Code:    500,
 			Message: "系统内部错误",
 		}, nil
+	}
+
+	// 入队
+	podcastRelationTask := &tasks.PodcastRelationTask{
+		Type:       tasks.PodcastRelationGet,
+		PodcastID:  in.Id,
+		Tags:       nil,
+		Highlights: nil,
+	}
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, podcastRelationTask)
+	if err != nil {
+		l.Errorf("GetPodcast err: 入队获取播客相关内容失败, %v", err)
+		// 不影响获取播客内容
 	}
 
 	// 2. 异步获取 tag like

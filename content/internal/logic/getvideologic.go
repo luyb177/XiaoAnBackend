@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
@@ -56,6 +57,17 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 
 		l.Errorf("GetVideo err: %v", err)
 		return internal("获取视频失败"), nil
+	}
+
+	// 入队
+	videoRelationTask := &tasks.VideoRelationTask{
+		Type:    tasks.VideoRelationGet,
+		VideoID: in.Id,
+		Tags:    nil,
+	}
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
+	if err != nil {
+		l.Errorf("GetVideo err: 入队失败 %v", err)
 	}
 
 	// 异步获取tag like

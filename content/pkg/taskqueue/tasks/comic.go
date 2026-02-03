@@ -16,6 +16,9 @@ const (
 
 	// ComicRelationDelete 删除漫画关联内容
 	ComicRelationDelete ComicRelationTaskType = "delete"
+
+	// ComicRelationGet 获取漫画
+	ComicRelationGet ComicRelationTaskType = "get"
 )
 
 type ComicRelationTask struct {
