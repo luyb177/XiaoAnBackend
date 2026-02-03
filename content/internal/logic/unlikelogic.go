@@ -28,7 +28,7 @@ func NewUnlikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnlikeLogi
 // Unlike 取消点赞
 func (l *UnlikeLogic) Unlike(in *v1.UnlikeRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID <= 0 || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

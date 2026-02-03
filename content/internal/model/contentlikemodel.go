@@ -83,7 +83,7 @@ func (m *customContentLikeModel) SoftDelete(ctx context.Context, id uint64, dele
 		where id = ? and deleted_at = 0`,
 		m.table)
 
-	result, err := m.conn.ExecCtx(ctx, query, id, deletedAt)
+	result, err := m.conn.ExecCtx(ctx, query, deletedAt, id)
 	return result, mapDBError(err)
 }
 

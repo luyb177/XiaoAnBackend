@@ -23,7 +23,7 @@ type LikeRelationTask struct {
 }
 
 func (t *LikeRelationTask) ID() string {
-	return fmt.Sprintf("%s:%d:%d", t.ContentType, t.ContentID, t.UID)
+	return fmt.Sprintf("%s:%s:%s:%d:%d", LikeRelationTaskPrefix, t.Type, t.ContentType, t.ContentID, t.UID)
 }
 
 func (t *LikeRelationTask) Payload() ([]byte, error) {

@@ -31,7 +31,7 @@ func NewLikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LikeLogic {
 // Like 点赞
 func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID <= 0 || user.Status != UserStatusNormal {
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
