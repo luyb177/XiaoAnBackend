@@ -464,6 +464,21 @@ type UnlikeRequest struct {
 	ContentId   uint64 `json:"content_id"`
 }
 
+type User struct {
+	UserID           uint64 `json:"user_id"`
+	Name             string `json:"name"`
+	Email            string `json:"email"`
+	Avatar           string `json:"avatar"`
+	Phone            string `json:"phone"`
+	Department       string `json:"department"`
+	Role             string `json:"role"`
+	ClassID          uint64 `json:"class_id"`
+	Status           int64  `json:"status"`
+	Invite_code_used string `json:"invite_code_used"`
+	CreatedAt        int64  `json:"created_at"`
+	UpdatedAt        int64  `json:"updated_at"`
+}
+
 type ValidateEmailRequest struct {
 	Email string `json:"email"`
 	Code  string `json:"code"`
@@ -488,4 +503,9 @@ type Video struct {
 	RelationStatus int64    `json:"relation_status"`
 	IsLiked        bool     `json:"is_liked"`
 	IsCollected    bool     `json:"is_collected"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
 }

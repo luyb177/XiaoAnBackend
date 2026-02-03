@@ -33,7 +33,6 @@ type (
 	AuthService interface {
 		// 邮箱验证码
 		SendEmailCode(ctx context.Context, in *SendEmailRequest, opts ...grpc.CallOption) (*Response, error)
-		ValidateEmailCode(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*Response, error)
 		// 邀请码
 		GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 		GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
@@ -57,11 +56,6 @@ func NewAuthService(cli zrpc.Client) AuthService {
 func (m *defaultAuthService) SendEmailCode(ctx context.Context, in *SendEmailRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.SendEmailCode(ctx, in, opts...)
-}
-
-func (m *defaultAuthService) ValidateEmailCode(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewAuthServiceClient(m.cli.Conn())
-	return client.ValidateEmailCode(ctx, in, opts...)
 }
 
 // 邀请码

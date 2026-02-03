@@ -110,7 +110,6 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		Email:          user.Email,
 		Avatar:         user.Avatar.String,
 		Phone:          user.Phone.String,
-		Password:       "",
 		Department:     user.Department.String,
 		Role:           user.Role,
 		ClassId:        user.ClassId,

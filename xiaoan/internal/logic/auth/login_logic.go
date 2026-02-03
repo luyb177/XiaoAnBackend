@@ -2,8 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
-
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
@@ -50,7 +48,8 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.Response, err e
 		return &types.Response{
 			Code:    400,
 			Message: "登录方式错误",
-		}, fmt.Errorf("login err: 登录方式错误")
+			Data:    &types.EmptyResponse{},
+		}, nil
 	}
 }
 
