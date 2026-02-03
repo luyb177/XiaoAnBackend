@@ -11,46 +11,47 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type CollectLogic struct {
+type UnCollectLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLogic {
-	return &CollectLogic{
+func NewUnCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnCollectLogic {
+	return &UnCollectLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-// Collect 收藏
-func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
+// UnCollect 取消收藏
+func (l *UnCollectLogic) UnCollect(in *v1.UnCollectRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
 	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
+
 	if resp := ValidateCollectAndUnCollectRequest(in.ContentType, in.ContentId); resp != nil {
 		return resp, nil
 	}
 
-	collected, err := l.svcCtx.CollectRepo.Collect(l.ctx, user.UID, in.ContentType, in.ContentId)
+	unCollected, err := l.svcCtx.CollectRepo.UnCollect(l.ctx, user.UID, in.ContentType, in.ContentId)
 	if err != nil {
-		l.Errorf("Collect err: 收藏失败, %v", err)
-		return bad("收藏失败"), nil
+		l.Errorf("UnCollectLogic UnCollect err: %v", err)
+		return bad("取消收藏失败"), nil
 	}
-	if !collected {
-		// 幂等处理，用户之前已经收藏过了
+
+	if !unCollected {
+		// 幂等处理， 用户未收藏、或者已经取消收藏
 		return &v1.Response{
 			Code:    200,
-			Message: "你已经收藏过了",
+			Message: "取消收藏成功",
 		}, nil
 	}
 
-	// 进入队列
 	collectRelationTask := &tasks.CollectRelationTask{
-		Type:        tasks.CollectRelationAdd,
+		Type:        tasks.CollectRelationDelete,
 		ContentType: in.ContentType,
 		ContentID:   in.ContentId,
 		UID:         user.UID,
@@ -58,11 +59,12 @@ func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, collectRelationTask)
 	if err != nil {
-		l.Errorf("Collect err: 收藏任务入队失败, %v", err)
+		l.Errorf("UnCollectLogic Enqueue collectRelationTask err: %v", err)
+		// 任务入列失败，不影响用户操作结果
 	}
 
 	return &v1.Response{
 		Code:    200,
-		Message: "收藏成功",
+		Message: "取消收藏成功",
 	}, nil
 }

@@ -237,6 +237,14 @@ type (
 		contentType string `json:"content_type"`
 		contentId   uint64 `json:"content_id"`
 	}
+	CollectRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
+	UnCollectRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -441,5 +449,13 @@ service xiaoan {
 	@doc "取消点赞"
 	@handler Unlike
 	post /unlike (UnlikeRequest) returns (Response)
+
+	@doc "收藏"
+	@handler Collect
+	post /collect (CollectRequest) returns (Response)
+
+	@doc "取消收藏"
+	@handler UnCollect
+	post /uncollect (UnCollectRequest) returns (Response)
 }
 

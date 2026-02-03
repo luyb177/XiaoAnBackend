@@ -88,6 +88,10 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		liked bool
 		err   error
 	}
+	type CollectResult struct {
+		collected bool
+		err       error
+	}
 	type HighlightResult struct {
 		highlights []*model.PodcastHighlight
 		err        error
@@ -95,6 +99,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 
 	tagCh := make(chan TagResult, 1)
 	likeCh := make(chan LikeResult, 1)
+	collectCh := make(chan CollectResult, 1)
 	highlightCh := make(chan HighlightResult, 1)
 
 	go func() {
@@ -114,6 +119,11 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	}()
 
 	go func() {
+		collected, err := l.svcCtx.CollectRepo.HasCollect(l.ctx, user.UID, ContentTypePodcast, in.Id)
+		collectCh <- CollectResult{collected: collected, err: err}
+	}()
+
+	go func() {
 		highlights, err := l.PodcastHighlightDao.FindManyByPodcastId(l.ctx, in.Id)
 		highlightCh <- HighlightResult{
 			highlights: highlights,
@@ -130,6 +140,12 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	if likeResult.err != nil {
 		l.Errorf("GetPodcast err: 获取点赞情况错误 %v", likeResult.err)
 	}
+	// 等待 collect 结果
+	collectRes := <-collectCh
+	if collectRes.err != nil {
+		l.Errorf("GetPodcast err: %v", collectRes.err)
+	}
+
 	highlightResult := <-highlightCh
 	if highlightResult.err != nil {
 		l.Errorf("GetPodcast err: 获取重点时间点错误 %v", highlightResult.err)
@@ -161,6 +177,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		Status:         podcast.Status,
 		CommentCount:   podcast.CommentCount,
 		IsLiked:        likeResult.liked,
+		IsCollected:    collectRes.collected,
 	}}
 
 	resAny, err := anypb.New(res)

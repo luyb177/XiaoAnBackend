@@ -46,8 +46,9 @@ const (
 	ContentService_GetSubComment_FullMethodName      = "/content.ContentService/GetSubComment"
 	ContentService_Like_FullMethodName               = "/content.ContentService/Like"
 	ContentService_Unlike_FullMethodName             = "/content.ContentService/Unlike"
-	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
 	ContentService_Collect_FullMethodName            = "/content.ContentService/Collect"
+	ContentService_UnCollect_FullMethodName          = "/content.ContentService/UnCollect"
+	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -108,10 +109,12 @@ type ContentServiceClient interface {
 	Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
 	// Unlike 取消点赞
 	Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error)
+	// Collect 收藏
+	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
+	// UnCollect 取消收藏
+	UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
-	// 收藏
-	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type contentServiceClient struct {
@@ -392,20 +395,30 @@ func (c *contentServiceClient) Unlike(ctx context.Context, in *UnlikeRequest, op
 	return out, nil
 }
 
-func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *contentServiceClient) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_Search_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ContentService_Collect_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contentServiceClient) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *contentServiceClient) UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, ContentService_Collect_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ContentService_UnCollect_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_Search_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -470,10 +483,12 @@ type ContentServiceServer interface {
 	Like(context.Context, *LikeRequest) (*Response, error)
 	// Unlike 取消点赞
 	Unlike(context.Context, *UnlikeRequest) (*Response, error)
+	// Collect 收藏
+	Collect(context.Context, *CollectRequest) (*Response, error)
+	// UnCollect 取消收藏
+	UnCollect(context.Context, *UnCollectRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
-	// 收藏
-	Collect(context.Context, *CollectRequest) (*Response, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -565,11 +580,14 @@ func (UnimplementedContentServiceServer) Like(context.Context, *LikeRequest) (*R
 func (UnimplementedContentServiceServer) Unlike(context.Context, *UnlikeRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unlike not implemented")
 }
-func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
-}
 func (UnimplementedContentServiceServer) Collect(context.Context, *CollectRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")
+}
+func (UnimplementedContentServiceServer) UnCollect(context.Context, *UnCollectRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnCollect not implemented")
+}
+func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -1078,24 +1096,6 @@ func _ContentService_Unlike_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ContentServiceServer).Search(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ContentService_Search_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServiceServer).Search(ctx, req.(*SearchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ContentService_Collect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CollectRequest)
 	if err := dec(in); err != nil {
@@ -1110,6 +1110,42 @@ func _ContentService_Collect_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).Collect(ctx, req.(*CollectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_UnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnCollectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).UnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_UnCollect_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).UnCollect(ctx, req.(*UnCollectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_Search_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).Search(ctx, req.(*SearchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1230,12 +1266,16 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_Unlike_Handler,
 		},
 		{
-			MethodName: "Search",
-			Handler:    _ContentService_Search_Handler,
-		},
-		{
 			MethodName: "Collect",
 			Handler:    _ContentService_Collect_Handler,
+		},
+		{
+			MethodName: "UnCollect",
+			Handler:    _ContentService_UnCollect_Handler,
+		},
+		{
+			MethodName: "Search",
+			Handler:    _ContentService_Search_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

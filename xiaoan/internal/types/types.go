@@ -68,6 +68,11 @@ type AddVideoRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type CollectRequest struct {
+	ContentType string `json:"content_type"`
+	ContentId   uint64 `json:"content_id"`
+}
+
 type DeleteArticleRequest struct {
 	ArticleId uint64 `form:"article_id"`
 }
@@ -249,6 +254,11 @@ type Response struct {
 
 type SendEmailRequest struct {
 	Email string `json:"email"`
+}
+
+type UnCollectRequest struct {
+	ContentType string `json:"content_type"`
+	ContentId   uint64 `json:"content_id"`
 }
 
 type UnlikeRequest struct {

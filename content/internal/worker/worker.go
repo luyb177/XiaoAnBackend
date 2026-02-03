@@ -56,7 +56,7 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w.RegisterHandler(tasks.ComicChapterRelationTaskPrefix, NewComicChapterRelationHandler(svcCtx, w.ctx))
 	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(svcCtx, w.ctx))
 	w.RegisterHandler(tasks.LikeRelationTaskPrefix, NewLikeRelationHandler(svcCtx, w.ctx))
-
+	w.RegisterHandler(tasks.CollectRelationTaskPrefix, NewCollectRelationHandler(svcCtx, w.ctx))
 	return w
 }
 

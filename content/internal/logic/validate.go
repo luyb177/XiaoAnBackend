@@ -18,9 +18,9 @@ var validCommentStatuses = map[uint64]struct{}{
 	CommentStatusShield: {},
 }
 
-// ValidateContentTypeAndIDRequest
+// ValidateContentTypeAndID
 // 接收内容类型和内容ID，如果验证失败则返回一个错误响应，否则返回nil
-func ValidateContentTypeAndIDRequest(contentType string, contentID uint64) *v1.Response {
+func ValidateContentTypeAndID(contentType string, contentID uint64) *v1.Response {
 	switch {
 	case contentType == "":
 		return bad("内容类型不能为空")
@@ -30,6 +30,14 @@ func ValidateContentTypeAndIDRequest(contentType string, contentID uint64) *v1.R
 		return bad("内容ID不能为0")
 	}
 	return nil
+}
+
+func ValidateCollectAndUnCollectRequest(contentType string, contentID uint64) *v1.Response {
+	res := ValidateContentTypeAndID(contentType, contentID)
+	if contentType == ContentTypeComment {
+		return bad("评论内容不支持收藏和取消收藏")
+	}
+	return res
 }
 
 func isValidContentType(tp string) bool {

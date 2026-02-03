@@ -185,14 +185,20 @@ func (s *ContentServiceServer) Unlike(ctx context.Context, in *v1.UnlikeRequest)
 	return l.Unlike(in)
 }
 
+// Collect 收藏
+func (s *ContentServiceServer) Collect(ctx context.Context, in *v1.CollectRequest) (*v1.Response, error) {
+	l := logic.NewCollectLogic(ctx, s.svcCtx)
+	return l.Collect(in)
+}
+
+// UnCollect 取消收藏
+func (s *ContentServiceServer) UnCollect(ctx context.Context, in *v1.UnCollectRequest) (*v1.Response, error) {
+	l := logic.NewUnCollectLogic(ctx, s.svcCtx)
+	return l.UnCollect(in)
+}
+
 // 搜索
 func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
 	l := logic.NewSearchLogic(ctx, s.svcCtx)
 	return l.Search(in)
-}
-
-// 收藏
-func (s *ContentServiceServer) Collect(ctx context.Context, in *v1.CollectRequest) (*v1.Response, error) {
-	l := logic.NewCollectLogic(ctx, s.svcCtx)
-	return l.Collect(in)
 }

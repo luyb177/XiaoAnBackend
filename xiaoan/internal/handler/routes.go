@@ -110,6 +110,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.AddVideoHandler(serverCtx),
 				},
 				{
+					// 收藏
+					Method:  http.MethodPost,
+					Path:    "/collect",
+					Handler: content.CollectHandler(serverCtx),
+				},
+				{
 					// 删除文章
 					Method:  http.MethodDelete,
 					Path:    "/delete-article",
@@ -228,6 +234,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/modify-video",
 					Handler: content.ModifyVideoHandler(serverCtx),
+				},
+				{
+					// 取消收藏
+					Method:  http.MethodPost,
+					Path:    "/uncollect",
+					Handler: content.UnCollectHandler(serverCtx),
 				},
 				{
 					// 取消点赞
