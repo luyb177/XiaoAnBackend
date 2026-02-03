@@ -32,7 +32,7 @@ func (l *UnlikeLogic) Unlike(in *v1.UnlikeRequest) (*v1.Response, error) {
 		return bad("用户未登录或状态异常"), nil
 	}
 
-	if resp := ValidateContentTypeAndIDRequest(in.ContentType, in.ContentId); resp != nil {
+	if resp := ValidateContentTypeAndID(in.ContentType, in.ContentId); resp != nil {
 		return resp, nil
 	}
 

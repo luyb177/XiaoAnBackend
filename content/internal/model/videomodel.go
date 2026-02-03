@@ -34,6 +34,10 @@ type (
 		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		IncrViewCount(ctx context.Context, videoId uint64) (sql.Result, error)
 		IncrViewCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
+		IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error)
 		FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
@@ -141,6 +145,38 @@ func (m *customVideoModel) IncrViewCount(ctx context.Context, videoId uint64) (s
 
 func (m *customVideoModel) IncrViewCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
 	return m.withSession(session).IncrViewCount(ctx, videoId)
+}
+
+func (m *customVideoModel) IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set collect_count = collect_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCollectCount(ctx, id)
+}
+
+func (m *customVideoModel) DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set collect_count = collect_count - 1
+		where id = ? and collect_count > 0 and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customVideoModel) DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCollectCount(ctx, id)
 }
 
 func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error) {

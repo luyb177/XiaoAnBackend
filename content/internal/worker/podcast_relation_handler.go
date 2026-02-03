@@ -156,7 +156,7 @@ func (h *PodcastRelationHandler) handleDelete(ctx context.Context, task *tasks.P
 
 func (h *PodcastRelationHandler) handleGet(ctx context.Context, task *tasks.PodcastRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 增加博客浏览量
+		// 增加播客浏览量
 		_, err := h.PodcastDao.IncrViewCountWithSession(ctx, session, task.PodcastID)
 		return err
 	})

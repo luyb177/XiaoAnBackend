@@ -404,9 +404,14 @@ message UnlikeRequest {
   uint64 content_id = 2;
 }
 
-message collectRequest {
-  string type = 1;
-  uint64 target_id = 2;
+message CollectRequest {
+  string content_type = 1;
+  uint64 content_id = 2;
+}
+
+message UnCollectRequest {
+  string content_type = 1;
+  uint64 content_id = 2;
 }
 
 // 获取内容请求
@@ -613,9 +618,12 @@ service ContentService {
   // Unlike 取消点赞
   rpc Unlike(UnlikeRequest) returns (Response);
 
+  // Collect 收藏
+  rpc Collect(CollectRequest) returns (Response);
+
+  // UnCollect 取消收藏
+  rpc UnCollect(UnCollectRequest) returns (Response);
+
   // 搜索
   rpc Search(SearchRequest) returns (Response);
-
-  // 收藏
-  rpc Collect(collectRequest) returns (Response);
 }

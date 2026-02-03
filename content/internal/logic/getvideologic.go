@@ -79,9 +79,14 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		liked bool
 		err   error
 	}
+	type CollectResult struct {
+		collected bool
+		err       error
+	}
 
 	tagCh := make(chan tagResult, 1)
 	likeCh := make(chan LikeResult, 1)
+	collectCh := make(chan CollectResult, 1)
 
 	go func() {
 		tags, err := l.VideoTagDao.FindManyByVideoId(l.ctx, video.Id)
@@ -97,6 +102,10 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 			err:   err,
 		}
 	}()
+	go func() {
+		collected, err := l.svcCtx.CollectRepo.HasCollect(l.ctx, user.UID, ContentTypeVideo, in.Id)
+		collectCh <- CollectResult{collected: collected, err: err}
+	}()
 
 	tagsResult := <-tagCh
 	if tagsResult.err != nil {
@@ -106,6 +115,11 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 	likeResult := <-likeCh
 	if likeResult.err != nil {
 		l.Errorf("GetVideo err: 获取点赞情况错误 %v", likeResult.err)
+	}
+	// 等待 collect 结果
+	collectRes := <-collectCh
+	if collectRes.err != nil {
+		l.Errorf("GetVideo err: %v", collectRes.err)
 	}
 
 	// 处理 tag
@@ -128,6 +142,7 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		CollectCount: video.CollectCount,
 		CommentCount: video.CommentCount,
 		IsLiked:      likeResult.liked,
+		IsCollected:  collectRes.collected,
 	}}
 
 	resAny, err := anypb.New(res)

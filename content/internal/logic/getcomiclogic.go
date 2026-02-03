@@ -82,9 +82,14 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		liked bool
 		err   error
 	}
+	type CollectResult struct {
+		collected bool
+		err       error
+	}
 
 	tagCh := make(chan TagResult, 1)
 	likeCh := make(chan LikeResult, 1)
+	collectCh := make(chan CollectResult, 1)
 
 	go func() {
 		t, err := l.ComicTagDao.FindManyByComicId(l.ctx, in.Id)
@@ -102,6 +107,11 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		}
 	}()
 
+	go func() {
+		collected, err := l.svcCtx.CollectRepo.HasCollect(l.ctx, user.UID, ContentTypeComic, in.Id)
+		collectCh <- CollectResult{collected: collected, err: err}
+	}()
+
 	// 等待tag结果
 	tagResult := <-tagCh
 	if tagResult.err != nil {
@@ -114,6 +124,12 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 	likeResult := <-likeCh
 	if likeResult.err != nil {
 		l.Errorf("GetComic err: 获取漫画点赞情况失败,%v", likeResult.err)
+	}
+
+	// 等待 collect 结果
+	collectRes := <-collectCh
+	if collectRes.err != nil {
+		l.Errorf("GetComic err: %v", collectRes.err)
 	}
 
 	res := &v1.GetComicResponse{Comic: &v1.Comic{
@@ -132,6 +148,7 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		ChapterCount: comic.ChapterCount,
 		CommentCount: comic.CommentCount,
 		IsLiked:      likeResult.liked,
+		IsCollected:  collectRes.collected,
 	}}
 
 	reaAny, err := anypb.New(res)

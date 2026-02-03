@@ -73,6 +73,7 @@ type (
 	Response                   = v1.Response
 	SearchRequest              = v1.SearchRequest
 	SearchResponse             = v1.SearchResponse
+	UnCollectRequest           = v1.UnCollectRequest
 	UnlikeRequest              = v1.UnlikeRequest
 	Video                      = v1.Video
 
@@ -131,10 +132,12 @@ type (
 		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
 		// Unlike 取消点赞
 		Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error)
+		// Collect 收藏
+		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
+		// UnCollect 取消收藏
+		UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
-		// 收藏
-		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultContentService struct {
@@ -310,14 +313,20 @@ func (m *defaultContentService) Unlike(ctx context.Context, in *UnlikeRequest, o
 	return client.Unlike(ctx, in, opts...)
 }
 
+// Collect 收藏
+func (m *defaultContentService) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Collect(ctx, in, opts...)
+}
+
+// UnCollect 取消收藏
+func (m *defaultContentService) UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.UnCollect(ctx, in, opts...)
+}
+
 // 搜索
 func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.Search(ctx, in, opts...)
-}
-
-// 收藏
-func (m *defaultContentService) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.Collect(ctx, in, opts...)
 }
