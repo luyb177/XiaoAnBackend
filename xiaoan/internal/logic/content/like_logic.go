@@ -26,20 +26,23 @@ func NewLikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LikeLogic {
 }
 
 func (l *LikeLogic) Like(req *types.LikeRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.Like(l.ctx, &content.LikeRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.Like(l.ctx, &content.LikeRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 	})
 
 	if err != nil {
+		l.Errorf("rpc Like err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
 			Message: "点赞失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    &types.EmptyResponse{},
 	}, nil
 }

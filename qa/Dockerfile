@@ -27,7 +27,7 @@ WORKDIR /app
 
 COPY --from=builder /app/qa /app/qa
 
-# ⚠️ 不再 COPY etc / data
+# ⚠️ 不再 COPY etc / rpcData
 # 配置 & 数据全部靠 volume
 
 CMD ["./qa", "-f", "etc/qa.yaml"]

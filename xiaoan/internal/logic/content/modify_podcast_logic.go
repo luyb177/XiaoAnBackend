@@ -34,7 +34,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(req *types.ModifyPodcastRequest) (res
 		}
 	}
 
-	res, err := l.svcCtx.ContentRpc.ModifyPodcast(l.ctx, &content.ModifyPodcastRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.ModifyPodcast(l.ctx, &content.ModifyPodcastRequest{
 		Id:          req.PodcastId,
 		Name:        req.Name,
 		Url:         req.Url,
@@ -49,21 +49,31 @@ func (l *ModifyPodcastLogic) ModifyPodcast(req *types.ModifyPodcastRequest) (res
 	})
 
 	if err != nil {
+		l.Errorf("rpc ModifyPodcast err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "修改播客失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.ModifyPodcastResponse
-	if res.Data != nil {
-		data = &content.ModifyPodcastResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.ModifyPodcastResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal ModifyPodcastResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.ModifyPodcastResponse{
+		PodcastId:      rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

@@ -23,25 +23,27 @@ const (
 )
 
 type Video struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Tag           []string               `protobuf:"bytes,3,rep,name=tag,proto3" json:"tag,omitempty"`
-	Url           string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
-	Description   string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	Cover         string                 `protobuf:"bytes,6,opt,name=cover,proto3" json:"cover,omitempty"`
-	Author        string                 `protobuf:"bytes,7,opt,name=author,proto3" json:"author,omitempty"`
-	PublishedAt   int64                  `protobuf:"varint,8,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
-	CreatedAt     int64                  `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     int64                  `protobuf:"varint,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	LikeCount     uint64                 `protobuf:"varint,11,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
-	ViewCount     uint64                 `protobuf:"varint,12,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
-	CollectCount  uint64                 `protobuf:"varint,13,opt,name=collect_count,json=collectCount,proto3" json:"collect_count,omitempty"`
-	CommentCount  uint64                 `protobuf:"varint,14,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
-	IsLiked       bool                   `protobuf:"varint,15,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
-	IsCollected   bool                   `protobuf:"varint,16,opt,name=is_collected,json=isCollected,proto3" json:"is_collected,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Tag            []string               `protobuf:"bytes,3,rep,name=tag,proto3" json:"tag,omitempty"`
+	Url            string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
+	Description    string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	Cover          string                 `protobuf:"bytes,6,opt,name=cover,proto3" json:"cover,omitempty"`
+	Author         string                 `protobuf:"bytes,7,opt,name=author,proto3" json:"author,omitempty"`
+	PublishedAt    int64                  `protobuf:"varint,8,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
+	CreatedAt      int64                  `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      int64                  `protobuf:"varint,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	LikeCount      uint64                 `protobuf:"varint,11,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	ViewCount      uint64                 `protobuf:"varint,12,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
+	CollectCount   uint64                 `protobuf:"varint,13,opt,name=collect_count,json=collectCount,proto3" json:"collect_count,omitempty"`
+	CommentCount   uint64                 `protobuf:"varint,14,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
+	LastModifiedBy int64                  `protobuf:"varint,15,opt,name=last_modified_by,json=lastModifiedBy,proto3" json:"last_modified_by,omitempty"`
+	RelationStatus int64                  `protobuf:"varint,16,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
+	IsLiked        bool                   `protobuf:"varint,17,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
+	IsCollected    bool                   `protobuf:"varint,18,opt,name=is_collected,json=isCollected,proto3" json:"is_collected,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Video) Reset() {
@@ -172,6 +174,20 @@ func (x *Video) GetCommentCount() uint64 {
 	return 0
 }
 
+func (x *Video) GetLastModifiedBy() int64 {
+	if x != nil {
+		return x.LastModifiedBy
+	}
+	return 0
+}
+
+func (x *Video) GetRelationStatus() int64 {
+	if x != nil {
+		return x.RelationStatus
+	}
+	return 0
+}
+
 func (x *Video) GetIsLiked() bool {
 	if x != nil {
 		return x.IsLiked
@@ -187,25 +203,27 @@ func (x *Video) GetIsCollected() bool {
 }
 
 type Comic struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Tag           []string               `protobuf:"bytes,3,rep,name=tag,proto3" json:"tag,omitempty"`
-	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Cover         string                 `protobuf:"bytes,5,opt,name=cover,proto3" json:"cover,omitempty"`
-	Author        string                 `protobuf:"bytes,6,opt,name=author,proto3" json:"author,omitempty"`
-	PublishedAt   int64                  `protobuf:"varint,7,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
-	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	LikeCount     uint64                 `protobuf:"varint,10,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
-	ViewCount     uint64                 `protobuf:"varint,11,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
-	CollectCount  uint64                 `protobuf:"varint,12,opt,name=collect_count,json=collectCount,proto3" json:"collect_count,omitempty"`
-	ChapterCount  uint64                 `protobuf:"varint,13,opt,name=chapter_count,json=chapterCount,proto3" json:"chapter_count,omitempty"`
-	CommentCount  uint64                 `protobuf:"varint,14,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
-	IsLiked       bool                   `protobuf:"varint,15,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
-	IsCollected   bool                   `protobuf:"varint,16,opt,name=is_collected,json=isCollected,proto3" json:"is_collected,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Tag            []string               `protobuf:"bytes,3,rep,name=tag,proto3" json:"tag,omitempty"`
+	Description    string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Cover          string                 `protobuf:"bytes,5,opt,name=cover,proto3" json:"cover,omitempty"`
+	Author         string                 `protobuf:"bytes,6,opt,name=author,proto3" json:"author,omitempty"`
+	PublishedAt    int64                  `protobuf:"varint,7,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
+	CreatedAt      int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	LikeCount      uint64                 `protobuf:"varint,10,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	ViewCount      uint64                 `protobuf:"varint,11,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
+	CollectCount   uint64                 `protobuf:"varint,12,opt,name=collect_count,json=collectCount,proto3" json:"collect_count,omitempty"`
+	ChapterCount   uint64                 `protobuf:"varint,13,opt,name=chapter_count,json=chapterCount,proto3" json:"chapter_count,omitempty"`
+	CommentCount   uint64                 `protobuf:"varint,14,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
+	LastModifiedBy int64                  `protobuf:"varint,15,opt,name=last_modified_by,json=lastModifiedBy,proto3" json:"last_modified_by,omitempty"`
+	RelationStatus int64                  `protobuf:"varint,16,opt,name=relation_status,json=relationStatus,proto3" json:"relation_status,omitempty"`
+	IsLiked        bool                   `protobuf:"varint,17,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
+	IsCollected    bool                   `protobuf:"varint,18,opt,name=is_collected,json=isCollected,proto3" json:"is_collected,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Comic) Reset() {
@@ -332,6 +350,20 @@ func (x *Comic) GetChapterCount() uint64 {
 func (x *Comic) GetCommentCount() uint64 {
 	if x != nil {
 		return x.CommentCount
+	}
+	return 0
+}
+
+func (x *Comic) GetLastModifiedBy() int64 {
+	if x != nil {
+		return x.LastModifiedBy
+	}
+	return 0
+}
+
+func (x *Comic) GetRelationStatus() int64 {
+	if x != nil {
+		return x.RelationStatus
 	}
 	return 0
 }
@@ -4597,7 +4629,7 @@ var File_content_proto protoreflect.FileDescriptor
 
 const file_content_proto_rawDesc = "" +
 	"\n" +
-	"\rcontent.proto\x12\acontent\x1a%third_party/google/protobuf/any.proto\"\xc6\x03\n" +
+	"\rcontent.proto\x12\acontent\x1a%third_party/google/protobuf/any.proto\"\x99\x04\n" +
 	"\x05Video\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -4617,9 +4649,11 @@ const file_content_proto_rawDesc = "" +
 	"\n" +
 	"view_count\x18\f \x01(\x04R\tviewCount\x12#\n" +
 	"\rcollect_count\x18\r \x01(\x04R\fcollectCount\x12#\n" +
-	"\rcomment_count\x18\x0e \x01(\x04R\fcommentCount\x12\x19\n" +
-	"\bis_liked\x18\x0f \x01(\bR\aisLiked\x12!\n" +
-	"\fis_collected\x18\x10 \x01(\bR\visCollected\"\xd9\x03\n" +
+	"\rcomment_count\x18\x0e \x01(\x04R\fcommentCount\x12(\n" +
+	"\x10last_modified_by\x18\x0f \x01(\x03R\x0elastModifiedBy\x12'\n" +
+	"\x0frelation_status\x18\x10 \x01(\x03R\x0erelationStatus\x12\x19\n" +
+	"\bis_liked\x18\x11 \x01(\bR\aisLiked\x12!\n" +
+	"\fis_collected\x18\x12 \x01(\bR\visCollected\"\xac\x04\n" +
 	"\x05Comic\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -4639,9 +4673,11 @@ const file_content_proto_rawDesc = "" +
 	"view_count\x18\v \x01(\x04R\tviewCount\x12#\n" +
 	"\rcollect_count\x18\f \x01(\x04R\fcollectCount\x12#\n" +
 	"\rchapter_count\x18\r \x01(\x04R\fchapterCount\x12#\n" +
-	"\rcomment_count\x18\x0e \x01(\x04R\fcommentCount\x12\x19\n" +
-	"\bis_liked\x18\x0f \x01(\bR\aisLiked\x12!\n" +
-	"\fis_collected\x18\x10 \x01(\bR\visCollected\"\xa8\x02\n" +
+	"\rcomment_count\x18\x0e \x01(\x04R\fcommentCount\x12(\n" +
+	"\x10last_modified_by\x18\x0f \x01(\x03R\x0elastModifiedBy\x12'\n" +
+	"\x0frelation_status\x18\x10 \x01(\x03R\x0erelationStatus\x12\x19\n" +
+	"\bis_liked\x18\x11 \x01(\bR\aisLiked\x12!\n" +
+	"\fis_collected\x18\x12 \x01(\bR\visCollected\"\xa8\x02\n" +
 	"\fComicChapter\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x19\n" +
 	"\bcomic_id\x18\x02 \x01(\x04R\acomicId\x12\x1d\n" +

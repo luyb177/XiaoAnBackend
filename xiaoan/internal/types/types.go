@@ -14,6 +14,11 @@ type AddArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type AddArticleResponse struct {
+	ArticleId      uint64 `json:"article_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type AddComicChapterRequest struct {
 	ComicId     uint64   `json:"comic_id"`
 	ChapterNo   int64    `json:"chapter_no"`
@@ -24,6 +29,11 @@ type AddComicChapterRequest struct {
 	PageUrls    []string `json:"page_urls"`
 }
 
+type AddComicChapterResponse struct {
+	ComicChapterId uint64 `json:"comic_chapter_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type AddComicRequest struct {
 	Name        string   `json:"name"`
 	Tags        []string `json:"tags"`
@@ -31,6 +41,11 @@ type AddComicRequest struct {
 	Cover       string   `json:"cover"`
 	Author      string   `json:"author"`
 	PublishedAt int64    `json:"published_at"`
+}
+
+type AddComicResponse struct {
+	ComicId        uint64 `json:"comic_id"`
+	RelationStatus int64  `json:"relation_status"`
 }
 
 type AddCommentRequest struct {
@@ -43,6 +58,11 @@ type AddCommentRequest struct {
 	ReplyUserId    uint64 `json:"reply_user_id"`
 	CommentText    string `json:"comment_text"`
 	Status         uint64 `json:"status"`
+}
+
+type AddCommentResponse struct {
+	CommentId      uint64 `json:"comment_id"`
+	RelationStatus int64  `json:"relation_status"`
 }
 
 type AddPodcastRequest struct {
@@ -58,6 +78,11 @@ type AddPodcastRequest struct {
 	Highlights  []*PodcastHighlightItem `json:"highlights"`
 }
 
+type AddPodcastResponse struct {
+	PodcastId      uint64 `json:"podcast_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type AddVideoRequest struct {
 	Name        string   `json:"name"`
 	Url         string   `json:"url"`
@@ -68,9 +93,98 @@ type AddVideoRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type AddVideoResponse struct {
+	VideoId        uint64 `json:"video_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
+type Article struct {
+	ArticleID      uint64   `json:"article_id"`
+	Name           string   `json:"name"`
+	Tags           []string `json:"tags"`
+	Url            string   `json:"url"`
+	Description    string   `json:"description"`
+	Cover          string   `json:"cover"`
+	Content        string   `json:"content"`
+	Author         string   `json:"author"`
+	PublishedAt    int64    `json:"published_at"`
+	CreatedAt      int64    `json:"created_at"`
+	UpdatedAt      int64    `json:"updated_at"`
+	LikeCount      uint64   `json:"like_count"`
+	ViewCount      uint64   `json:"view_count"`
+	CollectCount   uint64   `json:"collect_count"`
+	CommentCount   uint64   `json:"comment_count"`
+	LastModifiedBy int64    `json:"last_modified_by"`
+	RelationStatus int64    `json:"relation_status"`
+	IsLiked        bool     `json:"is_liked"`
+	IsCollected    bool     `json:"is_collected"`
+}
+
 type CollectRequest struct {
 	ContentType string `json:"content_type"`
 	ContentId   uint64 `json:"content_id"`
+}
+
+type Comic struct {
+	ComicID        uint64   `json:"comic_id"`
+	Name           string   `json:"name"`
+	Tags           []string `json:"tags"`
+	Description    string   `json:"description"`
+	Cover          string   `json:"cover"`
+	Author         string   `json:"author"`
+	PublishedAt    int64    `json:"published_at"`
+	CreatedAt      int64    `json:"created_at"`
+	UpdatedAt      int64    `json:"updated_at"`
+	LikeCount      uint64   `json:"like_count"`
+	ViewCount      uint64   `json:"view_count"`
+	CollectCount   uint64   `json:"collect_count"`
+	CommentCount   uint64   `json:"comment_count"`
+	ChapterCount   uint64   `json:"chapter_count"`
+	LastModifiedBy int64    `json:"last_modified_by"`
+	RelationStatus int64    `json:"relation_status"`
+	IsLiked        bool     `json:"is_liked"`
+	IsCollected    bool     `json:"is_collected"`
+}
+
+type ComicChapter struct {
+	ComicChapterID uint64 `json:"comic_chapter_id"`
+	ComicID        uint64 `json:"comic_id"`
+	ChapterNo      int64  `json:"chapter_no"`
+	Title          string `json:"title"`
+	Description    string `json:"description"`
+	Status         int64  `json:"status"`
+	PageCount      uint64 `json:"page_count"`
+	PublishedAt    int64  `json:"published_at"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
+}
+
+type ComicChapterPage struct {
+	ComicChapterPageID uint64 `json:"comic_chapter_page_id"`
+	ComicChapterID     uint64 `json:"comic_chapter_id"`
+	PageNo             int64  `json:"page_no"`
+	PageURL            string `json:"page_url"`
+	CreatedAt          int64  `json:"created_at"`
+	UpdatedAt          int64  `json:"updated_at"`
+}
+
+type Comment struct {
+	CommentID      uint64 `json:"comment_id"`
+	ContentType    string `json:"content_type"`
+	ContentID      uint64 `json:"content_id"`
+	UserID         uint64 `json:"user_id"`
+	Nickname       string `json:"nickname"`
+	Avatar         string `json:"avatar"`
+	IpLocation     string `json:"ip_location"`
+	ParentID       uint64 `json:"parent_id"`
+	ReplyCommentID uint64 `json:"reply_comment_id"`
+	ReplyUserID    uint64 `json:"reply_user_id"`
+	CommentText    string `json:"comment_text"`
+	LikeCount      uint64 `json:"like_count"`
+	Status         uint64 `json:"status"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
+	IsLiked        bool   `json:"is_liked"`
 }
 
 type DeleteArticleRequest struct {
@@ -98,6 +212,9 @@ type DeleteVideoRequest struct {
 	VideoId uint64 `form:"video_id"`
 }
 
+type EmptyResponse struct {
+}
+
 type GenerateInviteCodeRequest struct {
 	Creator_name string `json:"creator_name"`
 	Department   string `json:"department"`
@@ -120,10 +237,22 @@ type GetArticleContentRequest struct {
 	ArticleId uint64 `form:"article_id"`
 }
 
+type GetArticleResponse struct {
+	Article Article `json:"article"`
+}
+
+type GetComicChapterPageResponse struct {
+	Pages []ComicChapterPage `json:"pages"`
+}
+
 type GetComicChapterRequest struct {
 	ComicId  uint64 `form:"comic_id"`
 	Page     int64  `form:"page"`
 	PageSize int64  `form:"page_size"`
+}
+
+type GetComicChapterResponse struct {
+	Chapters []ComicChapter `json:"chapters"`
 }
 
 type GetComicPageRequest struct {
@@ -136,6 +265,10 @@ type GetComicRequest struct {
 	ComicId uint64 `form:"comic_id"`
 }
 
+type GetComicResponse struct {
+	Comic Comic `json:"comic"`
+}
+
 type GetInviteCodeRequest struct {
 	Page     int64 `json:"page"`
 	PageSize int64 `json:"page_size"`
@@ -145,11 +278,19 @@ type GetPodcastContentRequest struct {
 	PodcastId uint64 `form:"podcast_id"`
 }
 
+type GetPodcastResponse struct {
+	Podcast Podcast `json:"podcast"`
+}
+
 type GetRootCommentRequest struct {
 	ContentType string `form:"content_type"`
 	ContentId   uint64 `form:"content_id"`
 	Page        int64  `form:"page"`
 	PageSize    int64  `form:"page_size"`
+}
+
+type GetRootCommentResponse struct {
+	Comments []Comment `json:"comments"`
 }
 
 type GetSubCommentRequest struct {
@@ -160,8 +301,16 @@ type GetSubCommentRequest struct {
 	PageSize        int64  `form:"page_size"`
 }
 
+type GetSubCommentResponse struct {
+	Comments []Comment `json:"comments"`
+}
+
 type GetVideoContentRequest struct {
 	VideoId uint64 `form:"video_id"`
+}
+
+type GetVideoResponse struct {
+	Video Video `json:"video"`
 }
 
 type LikeRequest struct {
@@ -188,6 +337,11 @@ type ModifyArticleRequest struct {
 	Tags        []string `json:"tags"`
 }
 
+type ModifyArticleResponse struct {
+	ArticleId      uint64 `json:"article_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type ModifyComicChapterRequest struct {
 	ComicChapterId uint64   `json:"comic_chapter_id"`
 	ComicId        uint64   `json:"comic_id"`
@@ -199,6 +353,11 @@ type ModifyComicChapterRequest struct {
 	PageUrls       []string `json:"page_urls"`
 }
 
+type ModifyComicChapterResponse struct {
+	ComicChapterId uint64 `json:"comic_chapter_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type ModifyComicRequest struct {
 	ComicId     uint64   `json:"comic_id"`
 	Name        string   `json:"name"`
@@ -207,6 +366,11 @@ type ModifyComicRequest struct {
 	Cover       string   `json:"cover"`
 	Author      string   `json:"author"`
 	PublishedAt int64    `json:"published_at"`
+}
+
+type ModifyComicResponse struct {
+	ComicId        uint64 `json:"comic_id"`
+	RelationStatus int64  `json:"relation_status"`
 }
 
 type ModifyPodcastRequest struct {
@@ -223,6 +387,11 @@ type ModifyPodcastRequest struct {
 	Highlights  []*PodcastHighlightItem `json:"highlights"`
 }
 
+type ModifyPodcastResponse struct {
+	PodcastId      uint64 `json:"podcast_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type ModifyVideoRequest struct {
 	VideoId     uint64   `json:"video_id"`
 	Name        string   `json:"name"`
@@ -232,6 +401,35 @@ type ModifyVideoRequest struct {
 	Author      string   `json:"author"`
 	PublishedAt int64    `json:"published_at"`
 	Tags        []string `json:"tags"`
+}
+
+type ModifyVideoResponse struct {
+	VideoId        uint64 `json:"video_id"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
+type Podcast struct {
+	PodcastID      uint64                 `json:"podcast_id"`
+	Name           string                 `json:"name"`
+	Tags           []string               `json:"tags"`
+	Url            string                 `json:"url"`
+	Description    string                 `json:"description"`
+	Cover          string                 `json:"cover"`
+	Author         string                 `json:"author"`
+	Channel        string                 `json:"channel"`
+	Status         int64                  `json:"status"`
+	PublishedAt    int64                  `json:"published_at"`
+	CreatedAt      int64                  `json:"created_at"`
+	UpdatedAt      int64                  `json:"updated_at"`
+	LikeCount      uint64                 `json:"like_count"`
+	ViewCount      uint64                 `json:"view_count"`
+	CollectCount   uint64                 `json:"collect_count"`
+	CommentCount   uint64                 `json:"comment_count"`
+	Highlights     []PodcastHighlightItem `json:"highlights"`
+	LastModifiedBy int64                  `json:"last_modified_by"`
+	RelationStatus int64                  `json:"relation_status"`
+	IsLiked        bool                   `json:"is_liked"`
+	IsCollected    bool                   `json:"is_collected"`
 }
 
 type PodcastHighlightItem struct {
@@ -269,4 +467,25 @@ type UnlikeRequest struct {
 type ValidateEmailRequest struct {
 	Email string `json:"email"`
 	Code  string `json:"code"`
+}
+
+type Video struct {
+	VideoID        uint64   `json:"video_id"`
+	Name           string   `json:"name"`
+	Tags           []string `json:"tags"`
+	Url            string   `json:"url"`
+	Description    string   `json:"description"`
+	Cover          string   `json:"cover"`
+	Author         string   `json:"author"`
+	PublishedAt    int64    `json:"published_at"`
+	CreatedAt      int64    `json:"created_at"`
+	UpdatedAt      int64    `json:"updated_at"`
+	LikeCount      uint64   `json:"like_count"`
+	ViewCount      uint64   `json:"view_count"`
+	CollectCount   uint64   `json:"collect_count"`
+	CommentCount   uint64   `json:"comment_count"`
+	LastModifiedBy int64    `json:"last_modified_by"`
+	RelationStatus int64    `json:"relation_status"`
+	IsLiked        bool     `json:"is_liked"`
+	IsCollected    bool     `json:"is_collected"`
 }

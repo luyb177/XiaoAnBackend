@@ -26,7 +26,7 @@ func NewAddComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddComic
 }
 
 func (l *AddComicLogic) AddComic(req *types.AddComicRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.AddComic(l.ctx, &content.AddComicRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.AddComic(l.ctx, &content.AddComicRequest{
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Description: req.Description,
@@ -35,21 +35,31 @@ func (l *AddComicLogic) AddComic(req *types.AddComicRequest) (resp *types.Respon
 		PublishedAt: req.PublishedAt,
 	})
 	if err != nil {
+		l.Errorf("rpc AddComic error: %v", err)
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "添加漫画失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.AddComicResponse
-	if res.Data != nil {
-		data = &content.AddComicResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.AddComicResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal AddComicResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.AddComicResponse{
+		ComicId:        rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }
