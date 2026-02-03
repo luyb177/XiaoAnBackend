@@ -57,13 +57,14 @@ func (m *customContentLikeModel) FindOneByUserIdTypeTargetIdWithSession(ctx cont
 
 // Upsert -> 对象不存在 -> 插入
 //
-//	-> 对象存在 -> 更新 deleted_at = 0
+//	-> 对象存在 -> 更新 deleted_at = 0, is_counted = 0
 func (m *customContentLikeModel) Upsert(ctx context.Context, data *ContentLike) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		INSERT INTO %s (%s) 
 		VALUES (?, ?, ?, ?, ?)
 		ON DUPLICATE KEY UPDATE 
-		    deleted_at = 0`,
+		    deleted_at = 0,
+		    is_counted = 0`,
 		m.table,
 		contentLikeRowsExpectAutoSet,
 	)
