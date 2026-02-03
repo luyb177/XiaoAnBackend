@@ -35,8 +35,7 @@ func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 		return bad("用户未登录或状态异常"), nil
 	}
 
-	if resp := l.validate(in); resp != nil {
-		l.Errorf("Like err: 参数校验失败, %s", resp.Message)
+	if resp := ValidateContentTypeAndIDRequest(in.ContentType, in.ContentId); resp != nil {
 		return resp, nil
 	}
 
@@ -70,18 +69,4 @@ func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 		Code:    200,
 		Message: "点赞成功",
 	}, nil
-}
-
-func (l *LikeLogic) validate(in *v1.LikeRequest) *v1.Response {
-	switch {
-	case in.ContentType == "":
-		return bad("内容类型不能为空")
-	case in.ContentType != ContentTypeArticle && in.ContentType != ContentTypePodcast &&
-		in.ContentType != ContentTypeVideo && in.ContentType != ContentTypeComic &&
-		in.ContentType != ContentTypeComment:
-		return bad("内容类型不合法")
-	case in.ContentId == 0:
-		return bad("内容ID不能为0")
-	}
-	return nil
 }

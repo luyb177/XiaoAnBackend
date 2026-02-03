@@ -24,7 +24,7 @@ message Video {
   uint64 view_count = 12;
   uint64 collect_count = 13;
   uint64 comment_count = 14;
-  bool is_liked =15;
+  bool is_liked = 15;
   bool is_collected = 16;
 }
 

@@ -105,7 +105,7 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 	}
 	likeResult := <-likeCh
 	if likeResult.err != nil {
-		l.Errorf("GetPodcast err: 获取点赞情况错误 %v", likeResult.err)
+		l.Errorf("GetVideo err: 获取点赞情况错误 %v", likeResult.err)
 	}
 
 	// 处理 tag

@@ -31,7 +31,7 @@ func NewRepository(rds *redis.Redis) Repository {
 func (r *repo) Like(ctx context.Context, userID uint64, contentType string, contentID uint64) (bool, error) {
 	targetKey := targetLikeKey(contentType, contentID)
 	userKey := userLikeKey(userID)
-	member := fmt.Sprintf("%s:%d", contentType, contentID)
+	member := memberValue(contentType, contentID)
 
 	res, err := r.rds.EvalCtx(
 		ctx,

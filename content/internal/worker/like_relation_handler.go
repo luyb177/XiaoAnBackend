@@ -67,7 +67,7 @@ func (h *LikeRelationHandler) Handle(ctx context.Context, task taskqueue.Task) e
 	case tasks.LikeRelationDelete:
 		return h.handleDelete(ctx, &likeTask)
 	default:
-		h.Errorf("unknown like relation task type: %d", likeTask.Type)
+		h.Errorf("unknown like relation task type: %s", likeTask.Type)
 		return nil
 	}
 }

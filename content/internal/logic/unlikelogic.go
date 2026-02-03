@@ -32,7 +32,7 @@ func (l *UnlikeLogic) Unlike(in *v1.UnlikeRequest) (*v1.Response, error) {
 		return bad("用户未登录或状态异常"), nil
 	}
 
-	if resp := l.validate(in); resp != nil {
+	if resp := ValidateContentTypeAndIDRequest(in.ContentType, in.ContentId); resp != nil {
 		return resp, nil
 	}
 
@@ -66,18 +66,4 @@ func (l *UnlikeLogic) Unlike(in *v1.UnlikeRequest) (*v1.Response, error) {
 		Code:    200,
 		Message: "取消点赞成功",
 	}, nil
-}
-
-func (l *UnlikeLogic) validate(in *v1.UnlikeRequest) *v1.Response {
-	switch {
-	case in.ContentType == "":
-		return bad("内容类型不能为空")
-	case in.ContentType != ContentTypeArticle && in.ContentType != ContentTypePodcast &&
-		in.ContentType != ContentTypeVideo && in.ContentType != ContentTypeComic &&
-		in.ContentType != ContentTypeComment:
-		return bad("内容类型不合法")
-	case in.ContentId == 0:
-		return bad("内容ID不能为0")
-	}
-	return nil
 }
