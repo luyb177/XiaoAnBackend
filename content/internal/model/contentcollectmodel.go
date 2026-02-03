@@ -69,7 +69,7 @@ func (m *customContentCollectModel) Upsert(ctx context.Context, data *ContentCol
 		data.IsCounted,
 		data.DeletedAt,
 	)
-	return result, err
+	return result, mapDBError(err)
 }
 
 func (m *customContentCollectModel) UpsertWithSession(ctx context.Context, session sqlx.Session, data *ContentCollect) (sql.Result, error) {

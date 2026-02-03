@@ -57,7 +57,7 @@ func (h *CollectRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return err
 	}
 
-	logx.Infof("CollectRelationHandler received task: %+v", collectTask)
+	h.Infof("CollectRelationHandler received task: %+v", collectTask)
 
 	switch collectTask.Type {
 	case tasks.CollectRelationAdd:
@@ -65,7 +65,7 @@ func (h *CollectRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 	case tasks.CollectRelationDelete:
 		return h.handleDelete(ctx, &collectTask)
 	default:
-		logx.Errorf("CollectRelationHandler unknown task type: %s", collectTask.Type)
+		h.Errorf("CollectRelationHandler unknown task type: %s", collectTask.Type)
 		return nil
 	}
 }
@@ -115,13 +115,13 @@ func (h *CollectRelationHandler) handleAdd(ctx context.Context, task *tasks.Coll
 		}
 		if affect == 0 {
 			// 内容不存在，回滚收藏计数标记,删除 collect 记录
-			_, err = h.ContentCollectDao.UnmarkCollectAsCountedWithSession(ctx, session, task.ContentID)
+			_, err = h.ContentCollectDao.UnmarkCollectAsCountedWithSession(ctx, session, contentCollect.Id)
 			if err != nil {
 				return err
 			}
 			_, err = h.ContentCollectDao.SoftDeleteWithSession(ctx, session, contentCollect.Id, uint64(time.Now().Unix()))
+			return err
 		}
-
 		return nil
 	})
 }
@@ -164,8 +164,7 @@ func (h *CollectRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 
 		// 删除
 		_, err = h.ContentCollectDao.SoftDeleteWithSession(ctx, session, contentCollect.Id, uint64(time.Now().Unix()))
-
-		return nil
+		return err
 	})
 }
 

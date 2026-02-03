@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
@@ -16,7 +15,6 @@ type CollectLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	contentCollectDao model.ContentCollectModel
 }
 
 func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLogic {
