@@ -5,7 +5,7 @@ import (
 	v1 "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 )
 
-func PBFromComment(comments []*model.Comment) []*v1.Comment {
+func PBFromComment(comments []*model.Comment, liked map[uint64]bool) []*v1.Comment {
 	res := make([]*v1.Comment, len(comments))
 	for i, comment := range comments {
 		res[i] = &v1.Comment{
@@ -25,7 +25,7 @@ func PBFromComment(comments []*model.Comment) []*v1.Comment {
 			Status:          comment.Status,
 			CreatedAt:       comment.CreatedAt.Unix(),
 			UpdatedAt:       comment.UpdatedAt.Unix(),
-			IsLiked:         false,
+			IsLiked:         liked[comment.Id],
 		}
 	}
 	return res

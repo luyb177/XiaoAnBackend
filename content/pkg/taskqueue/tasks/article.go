@@ -16,6 +16,9 @@ const (
 
 	// ArticleRelationDelete 删除文章关联内容
 	ArticleRelationDelete ArticleRelationTaskType = "delete"
+
+	// ArticleRelationGet 获取文章
+	ArticleRelationGet ArticleRelationTaskType = "get"
 )
 
 type ArticleRelationTask struct {

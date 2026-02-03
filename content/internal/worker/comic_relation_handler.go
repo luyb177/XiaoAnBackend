@@ -19,19 +19,21 @@ import (
 
 type ComicRelationHandler struct {
 	logx.Logger
-	svcCtx      *svc.ServiceContext
-	ComicDao    model.ComicModel
-	ComicTagDao model.ComicTagModel
-	CommentDao  model.CommentModel
+	svcCtx         *svc.ServiceContext
+	ComicDao       model.ComicModel
+	ComicTagDao    model.ComicTagModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
 func NewComicRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ComicRelationHandler {
 	return &ComicRelationHandler{
-		svcCtx:      svcCtx,
-		Logger:      logx.WithContext(ctx),
-		ComicDao:    model.NewComicModel(svcCtx.Mysql),
-		ComicTagDao: model.NewComicTagModel(svcCtx.Mysql),
-		CommentDao:  model.NewCommentModel(svcCtx.Mysql),
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		ComicDao:       model.NewComicModel(svcCtx.Mysql),
+		ComicTagDao:    model.NewComicTagModel(svcCtx.Mysql),
+		CommentDao:     model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
@@ -62,6 +64,8 @@ func (h *ComicRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 		return h.handleModify(ctx, &comicTask)
 	case tasks.ComicRelationDelete:
 		return h.handleDelete(ctx, &comicTask)
+	case tasks.ComicRelationGet:
+		return h.handleGet(ctx, &comicTask)
 	default:
 		h.Errorf("unknown comic relation task type: %v", comicTask.Type)
 		return nil
@@ -118,6 +122,12 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 			return err
 		}
 
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
+		if err != nil {
+			return err
+		}
+
 		// 3. 删除对应的全部章节
 		comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 			Type:    tasks.ComicChapterRelationDeleteAll,
@@ -126,5 +136,13 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 		}
 
 		return h.svcCtx.TaskQueue.Enqueue(ctx, comicChapterRelationTask)
+	})
+}
+
+func (h *ComicRelationHandler) handleGet(ctx context.Context, task *tasks.ComicRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加 漫画浏览量
+		_, err := h.ComicDao.IncrViewCountWithSession(ctx, session, task.ComicID)
+		return err
 	})
 }

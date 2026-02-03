@@ -2,34 +2,31 @@ package logic
 
 import (
 	"context"
-
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type LikeLogic struct {
+type UnlikeLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	contentLikeDao model.ContentLikeModel
 }
 
-func NewLikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LikeLogic {
-	return &LikeLogic{
-		ctx:            ctx,
-		svcCtx:         svcCtx,
-		Logger:         logx.WithContext(ctx),
-		contentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
+func NewUnlikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnlikeLogic {
+	return &UnlikeLogic{
+		ctx:    ctx,
+		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
 	}
 }
 
-// Like 点赞
-func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
+// Unlike 取消点赞
+func (l *UnlikeLogic) Unlike(in *v1.UnlikeRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
 	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
@@ -39,22 +36,22 @@ func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 		return resp, nil
 	}
 
-	liked, err := l.svcCtx.LikeRepo.Like(l.ctx, user.UID, in.ContentType, in.ContentId)
+	unliked, err := l.svcCtx.LikeRepo.Unlike(l.ctx, user.UID, in.ContentType, in.ContentId)
 	if err != nil {
-		l.Errorf("Like err: 点赞失败, %v", err)
-		return bad("点赞失败"), nil
+		l.Errorf("UnlikeLogic unlike err: %v", err)
+		return bad("取消点赞失败"), nil
 	}
-	if !liked {
-		// 幂等处理，用户之前已经点过赞了
+
+	if !unliked {
+		// 幂等处理， 用户未点过赞、或者已经取消点赞
 		return &v1.Response{
 			Code:    200,
-			Message: "你已经点过赞了",
+			Message: "取消点赞成功",
 		}, nil
 	}
 
-	// 进入队列
 	likeRelationTask := &tasks.LikeRelationTask{
-		Type:        tasks.LikeRelationAdd,
+		Type:        tasks.LikeRelationDelete,
 		ContentType: in.ContentType,
 		ContentID:   in.ContentId,
 		UID:         user.UID,
@@ -62,11 +59,11 @@ func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
 
 	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, likeRelationTask)
 	if err != nil {
-		l.Errorf("Like err: 点赞关系入队列失败, %v", err)
+		l.Errorf("Unlike err: 取消点赞关系任务入队列失败, %v", err)
 	}
 
 	return &v1.Response{
 		Code:    200,
-		Message: "点赞成功",
+		Message: "取消点赞成功",
 	}, nil
 }

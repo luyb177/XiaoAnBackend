@@ -229,6 +229,14 @@ type (
 		page            int64  `form:"page"`
 		pageSize        int64  `form:"page_size"`
 	}
+	LikeRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
+	UnlikeRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -323,46 +331,6 @@ service xiaoan {
 	prefix:     /api/content
 	tags:       "文件内容模块"
 	group:      content
-	middleware: IPMiddleware
-)
-service xiaoan {
-	@doc "获取文章详细内容"
-	@handler GetArticleContent
-	get /get-article-content (GetArticleContentRequest) returns (Response)
-
-	@doc "获取视频详细内容"
-	@handler GetVideoContent
-	get /get-video-content (GetVideoContentRequest) returns (Response)
-
-	@doc "获取播客详细内容"
-	@handler GetPodcastContent
-	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
-
-	@doc "获取漫画"
-	@handler GetComic
-	get /get-comic (GetComicRequest) returns (Response)
-
-	@doc "获取漫画章节"
-	@handler GetComicChapter
-	get /get-comic-chapter (GetComicChapterRequest) returns (Response)
-
-	@doc "获取漫画页面"
-	@handler GetComicPage
-	get /get-comic-page (GetComicPageRequest) returns (Response)
-
-	@doc "获取根评论"
-	@handler GetRootComment
-	get /get-root-comment (GetRootCommentRequest) returns (Response)
-
-	@doc "获取子评论"
-	@handler GetSubComment
-	get /get-sub-comment (GetSubCommentRequest) returns (Response)
-}
-
-@server (
-	prefix:     /api/content
-	tags:       "文件内容模块"
-	group:      content
 	middleware: AuthMiddleware,IPMiddleware
 )
 service xiaoan {
@@ -378,6 +346,10 @@ service xiaoan {
 	@handler DeleteArticle
 	delete /delete-article (DeleteArticleRequest) returns (Response)
 
+	@doc "获取文章详细内容"
+	@handler GetArticleContent
+	get /get-article-content (GetArticleContentRequest) returns (Response)
+
 	@doc "添加视频"
 	@handler AddVideo
 	post /add-video (AddVideoRequest) returns (Response)
@@ -390,6 +362,10 @@ service xiaoan {
 	@handler DeleteVideo
 	delete /delete-video (DeleteVideoRequest) returns (Response)
 
+	@doc "获取视频详细内容"
+	@handler GetVideoContent
+	get /get-video-content (GetVideoContentRequest) returns (Response)
+
 	@doc "添加播客"
 	@handler AddPodcast
 	post /add-podcast (AddPodcastRequest) returns (Response)
@@ -401,6 +377,10 @@ service xiaoan {
 	@doc "删除播客"
 	@handler DeletePodcast
 	delete /delete-podcast (DeletePodcastRequest) returns (Response)
+
+	@doc "获取播客详细内容"
+	@handler GetPodcastContent
+	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
 
 	@doc "添加漫画"
 	@handler AddComic
@@ -426,6 +406,18 @@ service xiaoan {
 	@handler DeleteComicChapter
 	delete /delete-comic-chapter (DeleteComicChapterRequest) returns (Response)
 
+	@doc "获取漫画"
+	@handler GetComic
+	get /get-comic (GetComicRequest) returns (Response)
+
+	@doc "获取漫画章节"
+	@handler GetComicChapter
+	get /get-comic-chapter (GetComicChapterRequest) returns (Response)
+
+	@doc "获取漫画页面"
+	@handler GetComicPage
+	get /get-comic-page (GetComicPageRequest) returns (Response)
+
 	@doc "添加评论"
 	@handler AddComment
 	post /add-comment (AddCommentRequest) returns (Response)
@@ -433,5 +425,21 @@ service xiaoan {
 	@doc "删除评论"
 	@handler DeleteComment
 	delete /delete-comment (DeleteCommentRequest) returns (Response)
+
+	@doc "获取根评论"
+	@handler GetRootComment
+	get /get-root-comment (GetRootCommentRequest) returns (Response)
+
+	@doc "获取子评论"
+	@handler GetSubComment
+	get /get-sub-comment (GetSubCommentRequest) returns (Response)
+
+	@doc "点赞"
+	@handler Like
+	post /like (LikeRequest) returns (Response)
+
+	@doc "取消点赞"
+	@handler Unlike
+	post /unlike (UnlikeRequest) returns (Response)
 }
 

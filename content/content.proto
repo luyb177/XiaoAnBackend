@@ -24,6 +24,8 @@ message Video {
   uint64 view_count = 12;
   uint64 collect_count = 13;
   uint64 comment_count = 14;
+  bool is_liked = 15;
+  bool is_collected = 16;
 }
 
 message Comic {
@@ -41,6 +43,8 @@ message Comic {
   uint64 collect_count = 12;
   uint64 chapter_count = 13;
   uint64 comment_count = 14;
+  bool is_liked = 15;
+  bool is_collected = 16;
 }
 
 message ComicChapter {
@@ -86,6 +90,8 @@ message Podcast {
   string channel = 17;
   int64 status = 18; // 0: 已发布, 1: 草稿
   uint64 comment_count = 19;
+  bool is_liked = 20;
+  bool is_collected = 21;
 }
 
 message PodcastHighlight {
@@ -111,6 +117,8 @@ message Article {
   int64 last_modified_by = 16;
   int64 relation_status = 17;
   uint64 comment_count = 18;
+  bool is_liked = 19;
+  bool is_collected = 20;
 }
 
 // Comment 评论
@@ -387,8 +395,13 @@ message SearchRequest {
 
 // 点赞请求
 message LikeRequest {
-  string type = 1; // video,comic,podcast,article,comment
-  uint64 target_id = 2; // 目标ID
+  string content_type = 1;
+  uint64 content_id = 2;
+}
+
+message UnlikeRequest {
+  string content_type = 1;
+  uint64 content_id = 2;
 }
 
 message collectRequest {
@@ -594,11 +607,14 @@ service ContentService {
   // GetSubComment 获取子评论
   rpc GetSubComment(GetSubCommentRequest) returns (Response);
 
+  // Like 点赞
+  rpc Like(LikeRequest) returns (Response);
+
+  // Unlike 取消点赞
+  rpc Unlike(UnlikeRequest) returns (Response);
+
   // 搜索
   rpc Search(SearchRequest) returns (Response);
-
-  // 点赞
-  rpc Like(LikeRequest) returns (Response);
 
   // 收藏
   rpc Collect(collectRequest) returns (Response);

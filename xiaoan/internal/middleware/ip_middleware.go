@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/base64"
 	"net"
 	"net/http"
 	"strings"
@@ -61,6 +62,7 @@ func (m *IPMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// 2. 将 IP 地址和地理位置存储在 metadata 中
+		// tips: 不能使用中文， 必须是 ASCII 码
 		ctx := r.Context()
 
 		if ip != "" {
@@ -123,11 +125,23 @@ func parseIPRegion(region string) *IPLocation {
 		return nil
 	}
 
-	return &IPLocation{
-		Country:  parts[0],
-		Province: parts[1],
-		City:     parts[2],
-		ISP:      parts[3],
-		ISOCode:  parts[4],
+	clean := func(s string) string {
+		if s == "0" {
+			return "未知"
+		}
+		return s
 	}
+
+	return &IPLocation{
+		Country:  encodeValue(clean(parts[0])),
+		Province: encodeValue(clean(parts[1])),
+		City:     encodeValue(clean(parts[2])),
+		ISP:      encodeValue(clean(parts[3])),
+		ISOCode:  encodeValue(clean(parts[4])),
+	}
+}
+
+// encodeValue 使用 base64 编码字符串
+func encodeValue(s string) string {
+	return base64.StdEncoding.EncodeToString([]byte(s))
 }

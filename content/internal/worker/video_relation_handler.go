@@ -23,16 +23,18 @@ type VideoRelationHandler struct {
 	VideoDao    model.VideoModel
 	VideoTagDao model.VideoTagModel
 
-	CommentDao model.CommentModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
 func NewVideoRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *VideoRelationHandler {
 	return &VideoRelationHandler{
-		svcCtx:      svcCtx,
-		Logger:      logx.WithContext(ctx),
-		VideoDao:    model.NewVideoModel(svcCtx.Mysql),
-		VideoTagDao: model.NewVideoTagModel(svcCtx.Mysql),
-		CommentDao:  model.NewCommentModel(svcCtx.Mysql),
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		VideoDao:       model.NewVideoModel(svcCtx.Mysql),
+		VideoTagDao:    model.NewVideoTagModel(svcCtx.Mysql),
+		CommentDao:     model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
@@ -63,6 +65,8 @@ func (h *VideoRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 		return h.handleModify(ctx, &videoTask)
 	case tasks.VideoRelationDelete:
 		return h.handleDelete(ctx, &videoTask)
+	case tasks.VideoRelationGet:
+		return h.handleGet(ctx, &videoTask)
 	default:
 		h.Errorf("unknown task type: %s", videoTask.Type)
 		return nil
@@ -115,6 +119,20 @@ func (h *VideoRelationHandler) handleDelete(ctx context.Context, task *tasks.Vid
 
 		// 删除评论
 		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		return err
+	})
+}
+
+func (h *VideoRelationHandler) handleGet(ctx context.Context, task *tasks.VideoRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加浏览量
+		_, err := h.VideoDao.IncrViewCountWithSession(ctx, session, task.VideoID)
 		return err
 	})
 }

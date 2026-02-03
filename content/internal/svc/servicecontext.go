@@ -2,6 +2,7 @@ package svc
 
 import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
+	"github.com/luyb177/XiaoAnBackend/content/internal/repo/like"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 
@@ -13,6 +14,7 @@ type ServiceContext struct {
 	Config    config.Config
 	Mysql     sqlx.SqlConn
 	TaskQueue taskqueue.TaskQueue
+	LikeRepo  like.Repository
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -22,14 +24,15 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Retry:      "content:retry",
 		DLQ:        "content:dlq",
 	}
-	tq := redisqueue.NewRedisTaskQueue(
-		redis.MustNewRedis(c.RedisConf),
-		keys,
-	)
+	rds := redis.MustNewRedis(c.RedisConf)
+
+	tq := redisqueue.NewRedisTaskQueue(rds, keys)
+	lr := like.NewRepository(rds)
 
 	return &ServiceContext{
 		Config:    c,
 		Mysql:     sqlx.NewMysql(c.MysqlConf.DataSource),
 		TaskQueue: tq,
+		LikeRepo:  lr,
 	}
 }

@@ -3,14 +3,15 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/comment/convert"
-	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/comment/convert"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type GetRootCommentLogic struct {
@@ -31,6 +32,11 @@ func NewGetRootCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 
 // GetRootComment 获取评论
 func (l *GetRootCommentLogic) GetRootComment(in *v1.GetRootCommentRequest) (*v1.Response, error) {
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
+	}
+
 	if resp := l.validate(in); resp != nil {
 		l.Errorf("GetRootComment err: 参数校验失败, %s", resp.Message)
 		return resp, nil
@@ -56,8 +62,31 @@ func (l *GetRootCommentLogic) GetRootComment(in *v1.GetRootCommentRequest) (*v1.
 		return internal("获取根评论失败"), nil
 	}
 
+	commentIDs := make([]uint64, len(rootCommentsModel))
+	for i, comment := range rootCommentsModel {
+		commentIDs[i] = comment.Id
+	}
+
+	type LikeResult struct {
+		likes map[uint64]bool
+		err   error
+	}
+
+	likeCh := make(chan LikeResult, 1)
+
+	go func() {
+		likes, err := l.svcCtx.LikeRepo.BatchHasLiked(l.ctx, user.UID, ContentTypeComment, commentIDs)
+		likeCh <- LikeResult{likes: likes, err: err}
+	}()
+
+	// 等待结果
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetRootComment err: 获取点赞详情出错,%v", likeResult.err)
+	}
+
 	// todo 是否点赞
-	rootCommentPB := convert.PBFromComment(rootCommentsModel)
+	rootCommentPB := convert.PBFromComment(rootCommentsModel, likeResult.likes)
 
 	res := &v1.GetCommentResponse{Comments: rootCommentPB}
 

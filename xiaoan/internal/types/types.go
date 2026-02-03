@@ -159,6 +159,11 @@ type GetVideoContentRequest struct {
 	VideoId uint64 `form:"video_id"`
 }
 
+type LikeRequest struct {
+	ContentType string `json:"content_type"`
+	ContentId   uint64 `json:"content_id"`
+}
+
 type LoginRequest struct {
 	Tp        string `json:"type"`
 	Email     string `json:"email"`
@@ -244,6 +249,11 @@ type Response struct {
 
 type SendEmailRequest struct {
 	Email string `json:"email"`
+}
+
+type UnlikeRequest struct {
+	ContentType string `json:"content_type"`
+	ContentId   uint64 `json:"content_id"`
 }
 
 type ValidateEmailRequest struct {

@@ -169,7 +169,7 @@ func (h *CommentRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 			}
 		}
 
-		// 消费 root 评论的 is_counted
+		// 消费 当前 评论的 is_counted
 		result, err := h.CommentDao.UnmarkCommentAsCountedWithSession(ctx, session, task.CommentID)
 		if err != nil {
 			return err

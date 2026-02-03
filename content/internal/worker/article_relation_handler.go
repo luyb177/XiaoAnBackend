@@ -19,19 +19,21 @@ import (
 
 type ArticleRelationHandler struct {
 	logx.Logger
-	svcCtx        *svc.ServiceContext
-	ArticleDao    model.ArticleModel
-	ArticleTagDao model.ArticleTagModel
-	CommentDao    model.CommentModel
+	svcCtx         *svc.ServiceContext
+	ArticleDao     model.ArticleModel
+	ArticleTagDao  model.ArticleTagModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
 func NewArticleRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ArticleRelationHandler {
 	return &ArticleRelationHandler{
-		svcCtx:        svcCtx,
-		Logger:        logx.WithContext(ctx),
-		ArticleDao:    model.NewArticleModel(svcCtx.Mysql),
-		ArticleTagDao: model.NewArticleTagModel(svcCtx.Mysql),
-		CommentDao:    model.NewCommentModel(svcCtx.Mysql),
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		ArticleDao:     model.NewArticleModel(svcCtx.Mysql),
+		ArticleTagDao:  model.NewArticleTagModel(svcCtx.Mysql),
+		CommentDao:     model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
@@ -62,6 +64,8 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return h.handleModify(ctx, &articleTask)
 	case tasks.ArticleRelationDelete:
 		return h.handleDelete(ctx, &articleTask)
+	case tasks.ArticleRelationGet:
+		return h.handleGet(ctx, &articleTask)
 	default:
 		h.Errorf("unknown task type: %s", articleTask.Type)
 		return nil
@@ -117,6 +121,20 @@ func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.A
 		}
 		// 删除评论
 		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		return err
+	})
+}
+
+func (h *ArticleRelationHandler) handleGet(ctx context.Context, task *tasks.ArticleRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加 文章浏览量
+		_, err := h.ArticleDao.IncrViewCountWithSession(ctx, session, task.ArticleID)
 		return err
 	})
 }

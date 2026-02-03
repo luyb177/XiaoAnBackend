@@ -3,7 +3,9 @@ package logic
 import (
 	"context"
 	"errors"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
+	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -33,34 +35,14 @@ func NewGetComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetComic
 
 // GetComic 获取漫画
 func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
-	validations := []Validation{
-		{in.Id > 0, "漫画ID不能小于等于0"},
-	}
-	for _, v := range validations {
-		if !v.Condition {
-			l.Errorf("GetComic err: %s", v.Message)
-
-			return &v1.Response{
-				Code:    400,
-				Message: v.Message,
-			}, nil
-		}
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	// 异步获取tag
-	type TagResult struct {
-		tags []*model.ComicTag
-		err  error
+	if in.Id == 0 {
+		return bad("漫画ID不合法"), nil
 	}
-	tagCh := make(chan TagResult, 1)
-
-	go func() {
-		t, err := l.ComicTagDao.FindManyByComicId(l.ctx, in.Id)
-		tagCh <- TagResult{
-			tags: t,
-			err:  err,
-		}
-	}()
 
 	// 获取漫画
 	comic, err := l.ComicDao.FindOneWithNotDelete(l.ctx, in.Id)
@@ -75,11 +57,50 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		}
 		l.Errorf("GetComic err: %v", err)
 
-		return &v1.Response{
-			Code:    500,
-			Message: "获取漫画失败",
-		}, nil
+		return internal("获取漫画失败"), nil
 	}
+
+	// 入队
+	comicRelationTask := &tasks.ComicRelationTask{
+		Type:    tasks.ComicRelationGet,
+		ComicID: in.Id,
+		UID:     user.UID,
+		Tags:    nil,
+	}
+
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, comicRelationTask)
+	if err != nil {
+		l.Errorf("GetComic err: 入队获取漫画相关内容失败, %v", err)
+	}
+
+	// 异步获取tag like
+	type TagResult struct {
+		tags []*model.ComicTag
+		err  error
+	}
+	type LikeResult struct {
+		liked bool
+		err   error
+	}
+
+	tagCh := make(chan TagResult, 1)
+	likeCh := make(chan LikeResult, 1)
+
+	go func() {
+		t, err := l.ComicTagDao.FindManyByComicId(l.ctx, in.Id)
+		tagCh <- TagResult{
+			tags: t,
+			err:  err,
+		}
+	}()
+
+	go func() {
+		liked, err := l.svcCtx.LikeRepo.HasLiked(l.ctx, user.UID, ContentTypeComic, in.Id)
+		likeCh <- LikeResult{
+			liked: liked,
+			err:   err,
+		}
+	}()
 
 	// 等待tag结果
 	tagResult := <-tagCh
@@ -88,6 +109,12 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 	}
 
 	tags := convert.StringsFromComicTags(tagResult.tags)
+
+	// 等待 like 结果
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetComic err: 获取漫画点赞情况失败,%v", likeResult.err)
+	}
 
 	res := &v1.GetComicResponse{Comic: &v1.Comic{
 		Id:           comic.Id,
@@ -104,6 +131,7 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 		CollectCount: comic.CollectCount,
 		ChapterCount: comic.ChapterCount,
 		CommentCount: comic.CommentCount,
+		IsLiked:      likeResult.liked,
 	}}
 
 	reaAny, err := anypb.New(res)

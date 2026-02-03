@@ -12,6 +12,7 @@ const (
 	ContentTypePodcast = "podcast"
 	ContentTypeComic   = "comic"
 	ContentTypeVideo   = "video"
+	ContentTypeComment = "comment"
 )
 
 const (

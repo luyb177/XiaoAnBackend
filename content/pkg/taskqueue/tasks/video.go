@@ -16,6 +16,9 @@ const (
 
 	// VideoRelationDelete  删除视频关联内容
 	VideoRelationDelete VideoRelationTaskType = "delete"
+
+	// VideoRelationGet 获取视频
+	VideoRelationGet VideoRelationTaskType = "get"
 )
 
 type VideoRelationTask struct {

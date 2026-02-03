@@ -24,7 +24,8 @@ type PodcastRelationHandler struct {
 	PodcastTagDao       model.PodcastTagModel
 	PodcastHighlightDao model.PodcastHighlightModel
 
-	CommentDao model.CommentModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
 func NewPodcastRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *PodcastRelationHandler {
@@ -35,6 +36,7 @@ func NewPodcastRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) 
 		PodcastTagDao:       model.NewPodcastTagModel(svcCtx.Mysql),
 		PodcastHighlightDao: model.NewPodcastHighlightModel(svcCtx.Mysql),
 		CommentDao:          model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao:      model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
@@ -65,6 +67,8 @@ func (h *PodcastRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return h.handleModify(ctx, &podcastTask)
 	case tasks.PodcastRelationDelete:
 		return h.handleDelete(ctx, &podcastTask)
+	case tasks.PodcastRelationGet:
+		return h.handleGet(ctx, &podcastTask)
 	default:
 		h.Errorf("unknown task type: %s", podcastTask.Type)
 		return nil
@@ -140,6 +144,20 @@ func (h *PodcastRelationHandler) handleDelete(ctx context.Context, task *tasks.P
 
 		// 3. 删除评论
 		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
+		return err
+	})
+}
+
+func (h *PodcastRelationHandler) handleGet(ctx context.Context, task *tasks.PodcastRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加博客浏览量
+		_, err := h.PodcastDao.IncrViewCountWithSession(ctx, session, task.PodcastID)
 		return err
 	})
 }

@@ -73,6 +73,7 @@ type (
 	Response                   = v1.Response
 	SearchRequest              = v1.SearchRequest
 	SearchResponse             = v1.SearchResponse
+	UnlikeRequest              = v1.UnlikeRequest
 	Video                      = v1.Video
 
 	ContentService interface {
@@ -126,10 +127,12 @@ type (
 		GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error)
 		// GetSubComment 获取子评论
 		GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// Like 点赞
+		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
+		// Unlike 取消点赞
+		Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
-		// 点赞
-		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
 		// 收藏
 		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
 	}
@@ -295,16 +298,22 @@ func (m *defaultContentService) GetSubComment(ctx context.Context, in *GetSubCom
 	return client.GetSubComment(ctx, in, opts...)
 }
 
+// Like 点赞
+func (m *defaultContentService) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Like(ctx, in, opts...)
+}
+
+// Unlike 取消点赞
+func (m *defaultContentService) Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Unlike(ctx, in, opts...)
+}
+
 // 搜索
 func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.Search(ctx, in, opts...)
-}
-
-// 点赞
-func (m *defaultContentService) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.Like(ctx, in, opts...)
 }
 
 // 收藏
