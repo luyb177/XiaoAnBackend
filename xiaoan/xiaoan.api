@@ -23,7 +23,7 @@ type (
 		role             string `json:"role"`
 		classID          uint64 `json:"class_id"`
 		status           int64  `json:"status"`
-		invite_code_used string `json:"invite_code_used"`
+		inviteCodeUsed string `json:"invite_code_used"`
 		createdAt        int64  `json:"created_at"`
 		updatedAt        int64  `json:"updated_at"`
 	}

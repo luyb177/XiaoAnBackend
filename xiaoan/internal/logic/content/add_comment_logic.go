@@ -53,8 +53,8 @@ func (l *AddCommentLogic) AddComment(req *types.AddCommentRequest) (resp *types.
 		}
 	}
 
-	httpData := &types.AddComicResponse{
-		ComicId:        rpcData.Id,
+	httpData := &types.AddCommentResponse{
+		CommentId:      rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 
