@@ -38,7 +38,7 @@ func (l *GetPodcastContentLogic) GetPodcastContent(req *types.GetPodcastContentR
 	// RPC 数据
 	rpcData := &content.GetPodcastResponse{}
 	if rpcResp.Data != nil {
-		if err := rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
 			l.Errorf("unmarshal GetPodcastResponse failed: %v", err)
 		}
 	}
