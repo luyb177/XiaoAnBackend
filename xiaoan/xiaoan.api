@@ -14,18 +14,18 @@ info (
 // auth model 模块
 type (
 	User {
-		userID           uint64 `json:"user_id"`
-		name             string `json:"name"`
-		email            string `json:"email"`
-		avatar           string `json:"avatar"`
-		phone            string `json:"phone"`
-		department       string `json:"department"`
-		role             string `json:"role"`
-		classID          uint64 `json:"class_id"`
-		status           int64  `json:"status"`
+		userID         uint64 `json:"user_id"`
+		name           string `json:"name"`
+		email          string `json:"email"`
+		avatar         string `json:"avatar"`
+		phone          string `json:"phone"`
+		department     string `json:"department"`
+		role           string `json:"role"`
+		classID        uint64 `json:"class_id"`
+		status         int64  `json:"status"`
 		inviteCodeUsed string `json:"invite_code_used"`
-		createdAt        int64  `json:"created_at"`
-		updatedAt        int64  `json:"updated_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
 	}
 )
 
@@ -416,6 +416,9 @@ type (
 	loginResponse {
 		token string `json:"token"`
 		user  User   `json:"user"`
+	}
+	registerResponse {
+		user User `json:"user"`
 	}
 )
 

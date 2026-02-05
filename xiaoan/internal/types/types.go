@@ -465,18 +465,18 @@ type UnlikeRequest struct {
 }
 
 type User struct {
-	UserID           uint64 `json:"user_id"`
-	Name             string `json:"name"`
-	Email            string `json:"email"`
-	Avatar           string `json:"avatar"`
-	Phone            string `json:"phone"`
-	Department       string `json:"department"`
-	Role             string `json:"role"`
-	ClassID          uint64 `json:"class_id"`
-	Status           int64  `json:"status"`
-	Invite_code_used string `json:"invite_code_used"`
-	CreatedAt        int64  `json:"created_at"`
-	UpdatedAt        int64  `json:"updated_at"`
+	UserID         uint64 `json:"user_id"`
+	Name           string `json:"name"`
+	Email          string `json:"email"`
+	Avatar         string `json:"avatar"`
+	Phone          string `json:"phone"`
+	Department     string `json:"department"`
+	Role           string `json:"role"`
+	ClassID        uint64 `json:"class_id"`
+	Status         int64  `json:"status"`
+	InviteCodeUsed string `json:"invite_code_used"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
 }
 
 type ValidateEmailRequest struct {
@@ -508,4 +508,8 @@ type Video struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 	User  User   `json:"user"`
+}
+
+type RegisterResponse struct {
+	User User `json:"user"`
 }

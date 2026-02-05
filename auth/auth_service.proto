@@ -151,20 +151,7 @@ message LoginResponse {
 }
 
 message RegisterResponse {
-  string id = 1;
-  string name = 2;
-  string email = 3;
-  string avatar = 4;
-  string phone = 5;
-  string department = 7;
-
-  string role = 8;           // superadmin / classadmin / student / staff
-  uint64 class_id = 9;       // 所属班级 学生 ID
-  int64 status = 10;         // 0正常 1禁用 2删除
-  string invite_code_used = 11;
-
-  int64 created_at = 12;
-  int64 updated_at = 13;
+  User user = 1;
 }
 
 

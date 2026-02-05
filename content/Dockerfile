@@ -14,7 +14,7 @@ ADD go.sum .
 RUN go mod download
 COPY . .
 
-RUN go build -ldflags="-s -w" -o /app/authservice authservice.go
+RUN go build -ldflags="-s -w" -o /app/content content.go
 
 
 FROM scratch
@@ -24,7 +24,7 @@ COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/S
 ENV TZ=Asia/Shanghai
 
 WORKDIR /app
-COPY --from=builder /app/authservice /app/authservice
+COPY --from=builder /app/content /app/content
 
 
-CMD ["./authservice", "-f", "etc/authservice.yaml"]
+CMD ["./content", "-f", "etc/content.yaml"]

@@ -10,6 +10,12 @@ import (
 	redisV9 "github.com/redis/go-redis/v9"
 )
 
+const (
+	TargetLikeKey = "like:target:%s:%d" // like:target:<content_type>:<content_id>
+	UserLikeKey   = "like:user:%d"      // like:user:<user_id>
+	MemberValue   = "%s:%d"             // <content_type>:<content_id>
+)
+
 type Repository interface {
 	Like(ctx context.Context, userID uint64, contentType string, contentID uint64) (bool, error)
 	Unlike(ctx context.Context, userID uint64, contentType string, contentID uint64) (bool, error)
@@ -135,13 +141,13 @@ func (r *repo) BatchHasLiked(ctx context.Context, userID uint64, contentType str
 }
 
 func targetLikeKey(contentType string, contentID uint64) string {
-	return fmt.Sprintf("like:target:%s:%d", contentType, contentID)
+	return fmt.Sprintf(TargetLikeKey, contentType, contentID)
 }
 
 func userLikeKey(userID uint64) string {
-	return fmt.Sprintf("like:user:%d", userID)
+	return fmt.Sprintf(UserLikeKey, userID)
 }
 
 func memberValue(contentType string, contentID uint64) string {
-	return fmt.Sprintf("%s:%d", contentType, contentID)
+	return fmt.Sprintf(MemberValue, contentType, contentID)
 }

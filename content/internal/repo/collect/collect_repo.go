@@ -7,6 +7,12 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
 )
 
+const (
+	TargetCollectKey = "collect:target:%s:%d" // collect:target:<content_type>:<content_id>
+	UserCollectKey   = "collect:user:%d"      // collect:user:<user_id>
+	MemberValue      = "%s:%d"                // <content_type>:<content_id>
+)
+
 type Repository interface {
 	Collect(ctx context.Context, userID uint64, contentType string, contentID uint64) (bool, error)
 	UnCollect(ctx context.Context, userID uint64, contentType string, contentID uint64) (bool, error)
@@ -91,13 +97,13 @@ func (r *repo) HasCollect(ctx context.Context, userID uint64, contentType string
 }
 
 func targetCollectKey(contentType string, contentID uint64) string {
-	return fmt.Sprintf("collect:target:%s:%d", contentType, contentID)
+	return fmt.Sprintf(TargetCollectKey, contentType, contentID)
 }
 
 func userCollectKey(userID uint64) string {
-	return fmt.Sprintf("collect:user:%d", userID)
+	return fmt.Sprintf(UserCollectKey, userID)
 }
 
 func memberValue(contentType string, contentID uint64) string {
-	return fmt.Sprintf("%s:%d", contentType, contentID)
+	return fmt.Sprintf(MemberValue, contentType, contentID)
 }
