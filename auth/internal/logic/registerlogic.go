@@ -129,7 +129,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 
 	hashPassword, err := password.Hash(in.Password)
 	if err != nil {
-		l.Errorf("Register err: 密码%s加密失败,%v", in.Password, err)
+		l.Errorf("Register err: 密码加密失败, email=%s, err=%v", in.Email, err)
 		return bad("密码存在安全问题，请更换密码"), nil
 	}
 

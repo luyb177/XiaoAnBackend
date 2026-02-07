@@ -160,6 +160,8 @@ func (l *LoginLogic) validatePassword(in *v1.LoginRequest) (*model.User, string,
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, "该邮箱未注册", false
 		}
+		l.Errorf("validatePassword FindOneByEmailWithNotDelete error: %v", err)
+		return nil, "系统繁忙", false
 	}
 	if !password.Compare(in.Password, user.Password) {
 		return nil, "密码错误", false

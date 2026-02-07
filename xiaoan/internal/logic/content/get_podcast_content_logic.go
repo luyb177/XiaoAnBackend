@@ -58,6 +58,10 @@ func (l *GetPodcastContentLogic) GetPodcastContent(req *types.GetPodcastContentR
 	// HTTP highlights
 	httpHighlights := make([]types.PodcastHighlightItem, len(rpcHighlights))
 	for i, h := range rpcHighlights {
+		if h == nil {
+			h = &content.PodcastHighlight{}
+		}
+
 		httpHighlights[i] = types.PodcastHighlightItem{
 			Second:    h.Second,
 			Highlight: h.Highlight,

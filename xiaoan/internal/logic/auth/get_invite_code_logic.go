@@ -53,6 +53,10 @@ func (l *GetInviteCodeLogic) GetInviteCode(req *types.GetInviteCodeRequest) (res
 
 	httpInviteCodes := make([]types.InviteCode, len(rpcInviteCodes))
 	for i, rpcInviteCode := range rpcInviteCodes {
+		if rpcInviteCode == nil {
+			rpcInviteCode = &auth.InviteCode{}
+		}
+
 		httpInviteCodes[i] = types.InviteCode{
 			Code:        rpcInviteCode.Code,
 			CreatorID:   rpcInviteCode.CreatorId,

@@ -59,6 +59,7 @@ func (l *GetComicPageLogic) GetComicPage(req *types.GetComicPageRequest) (resp *
 		if rpcPage == nil {
 			rpcPage = &content.ComicPage{}
 		}
+
 		httpPages[i] = types.ComicChapterPage{
 			ComicChapterPageID: rpcPage.Id,
 			ComicChapterID:     rpcPage.ComicChapterId,

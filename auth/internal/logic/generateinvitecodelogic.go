@@ -42,6 +42,10 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
+	if resp := l.validate(in); resp != nil {
+		return resp, nil
+	}
+
 	if in.MaxUses == 0 {
 		in.MaxUses = 1
 	}
