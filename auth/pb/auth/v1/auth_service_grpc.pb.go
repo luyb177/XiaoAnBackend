@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	AuthService_SendEmailCode_FullMethodName      = "/auth.AuthService/SendEmailCode"
-	AuthService_ValidateEmailCode_FullMethodName  = "/auth.AuthService/ValidateEmailCode"
 	AuthService_GenerateInviteCode_FullMethodName = "/auth.AuthService/GenerateInviteCode"
 	AuthService_GetInviteCode_FullMethodName      = "/auth.AuthService/GetInviteCode"
 	AuthService_Register_FullMethodName           = "/auth.AuthService/Register"
@@ -33,7 +32,6 @@ const (
 type AuthServiceClient interface {
 	// 邮箱验证码
 	SendEmailCode(ctx context.Context, in *SendEmailRequest, opts ...grpc.CallOption) (*Response, error)
-	ValidateEmailCode(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*Response, error)
 	// 邀请码
 	GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 	GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
@@ -54,16 +52,6 @@ func (c *authServiceClient) SendEmailCode(ctx context.Context, in *SendEmailRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, AuthService_SendEmailCode_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) ValidateEmailCode(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, AuthService_ValidateEmailCode_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +104,6 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 type AuthServiceServer interface {
 	// 邮箱验证码
 	SendEmailCode(context.Context, *SendEmailRequest) (*Response, error)
-	ValidateEmailCode(context.Context, *ValidateEmailRequest) (*Response, error)
 	// 邀请码
 	GenerateInviteCode(context.Context, *GenerateInviteCodeRequest) (*Response, error)
 	GetInviteCode(context.Context, *GetInviteCodeRequest) (*Response, error)
@@ -135,9 +122,6 @@ type UnimplementedAuthServiceServer struct{}
 
 func (UnimplementedAuthServiceServer) SendEmailCode(context.Context, *SendEmailRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailCode not implemented")
-}
-func (UnimplementedAuthServiceServer) ValidateEmailCode(context.Context, *ValidateEmailRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateEmailCode not implemented")
 }
 func (UnimplementedAuthServiceServer) GenerateInviteCode(context.Context, *GenerateInviteCodeRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateInviteCode not implemented")
@@ -186,24 +170,6 @@ func _AuthService_SendEmailCode_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).SendEmailCode(ctx, req.(*SendEmailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthService_ValidateEmailCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateEmailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).ValidateEmailCode(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_ValidateEmailCode_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).ValidateEmailCode(ctx, req.(*ValidateEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,10 +256,6 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendEmailCode",
 			Handler:    _AuthService_SendEmailCode_Handler,
-		},
-		{
-			MethodName: "ValidateEmailCode",
-			Handler:    _AuthService_ValidateEmailCode_Handler,
 		},
 		{
 			MethodName: "GenerateInviteCode",

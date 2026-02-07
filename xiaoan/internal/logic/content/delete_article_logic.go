@@ -26,19 +26,22 @@ func NewDeleteArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 }
 
 func (l *DeleteArticleLogic) DeleteArticle(req *types.DeleteArticleRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.DeleteArticle(l.ctx, &content.DeleteArticleRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.DeleteArticle(l.ctx, &content.DeleteArticleRequest{
 		Id: req.ArticleId,
 	})
 
 	if err != nil {
+		l.Errorf("rpc DeleteArticle err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "删除文章失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    &types.EmptyResponse{},
 	}, nil
 }

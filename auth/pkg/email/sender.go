@@ -7,7 +7,7 @@ import (
 )
 
 // SendEmailCode 发送邮件验证码
-func SendEmailCode(cfg EmailConfig, to, code string) error {
+func SendEmailCode(cfg *Config, to, code string) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", cfg.From)
 	m.SetHeader("To", to)

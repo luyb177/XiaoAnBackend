@@ -26,7 +26,7 @@ func NewAddComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *A
 }
 
 func (l *AddComicChapterLogic) AddComicChapter(req *types.AddComicChapterRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.AddComicChapter(l.ctx, &content.AddComicChapterRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.AddComicChapter(l.ctx, &content.AddComicChapterRequest{
 		ComicId:     req.ComicId,
 		ChapterNo:   req.ChapterNo,
 		Title:       req.Title,
@@ -36,21 +36,30 @@ func (l *AddComicChapterLogic) AddComicChapter(req *types.AddComicChapterRequest
 		PageUrls:    req.PageUrls,
 	})
 	if err != nil {
+		l.Errorf("rpc AddComicChapter error: %v", err)
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "添加漫画章节失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.AddComicChapterResponse
-	if res.Data != nil {
-		data = &content.AddComicChapterResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	var rpcData = &content.AddComicChapterResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal AddComicChapterResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.AddComicChapterResponse{
+		ComicChapterId: rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

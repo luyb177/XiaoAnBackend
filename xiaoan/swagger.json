@@ -39,7 +39,6 @@
             "schema": {
               "type": "object",
               "required": [
-                "creator_name",
                 "department",
                 "max_uses",
                 "remark",
@@ -50,9 +49,6 @@
               "properties": {
                 "class_id": {
                   "type": "integer"
-                },
-                "creator_name": {
-                  "type": "string"
                 },
                 "department": {
                   "type": "string"
@@ -116,11 +112,11 @@
             "schema": {
               "type": "object",
               "required": [
-                "page",
-                "page_size"
+                "page_size",
+                "cursor"
               ],
               "properties": {
-                "page": {
+                "cursor": {
                   "type": "integer"
                 },
                 "page_size": {
@@ -304,63 +300,6 @@
                 "email"
               ],
               "properties": {
-                "email": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer"
-                },
-                "data": {},
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/validate-email": {
-      "post": {
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "认证模块"
-        ],
-        "summary": "验证邮箱验证码",
-        "operationId": "authValidateEmail",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "email",
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "type": "string"
-                },
                 "email": {
                   "type": "string"
                 }
@@ -2278,7 +2217,7 @@
       }
     }
   },
-  "x-date": "2026-02-03 17:26:45",
+  "x-date": "2026-02-07 20:45:30",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

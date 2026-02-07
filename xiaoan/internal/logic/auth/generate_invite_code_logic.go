@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type GenerateInviteCodeLogic struct {
@@ -28,48 +26,57 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(req *types.GenerateInviteCodeRequest) (resp *types.Response, err error) {
-	// 验证 req
-	if req.Creator_name == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "请填写创建者名称",
-		}, nil
-	}
-
-	if req.Department == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "请填写部门名称",
-		}, nil
-	}
-
-	if req.Target_role == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "请填写目标角色",
-		}, nil
-	}
-
-	// todo classId
-
-	res, _ := l.svcCtx.AuthRpc.GenerateInviteCode(l.ctx, &auth.GenerateInviteCodeRequest{
-		CreatorName: req.Creator_name,
-		Department:  req.Department,
-		MaxUses:     req.MaxUses,
-		Remark:      req.Remark,
-		ExpiresAt:   req.Expires_at,
-		TargetRole:  req.Target_role,
-		ClassId:     req.ClassId,
+	rpcResp, err := l.svcCtx.AuthRpc.GenerateInviteCode(l.ctx, &auth.GenerateInviteCodeRequest{
+		Department: req.Department,
+		MaxUses:    req.MaxUses,
+		Remark:     req.Remark,
+		ExpiresAt:  req.ExpiresAt,
+		TargetRole: req.TargetRole,
+		ClassId:    req.ClassId,
 	})
 
-	var data *auth.GenerateInviteCodeResponse
-	if res.Data != nil {
-		data = &auth.GenerateInviteCodeResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+	if err != nil {
+		l.Errorf("rpc GenerateInviteCode err: %v", err)
+		return &types.Response{
+			Code:    400,
+			Message: "生成邀请码失败",
+			Data:    &types.EmptyResponse{},
+		}, nil
 	}
+
+	var rpcData = &auth.GenerateInviteCodeResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("rpc GenerateInviteCode UnmarshalTo err: %v", err)
+		}
+	}
+	rpcInviteCode := rpcData.Code
+	if rpcInviteCode == nil {
+		rpcInviteCode = &auth.InviteCode{}
+	}
+
+	httpInviteCode := types.InviteCode{
+		Code:        rpcInviteCode.Code,
+		CreatorID:   rpcInviteCode.CreatorId,
+		CreatorName: rpcInviteCode.CreatorName,
+		Department:  rpcInviteCode.Department,
+		MaxUses:     rpcInviteCode.MaxUses,
+		UsedCount:   rpcInviteCode.UsedCount,
+		Remark:      rpcInviteCode.Remark,
+		ExpiresAt:   rpcInviteCode.ExpiresAt,
+		TargetRole:  rpcInviteCode.TargetRole,
+		ClassId:     rpcInviteCode.ClassId,
+		CreatedAt:   rpcInviteCode.CreatedAt,
+		UpdatedAt:   rpcInviteCode.UpdatedAt,
+	}
+
+	httpData := types.GenerateInviteCodeResponse{
+		InviteCode: httpInviteCode,
+	}
+
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

@@ -3,13 +3,13 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -133,22 +133,24 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 	}
 
 	res := &v1.GetComicResponse{Comic: &v1.Comic{
-		Id:           comic.Id,
-		Name:         comic.Name,
-		Tag:          tags,
-		Description:  comic.Description.String,
-		Cover:        comic.Cover,
-		Author:       comic.Author,
-		PublishedAt:  comic.PublishedAt.Unix(),
-		CreatedAt:    comic.CreatedAt.Unix(),
-		UpdatedAt:    comic.UpdatedAt.Unix(),
-		LikeCount:    comic.LikeCount,
-		ViewCount:    comic.ViewCount,
-		CollectCount: comic.CollectCount,
-		ChapterCount: comic.ChapterCount,
-		CommentCount: comic.CommentCount,
-		IsLiked:      likeResult.liked,
-		IsCollected:  collectRes.collected,
+		Id:             comic.Id,
+		Name:           comic.Name,
+		Tag:            tags,
+		Description:    comic.Description.String,
+		Cover:          comic.Cover,
+		Author:         comic.Author,
+		PublishedAt:    comic.PublishedAt.Unix(),
+		CreatedAt:      comic.CreatedAt.Unix(),
+		UpdatedAt:      comic.UpdatedAt.Unix(),
+		LikeCount:      comic.LikeCount,
+		ViewCount:      comic.ViewCount,
+		CollectCount:   comic.CollectCount,
+		ChapterCount:   comic.ChapterCount,
+		CommentCount:   comic.CommentCount,
+		LastModifiedBy: comic.LastModifiedBy.Int64,
+		RelationStatus: comic.RelationStatus,
+		IsLiked:        likeResult.liked,
+		IsCollected:    collectRes.collected,
 	}}
 
 	reaAny, err := anypb.New(res)

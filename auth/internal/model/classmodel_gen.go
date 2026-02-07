@@ -45,7 +45,7 @@ type (
 		StudentCount int64          `db:"student_count"`
 		CreatedAt    time.Time      `db:"created_at"` // 记录创建时间（系统时间）
 		UpdatedAt    time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt    sql.NullTime   `db:"deleted_at"` // 删除时间(NULL表示未删除)
+		DeletedAt    uint64         `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 	}
 )
 

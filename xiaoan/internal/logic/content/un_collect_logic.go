@@ -26,19 +26,22 @@ func NewUnCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnColle
 }
 
 func (l *UnCollectLogic) UnCollect(req *types.UnCollectRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.UnCollect(l.ctx, &content.UnCollectRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.UnCollect(l.ctx, &content.UnCollectRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 	})
 	if err != nil {
+		l.Errorf("rpc UnCollect err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "取消收藏失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    &types.EmptyResponse{},
 	}, nil
 }

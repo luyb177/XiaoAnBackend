@@ -2,8 +2,8 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -26,7 +26,7 @@ func NewModifyComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 }
 
 func (l *ModifyComicLogic) ModifyComic(req *types.ModifyComicRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.ModifyComic(l.ctx, &content.ModifyComicRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.ModifyComic(l.ctx, &content.ModifyComicRequest{
 		Id:          req.ComicId,
 		Name:        req.Name,
 		Tag:         req.Tags,
@@ -37,21 +37,29 @@ func (l *ModifyComicLogic) ModifyComic(req *types.ModifyComicRequest) (resp *typ
 	})
 
 	if err != nil {
+		l.Errorf("rpc ModifyComic err: %v", err)
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "修改漫画失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.ModifyComicResponse
-	if res.Data != nil {
-		data = &content.ModifyComicResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	var rpcData = &content.ModifyComicResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal ModifyComicResponse failed: %v", err)
+		}
+	}
+
+	httpData := &types.ModifyComicResponse{
+		ComicId:        rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

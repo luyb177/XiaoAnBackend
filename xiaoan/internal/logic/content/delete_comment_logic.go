@@ -2,8 +2,8 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -26,16 +26,19 @@ func NewDeleteCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 }
 
 func (l *DeleteCommentLogic) DeleteComment(req *types.DeleteCommentRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.DeleteComment(l.ctx, &content.DeleteCommentRequest{Id: req.CommentId})
+	rpcResp, err := l.svcCtx.ContentRpc.DeleteComment(l.ctx, &content.DeleteCommentRequest{Id: req.CommentId})
 	if err != nil {
+		l.Errorf("rpc DeleteComment err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "删除评论失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    &types.EmptyResponse{},
 	}, nil
 }

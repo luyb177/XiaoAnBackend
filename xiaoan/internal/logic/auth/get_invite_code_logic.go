@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type GetInviteCodeLogic struct {
@@ -28,27 +26,62 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetInviteCodeLogic) GetInviteCode(req *types.GetInviteCodeRequest) (resp *types.Response, err error) {
-	if req.Page < 1 {
-		req.Page = 1
-	}
-	if req.PageSize < 1 {
-		req.PageSize = 10
-	}
-
-	res, _ := l.svcCtx.AuthRpc.GetInviteCode(l.ctx, &auth.GetInviteCodeRequest{
-		Page:     req.Page,
+	rpcResp, err := l.svcCtx.AuthRpc.GetInviteCode(l.ctx, &auth.GetInviteCodeRequest{
 		PageSize: req.PageSize,
+		Cursor:   req.Cursor,
 	})
 
-	var data *auth.GetInviteCodeResponse
-	if res.Data != nil {
-		data = &auth.GetInviteCodeResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+	if err != nil {
+		l.Errorf("rpc GetInviteCode err: %v", err)
+		return &types.Response{
+			Code:    400,
+			Message: "获取邀请码失败",
+			Data:    &types.EmptyResponse{},
+		}, nil
+	}
+
+	var rpcData = &auth.GetInviteCodeResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("rpc GetInviteCode UnmarshalTo err: %v", err)
+		}
+	}
+	rpcInviteCodes := rpcData.Codes
+	if rpcInviteCodes == nil {
+		rpcInviteCodes = []*auth.InviteCode{}
+	}
+
+	httpInviteCodes := make([]types.InviteCode, len(rpcInviteCodes))
+	for i, rpcInviteCode := range rpcInviteCodes {
+		if rpcInviteCode == nil {
+			rpcInviteCode = &auth.InviteCode{}
+		}
+
+		httpInviteCodes[i] = types.InviteCode{
+			Code:        rpcInviteCode.Code,
+			CreatorID:   rpcInviteCode.CreatorId,
+			CreatorName: rpcInviteCode.CreatorName,
+			Department:  rpcInviteCode.Department,
+			MaxUses:     rpcInviteCode.MaxUses,
+			UsedCount:   rpcInviteCode.UsedCount,
+			Remark:      rpcInviteCode.Remark,
+			ExpiresAt:   rpcInviteCode.ExpiresAt,
+			TargetRole:  rpcInviteCode.TargetRole,
+			ClassId:     rpcInviteCode.ClassId,
+			CreatedAt:   rpcInviteCode.CreatedAt,
+			UpdatedAt:   rpcInviteCode.UpdatedAt,
+		}
+	}
+
+	httpData := types.GetInviteCodeResponse{
+		InviteCodes: httpInviteCodes,
+		HasMore:     rpcData.HasMore,
+		NextCursor:  rpcData.NextCursor,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

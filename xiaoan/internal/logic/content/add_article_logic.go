@@ -26,7 +26,7 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 }
 
 func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.AddArticle(l.ctx, &content.AddArticleRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.AddArticle(l.ctx, &content.AddArticleRequest{
 		Name:        req.Name,
 		Description: req.Description,
 		Content:     req.Content,
@@ -36,22 +36,33 @@ func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.
 		Tags:        req.Tags,
 		Author:      req.Author,
 	})
+
 	if err != nil {
+		l.Errorf("rpc AddArticle err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "添加文章失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.AddArticleResponse
-	if res.Data != nil {
-		data = &content.AddArticleResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	rpcData := &content.AddArticleResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal AddArticleResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.AddArticleResponse{
+		ArticleId:      rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

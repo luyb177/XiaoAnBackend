@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"errors"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/jwt"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
@@ -32,33 +34,25 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	// 验证邮箱验证码
 	if in.Email == "" {
-		l.Errorf("Login 邮箱为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "邮箱为空",
-		}, nil
+		return bad("邮箱不能为空"), nil
 	}
+
 	var user *model.User
 	var msg string
-	var flag bool
+	var ok bool
 
 	switch in.Type {
 	case v1.LoginType_EMAIL_CODE:
-		msg, flag = l.validateEmailCode(in)
-		if !flag {
-			l.Errorf("Login 邮箱验证码验证失败")
-
+		msg, ok = l.validateEmailCode(in)
+		if !ok {
 			return &v1.Response{
 				Code:    400,
 				Message: msg,
 			}, nil
 		}
 	case v1.LoginType_PASSWORD:
-		user, msg, flag = l.validatePassword(in)
-		if !flag {
-			l.Errorf("Login 密码验证失败")
-
+		user, msg, ok = l.validatePassword(in)
+		if !ok {
 			return &v1.Response{
 				Code:    400,
 				Message: msg,
@@ -68,24 +62,18 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 
 	if user == nil {
 		var err error
-		user, err = l.UserDao.FindOneByEmail(l.ctx, in.Email)
+		user, err = l.UserDao.FindOneByEmailWithNotDelete(l.ctx, in.Email)
 		if err != nil {
-			l.Errorf("Login err: 用户不存在,%v", err)
-
-			return &v1.Response{
-				Code:    400,
-				Message: "用户不存在",
-			}, nil
+			if errors.Is(err, model.ErrNotFound) {
+				return bad("该用户不存在"), nil
+			}
+			l.Errorf("FindOneByEmailWithNotDelete err:%v", err)
+			return internal("查询用户失败"), err
 		}
 	}
 
 	if user.Status != UserStatusNormal {
-		l.Errorf("Login 用户被禁用")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户被禁用",
-		}, nil
+		return bad("该用户已被禁用"), nil
 	}
 
 	// 生成 token
@@ -97,10 +85,19 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 
 	if err != nil {
 		l.Errorf("Login 生成token失败 err: %v", err)
-		return &v1.Response{
-			Code:    400,
-			Message: "生成token失败",
-		}, nil
+		return bad("请重新登录"), nil
+	}
+
+	if in.Type == v1.LoginType_EMAIL_CODE {
+		emailRelationTask := &tasks.EmailRelationTask{
+			Type: tasks.EmailCodeRelationDelete,
+			To:   in.Email,
+			Code: in.EmailCode,
+		}
+		err = l.svcCtx.TaskQueue.Enqueue(l.ctx, emailRelationTask)
+		if err != nil {
+			l.Errorf("Enqueue email relation task err:%v", err)
+		}
 	}
 
 	// 构造返回内容
@@ -110,7 +107,6 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		Email:          user.Email,
 		Avatar:         user.Avatar.String,
 		Phone:          user.Phone.String,
-		Password:       "",
 		Department:     user.Department.String,
 		Role:           user.Role,
 		ClassId:        user.ClassId,
@@ -125,12 +121,8 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 	}
 	resAny, err := anypb.New(&res)
 	if err != nil {
-		l.Errorf("Login 响应数据转换失败")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "消息类型转换失败",
-		}, nil
+		l.Errorf("Login 响应数据转换失败,%v", err)
+		return internal("登录失败，请稍后重新登录"), nil
 	}
 
 	return &v1.Response{
@@ -146,11 +138,14 @@ func (l *LoginLogic) validateEmailCode(in *v1.LoginRequest) (msg string, flag bo
 	}
 
 	// 获取邮箱验证码
-	getCode, err := l.svcCtx.RedisRepo.GetEmailCode(in.Email)
+	emailCode, ok, err := l.svcCtx.RedisRepo.EmailRepo.GetEmailCode(in.Email)
 	if err != nil {
 		return "未获取到验证码", false
 	}
-	if getCode != in.EmailCode {
+	if !ok {
+		return "验证码已过期", false
+	}
+	if emailCode != in.EmailCode {
 		return "验证码错误", false
 	}
 	return "", true
@@ -160,9 +155,13 @@ func (l *LoginLogic) validatePassword(in *v1.LoginRequest) (*model.User, string,
 	if in.Password == "" {
 		return nil, "密码为空", false
 	}
-	user, err := l.UserDao.FindOneByEmail(l.ctx, in.Email)
+	user, err := l.UserDao.FindOneByEmailWithNotDelete(l.ctx, in.Email)
 	if err != nil {
-		return nil, "用户不存在", false
+		if errors.Is(err, model.ErrNotFound) {
+			return nil, "该邮箱未注册", false
+		}
+		l.Errorf("validatePassword FindOneByEmailWithNotDelete error: %v", err)
+		return nil, "系统繁忙", false
 	}
 	if !password.Compare(in.Password, user.Password) {
 		return nil, "密码错误", false

@@ -37,12 +37,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/send-email",
 					Handler: auth.SendEmailHandler(serverCtx),
 				},
-				{
-					// 验证邮箱验证码
-					Method:  http.MethodPost,
-					Path:    "/validate-email",
-					Handler: auth.ValidateEmailHandler(serverCtx),
-				},
 			}...,
 		),
 		rest.WithPrefix("/api/auth"),

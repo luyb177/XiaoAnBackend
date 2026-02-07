@@ -26,20 +26,23 @@ func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLo
 }
 
 func (l *CollectLogic) Collect(req *types.CollectRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.Collect(l.ctx, &content.CollectRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.Collect(l.ctx, &content.CollectRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 	})
 
 	if err != nil {
+		l.Errorf("rpc Collect err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "收藏失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    &types.EmptyResponse{},
 	}, nil
 }

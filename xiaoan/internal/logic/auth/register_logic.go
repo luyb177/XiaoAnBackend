@@ -8,8 +8,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type RegisterLogic struct {
@@ -28,48 +26,54 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Response, err error) {
-	if req.Email == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "邮箱不能为空",
-		}, nil
-	}
-	if req.Password == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "密码不能为空",
-		}, nil
-	}
-	if req.EmailCode == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "验证码不能为空",
-		}, nil
-	}
-	if req.InviteCodeUsed == "" {
-		return &types.Response{
-			Code:    400,
-			Message: "邀请码不能为空",
-		}, nil
-	}
-
-	res, _ := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
+	rpcResp, err := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
 		Email:          req.Email,
 		EmailCode:      req.EmailCode,
 		Password:       req.Password,
 		InviteCodeUsed: req.InviteCodeUsed,
 	})
 
-	var data *auth.RegisterResponse
-
-	if res.Data != nil {
-		data = &auth.RegisterResponse{}
-		_ = anypb.UnmarshalTo(res.Data, data, proto.UnmarshalOptions{})
+	if err != nil {
+		l.Errorf("rpc Register err: %v", err)
+		return &types.Response{
+			Code:    400,
+			Message: "注册失败",
+			Data:    &types.EmptyResponse{},
+		}, nil
 	}
 
+	var rpcData = &auth.RegisterResponse{}
+	if rpcResp.Data != nil {
+		if err := rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("rpc Register UnmarshalTo err: %v", err)
+		}
+	}
+	rpcUser := rpcData.User
+	if rpcUser == nil {
+		rpcUser = &auth.User{}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpUser := types.User{
+		UserID:         rpcUser.Id,
+		Name:           rpcUser.Name,
+		Email:          rpcUser.Email,
+		Avatar:         rpcUser.Avatar,
+		Phone:          rpcUser.Phone,
+		Department:     rpcUser.Department,
+		Role:           rpcUser.Role,
+		ClassID:        rpcUser.ClassId,
+		Status:         rpcUser.Status,
+		InviteCodeUsed: rpcUser.InviteCodeUsed,
+		CreatedAt:      rpcUser.CreatedAt,
+		UpdatedAt:      rpcUser.UpdatedAt,
+	}
+
+	httpData := &types.RegisterResponse{User: httpUser}
+
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

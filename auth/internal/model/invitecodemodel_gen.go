@@ -27,7 +27,7 @@ type (
 	inviteCodeModel interface {
 		Insert(ctx context.Context, data *InviteCode) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*InviteCode, error)
-		FindOneByCode(ctx context.Context, code string) (*InviteCode, error)
+		FindOneByCodeDeletedAt(ctx context.Context, code string, deletedAt uint64) (*InviteCode, error)
 		Update(ctx context.Context, data *InviteCode) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -40,19 +40,19 @@ type (
 	InviteCode struct {
 		Id          uint64         `db:"id"`
 		Code        string         `db:"code"`
-		CreatorId   int64          `db:"creator_id"`
+		CreatorId   uint64         `db:"creator_id"`
 		CreatorName sql.NullString `db:"creator_name"`
 		Department  sql.NullString `db:"department"`
-		MaxUses     int64          `db:"max_uses"`
-		UsedCount   int64          `db:"used_count"`
+		MaxUses     uint64         `db:"max_uses"`
+		UsedCount   uint64         `db:"used_count"`
 		IsActive    int64          `db:"is_active"`
 		Remark      sql.NullString `db:"remark"`
 		CreatedAt   time.Time      `db:"created_at"` // 记录创建时间（系统时间）
 		UpdatedAt   time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt   sql.NullTime   `db:"deleted_at"` // 删除时间(NULL表示未删除)
+		DeletedAt   uint64         `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
 		ExpiresAt   sql.NullTime   `db:"expires_at"`
 		TargetRole  string         `db:"target_role"`
-		ClassId     int64          `db:"class_id"`
+		ClassId     uint64         `db:"class_id"`
 		Type        string         `db:"type"`
 	}
 )
@@ -84,10 +84,10 @@ func (m *defaultInviteCodeModel) FindOne(ctx context.Context, id uint64) (*Invit
 	}
 }
 
-func (m *defaultInviteCodeModel) FindOneByCode(ctx context.Context, code string) (*InviteCode, error) {
+func (m *defaultInviteCodeModel) FindOneByCodeDeletedAt(ctx context.Context, code string, deletedAt uint64) (*InviteCode, error) {
 	var resp InviteCode
-	query := fmt.Sprintf("select %s from %s where `code` = ? limit 1", inviteCodeRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, code)
+	query := fmt.Sprintf("select %s from %s where `code` = ? and `deleted_at` = ? limit 1", inviteCodeRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, code, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil

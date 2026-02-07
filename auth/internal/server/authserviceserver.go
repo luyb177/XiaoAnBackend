@@ -29,11 +29,6 @@ func (s *AuthServiceServer) SendEmailCode(ctx context.Context, in *v1.SendEmailR
 	return l.SendEmailCode(in)
 }
 
-func (s *AuthServiceServer) ValidateEmailCode(ctx context.Context, in *v1.ValidateEmailRequest) (*v1.Response, error) {
-	l := logic.NewValidateEmailCodeLogic(ctx, s.svcCtx)
-	return l.ValidateEmailCode(in)
-}
-
 // 邀请码
 func (s *AuthServiceServer) GenerateInviteCode(ctx context.Context, in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
 	l := logic.NewGenerateInviteCodeLogic(ctx, s.svcCtx)

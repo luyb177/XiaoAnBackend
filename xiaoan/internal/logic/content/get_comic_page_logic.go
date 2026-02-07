@@ -26,28 +26,55 @@ func NewGetComicPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetC
 }
 
 func (l *GetComicPageLogic) GetComicPage(req *types.GetComicPageRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.GetComicPage(l.ctx, &content.GetComicPageRequest{
+	rpcResp, err := l.svcCtx.ContentRpc.GetComicPage(l.ctx, &content.GetComicPageRequest{
 		ComicChapterId: req.ComicChapterId,
 		Page:           req.Page,
 		PageSize:       req.PageSize,
 	})
 
 	if err != nil {
+		l.Errorf("rpc GetComicPage err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "获取漫画页面失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.GetComicPageResponse
-	if res.Data != nil {
-		data = &content.GetComicPageResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.GetComicPageResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal GetComicPageResponse failed: %v", err)
+		}
+	}
+	rpcPages := rpcData.Pages
+	if rpcPages == nil {
+		rpcPages = []*content.ComicPage{}
 	}
 
+	// HTTP 返回数据（对前端稳定）
+	httpPages := make([]types.ComicChapterPage, len(rpcPages))
+	for i, rpcPage := range rpcPages {
+		if rpcPage == nil {
+			rpcPage = &content.ComicPage{}
+		}
+
+		httpPages[i] = types.ComicChapterPage{
+			ComicChapterPageID: rpcPage.Id,
+			ComicChapterID:     rpcPage.ComicChapterId,
+			PageNo:             rpcPage.PageNo,
+			PageURL:            rpcPage.Url,
+			CreatedAt:          rpcPage.CreatedAt,
+			UpdatedAt:          rpcPage.UpdatedAt,
+		}
+	}
+
+	httpData := &types.GetComicChapterPageResponse{Pages: httpPages}
+
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

@@ -29,6 +29,6 @@ WORKDIR /app
 COPY --from=builder /app/xiaoan /app/xiaoan
 
 # 配置文件目录（可被 volume 覆盖）
-COPY xiaoan/etc /app/etc
+#COPY xiaoan/etc /app/etc
 
 CMD ["./xiaoan", "-f", "etc/xiaoan.yaml"]
