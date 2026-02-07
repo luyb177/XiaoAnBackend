@@ -1,6 +1,8 @@
 package middleware
 
-import "context"
+import (
+	"context"
+)
 
 type UserInfo struct {
 	UID    uint64
@@ -8,14 +10,7 @@ type UserInfo struct {
 	Status int64
 }
 
-func MustGetUser(ctx context.Context) *UserInfo {
-	uid, _ := ctx.Value(ctxKeyUserID).(uint64)
-	role, _ := ctx.Value(ctxKeyUserRole).(string)
-	status, _ := ctx.Value(ctxKeyUserStatus).(int64)
-
-	return &UserInfo{
-		UID:    uid,
-		Role:   role,
-		Status: status,
-	}
+func GetUser(ctx context.Context) (*UserInfo, bool) {
+	user, ok := ctx.Value(ctxKeyUser).(*UserInfo)
+	return user, ok
 }

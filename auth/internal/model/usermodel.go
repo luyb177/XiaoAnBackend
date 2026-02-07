@@ -18,6 +18,7 @@ type (
 		withSession(session sqlx.Session) UserModel
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *User) (sql.Result, error)
+		FindOneWithNotDelete(ctx context.Context, id uint64) (*User, error)
 		FindOneByEmailWithNotDelete(ctx context.Context, email string) (*User, error)
 	}
 
@@ -44,6 +45,18 @@ func (m *customUserModel) Insert(ctx context.Context, data *User) (sql.Result, e
 
 func (m *customUserModel) InsertWithSession(ctx context.Context, session sqlx.Session, data *User) (sql.Result, error) {
 	return m.withSession(session).Insert(ctx, data)
+}
+
+func (m *customUserModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*User, error) {
+	query := fmt.Sprintf(`
+		select %s from %s
+		where id = ? and deleted_at = 0`,
+		userRows,
+		m.table)
+
+	var resp User
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	return &resp, mapDBError(err)
 }
 
 func (m *customUserModel) FindOneByEmailWithNotDelete(ctx context.Context, email string) (*User, error) {

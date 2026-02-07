@@ -2,13 +2,13 @@ package logic
 
 import (
 	"context"
-	"fmt"
-	"sync"
+	"errors"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/code/convert"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -33,89 +33,69 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
-	creator := middleware.MustGetUser(l.ctx)
-	if creator.UID == InvalidUserID || creator.Role == "" || creator.Status != UserStatusNormal {
-		l.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或登录状态异常",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	// 异步一下
-	var wg sync.WaitGroup
-	var inviteCodes []*model.InviteCode // 用来存储查询结果
-	var totalCount int64                // 用来存储邀请码总数
-	var findErr error
-	var countErr error
-
-	// 执行 FindByCreatorId 查询
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		inviteCodes, findErr = l.InviteCodeDao.FindByCreatorId(l.ctx, creator.UID, in.Page, in.PageSize)
-		if findErr != nil {
-			l.Errorf("获取邀请码失败: %v", findErr)
-			return
-		}
-	}()
-
-	// 执行 CountByCreatorId 查询
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		totalCount, countErr = l.InviteCodeDao.CountByCreatorId(l.ctx, creator.UID)
-		if countErr != nil {
-			l.Errorf("获取邀请码总数失败: %v", countErr)
-			return
-		}
-	}()
-
-	// 等待所有查询任务完成
-	wg.Wait()
-
-	if findErr != nil || countErr != nil {
-		return &v1.Response{
-			Code:    400,
-			Message: "获取邀请码数据失败",
-		}, nil
+	if in.PageSize <= 0 {
+		in.PageSize = 10
 	}
 
-	var codes []*v1.InviteCode
-	for _, code := range inviteCodes {
-		codes = append(codes, &v1.InviteCode{
-			Code:        code.Code,
-			CreatorId:   fmt.Sprintf("%d", code.CreatorId),
-			CreatorName: code.CreatorName.String,
-			Department:  code.Department.String,
-			MaxUses:     code.MaxUses,
-			UsedCount:   code.UsedCount,
-			IsActive:    code.IsActive,
-			Remark:      code.Remark.String,
-			CreatedAt:   code.CreatedAt.Unix(),
-			UpdatedAt:   code.UpdatedAt.Unix(),
-			ExpiresAt:   code.ExpiresAt.Time.Unix(),
-		})
+	// 查询多一条记录，来判断是否有下一页
+	limit := in.PageSize + 1
+
+	var (
+		list []*model.InviteCode
+		err  error
+	)
+
+	if in.Cursor == 0 {
+		// 首次查询
+		list, err = l.InviteCodeDao.FindManyByCreatorId(l.ctx, user.UID, limit)
+	} else {
+		// 继续查询
+		list, err = l.InviteCodeDao.FindManyByCreatorIdWithCursor(l.ctx, user.UID, in.Cursor, limit)
 	}
 
-	// 构造响应
-	responsePb := &v1.GetInviteCodeResponse{
-		Codes:    codes,
-		Total:    totalCount,
-		Page:     in.Page,
-		PageSize: in.PageSize,
-	}
-
-	// 将响应结构转换为 anypb.Any
-	anyResponse, err := anypb.New(responsePb)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, model.ErrNotFound) {
+			return &v1.Response{
+				Code:    404,
+				Message: "没有更多了",
+			}, nil
+		}
+		l.Errorf("GetInviteCodeLogic FindManyByCreatorIdWithCursor error: %v", err)
+		return internal("系统繁忙，请稍后再试"), nil
+	}
+
+	hasMore := int64(len(list)) > in.PageSize
+	if hasMore {
+		list = list[:in.PageSize]
+	}
+
+	nextCursor := uint64(0)
+	if len(list) > 0 {
+		nextCursor = list[len(list)-1].Id
+	}
+
+	inviteCodesPB := convert.PBFromInviteCode(list)
+
+	res := &v1.GetInviteCodeResponse{
+		Codes:      inviteCodesPB,
+		HasMore:    hasMore,
+		NextCursor: nextCursor,
+	}
+
+	resAny, err := anypb.New(res)
+	if err != nil {
+		l.Errorf("GetInviteCodeLogic NewAny error: %v", err)
+		return internal("系统繁忙，请稍后重试"), nil
 	}
 
 	return &v1.Response{
 		Code:    200,
-		Message: "获取邀请码成功",
-		Data:    anyResponse,
+		Message: "获取成功",
+		Data:    resAny,
 	}, nil
 }

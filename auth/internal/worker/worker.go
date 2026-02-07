@@ -50,6 +50,7 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 
 	// 注册处理器
 	w.RegisterHandler(tasks.EmailRelationTaskPrefix, NewEmailRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.InviteCodeRelationTaskPrefix, NewInviteRelationHandler(svcCtx, w.ctx))
 
 	return w
 }

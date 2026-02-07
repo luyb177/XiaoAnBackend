@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+// 退避算法
+
 // ExponentialBackoffRetry 指数退避
 func ExponentialBackoffRetry(maxAttempts int, baseDelay time.Duration, maxDelay time.Duration, fn func() error) error {
 	delay := baseDelay

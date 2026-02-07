@@ -29,22 +29,20 @@ message User {
 
 message InviteCode {
   string code = 1;
-  string creator_id = 2;
+  uint64 creator_id = 2;
   string creator_name = 3;
   string department = 4;
 
-  int64 max_uses = 5;
-  int64 used_count = 6;
-  int64 is_active = 7;  // 1 有效  0 无效
-  string remark = 8;
-  int64 created_at = 9;
-  int64 expires_at = 10;
+  uint64 max_uses = 5;
+  uint64 used_count = 6;
+  string remark = 7;
 
-  string target_role = 11;    // 邀请码的目标角色 classadmin / student / staff
-  uint64 class_id = 12;       // student 用，注册自动加入班级 其中 0 表示没有班级
-  string type = 13;           // 记录的邀请码的类型 admin / student / staff
+  string target_role = 8;    // 邀请码的目标角色 classadmin / student / staff
+  uint64 class_id = 9;       // student 用，注册自动加入班级 其中 0 表示没有班级
 
-  int64 updated_at = 14;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+  int64 expires_at = 12;
 }
 
 message Class {
@@ -84,19 +82,18 @@ message ValidateEmailRequest {
 }
 
 message GenerateInviteCodeRequest {
-  string creator_name = 2;
-  string department = 3;
-  int64 max_uses = 4;
-  string remark = 5;
-  int64 expires_at = 6;
+  string department = 1;
+  uint64 max_uses = 2;
+  string remark = 3;
+  int64 expires_at = 4;
 
-  string target_role = 7; // 邀请码的目标角色
-  uint64 class_id = 8;  // student用，注册时自动加入班级
+  string target_role = 5; // 邀请码的目标角色
+  uint64 class_id = 6;  // student用，注册时自动加入班级
 }
 
 message GetInviteCodeRequest {
-  int64 page = 2; // 当前页码
-  int64 page_size = 3;
+  int64 page_size = 1;
+  uint64 cursor = 2; // 上次查询的最后一个邀请码的 ID，第一次查询传 0
 }
 
 message ValidateInviteCodeRequest {
@@ -125,24 +122,13 @@ message RegisterRequest {
 // ---------------------------------------------------------------------------------------------------------------------
 
 message GenerateInviteCodeResponse {
-  string code = 1;
-  string creator_id = 2;
-  string creator_name = 3;
-  string department = 4;
-  int64 max_uses = 5;
-  string remark = 6;
-  int64 created_at = 7;
-  int64 expires_at = 8;
-  string target_role = 9;
-  uint64  class_id = 10;
-  int64 updated_at = 11;
+  InviteCode code = 1;
 }
 
 message GetInviteCodeResponse {
   repeated InviteCode codes = 1;
-  int64 total = 2;
-  int64 page = 3;
-  int64 page_size = 4;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
 }
 
 message LoginResponse {

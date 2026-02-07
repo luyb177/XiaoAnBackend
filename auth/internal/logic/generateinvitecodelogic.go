@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"strconv"
+	"errors"
 	"time"
 
 	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
@@ -37,70 +37,42 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // GenerateInviteCode 生成邀请码
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
-	creator := middleware.MustGetUser(l.ctx)
-	if creator.UID == InvalidUserID || creator.Role == "" || creator.Status != UserStatusNormal {
-		l.Errorf("GenerateInviteCode err 用户未登录或登录状态异常")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "用户未登录或登录状态异常",
-		}, nil
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	if in.Department == "" {
-		l.Errorf("GenerateInviteCode err 部门为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "部门为空",
-		}, nil
-	}
-
-	if in.TargetRole == "" {
-		l.Errorf("GenerateInviteCode err 邀请码目标角色为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "邀请码目标角色为空",
-		}, nil
-	}
-
-	if in.MaxUses < 0 {
+	if in.MaxUses == 0 {
 		in.MaxUses = 1
 	}
 	if in.ExpiresAt <= 0 {
-		in.ExpiresAt = 604800 // 7 day
+		in.ExpiresAt = 24 * 3600 // 默认24小时过期
 	}
 
-	// 验证生成者身份
-	if creator.Role != SUPERADMIN && creator.Role != CLASSADMIN {
-		l.Errorf("GenerateInviteCode err 用户权限不足")
-		return &v1.Response{
-			Code:    400,
-			Message: "用户权限不足",
-		}, nil
-	}
-	if creator.Role == CLASSADMIN {
-		// 创建的是 student
-		if in.TargetRole != STUDENT {
-			l.Errorf("GenerateInviteCode err 用户权限不足")
-			return &v1.Response{
-				Code:    400,
-				Message: "用户权限不足",
-			}, nil
+	// 验证身份 - 获取用户信息
+	dbUser, err := l.UserDao.FindOneWithNotDelete(l.ctx, user.UID)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			return bad("用户不存在"), nil
 		}
+		l.Errorf("FindOneWithNotDelete err: %v", err)
+		return internal("用户信息查询失败"), nil
 	}
 
-	// 创建邀请码
-	// 指数退避
-	// 失败后-可能是邀请码冲突，重新生成
-	var code model.InviteCode
+	// 验证身份 - 权限检查
+	if !hasPermission(dbUser.Role, in.TargetRole) {
+		return bad("没有权限生成该角色的邀请码"), nil
+	}
 
+	// todo class 是否存在
+
+	// 生成邀请码
+	var code model.InviteCode
 	fn := func() error {
 		now := time.Now()
 		code.Code = authcode.InviteCode()
-		code.CreatorId = int64(creator.UID)
-		code.CreatorName = sql.NullString{String: in.CreatorName, Valid: true}
+		code.CreatorId = user.UID
+		code.CreatorName = sql.NullString{String: dbUser.Name, Valid: true}
 		code.Department = sql.NullString{String: in.Department, Valid: true}
 		code.MaxUses = in.MaxUses
 		code.UsedCount = 0
@@ -116,40 +88,41 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		_, err := l.InviteCodeDao.Insert(l.ctx, &code)
 		return err
 	}
-	err := retry.ExponentialBackoffRetry(5, 50*time.Millisecond, time.Second, fn)
+
+	err = retry.Do(
+		l.ctx,
+		fn,
+		retry.WithJitter(),
+		retry.WithRetryIf(retry.RetryOnDuplicateKey),
+		retry.WithOnRetry(func(attempt int, err error, nextDelay time.Duration) {
+			l.Errorf("GenerateInviteCode Insert %d failed: %v, next retry in %v", attempt, err, nextDelay)
+		}),
+	)
 
 	if err != nil {
-		l.Errorf("GenerateInviteCode err 生成邀请码失败")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "生成邀请码失败",
-		}, nil
+		return bad("生成邀请码失败"), nil
 	}
 
-	// 构建返回体
-	res := v1.GenerateInviteCodeResponse{
-		Code:        code.Code,
-		CreatorId:   strconv.FormatUint(creator.UID, 10),
-		CreatorName: in.CreatorName,
-		Department:  in.Department,
-		MaxUses:     in.MaxUses,
-		Remark:      in.Remark,
-		CreatedAt:   code.CreatedAt.Unix(),
-		UpdatedAt:   code.UpdatedAt.Unix(),
-		ExpiresAt:   code.ExpiresAt.Time.Unix(),
-		TargetRole:  code.TargetRole,
-		ClassId:     in.ClassId,
+	res := &v1.GenerateInviteCodeResponse{
+		Code: &v1.InviteCode{
+			Code:        code.Code,
+			CreatorId:   code.CreatorId,
+			CreatorName: code.CreatorName.String,
+			Department:  code.Department.String,
+			MaxUses:     code.MaxUses,
+			UsedCount:   code.UsedCount,
+			Remark:      code.Remark.String,
+			CreatedAt:   code.CreatedAt.Unix(),
+			ExpiresAt:   code.ExpiresAt.Time.Unix(),
+			TargetRole:  code.TargetRole,
+			ClassId:     code.ClassId,
+			UpdatedAt:   code.UpdatedAt.Unix(),
+		},
 	}
 
-	resAny, err := anypb.New(&res)
+	resAny, err := anypb.New(res)
 	if err != nil {
-		l.Errorf("GenerateInviteCode err 消息类型转换失败")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "消息类型转换失败",
-		}, nil
+		return internal("系统繁忙，请稍后再试"), nil
 	}
 
 	return &v1.Response{
@@ -157,4 +130,25 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		Message: "生成邀请码成功",
 		Data:    resAny,
 	}, nil
+}
+
+func (l *GenerateInviteCodeLogic) validate(in *v1.GenerateInviteCodeRequest) *v1.Response {
+	switch {
+	case in.Department == "":
+		return bad("部门为空")
+	case in.TargetRole == "":
+		return bad("邀请码目标角色为空")
+	}
+	return nil
+}
+
+func hasPermission(userRole, targetRole string) bool {
+	if userRole != SUPERADMIN && userRole != CLASSADMIN {
+		return false
+	}
+	if userRole == CLASSADMIN {
+		return targetRole == STUDENT
+	}
+	// SUPERADMIN 可以生成任何角色的邀请码
+	return true
 }

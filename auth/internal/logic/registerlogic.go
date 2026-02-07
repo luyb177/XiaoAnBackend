@@ -101,8 +101,19 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 	}
 
 	// 2. 验证邀请码是否已使用完
-	if code.UsedCount >= code.MaxUses {
-		return bad("邀请码已使用完"), nil
+	if code.UsedCount >= code.MaxUses || time.Now().Unix() >= code.ExpiresAt.Time.Unix() {
+		// 这里说明要修改邀请码的状态了
+		inviteCodeRelationTask := &tasks.InviteCodeTask{
+			Type: tasks.InviteCodeRelationNotActive,
+			UID:  code.CreatorId,
+			Code: code.Code,
+		}
+		err := l.svcCtx.TaskQueue.Enqueue(l.ctx, inviteCodeRelationTask)
+		if err != nil {
+			l.Errorf("Register 入队列失败,%v", err)
+		}
+
+		return bad("邀请码状态异常"), nil
 	}
 
 	// 查询用户是否存在
@@ -129,7 +140,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		Password:       hashPassword,
 		Department:     code.Department,
 		Role:           code.TargetRole,
-		ClassId:        uint64(code.ClassId),
+		ClassId:        code.ClassId,
 		Status:         UserStatusNormal, // 1 正常
 		InviteCodeUsed: sql.NullString{String: code.Code, Valid: true},
 		CreatedAt:      time.Now(),
@@ -139,7 +150,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 	// 事务
 	err = l.svcCtx.Mysql.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 修改邀请码
-		result, err := l.InviteCode.IncrUsedCountWithSession(l.ctx, session, code.Id)
+		result, err := l.InviteCode.IncrUsedCountWithSession(ctx, session, code.Id)
 		if err != nil {
 			return err
 		}

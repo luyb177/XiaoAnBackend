@@ -27,6 +27,20 @@ type (
 		createdAt      int64  `json:"created_at"`
 		updatedAt      int64  `json:"updated_at"`
 	}
+	InviteCode {
+		code        string `json:"code"`
+		creatorID   uint64 `json:"creator_id"`
+		creatorName string `json:"creator_name"`
+		department  string `json:"department"`
+		maxUses     uint64 `json:"max_uses"`
+		usedCount   uint64 `json:"used_count"`
+		remark      string `json:"remark"`
+		expiresAt   int64  `json:"expires_at"`
+		targetRole  string `json:"target_role"`
+		classId     uint64 `json:"class_id"`
+		createdAt   int64  `json:"created_at"`
+		updatedAt   int64  `json:"updated_at"`
+	}
 )
 
 // content model 模块
@@ -175,17 +189,16 @@ type (
 		code  string `json:"code"`
 	}
 	GenerateInviteCodeRequest {
-		creator_name string `json:"creator_name"`
-		department   string `json:"department"`
-		maxUses      int64  `json:"max_uses"`
-		remark       string `json:"remark"`
-		expires_at   int64  `json:"expires_at"`
-		target_role  string `json:"target_role"`
-		classId      uint64 `json:"class_id"`
+		department string `json:"department"`
+		maxUses    uint64 `json:"max_uses"`
+		remark     string `json:"remark"`
+		expiresAt  int64  `json:"expires_at"`
+		targetRole string `json:"target_role"`
+		classId    uint64 `json:"class_id"`
 	}
 	GetInviteCodeRequest {
-		page     int64 `json:"page"`
-		pageSize int64 `json:"page_size"`
+		pageSize int64  `json:"page_size"`
+		cursor   uint64 `json:"cursor"`
 	}
 	RegisterRequest {
 		email          string `json:"email"`
@@ -413,12 +426,20 @@ type (
 
 // auth 返回模块
 type (
-	loginResponse {
+	LoginResponse {
 		token string `json:"token"`
 		user  User   `json:"user"`
 	}
-	registerResponse {
+	RegisterResponse {
 		user User `json:"user"`
+	}
+	GenerateInviteCodeResponse {
+		inviteCode InviteCode `json:"invite_code"`
+	}
+	GetInviteCodeResponse {
+		inviteCodes []InviteCode `json:"invite_codes"`
+		hasMore     bool         `json:"has_more"`
+		nextCursor  uint64       `json:"next_cursor"`
 	}
 )
 

@@ -39,7 +39,6 @@
             "schema": {
               "type": "object",
               "required": [
-                "creator_name",
                 "department",
                 "max_uses",
                 "remark",
@@ -50,9 +49,6 @@
               "properties": {
                 "class_id": {
                   "type": "integer"
-                },
-                "creator_name": {
-                  "type": "string"
                 },
                 "department": {
                   "type": "string"
@@ -116,11 +112,11 @@
             "schema": {
               "type": "object",
               "required": [
-                "page",
-                "page_size"
+                "page_size",
+                "cursor"
               ],
               "properties": {
-                "page": {
+                "cursor": {
                   "type": "integer"
                 },
                 "page_size": {
@@ -2221,7 +2217,7 @@
       }
     }
   },
-  "x-date": "2026-02-04 20:48:02",
+  "x-date": "2026-02-07 20:45:30",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

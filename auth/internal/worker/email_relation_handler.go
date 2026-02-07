@@ -58,7 +58,7 @@ func (h *EmailRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 	case tasks.EmailCodeRelationDelete:
 		return h.handleDelete(ctx, &emailTask)
 	default:
-		h.Errorf("unknown email relation task type: %d", emailTask.Type)
+		h.Errorf("unknown email relation task type: %s", emailTask.Type)
 		return nil
 	}
 }

@@ -216,13 +216,16 @@ type EmptyResponse struct {
 }
 
 type GenerateInviteCodeRequest struct {
-	Creator_name string `json:"creator_name"`
-	Department   string `json:"department"`
-	MaxUses      int64  `json:"max_uses"`
-	Remark       string `json:"remark"`
-	Expires_at   int64  `json:"expires_at"`
-	Target_role  string `json:"target_role"`
-	ClassId      uint64 `json:"class_id"`
+	Department string `json:"department"`
+	MaxUses    uint64 `json:"max_uses"`
+	Remark     string `json:"remark"`
+	ExpiresAt  int64  `json:"expires_at"`
+	TargetRole string `json:"target_role"`
+	ClassId    uint64 `json:"class_id"`
+}
+
+type GenerateInviteCodeResponse struct {
+	InviteCode InviteCode `json:"invite_code"`
 }
 
 type GetAnswerRequest struct {
@@ -270,8 +273,14 @@ type GetComicResponse struct {
 }
 
 type GetInviteCodeRequest struct {
-	Page     int64 `json:"page"`
-	PageSize int64 `json:"page_size"`
+	PageSize int64  `json:"page_size"`
+	Cursor   uint64 `json:"cursor"`
+}
+
+type GetInviteCodeResponse struct {
+	InviteCodes []InviteCode `json:"invite_codes"`
+	HasMore     bool         `json:"has_more"`
+	NextCursor  uint64       `json:"next_cursor"`
 }
 
 type GetPodcastContentRequest struct {
@@ -313,6 +322,21 @@ type GetVideoResponse struct {
 	Video Video `json:"video"`
 }
 
+type InviteCode struct {
+	Code        string `json:"code"`
+	CreatorID   uint64 `json:"creator_id"`
+	CreatorName string `json:"creator_name"`
+	Department  string `json:"department"`
+	MaxUses     uint64 `json:"max_uses"`
+	UsedCount   uint64 `json:"used_count"`
+	Remark      string `json:"remark"`
+	ExpiresAt   int64  `json:"expires_at"`
+	TargetRole  string `json:"target_role"`
+	ClassId     uint64 `json:"class_id"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
+}
+
 type LikeRequest struct {
 	ContentType string `json:"content_type"`
 	ContentId   uint64 `json:"content_id"`
@@ -323,6 +347,11 @@ type LoginRequest struct {
 	Email     string `json:"email"`
 	Password  string `json:"password,optional"`
 	EmailCode string `json:"email_code,optional"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
 }
 
 type ModifyArticleRequest struct {
@@ -444,6 +473,10 @@ type RegisterRequest struct {
 	InviteCodeUsed string `json:"invite_code_used"`
 }
 
+type RegisterResponse struct {
+	User User `json:"user"`
+}
+
 type Response struct {
 	Code    int64       `json:"code"`
 	Message string      `json:"message"`
@@ -503,13 +536,4 @@ type Video struct {
 	RelationStatus int64    `json:"relation_status"`
 	IsLiked        bool     `json:"is_liked"`
 	IsCollected    bool     `json:"is_collected"`
-}
-
-type LoginResponse struct {
-	Token string `json:"token"`
-	User  User   `json:"user"`
-}
-
-type RegisterResponse struct {
-	User User `json:"user"`
 }
