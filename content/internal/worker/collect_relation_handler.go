@@ -5,15 +5,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"time"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"time"
 )
 
 type CollectRelationHandler struct {
@@ -129,6 +131,7 @@ func (h *CollectRelationHandler) handleAdd(ctx context.Context, task *tasks.Coll
 func (h *CollectRelationHandler) handleDelete(ctx context.Context, task *tasks.CollectRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 先 find
+		// todo : 可以不用 find ，避免 toctou 问题
 		contentCollect, err := h.ContentCollectDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			if errors.Is(err, model.ErrNotFound) {

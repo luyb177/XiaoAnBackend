@@ -23,30 +23,44 @@ func NewAuthServiceServer(svcCtx *svc.ServiceContext) *AuthServiceServer {
 	}
 }
 
-// 邮箱验证码
+// SendEmailCode 发送邮箱验证码
 func (s *AuthServiceServer) SendEmailCode(ctx context.Context, in *v1.SendEmailRequest) (*v1.Response, error) {
 	l := logic.NewSendEmailCodeLogic(ctx, s.svcCtx)
 	return l.SendEmailCode(in)
 }
 
-// 邀请码
+// GenerateInviteCode 生成邀请码
 func (s *AuthServiceServer) GenerateInviteCode(ctx context.Context, in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
 	l := logic.NewGenerateInviteCodeLogic(ctx, s.svcCtx)
 	return l.GenerateInviteCode(in)
 }
 
+// GetInviteCode 获取邀请码列表
 func (s *AuthServiceServer) GetInviteCode(ctx context.Context, in *v1.GetInviteCodeRequest) (*v1.Response, error) {
 	l := logic.NewGetInviteCodeLogic(ctx, s.svcCtx)
 	return l.GetInviteCode(in)
 }
 
-// 注册登录
+// Register 注册
 func (s *AuthServiceServer) Register(ctx context.Context, in *v1.RegisterRequest) (*v1.Response, error) {
 	l := logic.NewRegisterLogic(ctx, s.svcCtx)
 	return l.Register(in)
 }
 
+// Login 登录
 func (s *AuthServiceServer) Login(ctx context.Context, in *v1.LoginRequest) (*v1.Response, error) {
 	l := logic.NewLoginLogic(ctx, s.svcCtx)
 	return l.Login(in)
+}
+
+// ModifyUserBaseInfo 修改用户基本信息
+func (s *AuthServiceServer) ModifyUserBaseInfo(ctx context.Context, in *v1.ModifyUserBaseInfoRequest) (*v1.Response, error) {
+	l := logic.NewModifyUserBaseInfoLogic(ctx, s.svcCtx)
+	return l.ModifyUserBaseInfo(in)
+}
+
+// GetUserInfo 获取用户信息
+func (s *AuthServiceServer) GetUserInfo(ctx context.Context, in *v1.GetUserInfoRequest) (*v1.Response, error) {
+	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
+	return l.GetUserInfo(in)
 }

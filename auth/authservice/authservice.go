@@ -19,26 +19,35 @@ type (
 	GenerateInviteCodeResponse = v1.GenerateInviteCodeResponse
 	GetInviteCodeRequest       = v1.GetInviteCodeRequest
 	GetInviteCodeResponse      = v1.GetInviteCodeResponse
+	GetUserInfoRequest         = v1.GetUserInfoRequest
+	GetUserInfoResponse        = v1.GetUserInfoResponse
 	InviteCode                 = v1.InviteCode
 	LoginRequest               = v1.LoginRequest
 	LoginResponse              = v1.LoginResponse
+	ModifyUserBaseInfoRequest  = v1.ModifyUserBaseInfoRequest
 	RegisterRequest            = v1.RegisterRequest
 	RegisterResponse           = v1.RegisterResponse
 	Response                   = v1.Response
 	SendEmailRequest           = v1.SendEmailRequest
 	User                       = v1.User
+	UserInfo                   = v1.UserInfo
 	ValidateEmailRequest       = v1.ValidateEmailRequest
-	ValidateInviteCodeRequest  = v1.ValidateInviteCodeRequest
 
 	AuthService interface {
-		// 邮箱验证码
+		// SendEmailCode 发送邮箱验证码
 		SendEmailCode(ctx context.Context, in *SendEmailRequest, opts ...grpc.CallOption) (*Response, error)
-		// 邀请码
+		// GenerateInviteCode 生成邀请码
 		GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetInviteCode 获取邀请码列表
 		GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
-		// 注册登录
+		// Register 注册
 		Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*Response, error)
+		// Login 登录
 		Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error)
+		// ModifyUserBaseInfo 修改用户基本信息
+		ModifyUserBaseInfo(ctx context.Context, in *ModifyUserBaseInfoRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetUserInfo 获取用户信息
+		GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultAuthService struct {
@@ -52,30 +61,44 @@ func NewAuthService(cli zrpc.Client) AuthService {
 	}
 }
 
-// 邮箱验证码
+// SendEmailCode 发送邮箱验证码
 func (m *defaultAuthService) SendEmailCode(ctx context.Context, in *SendEmailRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.SendEmailCode(ctx, in, opts...)
 }
 
-// 邀请码
+// GenerateInviteCode 生成邀请码
 func (m *defaultAuthService) GenerateInviteCode(ctx context.Context, in *GenerateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.GenerateInviteCode(ctx, in, opts...)
 }
 
+// GetInviteCode 获取邀请码列表
 func (m *defaultAuthService) GetInviteCode(ctx context.Context, in *GetInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.GetInviteCode(ctx, in, opts...)
 }
 
-// 注册登录
+// Register 注册
 func (m *defaultAuthService) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.Register(ctx, in, opts...)
 }
 
+// Login 登录
 func (m *defaultAuthService) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.Login(ctx, in, opts...)
+}
+
+// ModifyUserBaseInfo 修改用户基本信息
+func (m *defaultAuthService) ModifyUserBaseInfo(ctx context.Context, in *ModifyUserBaseInfoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.ModifyUserBaseInfo(ctx, in, opts...)
+}
+
+// GetUserInfo 获取用户信息
+func (m *defaultAuthService) GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.GetUserInfo(ctx, in, opts...)
 }

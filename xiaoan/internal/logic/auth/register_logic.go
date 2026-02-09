@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
@@ -35,11 +36,7 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Respon
 
 	if err != nil {
 		l.Errorf("rpc Register err: %v", err)
-		return &types.Response{
-			Code:    400,
-			Message: "注册失败",
-			Data:    &types.EmptyResponse{},
-		}, nil
+		return logic.BadResponse("注册失败"), nil
 	}
 
 	var rpcData = &auth.RegisterResponse{}

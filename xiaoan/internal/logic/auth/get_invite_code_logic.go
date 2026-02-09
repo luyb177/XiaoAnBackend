@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
@@ -33,11 +34,7 @@ func (l *GetInviteCodeLogic) GetInviteCode(req *types.GetInviteCodeRequest) (res
 
 	if err != nil {
 		l.Errorf("rpc GetInviteCode err: %v", err)
-		return &types.Response{
-			Code:    400,
-			Message: "获取邀请码失败",
-			Data:    &types.EmptyResponse{},
-		}, nil
+		return logic.BadResponse("获取邀请码失败"), nil
 	}
 
 	var rpcData = &auth.GetInviteCodeResponse{}

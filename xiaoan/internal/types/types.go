@@ -314,6 +314,14 @@ type GetSubCommentResponse struct {
 	Comments []Comment `json:"comments"`
 }
 
+type GetUserInfoRequest struct {
+	UserID uint64 `form:"user_id"`
+}
+
+type GetUserInfoResponse struct {
+	UserInfo UserInfo `json:"user_info"`
+}
+
 type GetVideoContentRequest struct {
 	VideoId uint64 `form:"video_id"`
 }
@@ -421,6 +429,13 @@ type ModifyPodcastResponse struct {
 	RelationStatus int64  `json:"relation_status"`
 }
 
+type ModifyUserBaseInfoRequest struct {
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	Phone  string `json:"phone"`
+	UserID uint64 `json:"user_id"`
+}
+
 type ModifyVideoRequest struct {
 	VideoId     uint64   `json:"video_id"`
 	Name        string   `json:"name"`
@@ -510,6 +525,20 @@ type User struct {
 	InviteCodeUsed string `json:"invite_code_used"`
 	CreatedAt      int64  `json:"created_at"`
 	UpdatedAt      int64  `json:"updated_at"`
+}
+
+type UserInfo struct {
+	UserID     uint64 `json:"user_id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Avatar     string `json:"avatar"`
+	Phone      string `json:"phone"`
+	Department string `json:"department"`
+	Role       string `json:"role"`
+	ClassID    uint64 `json:"class_id"`
+	Status     int64  `json:"status"`
+	CreatedAt  int64  `json:"created_at"`
+	UpdatedAt  int64  `json:"updated_at"`
 }
 
 type ValidateEmailRequest struct {

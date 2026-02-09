@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
@@ -28,11 +29,7 @@ func (l *SendEmailLogic) SendEmail(req *types.SendEmailRequest) (resp *types.Res
 	rpcResp, err := l.svcCtx.AuthRpc.SendEmailCode(l.ctx, &auth.SendEmailRequest{Email: req.Email})
 	if err != nil {
 		l.Errorf("rpc SendEmailCode err: %s", err.Error())
-		return &types.Response{
-			Code:    400,
-			Message: "发送失败",
-			Data:    &types.EmptyResponse{},
-		}, nil
+		return logic.BadResponse("发送失败"), nil
 	}
 
 	return &types.Response{

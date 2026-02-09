@@ -27,6 +27,19 @@ type (
 		createdAt      int64  `json:"created_at"`
 		updatedAt      int64  `json:"updated_at"`
 	}
+	UserInfo {
+		userID     uint64 `json:"user_id"`
+		name       string `json:"name"`
+		email      string `json:"email"`
+		avatar     string `json:"avatar"`
+		phone      string `json:"phone"`
+		department string `json:"department"`
+		role       string `json:"role"`
+		classID    uint64 `json:"class_id"`
+		status     int64  `json:"status"`
+		createdAt  int64  `json:"created_at"`
+		updatedAt  int64  `json:"updated_at"`
+	}
 	InviteCode {
 		code        string `json:"code"`
 		creatorID   uint64 `json:"creator_id"`
@@ -211,6 +224,15 @@ type (
 		email     string `json:"email"`
 		password  string `json:"password,optional"`
 		emailCode string `json:"email_code,optional"`
+	}
+	ModifyUserBaseInfoRequest {
+		name   string `json:"name"`
+		avatar string `json:"avatar"`
+		phone  string `json:"phone"`
+		userID uint64 `json:"user_id"`
+	}
+	GetUserInfoRequest {
+		userID uint64 `form:"user_id"`
 	}
 )
 
@@ -441,6 +463,9 @@ type (
 		hasMore     bool         `json:"has_more"`
 		nextCursor  uint64       `json:"next_cursor"`
 	}
+	GetUserInfoResponse {
+		userInfo UserInfo `json:"user_info"`
+	}
 )
 
 // content 返回模块
@@ -565,6 +590,14 @@ service xiaoan {
 	@doc "获取邀请码"
 	@handler GetInviteCode
 	post /get-invite-code (GetInviteCodeRequest) returns (Response)
+
+	@doc "修改用户基本信息"
+	@handler ModifyUserBaseInfo
+	post /modify-user-base-info (ModifyUserBaseInfoRequest) returns (Response)
+
+	@doc "获取用户信息"
+	@handler GetUserInfo
+	get /get-user-info (GetUserInfoRequest) returns (Response)
 }
 
 // todo 定位

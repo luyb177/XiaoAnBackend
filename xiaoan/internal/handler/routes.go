@@ -58,6 +58,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/get-invite-code",
 					Handler: auth.GetInviteCodeHandler(serverCtx),
 				},
+				{
+					// 获取用户信息
+					Method:  http.MethodGet,
+					Path:    "/get-user-info",
+					Handler: auth.GetUserInfoHandler(serverCtx),
+				},
+				{
+					// 修改用户基本信息
+					Method:  http.MethodPost,
+					Path:    "/modify-user-base-info",
+					Handler: auth.ModifyUserBaseInfoHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithPrefix("/api/auth"),
