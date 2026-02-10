@@ -47,6 +47,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.IPMiddleware},
 			[]rest.Route{
 				{
+					// 生成班级
+					Method:  http.MethodPost,
+					Path:    "/generate-class",
+					Handler: auth.GenerateClassHandler(serverCtx),
+				},
+				{
 					// 生成邀请码
 					Method:  http.MethodPost,
 					Path:    "/generate-invite-code",

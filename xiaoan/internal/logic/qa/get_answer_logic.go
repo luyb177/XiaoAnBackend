@@ -3,11 +3,11 @@ package qa
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	qa "github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetAnswerLogic struct {
@@ -32,7 +32,7 @@ func (l *GetAnswerLogic) GetAnswer(req *types.GetAnswerRequest) (resp *types.Res
 			Message: "请输入问题",
 		}, nil
 	}
-	res, err := l.svcCtx.QARpc.GetAnswer(l.ctx, &qa.GetAnswerRequest{Question: req.Question})
+	res, err := l.svcCtx.QARPC.GetAnswer(l.ctx, &qa.GetAnswerRequest{Question: req.Question})
 	if err != nil {
 		return &types.Response{
 			Code:    500,

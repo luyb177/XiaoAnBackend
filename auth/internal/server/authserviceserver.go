@@ -64,3 +64,9 @@ func (s *AuthServiceServer) GetUserInfo(ctx context.Context, in *v1.GetUserInfoR
 	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
 	return l.GetUserInfo(in)
 }
+
+// GenerateClass 生成班级
+func (s *AuthServiceServer) GenerateClass(ctx context.Context, in *v1.GenerateClassRequest) (*v1.Response, error) {
+	l := logic.NewGenerateClassLogic(ctx, s.svcCtx)
+	return l.GenerateClass(in)
+}

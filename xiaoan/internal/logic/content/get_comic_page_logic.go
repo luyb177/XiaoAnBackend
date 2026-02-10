@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type GetComicPageLogic struct {
@@ -26,7 +26,7 @@ func NewGetComicPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetC
 }
 
 func (l *GetComicPageLogic) GetComicPage(req *types.GetComicPageRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetComicPage(l.ctx, &content.GetComicPageRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.GetComicPage(l.ctx, &content.GetComicPageRequest{
 		ComicChapterId: req.ComicChapterId,
 		Page:           req.Page,
 		PageSize:       req.PageSize,

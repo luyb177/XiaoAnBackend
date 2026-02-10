@@ -17,12 +17,11 @@ type (
 		inviteCodeModel
 		withSession(session sqlx.Session) InviteCodeModel
 		Insert(ctx context.Context, data *InviteCode) (sql.Result, error)
+		FindUsableByCode(ctx context.Context, code string) (*InviteCode, error)
 		FindOneByCodeWithNotDelete(ctx context.Context, code string) (*InviteCode, error)
 		FindManyByCreatorId(ctx context.Context, creatorId uint64, pageSize int64) ([]*InviteCode, error)
 		FindManyByCreatorIdWithCursor(ctx context.Context, creatorId uint64, cursor uint64, pageSize int64) ([]*InviteCode, error)
-		NotActiveByCode(ctx context.Context, code string) (sql.Result, error)
 		CountByCreatorId(ctx context.Context, creatorId uint64) (int64, error)
-		BatchInsert(ctx context.Context, datas []InviteCode) error
 		Update(ctx context.Context, data *InviteCode) error
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *InviteCode) error
 		IncrUsedCount(ctx context.Context, id uint64) (sql.Result, error)
@@ -48,6 +47,22 @@ func (m *customInviteCodeModel) withSession(session sqlx.Session) InviteCodeMode
 func (m *customInviteCodeModel) Insert(ctx context.Context, data *InviteCode) (sql.Result, error) {
 	result, err := m.defaultInviteCodeModel.Insert(ctx, data)
 	return result, mapDBError(err)
+}
+
+func (m *customInviteCodeModel) FindUsableByCode(ctx context.Context, code string) (*InviteCode, error) {
+	query := fmt.Sprintf(`
+		select %s from %s
+		where code = ? 
+			and is_active = 1 
+			and deleted_at = 0 
+			and max_uses > used_count
+			and expires_at > now()`,
+		inviteCodeRows,
+		m.table)
+
+	var resp InviteCode
+	err := m.conn.QueryRowCtx(ctx, &resp, query, code)
+	return &resp, mapDBError(err)
 }
 
 func (m *customInviteCodeModel) FindOneByCodeWithNotDelete(ctx context.Context, code string) (*InviteCode, error) {
@@ -96,18 +111,6 @@ func (m *customInviteCodeModel) FindManyByCreatorIdWithCursor(ctx context.Contex
 	return resp, mapDBError(err)
 }
 
-// NotActiveByCode 根据邀请码code将其设置为不可用
-func (m *customInviteCodeModel) NotActiveByCode(ctx context.Context, code string) (sql.Result, error) {
-	query := fmt.Sprintf(`
- 			update %s
-			set is_active = 0
-			where code = ? and is_active = 1 and deleted_at = 0`,
-		m.table,
-	)
-	result, err := m.conn.ExecCtx(ctx, query, code)
-	return result, mapDBError(err)
-}
-
 // CountByCreatorId 统计创建者的邀请码总数
 func (m *customInviteCodeModel) CountByCreatorId(ctx context.Context, creatorId uint64) (int64, error) {
 	query := fmt.Sprintf("select count(*) from %s where `creator_id` = ?", m.table)
@@ -119,21 +122,6 @@ func (m *customInviteCodeModel) CountByCreatorId(ctx context.Context, creatorId 
 	}
 
 	return count, nil
-}
-
-// BatchInsert 事务 生成大量数据
-func (m *customInviteCodeModel) BatchInsert(ctx context.Context, datas []InviteCode) error {
-	return m.conn.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
-
-		for _, data := range datas {
-			_, err := session.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.ExpiresAt, data.TargetRole, data.ClassId, data.Type)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
 }
 
 func (m *customInviteCodeModel) Update(ctx context.Context, data *InviteCode) error {

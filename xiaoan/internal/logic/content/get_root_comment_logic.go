@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type GetRootCommentLogic struct {
@@ -26,7 +26,7 @@ func NewGetRootCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetRootCommentLogic) GetRootComment(req *types.GetRootCommentRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetRootComment(l.ctx, &content.GetRootCommentRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.GetRootComment(l.ctx, &content.GetRootCommentRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 		Page:        req.Page,

@@ -15,6 +15,7 @@ import (
 
 type (
 	Class                      = v1.Class
+	GenerateClassRequest       = v1.GenerateClassRequest
 	GenerateInviteCodeRequest  = v1.GenerateInviteCodeRequest
 	GenerateInviteCodeResponse = v1.GenerateInviteCodeResponse
 	GetInviteCodeRequest       = v1.GetInviteCodeRequest
@@ -48,6 +49,8 @@ type (
 		ModifyUserBaseInfo(ctx context.Context, in *ModifyUserBaseInfoRequest, opts ...grpc.CallOption) (*Response, error)
 		// GetUserInfo 获取用户信息
 		GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error)
+		// GenerateClass 生成班级
+		GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultAuthService struct {
@@ -101,4 +104,10 @@ func (m *defaultAuthService) ModifyUserBaseInfo(ctx context.Context, in *ModifyU
 func (m *defaultAuthService) GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.GetUserInfo(ctx, in, opts...)
+}
+
+// GenerateClass 生成班级
+func (m *defaultAuthService) GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.GenerateClass(ctx, in, opts...)
 }

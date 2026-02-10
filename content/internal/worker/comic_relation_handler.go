@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
@@ -12,9 +15,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ComicRelationHandler struct {

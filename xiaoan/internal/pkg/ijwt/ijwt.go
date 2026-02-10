@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	jwtv5 "github.com/golang-jwt/jwt/v5"
 )
 
 type Handler interface {
@@ -25,12 +25,16 @@ func NewHandler(secret string, expire time.Duration) Handler {
 }
 
 func (h *HandlerImpl) ParseJWTToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		if token.Method != jwt.SigningMethodHS256 {
-			return nil, errors.New("unexpected signing method")
-		}
-		return h.Secret, nil
-	})
+	token, err := jwtv5.ParseWithClaims(
+		tokenString,
+		&Claims{},
+		func(token *jwtv5.Token) (interface{}, error) {
+			if token.Method != jwtv5.SigningMethodHS256 {
+				return nil, errors.New("unexpected signing method")
+			}
+			return h.Secret, nil
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -45,21 +49,22 @@ func (h *HandlerImpl) ParseJWTToken(tokenString string) (*Claims, error) {
 func (h *HandlerImpl) SetJWTToken(claimsParams ClaimsParams) (string, error) {
 	claims := Claims{
 		ClaimsParams: claimsParams,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(h.TokenExpire)),
+		RegisteredClaims: jwtv5.RegisteredClaims{
+			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(h.TokenExpire)),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims)
+
+	token := jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, &claims)
 	return token.SignedString(h.Secret)
 }
 
 type Claims struct {
 	ClaimsParams
-	jwt.RegisteredClaims
+	jwtv5.RegisteredClaims
 }
 
 type ClaimsParams struct {
-	UserId     uint64 `json:"user_id"`
+	UserID     uint64 `json:"user_id"`
 	UserRole   string `json:"user_role"`
 	UserStatus int64  `json:"user_status"`
 }

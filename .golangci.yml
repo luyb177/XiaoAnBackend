@@ -1,0 +1,88 @@
+version: "2"
+
+run:
+  tests: true
+
+output:
+  show-stats: false
+  formats:
+    text:
+      path: stdout
+      colors: true
+
+linters:
+  default: none
+  enable:
+    # ===== 基础正确性 & 安全 =====
+    - govet
+    - errcheck
+    - staticcheck
+    - ineffassign
+    - unused
+
+    # ===== 代码质量 =====
+    - revive
+    - gocritic
+
+    # ===== 复杂度 & 体量控制 =====
+    - gocyclo
+    - funlen
+
+  exclusions:
+    generated: lax
+    paths:
+      - vendor
+      - .idea
+      - ".*\\.pb\\.go"
+      - ".*_gen\\.go"
+
+    rules:
+      # ---------- test 放宽 ----------
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gocritic
+          - revive
+
+      # ---------- BFF / Handler 层 ----------
+      - path: xiaoan/internal/handler
+        linters:
+          - gocyclo
+          - funlen
+
+      # ---------- main / 启动文件 ----------
+      - path: main\.go
+        linters:
+          - revive
+
+  settings:
+    revive:
+      confidence: 0.8
+      rules:
+        - name: var-naming
+        - name: package-comments
+          disabled: true
+        - name: line-length-limit
+          arguments: [120]
+        - name: unexported-return
+          disabled: true
+        - name: error-strings
+        - name: context-as-argument
+        - name: early-return
+
+    gocritic:
+      enabled-tags:
+        - performance
+        - style
+        - diagnostic
+      disabled-checks:
+        - hugeParam
+        - unnamedResult
+        - ifElseChain
+
+    gocyclo:
+      min-complexity: 15
+
+    funlen:
+      lines: 120
+      statements: 60

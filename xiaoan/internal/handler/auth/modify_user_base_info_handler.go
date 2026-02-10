@@ -3,13 +3,14 @@ package auth
 import (
 	"net/http"
 
+	"github.com/zeromicro/go-zero/rest/httpx"
+
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/auth"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 修改用户基本信息
+// ModifyUserBaseInfoHandler 修改用户基本信息
 func ModifyUserBaseInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.ModifyUserBaseInfoRequest

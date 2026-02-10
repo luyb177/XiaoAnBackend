@@ -2,13 +2,13 @@ package auth
 
 import (
 	"context"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
-
-	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type GetInviteCodeLogic struct {
@@ -27,7 +27,7 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetInviteCodeLogic) GetInviteCode(req *types.GetInviteCodeRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRpc.GetInviteCode(l.ctx, &auth.GetInviteCodeRequest{
+	rpcResp, err := l.svcCtx.AuthRPC.GetInviteCode(l.ctx, &auth.GetInviteCodeRequest{
 		PageSize: req.PageSize,
 		Cursor:   req.Cursor,
 	})
@@ -55,18 +55,17 @@ func (l *GetInviteCodeLogic) GetInviteCode(req *types.GetInviteCodeRequest) (res
 		}
 
 		httpInviteCodes[i] = types.InviteCode{
-			Code:        rpcInviteCode.Code,
-			CreatorID:   rpcInviteCode.CreatorId,
-			CreatorName: rpcInviteCode.CreatorName,
-			Department:  rpcInviteCode.Department,
-			MaxUses:     rpcInviteCode.MaxUses,
-			UsedCount:   rpcInviteCode.UsedCount,
-			Remark:      rpcInviteCode.Remark,
-			ExpiresAt:   rpcInviteCode.ExpiresAt,
-			TargetRole:  rpcInviteCode.TargetRole,
-			ClassId:     rpcInviteCode.ClassId,
-			CreatedAt:   rpcInviteCode.CreatedAt,
-			UpdatedAt:   rpcInviteCode.UpdatedAt,
+			Code:       rpcInviteCode.Code,
+			CreatorID:  rpcInviteCode.CreatorId,
+			Department: rpcInviteCode.Department,
+			MaxUses:    rpcInviteCode.MaxUses,
+			UsedCount:  rpcInviteCode.UsedCount,
+			Remark:     rpcInviteCode.Remark,
+			ExpiresAt:  rpcInviteCode.ExpiresAt,
+			TargetRole: rpcInviteCode.TargetRole,
+			ClassId:    rpcInviteCode.ClassId,
+			CreatedAt:  rpcInviteCode.CreatedAt,
+			UpdatedAt:  rpcInviteCode.UpdatedAt,
 		}
 	}
 

@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 )
 
 type ModifyUserBaseInfoLogic struct {

@@ -26,6 +26,7 @@ const (
 	AuthService_Login_FullMethodName              = "/auth.AuthService/Login"
 	AuthService_ModifyUserBaseInfo_FullMethodName = "/auth.AuthService/ModifyUserBaseInfo"
 	AuthService_GetUserInfo_FullMethodName        = "/auth.AuthService/GetUserInfo"
+	AuthService_GenerateClass_FullMethodName      = "/auth.AuthService/GenerateClass"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -46,6 +47,8 @@ type AuthServiceClient interface {
 	ModifyUserBaseInfo(ctx context.Context, in *ModifyUserBaseInfoRequest, opts ...grpc.CallOption) (*Response, error)
 	// GetUserInfo 获取用户信息
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error)
+	// GenerateClass 生成班级
+	GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type authServiceClient struct {
@@ -126,6 +129,16 @@ func (c *authServiceClient) GetUserInfo(ctx context.Context, in *GetUserInfoRequ
 	return out, nil
 }
 
+func (c *authServiceClient) GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthService_GenerateClass_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -144,6 +157,8 @@ type AuthServiceServer interface {
 	ModifyUserBaseInfo(context.Context, *ModifyUserBaseInfoRequest) (*Response, error)
 	// GetUserInfo 获取用户信息
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*Response, error)
+	// GenerateClass 生成班级
+	GenerateClass(context.Context, *GenerateClassRequest) (*Response, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -174,6 +189,9 @@ func (UnimplementedAuthServiceServer) ModifyUserBaseInfo(context.Context, *Modif
 }
 func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *GetUserInfoRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedAuthServiceServer) GenerateClass(context.Context, *GenerateClassRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateClass not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -322,6 +340,24 @@ func _AuthService_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GenerateClass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateClassRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GenerateClass(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GenerateClass_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GenerateClass(ctx, req.(*GenerateClassRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -356,6 +392,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserInfo",
 			Handler:    _AuthService_GetUserInfo_Handler,
+		},
+		{
+			MethodName: "GenerateClass",
+			Handler:    _AuthService_GenerateClass_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

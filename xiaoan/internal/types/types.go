@@ -215,6 +215,10 @@ type DeleteVideoRequest struct {
 type EmptyResponse struct {
 }
 
+type GenerateClassRequest struct {
+	ClassName string `json:"class_name"`
+}
+
 type GenerateInviteCodeRequest struct {
 	Department string `json:"department"`
 	MaxUses    uint64 `json:"max_uses"`
@@ -331,18 +335,17 @@ type GetVideoResponse struct {
 }
 
 type InviteCode struct {
-	Code        string `json:"code"`
-	CreatorID   uint64 `json:"creator_id"`
-	CreatorName string `json:"creator_name"`
-	Department  string `json:"department"`
-	MaxUses     uint64 `json:"max_uses"`
-	UsedCount   uint64 `json:"used_count"`
-	Remark      string `json:"remark"`
-	ExpiresAt   int64  `json:"expires_at"`
-	TargetRole  string `json:"target_role"`
-	ClassId     uint64 `json:"class_id"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	Code       string `json:"code"`
+	CreatorID  uint64 `json:"creator_id"`
+	Department string `json:"department"`
+	MaxUses    uint64 `json:"max_uses"`
+	UsedCount  uint64 `json:"used_count"`
+	Remark     string `json:"remark"`
+	ExpiresAt  int64  `json:"expires_at"`
+	TargetRole string `json:"target_role"`
+	ClassId    uint64 `json:"class_id"`
+	CreatedAt  int64  `json:"created_at"`
+	UpdatedAt  int64  `json:"updated_at"`
 }
 
 type LikeRequest struct {

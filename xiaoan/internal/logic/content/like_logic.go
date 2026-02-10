@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type LikeLogic struct {
@@ -26,7 +26,7 @@ func NewLikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LikeLogic {
 }
 
 func (l *LikeLogic) Like(req *types.LikeRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.Like(l.ctx, &content.LikeRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.Like(l.ctx, &content.LikeRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 	})

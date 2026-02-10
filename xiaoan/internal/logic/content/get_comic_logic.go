@@ -2,11 +2,12 @@ package content
 
 import (
 	"context"
+
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetComicLogic struct {
@@ -25,7 +26,7 @@ func NewGetComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetComic
 }
 
 func (l *GetComicLogic) GetComic(req *types.GetComicRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetComic(l.ctx, &content.GetComicRequest{Id: req.ComicId})
+	rpcResp, err := l.svcCtx.ContentRPC.GetComic(l.ctx, &content.GetComicRequest{Id: req.ComicId})
 	if err != nil {
 		l.Errorf("rpc GetComic err: %s", err.Error())
 		return &types.Response{

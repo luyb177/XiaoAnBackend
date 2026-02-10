@@ -1,14 +1,14 @@
 package svc
 
 import (
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/collect"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/like"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {

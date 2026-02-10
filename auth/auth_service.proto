@@ -47,33 +47,30 @@ message UserInfo {
 message InviteCode {
   string code = 1;
   uint64 creator_id = 2;
-  string creator_name = 3;
-  string department = 4;
+  string department = 3;
 
-  uint64 max_uses = 5;
-  uint64 used_count = 6;
-  string remark = 7;
+  uint64 max_uses = 4;
+  uint64 used_count = 5;
+  string remark = 6;
 
-  string target_role = 8;    // 邀请码的目标角色 classadmin / student / staff
-  uint64 class_id = 9;       // student 用，注册自动加入班级 其中 0 表示没有班级
+  string target_role = 7;    // 邀请码的目标角色 classadmin / student / staff
+  uint64 class_id = 8;       // student 用，注册自动加入班级 其中 0 表示没有班级
 
-  int64 created_at = 10;
-  int64 updated_at = 11;
-  int64 expires_at = 12;
+  int64 created_at = 9;
+  int64 updated_at = 10;
+  int64 expires_at = 11;
 }
 
 message Class {
   uint64 id = 1;                // 班级 ID
   string name = 2;              // 班级名称，如 "软件工程 2201 班"
-  string department = 3;        // 所属部门 / 学院
-  uint64 admin_id = 4;          // 班级管理员（班主任）
-  string admin_name = 5;        // 管理员名称，冗余字段（方便查询）
+  uint64 admin_id = 3;          // 班级管理员（班主任）
 
-  uint64 student_count = 6;     // 班级学生数量
-  int64 status = 7;             // 状态：1 正常，2 禁用，3 已解散
+  uint64 student_count = 4;     // 班级学生数量
+  int64 status = 5;             // 状态：1 正常，2 禁用，3 已解散
 
-  int64 created_at = 8;         // 创建时间
-  int64 updated_at = 9;         // 更新时间
+  int64 created_at = 6;         // 创建时间
+  int64 updated_at = 7;         // 更新时间
 }
 
 enum LoginType {
@@ -137,6 +134,10 @@ message ModifyUserBaseInfoRequest {
 
 message GetUserInfoRequest {
   uint64 user_id = 1;
+}
+
+message GenerateClassRequest {
+  string name = 1;
 }
 
 // todo 定位
@@ -203,4 +204,7 @@ service AuthService {
 
   // GetUserInfo 获取用户信息
   rpc GetUserInfo(GetUserInfoRequest) returns (Response);
+
+  // GenerateClass 生成班级
+  rpc GenerateClass(GenerateClassRequest) returns (Response);
 }

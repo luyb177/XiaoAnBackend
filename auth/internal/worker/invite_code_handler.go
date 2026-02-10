@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type InviteRelationHandler struct {
@@ -46,16 +46,9 @@ func (h *InviteRelationHandler) Handle(ctx context.Context, task taskqueue.Task)
 
 	h.Infof("processing invite code task: %+v", inviteCodeTask)
 	switch inviteCodeTask.Type {
-	case tasks.InviteCodeRelationNotActive:
-		return h.handleNotActive(ctx, &inviteCodeTask)
 	default:
 		h.Errorf("unknown invite code task: %s", inviteCodeTask.Type)
 		return nil
 	}
 
-}
-
-func (h *InviteRelationHandler) handleNotActive(ctx context.Context, task *tasks.InviteCodeTask) error {
-	_, err := h.InviteCodeDao.NotActiveByCode(ctx, task.Code)
-	return err
 }

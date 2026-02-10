@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strings"
 
-	contentIp2region "github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
-
 	"github.com/lionsoul2014/ip2region/binding/golang/service"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/metadata"
+
+	contentIp2region "github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 )
 
 type IPMiddleware struct {

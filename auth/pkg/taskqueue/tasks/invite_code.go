@@ -7,10 +7,7 @@ import (
 
 type InviteCodeRelationTaskType string
 
-const (
-	// InviteCodeRelationNotActive 验证码失效
-	InviteCodeRelationNotActive InviteCodeRelationTaskType = "not_active"
-)
+const ()
 
 type InviteCodeTask struct {
 	Type InviteCodeRelationTaskType `json:"type"`

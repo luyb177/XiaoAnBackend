@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/luyb177/XiaoAnBackend/content/pkg/auth"
-
 	"google.golang.org/grpc"
+
+	"github.com/luyb177/XiaoAnBackend/content/pkg/auth"
 )
 
 type ctxKey string

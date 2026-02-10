@@ -2,13 +2,13 @@ package auth
 
 import (
 	"context"
-	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type ModifyUserBaseInfoLogic struct {
@@ -26,13 +26,16 @@ func NewModifyUserBaseInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-func (l *ModifyUserBaseInfoLogic) ModifyUserBaseInfo(req *types.ModifyUserBaseInfoRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRpc.ModifyUserBaseInfo(l.ctx, &auth.ModifyUserBaseInfoRequest{
-		Name:   req.Name,
-		Avatar: req.Avatar,
-		Phone:  req.Phone,
-		UserId: req.UserID,
-	})
+func (l *ModifyUserBaseInfoLogic) ModifyUserBaseInfo(
+	req *types.ModifyUserBaseInfoRequest,
+) (resp *types.Response, err error) {
+	rpcResp, err := l.svcCtx.AuthRPC.ModifyUserBaseInfo(
+		l.ctx, &auth.ModifyUserBaseInfoRequest{
+			Name:   req.Name,
+			Avatar: req.Avatar,
+			Phone:  req.Phone,
+			UserId: req.UserID,
+		})
 
 	if err != nil {
 		l.Errorf("rpc ModifyUserBaseInfo err: %v", err)

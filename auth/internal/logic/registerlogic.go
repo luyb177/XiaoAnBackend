@@ -4,19 +4,19 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
-
-	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/anypb"
+	"k8s.io/apimachinery/pkg/util/rand"
+
+	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
 )
 
 type RegisterLogic struct {
@@ -25,6 +25,7 @@ type RegisterLogic struct {
 	logx.Logger
 	UserDao    model.UserModel
 	InviteCode model.InviteCodeModel
+	ClassDao   model.ClassModel
 }
 
 func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RegisterLogic {
@@ -34,6 +35,7 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 		Logger:     logx.WithContext(ctx),
 		UserDao:    model.NewUserModel(svcCtx.Mysql),
 		InviteCode: model.NewInviteCodeModel(svcCtx.Mysql),
+		ClassDao:   model.NewClassModel(svcCtx.Mysql),
 	}
 }
 
@@ -57,7 +59,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		return bad("邮箱格式不正确"), nil
 	}
 
-	// 使用 errGroup 并发校验
+	// 使用 errGroup 并发校验 email code 和 invite code
 	var (
 		emailCode string
 		emailOk   bool
@@ -74,8 +76,26 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 
 	g.Go(func() error {
 		var err error
-		code, err = l.InviteCode.FindOneByCodeWithNotDelete(ctx, in.InviteCodeUsed)
-		return err
+		code, err = l.InviteCode.FindUsableByCode(ctx, in.InviteCodeUsed)
+		if err != nil {
+			return err
+		}
+
+		if code.ClassId != 0 {
+			if code.TargetRole != STUDENT {
+				return errors.New("邀请码关联的角色不合法")
+			}
+
+			_, err = l.ClassDao.FindNormalOne(ctx, code.ClassId)
+			if err != nil {
+				if errors.Is(err, model.ErrNotFound) {
+					return errors.New("邀请码关联的班级不存在")
+				}
+				l.Errorf("查询班级失败, classId=%d, err=%v", code.ClassId, err)
+				return errors.New("系统繁忙，请稍后尝试")
+			}
+		}
+		return nil
 	})
 
 	if err := g.Wait(); err != nil {
@@ -92,28 +112,6 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 	}
 	if emailCode != in.EmailCode {
 		return bad("邮箱验证码错误"), nil
-	}
-
-	// 验证邀请码
-	// 1. 验证邀请码是否失效
-	if code.IsActive != InviteCodeActive {
-		return bad("邀请码已失效"), nil
-	}
-
-	// 2. 验证邀请码是否已使用完
-	if code.UsedCount >= code.MaxUses || time.Now().Unix() >= code.ExpiresAt.Time.Unix() {
-		// 这里说明要修改邀请码的状态了
-		inviteCodeRelationTask := &tasks.InviteCodeTask{
-			Type: tasks.InviteCodeRelationNotActive,
-			UID:  code.CreatorId,
-			Code: code.Code,
-		}
-		err := l.svcCtx.TaskQueue.Enqueue(l.ctx, inviteCodeRelationTask)
-		if err != nil {
-			l.Errorf("Register 入队列失败,%v", err)
-		}
-
-		return bad("邀请码状态异常"), nil
 	}
 
 	// 查询用户是否存在
@@ -135,7 +133,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 
 	// 创建用户
 	user := model.User{
-		Name:           NamePrefix + in.InviteCodeUsed,
+		Name:           NamePrefix + rand.String(8),
 		Email:          in.Email,
 		Password:       hashPassword,
 		Department:     code.Department,
@@ -143,8 +141,6 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		ClassId:        code.ClassId,
 		Status:         UserStatusNormal, // 1 正常
 		InviteCodeUsed: sql.NullString{String: code.Code, Valid: true},
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
 	}
 
 	// 事务
@@ -172,6 +168,14 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 			return err
 		}
 		user.Id = uint64(userId)
+
+		// 班级成员数+1
+		if code.ClassId != 0 {
+			_, err = l.ClassDao.IncrStudentCountWithSession(ctx, session, code.ClassId)
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 

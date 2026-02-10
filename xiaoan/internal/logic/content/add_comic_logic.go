@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AddComicLogic struct {
@@ -26,7 +26,7 @@ func NewAddComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddComic
 }
 
 func (l *AddComicLogic) AddComic(req *types.AddComicRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.AddComic(l.ctx, &content.AddComicRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.AddComic(l.ctx, &content.AddComicRequest{
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Description: req.Description,

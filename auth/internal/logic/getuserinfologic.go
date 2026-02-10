@@ -3,14 +3,14 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"google.golang.org/protobuf/types/known/anypb"
-
-	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 )
 
 type GetUserInfoLogic struct {

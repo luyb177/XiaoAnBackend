@@ -3,12 +3,12 @@ package auth
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserInfoLogic struct {
@@ -27,7 +27,7 @@ func NewGetUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 }
 
 func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRpc.GetUserInfo(l.ctx, &auth.GetUserInfoRequest{UserId: req.UserID})
+	rpcResp, err := l.svcCtx.AuthRPC.GetUserInfo(l.ctx, &auth.GetUserInfoRequest{UserId: req.UserID})
 	if err != nil {
 		l.Errorf("rpc GetUserInfo err: %v", err)
 		return logic.BadResponse("获取用户信息失败"), nil

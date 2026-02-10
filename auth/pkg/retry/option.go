@@ -2,9 +2,11 @@ package retry
 
 import (
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"github.com/zeromicro/go-zero/core/logx"
 	"time"
+
+	"github.com/zeromicro/go-zero/core/logx"
+
+	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 )
 
 // Option 定义

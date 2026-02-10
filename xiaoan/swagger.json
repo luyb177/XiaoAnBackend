@@ -15,6 +15,59 @@
   },
   "basePath": "/",
   "paths": {
+    "/api/auth/generate-class": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "生成班级",
+        "operationId": "authGenerateClass",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "class_name"
+              ],
+              "properties": {
+                "class_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/generate-invite-code": {
       "post": {
         "consumes": [
@@ -2322,7 +2375,7 @@
       }
     }
   },
-  "x-date": "2026-02-09 16:23:33",
+  "x-date": "2026-02-09 20:09:07",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

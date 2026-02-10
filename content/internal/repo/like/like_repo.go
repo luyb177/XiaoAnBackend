@@ -5,9 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zeromicro/go-zero/core/stores/redis"
-
 	redisV9 "github.com/redis/go-redis/v9"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 )
 
 const (

@@ -3,7 +3,7 @@ package jwt
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	jwtv5 "github.com/golang-jwt/jwt/v5"
 )
 
 type Handler interface {
@@ -25,17 +25,17 @@ func NewHandler(secret string, expire time.Duration) Handler {
 func (h *HandlerImpl) SetJWTToken(claimsParams ClaimsParams) (string, error) {
 	claims := Claims{
 		ClaimsParams: claimsParams,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(h.TokenExpire * time.Second)),
+		RegisteredClaims: jwtv5.RegisteredClaims{
+			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(h.TokenExpire * time.Second)),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims)
+	token := jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, &claims)
 	return token.SignedString(h.Secret)
 }
 
 type Claims struct {
 	ClaimsParams
-	jwt.RegisteredClaims
+	jwtv5.RegisteredClaims
 }
 
 type ClaimsParams struct {

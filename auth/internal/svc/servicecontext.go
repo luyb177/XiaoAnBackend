@@ -3,14 +3,14 @@ package svc
 import (
 	"time"
 
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/config"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/jwt"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/repo/email"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue"
-
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {

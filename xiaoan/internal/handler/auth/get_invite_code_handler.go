@@ -3,11 +3,11 @@ package auth
 import (
 	"net/http"
 
+	"github.com/zeromicro/go-zero/rest/httpx"
+
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/auth"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // GetInviteCodeHandler 获取邀请码

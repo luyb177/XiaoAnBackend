@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetPodcastContentLogic struct {
@@ -24,8 +24,16 @@ func NewGetPodcastContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 		svcCtx: svcCtx,
 	}
 }
-func (l *GetPodcastContentLogic) GetPodcastContent(req *types.GetPodcastContentRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetPodcast(l.ctx, &content.GetPodcastRequest{Id: req.PodcastId})
+func (l *GetPodcastContentLogic) GetPodcastContent(
+	req *types.GetPodcastContentRequest,
+) (resp *types.Response, err error) {
+
+	rpcResp, err := l.svcCtx.ContentRPC.GetPodcast(
+		l.ctx,
+		&content.GetPodcastRequest{
+			Id: req.PodcastId,
+		})
+
 	if err != nil {
 		l.Errorf("rpc GetPodcast err: %v", err)
 		return &types.Response{

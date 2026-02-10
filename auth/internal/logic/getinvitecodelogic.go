@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/code/convert"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type GetInviteCodeLogic struct {

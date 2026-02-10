@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"context"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
+
 	"google.golang.org/grpc"
+
+	"github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
 )
 
 const ctxKeyIPInfo ctxKey = "ip_info"

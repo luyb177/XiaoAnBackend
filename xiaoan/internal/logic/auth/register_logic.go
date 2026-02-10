@@ -2,13 +2,13 @@ package auth
 
 import (
 	"context"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
-
-	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type RegisterLogic struct {
@@ -27,7 +27,7 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
+	rpcResp, err := l.svcCtx.AuthRPC.Register(l.ctx, &auth.RegisterRequest{
 		Email:          req.Email,
 		EmailCode:      req.EmailCode,
 		Password:       req.Password,

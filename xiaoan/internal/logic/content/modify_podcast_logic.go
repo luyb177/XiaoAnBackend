@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type ModifyPodcastLogic struct {
@@ -34,7 +34,7 @@ func (l *ModifyPodcastLogic) ModifyPodcast(req *types.ModifyPodcastRequest) (res
 		}
 	}
 
-	rpcResp, err := l.svcCtx.ContentRpc.ModifyPodcast(l.ctx, &content.ModifyPodcastRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.ModifyPodcast(l.ctx, &content.ModifyPodcastRequest{
 		Id:          req.PodcastId,
 		Name:        req.Name,
 		Url:         req.Url,

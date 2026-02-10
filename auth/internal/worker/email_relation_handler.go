@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type EmailRelationHandler struct {

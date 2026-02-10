@@ -6,9 +6,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue"
-
 	"github.com/zeromicro/go-zero/core/stores/redis"
+
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue"
 )
 
 const (

@@ -41,18 +41,17 @@ type (
 		updatedAt  int64  `json:"updated_at"`
 	}
 	InviteCode {
-		code        string `json:"code"`
-		creatorID   uint64 `json:"creator_id"`
-		creatorName string `json:"creator_name"`
-		department  string `json:"department"`
-		maxUses     uint64 `json:"max_uses"`
-		usedCount   uint64 `json:"used_count"`
-		remark      string `json:"remark"`
-		expiresAt   int64  `json:"expires_at"`
-		targetRole  string `json:"target_role"`
-		classId     uint64 `json:"class_id"`
-		createdAt   int64  `json:"created_at"`
-		updatedAt   int64  `json:"updated_at"`
+		code       string `json:"code"`
+		creatorID  uint64 `json:"creator_id"`
+		department string `json:"department"`
+		maxUses    uint64 `json:"max_uses"`
+		usedCount  uint64 `json:"used_count"`
+		remark     string `json:"remark"`
+		expiresAt  int64  `json:"expires_at"`
+		targetRole string `json:"target_role"`
+		classId    uint64 `json:"class_id"`
+		createdAt  int64  `json:"created_at"`
+		updatedAt  int64  `json:"updated_at"`
 	}
 )
 
@@ -233,6 +232,9 @@ type (
 	}
 	GetUserInfoRequest {
 		userID uint64 `form:"user_id"`
+	}
+	GenerateClassRequest {
+		className string `json:"class_name"`
 	}
 )
 
@@ -598,6 +600,10 @@ service xiaoan {
 	@doc "获取用户信息"
 	@handler GetUserInfo
 	get /get-user-info (GetUserInfoRequest) returns (Response)
+
+	@doc "生成班级"
+	@handler GenerateClass
+	post /generate-class (GenerateClassRequest) returns (Response)
 }
 
 // todo 定位

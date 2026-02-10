@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type DeleteComicLogic struct {
@@ -26,7 +26,7 @@ func NewDeleteComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 }
 
 func (l *DeleteComicLogic) DeleteComic(req *types.DeleteComicRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.DeleteComic(l.ctx, &content.DeleteComicRequest{Id: req.ComicId})
+	rpcResp, err := l.svcCtx.ContentRPC.DeleteComic(l.ctx, &content.DeleteComicRequest{Id: req.ComicId})
 
 	if err != nil {
 		l.Errorf("rpc DeleteComic err: %s", err.Error())
