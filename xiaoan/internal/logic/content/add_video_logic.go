@@ -55,7 +55,7 @@ func (l *AddVideoLogic) AddVideo(req *types.AddVideoRequest) (resp *types.Respon
 
 	// HTTP 返回数据（对前端稳定）
 	httpData := &types.AddVideoResponse{
-		VideoId:        rpcData.Id,
+		VideoID:        rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 

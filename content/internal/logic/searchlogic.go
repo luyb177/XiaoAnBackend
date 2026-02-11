@@ -44,11 +44,11 @@ func NewSearchLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SearchLogi
 
 // Search 搜索
 func (l *SearchLogic) Search(in *v1.SearchRequest) (*v1.Response, error) {
-	creatorId := l.ctx.Value("user_id").(uint64)
+	creatorID := l.ctx.Value("user_id").(uint64)
 	creatorRole := l.ctx.Value("user_role").(string)
 	creatorStatus := l.ctx.Value("user_status").(int64)
 
-	if creatorId == 0 || creatorRole == "" || creatorStatus != 1 {
+	if creatorID == 0 || creatorRole == "" || creatorStatus != 1 {
 		return &v1.Response{
 			Code:    400,
 			Message: "用户信息错误",

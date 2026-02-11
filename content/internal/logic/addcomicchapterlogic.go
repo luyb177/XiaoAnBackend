@@ -48,7 +48,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 		{in.Title != "", "章节标题不能为空"},
 		{in.Description != "", "章节描述不能为空"},
 		{in.Status == ComicStatusPublished || in.Status == ComicStatusDraft, "章节状态不合法"},
-		{in.PageUrls != nil && len(in.PageUrls) > 0, "章节页面不能为空"},
+		{len(in.PageUrls) > 0, "章节页面不能为空"},
 	}
 	for _, v := range validations {
 		if !v.Condition {
@@ -124,7 +124,7 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 			Message: "添加漫画章节失败",
 		}, nil
 	}
-	chapterId, err := result.LastInsertId()
+	chapterID, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddComicChapter err: 获取插入漫画章节ID失败，err: %v", err)
 
@@ -133,12 +133,12 @@ func (l *AddComicChapterLogic) AddComicChapter(in *v1.AddComicChapterRequest) (*
 			Message: "获取插入漫画章节ID失败",
 		}, nil
 	}
-	chapter.Id = uint64(chapterId)
+	chapter.Id = uint64(chapterID)
 
 	// 4. 添加漫画章节页面
 	comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 		Type:      tasks.ComicChapterRelationAdd,
-		ComicId:   in.ComicId,
+		ComicID:   in.ComicId,
 		UID:       user.UID,
 		ChapterID: chapter.Id,
 		PageUrls:  in.PageUrls,

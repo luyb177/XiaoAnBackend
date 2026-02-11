@@ -107,7 +107,7 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRe
 	// 删除对应章节的内容
 	comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 		Type:      tasks.ComicChapterRelationDelete,
-		ComicId:   in.ComicId,
+		ComicID:   in.ComicId,
 		UID:       user.UID,
 		ChapterID: comicChapter.Id,
 	}

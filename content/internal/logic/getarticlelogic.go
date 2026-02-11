@@ -91,7 +91,7 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 	collectCh := make(chan CollectResult, 1)
 
 	go func() {
-		t, err := l.ArticleTagDao.FindManyByArticleId(l.ctx, in.Id)
+		t, err := l.ArticleTagDao.FindManyByArticleID(l.ctx, in.Id)
 		tagCh <- TagResult{tags: t, err: err}
 	}()
 

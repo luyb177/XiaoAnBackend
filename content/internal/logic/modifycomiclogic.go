@@ -65,7 +65,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
 	}
-	if in.Tag == nil || len(in.Tag) == 0 {
+	if len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 

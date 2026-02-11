@@ -53,11 +53,11 @@ func (q *RedisTaskQueue) Enqueue(ctx context.Context, task taskqueue.Task) error
 		CreatedAt: time.Now().Unix(),
 	}
 
-	rawTaskJson, err := json.Marshal(rawTask)
+	rawTaskJSON, err := json.Marshal(rawTask)
 	if err != nil {
 		return err
 	}
-	_, err = q.rds.LpushCtx(ctx, q.keys.Pending, string(rawTaskJson))
+	_, err = q.rds.LpushCtx(ctx, q.keys.Pending, string(rawTaskJSON))
 	return err
 }
 

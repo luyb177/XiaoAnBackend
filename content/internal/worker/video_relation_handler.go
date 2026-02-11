@@ -27,7 +27,7 @@ type VideoRelationHandler struct {
 	ContentLikeDao model.ContentLikeModel
 }
 
-func NewVideoRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *VideoRelationHandler {
+func NewVideoRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *VideoRelationHandler {
 	return &VideoRelationHandler{
 		svcCtx:         svcCtx,
 		Logger:         logx.WithContext(ctx),
@@ -91,7 +91,7 @@ func (h *VideoRelationHandler) handleModify(ctx context.Context, task *tasks.Vid
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除旧标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.VideoTagDao.SoftDeleteByVideoIdWithSession(ctx, session, task.VideoID, deletedAt)
+		err := h.VideoTagDao.SoftDeleteByVideoIDWithSession(ctx, session, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -112,19 +112,19 @@ func (h *VideoRelationHandler) handleDelete(ctx context.Context, task *tasks.Vid
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.VideoTagDao.SoftDeleteByVideoIdWithSession(ctx, session, task.VideoID, deletedAt)
+		err := h.VideoTagDao.SoftDeleteByVideoIDWithSession(ctx, session, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 删除评论
-		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIDWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 删除点赞
-		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIDWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
 		return err
 	})
 }

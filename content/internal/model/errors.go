@@ -21,6 +21,8 @@ func mapDBError(err error) error {
 		switch mysqlErr.Number {
 		case 1062:
 			return ErrDuplicateEntry
+		default:
+			return err
 		}
 	}
 

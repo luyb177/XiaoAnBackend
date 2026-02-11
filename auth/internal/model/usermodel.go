@@ -39,6 +39,7 @@ func (m *customUserModel) withSession(session sqlx.Session) UserModel {
 }
 
 func (m *customUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
 	result, err := m.defaultUserModel.Insert(ctx, data)
 	return result, mapDBError(err)
 }

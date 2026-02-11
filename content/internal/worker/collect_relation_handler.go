@@ -29,7 +29,7 @@ type CollectRelationHandler struct {
 	ComicDao   model.ComicModel
 }
 
-func NewCollectRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *CollectRelationHandler {
+func NewCollectRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *CollectRelationHandler {
 	return &CollectRelationHandler{
 		svcCtx:            svcCtx,
 		Logger:            logx.WithContext(ctx),
@@ -87,7 +87,7 @@ func (h *CollectRelationHandler) handleAdd(ctx context.Context, task *tasks.Coll
 			return err
 		}
 		// 获取 ID
-		contentCollect, err = h.ContentCollectDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentCollect, err = h.ContentCollectDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			return err
 		}
@@ -132,7 +132,7 @@ func (h *CollectRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 先 find
 		// todo : 可以不用 find ，避免 toctou 问题
-		contentCollect, err := h.ContentCollectDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentCollect, err := h.ContentCollectDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			if errors.Is(err, model.ErrNotFound) {
 				return nil
@@ -162,6 +162,7 @@ func (h *CollectRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 			}
 			if affect == 0 {
 				// 内容不存在
+				h.Errorf("CollectRelationHandler handleDelete: content not found, contentType: %s, contentID: %d", task.ContentType, task.ContentID)
 			}
 		}
 

@@ -26,7 +26,7 @@ func NewDeleteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 }
 
 func (l *DeleteVideoLogic) DeleteVideo(req *types.DeleteVideoRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRPC.DeleteVideo(l.ctx, &content.DeleteVideoRequest{Id: req.VideoId})
+	rpcResp, err := l.svcCtx.ContentRPC.DeleteVideo(l.ctx, &content.DeleteVideoRequest{Id: req.VideoID})
 	if err != nil {
 		l.Errorf("rpc DeleteVideo err: %s", err.Error())
 		return &types.Response{

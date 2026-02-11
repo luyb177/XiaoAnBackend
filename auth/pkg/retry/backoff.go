@@ -7,7 +7,7 @@ import (
 // 退避算法
 
 // ExponentialBackoffRetry 指数退避
-func ExponentialBackoffRetry(maxAttempts int, baseDelay time.Duration, maxDelay time.Duration, fn func() error) error {
+func ExponentialBackoffRetry(maxAttempts int, baseDelay, maxDelay time.Duration, fn func() error) error {
 	delay := baseDelay
 	for i := 0; i < maxAttempts; i++ {
 		err := fn()
@@ -22,7 +22,7 @@ func ExponentialBackoffRetry(maxAttempts int, baseDelay time.Duration, maxDelay 
 
 		time.Sleep(delay)
 
-		delay = delay * 2
+		delay *= 2
 		if delay > maxDelay {
 			delay = maxDelay
 		}

@@ -78,7 +78,7 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 
 	// 生成 token
 	token, err := l.svcCtx.JWTHandler.SetJWTToken(jwt.ClaimsParams{
-		UserId:     user.Id,
+		UserID:     user.Id,
 		UserRole:   user.Role,
 		UserStatus: user.Status,
 	})

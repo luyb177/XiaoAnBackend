@@ -49,7 +49,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		{in.Title != "", "章节标题不能为空"},
 		{in.Description != "", "章节描述不能为空"},
 		{in.Status == ComicStatusPublished || in.Status == ComicStatusDraft, "章节状态不合法"},
-		{in.PageUrls != nil && len(in.PageUrls) > 0, "章节页面不能为空"},
+		{len(in.PageUrls) > 0, "章节页面不能为空"},
 	}
 
 	for _, v := range validations {

@@ -19,9 +19,9 @@ type (
 		Insert(ctx context.Context, data *InviteCode) (sql.Result, error)
 		FindUsableByCode(ctx context.Context, code string) (*InviteCode, error)
 		FindOneByCodeWithNotDelete(ctx context.Context, code string) (*InviteCode, error)
-		FindManyByCreatorId(ctx context.Context, creatorId uint64, pageSize int64) ([]*InviteCode, error)
-		FindManyByCreatorIdWithCursor(ctx context.Context, creatorId uint64, cursor uint64, pageSize int64) ([]*InviteCode, error)
-		CountByCreatorId(ctx context.Context, creatorId uint64) (int64, error)
+		FindManyByCreatorID(ctx context.Context, creatorID uint64, pageSize int64) ([]*InviteCode, error)
+		FindManyByCreatorIDWithCursor(ctx context.Context, creatorID, cursor uint64, pageSize int64) ([]*InviteCode, error)
+		CountByCreatorID(ctx context.Context, creatorID uint64) (int64, error)
 		Update(ctx context.Context, data *InviteCode) error
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *InviteCode) error
 		IncrUsedCount(ctx context.Context, id uint64) (sql.Result, error)
@@ -45,6 +45,7 @@ func (m *customInviteCodeModel) withSession(session sqlx.Session) InviteCodeMode
 }
 
 func (m *customInviteCodeModel) Insert(ctx context.Context, data *InviteCode) (sql.Result, error) {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
 	result, err := m.defaultInviteCodeModel.Insert(ctx, data)
 	return result, mapDBError(err)
 }
@@ -77,8 +78,8 @@ func (m *customInviteCodeModel) FindOneByCodeWithNotDelete(ctx context.Context, 
 	return &resp, mapDBError(err)
 }
 
-// FindManyByCreatorId 根据创建者ID分页查询邀请码列表
-func (m *customInviteCodeModel) FindManyByCreatorId(ctx context.Context, creatorId uint64, pageSize int64) ([]*InviteCode, error) {
+// FindManyByCreatorID 根据创建者ID分页查询邀请码列表
+func (m *customInviteCodeModel) FindManyByCreatorID(ctx context.Context, creatorID uint64, pageSize int64) ([]*InviteCode, error) {
 	query := fmt.Sprintf(`
 		select %s from %s
 		where creator_id = ? 
@@ -90,11 +91,11 @@ func (m *customInviteCodeModel) FindManyByCreatorId(ctx context.Context, creator
 	)
 
 	var resp []*InviteCode
-	err := m.conn.QueryRowsCtx(ctx, &resp, query, creatorId, pageSize)
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, creatorID, pageSize)
 	return resp, mapDBError(err)
 }
 
-func (m *customInviteCodeModel) FindManyByCreatorIdWithCursor(ctx context.Context, creatorId uint64, cursor uint64, pageSize int64) ([]*InviteCode, error) {
+func (m *customInviteCodeModel) FindManyByCreatorIDWithCursor(ctx context.Context, creatorID, cursor uint64, pageSize int64) ([]*InviteCode, error) {
 	query := fmt.Sprintf(`
 		select %s from %s
 		where creator_id = ? 
@@ -107,16 +108,16 @@ func (m *customInviteCodeModel) FindManyByCreatorIdWithCursor(ctx context.Contex
 	)
 
 	var resp []*InviteCode
-	err := m.conn.QueryRowsCtx(ctx, &resp, query, creatorId, cursor, pageSize)
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, creatorID, cursor, pageSize)
 	return resp, mapDBError(err)
 }
 
-// CountByCreatorId 统计创建者的邀请码总数
-func (m *customInviteCodeModel) CountByCreatorId(ctx context.Context, creatorId uint64) (int64, error) {
+// CountByCreatorID 统计创建者的邀请码总数
+func (m *customInviteCodeModel) CountByCreatorID(ctx context.Context, creatorID uint64) (int64, error) {
 	query := fmt.Sprintf("select count(*) from %s where `creator_id` = ?", m.table)
 
 	var count int64
-	err := m.conn.QueryRowCtx(ctx, &count, query, creatorId)
+	err := m.conn.QueryRowCtx(ctx, &count, query, creatorID)
 	if err != nil {
 		return 0, err
 	}
@@ -125,6 +126,7 @@ func (m *customInviteCodeModel) CountByCreatorId(ctx context.Context, creatorId 
 }
 
 func (m *customInviteCodeModel) Update(ctx context.Context, data *InviteCode) error {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
 	err := m.defaultInviteCodeModel.Update(ctx, data)
 	return mapDBError(err)
 }

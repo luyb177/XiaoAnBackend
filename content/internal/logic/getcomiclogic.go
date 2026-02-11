@@ -92,7 +92,7 @@ func (l *GetComicLogic) GetComic(in *v1.GetComicRequest) (*v1.Response, error) {
 	collectCh := make(chan CollectResult, 1)
 
 	go func() {
-		t, err := l.ComicTagDao.FindManyByComicId(l.ctx, in.Id)
+		t, err := l.ComicTagDao.FindManyByComicID(l.ctx, in.Id)
 		tagCh <- TagResult{
 			tags: t,
 			err:  err,

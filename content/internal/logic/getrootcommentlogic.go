@@ -50,7 +50,7 @@ func (l *GetRootCommentLogic) GetRootComment(in *v1.GetRootCommentRequest) (*v1.
 	}
 
 	offset := (in.Page - 1) * in.PageSize
-	rootCommentsModel, err := l.CommentDao.FindRootByTypeAndTargetId(l.ctx, in.ContentType, in.ContentId, offset, in.PageSize)
+	rootCommentsModel, err := l.CommentDao.FindRootByTypeAndTargetID(l.ctx, in.ContentType, in.ContentId, offset, in.PageSize)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return &v1.Response{

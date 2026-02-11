@@ -27,7 +27,7 @@ func NewGetVideoContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GetVideoContentLogic) GetVideoContent(req *types.GetVideoContentRequest) (resp *types.Response, err error) {
 	rpcResp, err := l.svcCtx.ContentRPC.GetVideo(l.ctx, &content.GetVideoRequest{
-		Id: req.VideoId,
+		Id: req.VideoID,
 	})
 
 	if err != nil {

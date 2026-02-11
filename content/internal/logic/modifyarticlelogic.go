@@ -63,7 +63,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 		}
 	}
 
-	if in.Tag == nil || len(in.Tag) == 0 {
+	if len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 	// 检查标签

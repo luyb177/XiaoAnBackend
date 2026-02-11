@@ -18,11 +18,11 @@ type (
 		withSession(session sqlx.Session) ArticleTagModel
 		InsertBatch(ctx context.Context, list []*ArticleTag) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ArticleTag) error
-		FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error)
-		DeleteBatchByArticleId(ctx context.Context, articleId uint64) error
-		DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error
-		SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64) error
-		SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64) error
+		FindManyByArticleID(ctx context.Context, articleID uint64) ([]*ArticleTag, error)
+		DeleteBatchByArticleID(ctx context.Context, articleID uint64) error
+		DeleteBatchByArticleIDWithSession(ctx context.Context, session sqlx.Session, articleID uint64) error
+		SoftDeleteByArticleID(ctx context.Context, articleID uint64, deletedAt uint64) error
+		SoftDeleteByArticleIDWithSession(ctx context.Context, session sqlx.Session, articleID uint64, deletedAt uint64) error
 	}
 
 	customArticleTagModel struct {
@@ -70,7 +70,7 @@ func (m *customArticleTagModel) InsertBatchWithSession(ctx context.Context, sess
 	return m.withSession(session).InsertBatch(ctx, list)
 }
 
-func (m *customArticleTagModel) FindManyByArticleId(ctx context.Context, articleId uint64) ([]*ArticleTag, error) {
+func (m *customArticleTagModel) FindManyByArticleID(ctx context.Context, articleID uint64) ([]*ArticleTag, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `article_id` = ? and `deleted_at` = 0",
 		articleTagRows,
@@ -78,33 +78,33 @@ func (m *customArticleTagModel) FindManyByArticleId(ctx context.Context, article
 	)
 
 	var resp []*ArticleTag
-	err := m.conn.QueryRowsCtx(ctx, &resp, query, articleId)
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, articleID)
 	return resp, mapDBError(err)
 }
 
-func (m *customArticleTagModel) DeleteBatchByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64) error {
-	return m.withSession(session).DeleteBatchByArticleId(ctx, articleId)
+func (m *customArticleTagModel) DeleteBatchByArticleIDWithSession(ctx context.Context, session sqlx.Session, articleID uint64) error {
+	return m.withSession(session).DeleteBatchByArticleID(ctx, articleID)
 }
 
-func (m *customArticleTagModel) DeleteBatchByArticleId(ctx context.Context, articleId uint64) error {
+func (m *customArticleTagModel) DeleteBatchByArticleID(ctx context.Context, articleID uint64) error {
 	query := fmt.Sprintf(
 		"delete from %s where `article_id` = ?",
 		m.table,
 	)
-	_, err := m.conn.ExecCtx(ctx, query, articleId)
+	_, err := m.conn.ExecCtx(ctx, query, articleID)
 	return mapDBError(err)
 }
 
-func (m *customArticleTagModel) SoftDeleteByArticleId(ctx context.Context, articleId uint64, deletedAt uint64) error {
+func (m *customArticleTagModel) SoftDeleteByArticleID(ctx context.Context, articleID, deletedAt uint64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ? where `article_id` = ?",
 		m.table,
 	)
 
-	_, err := m.conn.ExecCtx(ctx, query, deletedAt, articleId)
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, articleID)
 	return mapDBError(err)
 }
 
-func (m *customArticleTagModel) SoftDeleteByArticleIdWithSession(ctx context.Context, session sqlx.Session, articleId uint64, deletedAt uint64) error {
-	return m.withSession(session).SoftDeleteByArticleId(ctx, articleId, deletedAt)
+func (m *customArticleTagModel) SoftDeleteByArticleIDWithSession(ctx context.Context, session sqlx.Session, articleID, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteByArticleID(ctx, articleID, deletedAt)
 }

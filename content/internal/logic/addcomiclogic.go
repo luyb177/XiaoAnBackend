@@ -63,7 +63,7 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
 	}
-	if in.Tag == nil || len(in.Tag) == 0 {
+	if len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 
@@ -94,7 +94,7 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	}
 
 	// 回写
-	comicId, err := result.LastInsertId()
+	comicID, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddComic err: 获取漫画ID失败，%v", err)
 
@@ -103,7 +103,7 @@ func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 			Message: "获取漫画ID失败",
 		}, nil
 	}
-	comic.Id = uint64(comicId)
+	comic.Id = uint64(comicID)
 
 	// 添加标签
 	comicRelationTask := tasks.ComicRelationTask{

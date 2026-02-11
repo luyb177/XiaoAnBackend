@@ -60,7 +60,7 @@ func (l *AddArticleLogic) AddArticle(in *v1.AddArticleRequest) (*v1.Response, er
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
 	}
-	if in.Tags == nil || len(in.Tags) == 0 {
+	if len(in.Tags) == 0 {
 		in.Tags = []string{"默认标签"}
 	}
 

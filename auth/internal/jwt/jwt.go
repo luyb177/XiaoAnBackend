@@ -39,7 +39,7 @@ type Claims struct {
 }
 
 type ClaimsParams struct {
-	UserId     uint64 `json:"user_id"`
+	UserID     uint64 `json:"user_id"`
 	UserRole   string `json:"user_role"`
 	UserStatus int64  `json:"user_status"`
 }

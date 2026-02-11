@@ -48,7 +48,7 @@ func (l *GetSubCommentLogic) GetSubComment(in *v1.GetSubCommentRequest) (*v1.Res
 	}
 
 	offset := (in.Page - 1) * in.PageSize
-	subCommentsModel, err := l.CommentDao.FindSubByTypeAndTargetIdAndParentId(l.ctx, in.ContentType, in.ContentId, in.ParentCommentId, offset, in.PageSize)
+	subCommentsModel, err := l.CommentDao.FindSubByTypeAndTargetIDAndParentID(l.ctx, in.ContentType, in.ContentId, in.ParentCommentId, offset, in.PageSize)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			l.Errorf("GetSubComment err: 子评论不存在, contentType: %s, contentId: %d, parentCommentId: %d", in.ContentType, in.ContentId, in.ParentCommentId)

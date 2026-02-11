@@ -115,7 +115,7 @@ func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, er
 	}
 
 	// 获取插入的播客ID
-	podcastId, err := result.LastInsertId()
+	podcastID, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddPodcast err: 获取播客ID失败，%v", err)
 
@@ -124,7 +124,7 @@ func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, er
 			Message: "获取播客ID失败",
 		}, nil
 	}
-	podcast.Id = uint64(podcastId)
+	podcast.Id = uint64(podcastID)
 
 	//  添加标签 & 添加重要时间点
 	podcastRelationTask := &tasks.PodcastRelationTask{

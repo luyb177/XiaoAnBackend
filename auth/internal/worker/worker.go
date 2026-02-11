@@ -49,8 +49,7 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w.ctx, w.cancel = context.WithCancel(context.Background())
 
 	// 注册处理器
-	w.RegisterHandler(tasks.EmailRelationTaskPrefix, NewEmailRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.InviteCodeRelationTaskPrefix, NewInviteRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.EmailRelationTaskPrefix, NewEmailRelationHandler(w.ctx, svcCtx))
 
 	return w
 }

@@ -23,7 +23,7 @@ const (
 
 type ComicChapterRelationTask struct {
 	Type      ComicChapterRelationTaskType `json:"type"`
-	ComicId   uint64                       `json:"comic_id"`
+	ComicID   uint64                       `json:"comic_id"`
 	UID       uint64                       `json:"uid"`
 	ChapterID uint64                       `json:"chapter_id"`
 	PageUrls  []string                     `json:"page_urls"`
@@ -33,7 +33,7 @@ type ComicChapterRelationTask struct {
 
 // ID 返回任务 ID
 func (t *ComicChapterRelationTask) ID() string {
-	return fmt.Sprintf("%s:%s:%d:%d:%d", ComicChapterRelationTaskPrefix, t.Type, t.ComicId, t.ChapterID, t.UID)
+	return fmt.Sprintf("%s:%s:%d:%d:%d", ComicChapterRelationTaskPrefix, t.Type, t.ComicID, t.ChapterID, t.UID)
 }
 
 // Payload 返回任务内容

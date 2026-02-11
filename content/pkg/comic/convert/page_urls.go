@@ -5,11 +5,11 @@ import (
 	v1 "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 )
 
-func ComicPagesFromStrings(chapterId uint64, pageUrls []string) []*model.ComicPage {
+func ComicPagesFromStrings(chapterID uint64, pageUrls []string) []*model.ComicPage {
 	res := make([]*model.ComicPage, len(pageUrls))
 	for i, url := range pageUrls {
 		res[i] = &model.ComicPage{
-			ChapterId: chapterId,
+			ChapterId: chapterID,
 			PageNo:    int64(i + 1),
 			Url:       url,
 		}

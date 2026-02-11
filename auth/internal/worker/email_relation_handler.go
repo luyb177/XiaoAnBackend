@@ -19,7 +19,7 @@ type EmailRelationHandler struct {
 	EmailConfig *email.Config
 }
 
-func NewEmailRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *EmailRelationHandler {
+func NewEmailRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *EmailRelationHandler {
 	emailConfig := &email.Config{
 		From:     svcCtx.Config.Email.From,
 		Password: svcCtx.Config.Email.Password,

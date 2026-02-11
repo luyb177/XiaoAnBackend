@@ -103,7 +103,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	highlightCh := make(chan HighlightResult, 1)
 
 	go func() {
-		tags, err := l.PodcastTagDao.FindManyByPodcastId(l.ctx, in.Id)
+		tags, err := l.PodcastTagDao.FindManyByPodcastID(l.ctx, in.Id)
 		tagCh <- TagResult{
 			podcastTags: tags,
 			err:         err,
@@ -124,7 +124,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	}()
 
 	go func() {
-		highlights, err := l.PodcastHighlightDao.FindManyByPodcastId(l.ctx, in.Id)
+		highlights, err := l.PodcastHighlightDao.FindManyByPodcastID(l.ctx, in.Id)
 		highlightCh <- HighlightResult{
 			highlights: highlights,
 			err:        err,

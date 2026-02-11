@@ -52,10 +52,10 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 
 	if in.Cursor == 0 {
 		// 首次查询
-		list, err = l.InviteCodeDao.FindManyByCreatorId(l.ctx, user.UID, limit)
+		list, err = l.InviteCodeDao.FindManyByCreatorID(l.ctx, user.UID, limit)
 	} else {
 		// 继续查询
-		list, err = l.InviteCodeDao.FindManyByCreatorIdWithCursor(l.ctx, user.UID, in.Cursor, limit)
+		list, err = l.InviteCodeDao.FindManyByCreatorIDWithCursor(l.ctx, user.UID, in.Cursor, limit)
 	}
 
 	if err != nil {

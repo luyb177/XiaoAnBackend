@@ -286,10 +286,10 @@ type (
 		tags        []string `json:"tags"`
 	}
 	GetVideoContentRequest {
-		videoId uint64 `form:"video_id"`
+		videoID uint64 `form:"video_id"`
 	}
 	ModifyVideoRequest {
-		videoId     uint64   `json:"video_id"`
+		videoID     uint64   `json:"video_id"`
 		name        string   `json:"name"`
 		url         string   `json:"url"`
 		description string   `json:"description"`
@@ -299,7 +299,7 @@ type (
 		tags        []string `json:"tags"`
 	}
 	DeleteVideoRequest {
-		videoId uint64 `form:"video_id"`
+		videoID uint64 `form:"video_id"`
 	}
 	// 播客
 	AddPodcastRequest {
@@ -315,10 +315,10 @@ type (
 		highlights  []*PodcastHighlightItem `json:"highlights"`
 	}
 	GetPodcastContentRequest {
-		podcastId uint64 `form:"podcast_id"`
+		podcastID uint64 `form:"podcast_id"`
 	}
 	ModifyPodcastRequest {
-		podcastId   uint64                  `json:"podcast_id"`
+		podcastID   uint64                  `json:"podcast_id"`
 		name        string                  `json:"name"`
 		url         string                  `json:"url"`
 		description string                  `json:"description"`
@@ -331,7 +331,7 @@ type (
 		highlights  []*PodcastHighlightItem `json:"highlights"`
 	}
 	DeletePodcastRequest {
-		podcastId uint64 `form:"podcast_id"`
+		podcastID uint64 `form:"podcast_id"`
 	}
 	// 漫画
 	AddComicRequest {
@@ -343,7 +343,7 @@ type (
 		publishedAt int64    `json:"published_at"`
 	}
 	AddComicChapterRequest {
-		comicId     uint64   `json:"comic_id"`
+		comicID     uint64   `json:"comic_id"`
 		chapterNo   int64    `json:"chapter_no"`
 		title       string   `json:"title"`
 		description string   `json:"description"`
@@ -352,10 +352,10 @@ type (
 		pageUrls    []string `json:"page_urls"`
 	}
 	GetComicRequest {
-		comicId uint64 `form:"comic_id"`
+		comicID uint64 `form:"comic_id"`
 	}
 	GetComicChapterRequest {
-		comicId  uint64 `form:"comic_id"`
+		comicID  uint64 `form:"comic_id"`
 		page     int64  `form:"page"`
 		pageSize int64  `form:"page_size"`
 	}
@@ -365,7 +365,7 @@ type (
 		pageSize       int64  `form:"page_size"`
 	}
 	ModifyComicRequest {
-		comicId     uint64   `json:"comic_id"`
+		comicID     uint64   `json:"comic_id"`
 		name        string   `json:"name"`
 		tags        []string `json:"tags"`
 		description string   `json:"description"`
@@ -375,7 +375,7 @@ type (
 	}
 	ModifyComicChapterRequest {
 		comicChapterId uint64   `json:"comic_chapter_id"`
-		comicId        uint64   `json:"comic_id"`
+		comicID        uint64   `json:"comic_id"`
 		chapterNo      int64    `json:"chapter_no"`
 		title          string   `json:"title"`
 		description    string   `json:"description"`
@@ -384,11 +384,11 @@ type (
 		pageUrls       []string `json:"page_urls"`
 	}
 	DeleteComicRequest {
-		comicId uint64 `form:"comic_id"`
+		comicID uint64 `form:"comic_id"`
 	}
 	DeleteComicChapterRequest {
 		comicChapterId uint64 `form:"comic_chapter_id"`
-		comicId        uint64 `form:"comic_id"`
+		comicID        uint64 `form:"comic_id"`
 	}
 	AddCommentRequest {
 		contentType    string `json:"content_type"`
@@ -402,7 +402,7 @@ type (
 		status         uint64 `json:"status"`
 	}
 	DeleteCommentRequest {
-		commentId uint64 `form:"comment_id"`
+		commentID uint64 `form:"comment_id"`
 	}
 	GetRootCommentRequest {
 		contentType string `form:"content_type"`
@@ -484,29 +484,29 @@ type (
 		article Article `json:"article"`
 	}
 	AddVideoResponse {
-		videoId        uint64 `json:"video_id"`
+		videoID        uint64 `json:"video_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	ModifyVideoResponse {
-		videoId        uint64 `json:"video_id"`
+		videoID        uint64 `json:"video_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	GetVideoResponse {
 		video Video `json:"video"`
 	}
 	AddPodcastResponse {
-		podcastId      uint64 `json:"podcast_id"`
+		podcastID      uint64 `json:"podcast_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	GetPodcastResponse {
 		podcast Podcast `json:"podcast"`
 	}
 	ModifyPodcastResponse {
-		podcastId      uint64 `json:"podcast_id"`
+		podcastID      uint64 `json:"podcast_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	AddComicResponse {
-		comicId        uint64 `json:"comic_id"`
+		comicID        uint64 `json:"comic_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	AddComicChapterResponse {
@@ -523,7 +523,7 @@ type (
 		pages []ComicChapterPage `json:"pages"`
 	}
 	ModifyComicResponse {
-		comicId        uint64 `json:"comic_id"`
+		comicID        uint64 `json:"comic_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	ModifyComicChapterResponse {
@@ -531,7 +531,7 @@ type (
 		relationStatus int64  `json:"relation_status"`
 	}
 	AddCommentResponse {
-		commentId      uint64 `json:"comment_id"`
+		commentID      uint64 `json:"comment_id"`
 		relationStatus int64  `json:"relation_status"`
 	}
 	GetRootCommentResponse {

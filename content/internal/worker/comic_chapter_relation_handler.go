@@ -26,7 +26,7 @@ type ComicChapterRelationHandler struct {
 	ComicPageDao    model.ComicPageModel
 }
 
-func NewComicChapterRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ComicChapterRelationHandler {
+func NewComicChapterRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *ComicChapterRelationHandler {
 	return &ComicChapterRelationHandler{
 		svcCtx:          svcCtx,
 		Logger:          logx.WithContext(ctx),
@@ -73,7 +73,7 @@ func (h *ComicChapterRelationHandler) Handle(ctx context.Context, task taskqueue
 func (h *ComicChapterRelationHandler) handleAdd(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 章节数+1
-		err := h.ComicDao.IncrChapterCountByComicIDWithSession(ctx, session, task.ComicId)
+		err := h.ComicDao.IncrChapterCountByComicIDWithSession(ctx, session, task.ComicID)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ func (h *ComicChapterRelationHandler) handleModify(ctx context.Context, task *ta
 func (h *ComicChapterRelationHandler) handleDelete(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 章节数-1
-		err := h.ComicDao.DecrChapterCountByComicIDWithSession(ctx, session, task.ComicId)
+		err := h.ComicDao.DecrChapterCountByComicIDWithSession(ctx, session, task.ComicID)
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func (h *ComicChapterRelationHandler) handleDelete(ctx context.Context, task *ta
 func (h *ComicChapterRelationHandler) handleDeleteAll(ctx context.Context, task *tasks.ComicChapterRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 获取该漫画的所有章节
-		chapters, err := h.ComicChapterDao.FindAllByComicIDWithSession(ctx, session, task.ComicId)
+		chapters, err := h.ComicChapterDao.FindAllByComicIDWithSession(ctx, session, task.ComicID)
 		if err != nil {
 			return err
 		}

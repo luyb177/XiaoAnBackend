@@ -75,12 +75,12 @@ func (l *AddCommentLogic) AddComment(in *v1.AddCommentRequest) (*v1.Response, er
 		return internal(err.Error()), nil
 	}
 
-	commentId, err := result.LastInsertId()
+	commentID, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddComment err: 获取评论ID失败, %v", err)
 		return internal("获取评论ID失败"), nil
 	}
-	comment.Id = uint64(commentId)
+	comment.Id = uint64(commentID)
 
 	commentRelationTask := &tasks.CommentRelationTask{
 		Type:           tasks.CommentRelationAdd,

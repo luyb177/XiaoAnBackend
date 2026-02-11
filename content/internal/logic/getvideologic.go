@@ -89,7 +89,7 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 	collectCh := make(chan CollectResult, 1)
 
 	go func() {
-		tags, err := l.VideoTagDao.FindManyByVideoId(l.ctx, video.Id)
+		tags, err := l.VideoTagDao.FindManyByVideoID(l.ctx, video.Id)
 		tagCh <- tagResult{
 			tags: tags,
 			err:  err,

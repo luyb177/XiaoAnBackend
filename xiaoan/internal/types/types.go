@@ -94,7 +94,7 @@ type AddVideoRequest struct {
 }
 
 type AddVideoResponse struct {
-	VideoId        uint64 `json:"video_id"`
+	VideoID        uint64 `json:"video_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
@@ -209,7 +209,7 @@ type DeletePodcastRequest struct {
 }
 
 type DeleteVideoRequest struct {
-	VideoId uint64 `form:"video_id"`
+	VideoID uint64 `form:"video_id"`
 }
 
 type EmptyResponse struct {
@@ -327,7 +327,7 @@ type GetUserInfoResponse struct {
 }
 
 type GetVideoContentRequest struct {
-	VideoId uint64 `form:"video_id"`
+	VideoID uint64 `form:"video_id"`
 }
 
 type GetVideoResponse struct {
@@ -440,7 +440,7 @@ type ModifyUserBaseInfoRequest struct {
 }
 
 type ModifyVideoRequest struct {
-	VideoId     uint64   `json:"video_id"`
+	VideoID     uint64   `json:"video_id"`
 	Name        string   `json:"name"`
 	Url         string   `json:"url"`
 	Description string   `json:"description"`
@@ -451,7 +451,7 @@ type ModifyVideoRequest struct {
 }
 
 type ModifyVideoResponse struct {
-	VideoId        uint64 `json:"video_id"`
+	VideoID        uint64 `json:"video_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 

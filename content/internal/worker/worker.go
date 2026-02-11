@@ -49,14 +49,14 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w.ctx, w.cancel = context.WithCancel(context.Background())
 
 	// 注册处理器
-	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.PodcastRelationTaskPrefix, NewPodcastRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.ComicRelationTaskPrefix, NewComicRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.ComicChapterRelationTaskPrefix, NewComicChapterRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.LikeRelationTaskPrefix, NewLikeRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.CollectRelationTaskPrefix, NewCollectRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.PodcastRelationTaskPrefix, NewPodcastRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.ComicRelationTaskPrefix, NewComicRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.ComicChapterRelationTaskPrefix, NewComicChapterRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.LikeRelationTaskPrefix, NewLikeRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.CollectRelationTaskPrefix, NewCollectRelationHandler(w.ctx, svcCtx))
 	return w
 }
 

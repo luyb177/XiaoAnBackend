@@ -40,6 +40,7 @@ func (m *customClassModel) withSession(session sqlx.Session) ClassModel {
 }
 
 func (m *customClassModel) Insert(ctx context.Context, data *Class) (sql.Result, error) {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
 	result, err := m.defaultClassModel.Insert(ctx, data)
 	return result, mapDBError(err)
 }

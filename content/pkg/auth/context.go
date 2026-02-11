@@ -24,10 +24,6 @@ func GetUserFromMetadata(ctx context.Context) (uint64, string, int64, error) {
 	role := md.Get(MdKeyUserRole)
 	statusStr := md.Get(MdKeyUserStatus)
 
-	//fmt.Println("uidStr", uidStr)
-	//fmt.Println("role", role)
-	//fmt.Println("statusStr", statusStr)
-
 	if len(uidStr) == 0 || len(role) == 0 || len(statusStr) == 0 {
 		return 0, "", 0, errors.New("user metadata missing")
 	}

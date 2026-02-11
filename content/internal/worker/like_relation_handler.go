@@ -30,7 +30,7 @@ type LikeRelationHandler struct {
 	CommentDao model.CommentModel
 }
 
-func NewLikeRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *LikeRelationHandler {
+func NewLikeRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *LikeRelationHandler {
 	return &LikeRelationHandler{
 		svcCtx:         svcCtx,
 		Logger:         logx.WithContext(ctx),
@@ -89,7 +89,7 @@ func (h *LikeRelationHandler) handleAdd(ctx context.Context, task *tasks.LikeRel
 			return err
 		}
 		// 获取ID
-		contentLike, err = h.ContentLikeDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentLike, err = h.ContentLikeDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func (h *LikeRelationHandler) handleAdd(ctx context.Context, task *tasks.LikeRel
 func (h *LikeRelationHandler) handleDelete(ctx context.Context, task *tasks.LikeRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 先 find
-		contentLike, err := h.ContentLikeDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentLike, err := h.ContentLikeDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			if errors.Is(err, model.ErrNotFound) {
 				return nil
@@ -164,6 +164,7 @@ func (h *LikeRelationHandler) handleDelete(ctx context.Context, task *tasks.Like
 			}
 			if affect == 0 {
 				// 内容不存在
+				h.Errorf("content not found when decrementing like count: type=%s, id=%d", task.ContentType, task.ContentID)
 			}
 		}
 

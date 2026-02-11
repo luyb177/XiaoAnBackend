@@ -16,16 +16,16 @@ type (
 	ContentCollectModel interface {
 		contentCollectModel
 		withSession(session sqlx.Session) ContentCollectModel
-		FindOneByUserIdTypeTargetId(ctx context.Context, userId uint64, tp string, targetId uint64) (*ContentCollect, error)
-		FindOneByUserIdTypeTargetIdWithSession(ctx context.Context, session sqlx.Session, userId uint64, tp string, targetId uint64) (*ContentCollect, error)
+		FindOneByUserIDTypeTargetID(ctx context.Context, userID uint64, tp string, targetID uint64) (*ContentCollect, error)
+		FindOneByUserIDTypeTargetIDWithSession(ctx context.Context, session sqlx.Session, userID uint64, tp string, targetID uint64) (*ContentCollect, error)
 		Upsert(ctx context.Context, data *ContentCollect) (sql.Result, error)
 		UpsertWithSession(ctx context.Context, session sqlx.Session, data *ContentCollect) (sql.Result, error)
 		MarkCollectAsCounted(ctx context.Context, id uint64) (sql.Result, error)
 		MarkCollectAsCountedWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		UnmarkCollectAsCounted(ctx context.Context, id uint64) (sql.Result, error)
 		UnmarkCollectAsCountedWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
-		SoftDelete(ctx context.Context, id uint64, deletedAt uint64) (sql.Result, error)
-		SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64, deletedAt uint64) (sql.Result, error)
+		SoftDelete(ctx context.Context, id, deletedAt uint64) (sql.Result, error)
+		SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id, deletedAt uint64) (sql.Result, error)
 	}
 
 	customContentCollectModel struct {
@@ -44,13 +44,14 @@ func (m *customContentCollectModel) withSession(session sqlx.Session) ContentCol
 	return NewContentCollectModel(sqlx.NewSqlConnFromSession(session))
 }
 
-func (m *customContentCollectModel) FindOneByUserIdTypeTargetId(ctx context.Context, userId uint64, tp string, targetId uint64) (*ContentCollect, error) {
-	res, err := m.defaultContentCollectModel.FindOneByUserIdTypeTargetId(ctx, userId, tp, targetId)
+func (m *customContentCollectModel) FindOneByUserIDTypeTargetID(ctx context.Context, userID uint64, tp string, targetID uint64) (*ContentCollect, error) {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
+	res, err := m.defaultContentCollectModel.FindOneByUserIdTypeTargetId(ctx, userID, tp, targetID)
 	return res, mapDBError(err)
 }
 
-func (m *customContentCollectModel) FindOneByUserIdTypeTargetIdWithSession(ctx context.Context, session sqlx.Session, userId uint64, tp string, targetId uint64) (*ContentCollect, error) {
-	return m.withSession(session).FindOneByUserIdTypeTargetId(ctx, userId, tp, targetId)
+func (m *customContentCollectModel) FindOneByUserIDTypeTargetIDWithSession(ctx context.Context, session sqlx.Session, userID uint64, tp string, targetID uint64) (*ContentCollect, error) {
+	return m.withSession(session).FindOneByUserIDTypeTargetID(ctx, userID, tp, targetID)
 }
 
 func (m *customContentCollectModel) Upsert(ctx context.Context, data *ContentCollect) (sql.Result, error) {
@@ -104,7 +105,7 @@ func (m *customContentCollectModel) UnmarkCollectAsCountedWithSession(ctx contex
 	return m.withSession(session).UnmarkCollectAsCounted(ctx, id)
 }
 
-func (m *customContentCollectModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64) (sql.Result, error) {
+func (m *customContentCollectModel) SoftDelete(ctx context.Context, id, deletedAt uint64) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		update %s
 		set deleted_at = ?
@@ -114,6 +115,6 @@ func (m *customContentCollectModel) SoftDelete(ctx context.Context, id uint64, d
 	result, err := m.conn.ExecCtx(ctx, query, deletedAt, id)
 	return result, mapDBError(err)
 }
-func (m *customContentCollectModel) SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64, deletedAt uint64) (sql.Result, error) {
+func (m *customContentCollectModel) SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id, deletedAt uint64) (sql.Result, error) {
 	return m.withSession(session).SoftDelete(ctx, id, deletedAt)
 }

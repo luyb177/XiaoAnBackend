@@ -118,11 +118,9 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 	_, err := l.UserDao.FindOneByEmailWithNotDelete(l.ctx, in.Email)
 	if err == nil {
 		return bad("该邮箱已注册"), nil
-	} else {
-		if !errors.Is(err, model.ErrNotFound) {
-			l.Errorf("Register err: 查询用户失败,%v", err)
-			return internal("查询用户失败"), nil
-		}
+	} else if !errors.Is(err, model.ErrNotFound) {
+		l.Errorf("Register err: 查询用户失败,%v", err)
+		return internal("查询用户失败"), nil
 	}
 
 	hashPassword, err := password.Hash(in.Password)
@@ -163,11 +161,11 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		if err != nil {
 			return err
 		}
-		userId, err := result.LastInsertId()
+		userID, err := result.LastInsertId()
 		if err != nil {
 			return err
 		}
-		user.Id = uint64(userId)
+		user.Id = uint64(userID)
 
 		// 班级成员数+1
 		if code.ClassId != 0 {

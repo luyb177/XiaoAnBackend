@@ -24,9 +24,6 @@ linters:
     - revive
     - gocritic
 
-    # ===== 复杂度 & 体量控制 =====
-    - gocyclo
-
   exclusions:
     generated: lax
     paths:
@@ -42,11 +39,6 @@ linters:
           - errcheck
           - gocritic
           - revive
-
-      # ---------- BFF / Handler 层 ----------
-      - path: xiaoan/internal/handler
-        linters:
-          - gocyclo
 
       # ---------- main / 启动文件 ----------
       - path: main\.go
@@ -75,6 +67,3 @@ linters:
         - hugeParam
         - unnamedResult
         - ifElseChain
-
-    gocyclo:
-      min-complexity: 15

@@ -16,11 +16,11 @@ type (
 	ComicTagModel interface {
 		comicTagModel
 		withSession(session sqlx.Session) ComicTagModel
-		FindManyByComicId(ctx context.Context, comicId uint64) ([]*ComicTag, error)
+		FindManyByComicID(ctx context.Context, comicID uint64) ([]*ComicTag, error)
 		InsertBatch(ctx context.Context, list []*ComicTag) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ComicTag) error
-		SoftDeleteBatchByComicId(ctx context.Context, comicId uint64, deletedAt uint64) error
-		SoftDeleteBatchByComicIdWithSession(ctx context.Context, session sqlx.Session, comicId uint64, deletedAt uint64) error
+		SoftDeleteBatchByComicID(ctx context.Context, comicID, deletedAt uint64) error
+		SoftDeleteBatchByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID, deletedAt uint64) error
 	}
 
 	customComicTagModel struct {
@@ -39,14 +39,14 @@ func (m *customComicTagModel) withSession(session sqlx.Session) ComicTagModel {
 	return NewComicTagModel(sqlx.NewSqlConnFromSession(session))
 }
 
-func (m *customComicTagModel) FindManyByComicId(ctx context.Context, comicId uint64) ([]*ComicTag, error) {
+func (m *customComicTagModel) FindManyByComicID(ctx context.Context, comicID uint64) ([]*ComicTag, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `comic_id` = ? and `deleted_at` = 0",
 		comicTagRows,
 		m.table,
 	)
 	var resp []*ComicTag
-	err := m.conn.QueryRowsCtx(ctx, &resp, query, comicId)
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, comicID)
 	return resp, mapDBError(err)
 }
 
@@ -79,15 +79,15 @@ func (m *customComicTagModel) InsertBatchWithSession(ctx context.Context, sessio
 	return m.withSession(session).InsertBatch(ctx, list)
 }
 
-func (m *customComicTagModel) SoftDeleteBatchByComicId(ctx context.Context, comicId uint64, deletedAt uint64) error {
+func (m *customComicTagModel) SoftDeleteBatchByComicID(ctx context.Context, comicID, deletedAt uint64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ? where `comic_id` = ? and `deleted_at` = 0",
 		m.table,
 	)
-	_, err := m.conn.ExecCtx(ctx, query, deletedAt, comicId)
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, comicID)
 	return mapDBError(err)
 }
 
-func (m *customComicTagModel) SoftDeleteBatchByComicIdWithSession(ctx context.Context, session sqlx.Session, comicId uint64, deletedAt uint64) error {
-	return m.withSession(session).SoftDeleteBatchByComicId(ctx, comicId, deletedAt)
+func (m *customComicTagModel) SoftDeleteBatchByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteBatchByComicID(ctx, comicID, deletedAt)
 }
