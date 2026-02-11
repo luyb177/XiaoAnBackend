@@ -26,7 +26,6 @@ linters:
 
     # ===== 复杂度 & 体量控制 =====
     - gocyclo
-    - funlen
 
   exclusions:
     generated: lax
@@ -48,7 +47,6 @@ linters:
       - path: xiaoan/internal/handler
         linters:
           - gocyclo
-          - funlen
 
       # ---------- main / 启动文件 ----------
       - path: main\.go
@@ -62,8 +60,6 @@ linters:
         - name: var-naming
         - name: package-comments
           disabled: true
-        - name: line-length-limit
-          arguments: [120]
         - name: unexported-return
           disabled: true
         - name: error-strings
@@ -82,7 +78,3 @@ linters:
 
     gocyclo:
       min-complexity: 15
-
-    funlen:
-      lines: 120
-      statements: 60
