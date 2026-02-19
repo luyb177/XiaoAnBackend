@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [auth, content, qa, xiaoan]
+        service: [auth, content, qa, xiaoan, infra]
 
     steps:
       - name: Checkout code
