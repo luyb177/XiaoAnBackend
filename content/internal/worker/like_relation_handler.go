@@ -163,7 +163,7 @@ func (h *LikeRelationHandler) handleDelete(ctx context.Context, task *tasks.Like
 				return err
 			}
 			if affect == 0 {
-				// 内容不存在
+				// 内容不存在 （可能被删除了），记录一下日志，并继续删除点赞记录
 				h.Errorf("content not found when decrementing like count: type=%s, id=%d", task.ContentType, task.ContentID)
 			}
 		}

@@ -28,7 +28,7 @@ func (h *HandlerImpl) SetJWTToken(claimsParams ClaimsParams) (string, error) {
 	claims := Claims{
 		ClaimsParams: claimsParams,
 		RegisteredClaims: jwtv5.RegisteredClaims{
-			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(h.TokenExpire * time.Second)),
+			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(h.TokenExpire)),
 		},
 	}
 	token := jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, &claims)

@@ -1,7 +1,7 @@
 package constants
 
 const (
-	SUPERADMIN = "SUPERADMIN"
+	SUPERADMIN = "superadmin"
 	CLASSADMIN = "classadmin"
 	STUDENT    = "student"
 	STAFF      = "STAFF"

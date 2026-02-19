@@ -36,7 +36,7 @@ func (l *GenerateClassLogic) GenerateClass(in *v1.GenerateClassRequest) (*v1.Res
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	if in.Name == "" && len(in.Name) > 50 {
+	if in.Name == "" || len(in.Name) > 50 {
 		return bad("班级名称不能为空且不能超过50个字符"), nil
 	}
 
