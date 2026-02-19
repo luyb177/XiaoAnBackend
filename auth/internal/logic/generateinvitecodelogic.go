@@ -9,12 +9,13 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	authcode "github.com/luyb177/XiaoAnBackend/auth/pkg/code"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/retry"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+	"github.com/luyb177/XiaoAnBackend/infra/retry"
 )
 
 const (
@@ -45,7 +46,7 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // GenerateInviteCode 生成邀请码
 func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Role == "" || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
@@ -75,7 +76,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 
 	// 验证班级
 	if in.ClassId != 0 {
-		if in.TargetRole != STUDENT {
+		if in.TargetRole != constants.STUDENT {
 			return bad("只有学生邀请码可以指定班级"), nil
 		}
 		// 验证班级是否存在
@@ -88,7 +89,7 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 			return internal("系统繁忙，请稍后再试"), nil
 		}
 		if class.AdminId != user.UID {
-			if dbUser.Role != SUPERADMIN && dbUser.Role != STAFF {
+			if dbUser.Role != constants.SUPERADMIN && dbUser.Role != constants.STAFF {
 				return bad("没有权限生成该班级的邀请码"), nil
 			}
 		}
@@ -124,7 +125,9 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(in *v1.GenerateInviteCodeRe
 		l.ctx,
 		fn,
 		retry.WithJitter(),
-		retry.WithRetryIf(retry.RetryOnDuplicateKey),
+		retry.WithRetryIf(func(err error) bool {
+			return errors.Is(err, model.ErrDuplicateEntry)
+		}),
 		retry.WithOnRetry(func(attempt int, err error, nextDelay time.Duration) {
 			l.Errorf("GenerateInviteCode Insert %d failed: %v, next retry in %v", attempt, err, nextDelay)
 		}),
@@ -174,12 +177,12 @@ func (l *GenerateInviteCodeLogic) validate(in *v1.GenerateInviteCodeRequest) *v1
 
 func hasPermission(userRole, targetRole string) bool {
 	switch userRole {
-	case SUPERADMIN:
-		return targetRole == SUPERADMIN || targetRole == STAFF || targetRole == CLASSADMIN || targetRole == STUDENT
-	case STAFF:
-		return targetRole == STAFF || targetRole == CLASSADMIN || targetRole == STUDENT
-	case CLASSADMIN:
-		return targetRole == STUDENT
+	case constants.SUPERADMIN:
+		return targetRole == constants.SUPERADMIN || targetRole == constants.STAFF || targetRole == constants.CLASSADMIN || targetRole == constants.STUDENT
+	case constants.STAFF:
+		return targetRole == constants.STAFF || targetRole == constants.CLASSADMIN || targetRole == constants.STUDENT
+	case constants.CLASSADMIN:
+		return targetRole == constants.STUDENT
 	default:
 		return false
 	}

@@ -11,11 +11,11 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/server"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/internal/worker"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 var configFile = flag.String("f", "etc/content.yaml", "the config file")

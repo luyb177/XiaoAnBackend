@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/podcast/convert"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 )
 
@@ -40,7 +40,7 @@ func NewPodcastRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-func (h *PodcastRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *PodcastRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err

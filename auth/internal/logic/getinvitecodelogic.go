@@ -7,11 +7,12 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/code/convert"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetInviteCodeLogic struct {
@@ -34,7 +35,7 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Role == "" || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 

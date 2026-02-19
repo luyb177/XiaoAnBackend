@@ -3,9 +3,11 @@ package logic
 import (
 	"context"
 
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+
 	"github.com/zeromicro/go-zero/core/logx"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
@@ -28,7 +30,7 @@ func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLo
 // Collect 收藏
 func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 	if resp := ValidateCollectAndUnCollectRequest(in.ContentType, in.ContentId); resp != nil {

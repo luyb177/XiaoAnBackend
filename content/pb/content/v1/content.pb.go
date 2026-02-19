@@ -4629,7 +4629,7 @@ var File_content_proto protoreflect.FileDescriptor
 
 const file_content_proto_rawDesc = "" +
 	"\n" +
-	"\rcontent.proto\x12\acontent\x1a%third_party/google/protobuf/any.proto\"\x99\x04\n" +
+	"\rcontent.proto\x12\acontent\x1a\x19google/protobuf/any.proto\"\x99\x04\n" +
 	"\x05Video\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -5074,7 +5074,7 @@ const file_content_proto_rawDesc = "" +
 	"\x06Unlike\x12\x16.content.UnlikeRequest\x1a\x11.content.Response\x125\n" +
 	"\aCollect\x12\x17.content.CollectRequest\x1a\x11.content.Response\x129\n" +
 	"\tUnCollect\x12\x19.content.UnCollectRequest\x1a\x11.content.Response\x123\n" +
-	"\x06Search\x12\x16.content.SearchRequest\x1a\x11.content.ResponseB\x0eZ\f./content/v1b\x06proto3"
+	"\x06Search\x12\x16.content.SearchRequest\x1a\x11.content.ResponseB\x11Z\x0f./pb/content/v1b\x06proto3"
 
 var (
 	file_content_proto_rawDescOnce sync.Once

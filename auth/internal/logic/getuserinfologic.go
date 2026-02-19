@@ -7,10 +7,11 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetUserInfoLogic struct {
@@ -32,7 +33,7 @@ func NewGetUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 // GetUserInfo 获取用户信息
 func (l *GetUserInfoLogic) GetUserInfo(in *v1.GetUserInfoRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Role == "" || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 

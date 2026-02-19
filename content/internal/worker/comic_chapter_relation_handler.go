@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
+
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -11,10 +14,8 @@ import (
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 )
 
@@ -36,7 +37,7 @@ func NewComicChapterRelationHandler(ctx context.Context, svcCtx *svc.ServiceCont
 	}
 }
 
-func (h *ComicChapterRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *ComicChapterRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err

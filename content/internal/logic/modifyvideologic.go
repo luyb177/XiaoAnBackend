@@ -6,11 +6,13 @@ import (
 	"errors"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -36,7 +38,7 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 // ModifyVideo 修改视频
 func (l *ModifyVideoLogic) ModifyVideo(in *v1.ModifyVideoRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

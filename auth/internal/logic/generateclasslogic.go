@@ -6,10 +6,11 @@ import (
 
 	"github.com/zeromicro/go-zero/core/logx"
 
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GenerateClassLogic struct {
@@ -31,7 +32,7 @@ func NewGenerateClassLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gen
 // GenerateClass 生成班级
 func (l *GenerateClassLogic) GenerateClass(in *v1.GenerateClassRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Role == "" || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 

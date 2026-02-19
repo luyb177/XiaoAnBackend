@@ -1,7 +1,7 @@
 syntax = "proto3";
-import "third_party/google/protobuf/any.proto";
+import "google/protobuf/any.proto";
 package auth;
-option go_package = "./auth/v1";
+option go_package = "./pb/auth/v1";
 
 // todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ message User {
   string phone = 5;
   string department = 6;
 
-  string role = 7;           // superadmin / classadmin / student / staff
+  string role = 7;           // common.SUPERADMIN / classadmin / student / common.STAFF
   uint64 class_id = 8;       // 所属班级 学生 ID
   int64 status = 9;         // 1 正常 2 禁用 3 删除
   string invite_code_used = 10;
@@ -35,7 +35,7 @@ message UserInfo {
   string phone = 5;
   string department = 6;
 
-  string role = 7;           // superadmin / classadmin / student / staff
+  string role = 7;           // common.SUPERADMIN / classadmin / student / common.STAFF
   uint64 class_id = 8;       // 所属班级 学生 ID
   int64 status = 9;         // 1 正常 2 禁用 3 删除
 
@@ -53,7 +53,7 @@ message InviteCode {
   uint64 used_count = 5;
   string remark = 6;
 
-  string target_role = 7;    // 邀请码的目标角色 classadmin / student / staff
+  string target_role = 7;    // 邀请码的目标角色 classadmin / student / common.STAFF
   uint64 class_id = 8;       // student 用，注册自动加入班级 其中 0 表示没有班级
 
   int64 created_at = 9;

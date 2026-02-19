@@ -2,6 +2,10 @@ package middleware
 
 import (
 	"context"
+
+	"github.com/luyb177/XiaoAnBackend/infra/jwt"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+
 	"net/http"
 	"strconv"
 	"time"
@@ -10,20 +14,18 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/luyb177/XiaoAnBackend/content/pkg/auth"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/pkg/ijwt"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type AuthMiddleware struct {
-	r ijwt.Handler
+	r jwt.Handler
 	logx.Logger
 }
 
 func NewAuthMiddleware(cfg config.JWTConfig) *AuthMiddleware {
 	return &AuthMiddleware{
-		r:      ijwt.NewHandler(cfg.Secret, time.Duration(cfg.Expire)),
+		r:      jwt.NewHandler(cfg.Secret, time.Duration(cfg.Expire)),
 		Logger: logx.WithContext(context.Background()),
 	}
 }
@@ -53,9 +55,9 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		ctx := r.Context()
 		ctx = metadata.AppendToOutgoingContext(
 			ctx,
-			auth.MdKeyUserID, strconv.FormatUint(claims.UserID, 10),
-			auth.MdKeyUserRole, claims.UserRole,
-			auth.MdKeyUserStatus, strconv.FormatUint(uint64(claims.UserStatus), 10),
+			middleware.MdKeyUserID, strconv.FormatUint(claims.UserID, 10),
+			middleware.MdKeyUserRole, claims.UserRole,
+			middleware.MdKeyUserStatus, strconv.FormatUint(uint64(claims.UserStatus), 10),
 		)
 
 		next(w, r.WithContext(ctx))

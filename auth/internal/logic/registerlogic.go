@@ -17,6 +17,7 @@ import (
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
 )
 
 type RegisterLogic struct {
@@ -82,7 +83,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		}
 
 		if code.ClassId != 0 {
-			if code.TargetRole != STUDENT {
+			if code.TargetRole != constants.STUDENT {
 				return errors.New("邀请码关联的角色不合法")
 			}
 
@@ -137,7 +138,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		Department:     code.Department,
 		Role:           code.TargetRole,
 		ClassId:        code.ClassId,
-		Status:         UserStatusNormal, // 1 正常
+		Status:         constants.UserStatusNormal, // 1 正常
 		InviteCodeUsed: sql.NullString{String: code.Code, Valid: true},
 	}
 

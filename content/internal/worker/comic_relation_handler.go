@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 )
 
@@ -37,7 +37,7 @@ func NewComicRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *C
 	}
 }
 
-func (h *ComicRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *ComicRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err

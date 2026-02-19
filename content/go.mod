@@ -2,10 +2,17 @@ module github.com/luyb177/XiaoAnBackend/content
 
 go 1.25.3
 
+replace (
+	github.com/luyb177/XiaoAnBackend/auth => ../auth
+	github.com/luyb177/XiaoAnBackend/infra => ../infra
+	github.com/luyb177/XiaoAnBackend/qa => ../qa
+)
+
 require (
 	github.com/go-sql-driver/mysql v1.9.0
-	github.com/redis/go-redis/v9 v9.16.0
-	github.com/zeromicro/go-zero v1.9.3
+	github.com/luyb177/XiaoAnBackend/infra v0.0.0-00010101000000-000000000000
+	github.com/redis/go-redis/v9 v9.17.2
+	github.com/zeromicro/go-zero v1.9.4
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
 )

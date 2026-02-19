@@ -79,7 +79,7 @@ type User struct {
 	Avatar         string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	Phone          string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`
 	Department     string                 `protobuf:"bytes,6,opt,name=department,proto3" json:"department,omitempty"`
-	Role           string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`                       // superadmin / classadmin / student / staff
+	Role           string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`                       // common.SUPERADMIN / classadmin / student / common.STAFF
 	ClassId        uint64                 `protobuf:"varint,8,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // 所属班级 学生 ID
 	Status         int64                  `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`                  // 1 正常 2 禁用 3 删除
 	InviteCodeUsed string                 `protobuf:"bytes,10,opt,name=invite_code_used,json=inviteCodeUsed,proto3" json:"invite_code_used,omitempty"`
@@ -211,7 +211,7 @@ type UserInfo struct {
 	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	Phone         string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`
 	Department    string                 `protobuf:"bytes,6,opt,name=department,proto3" json:"department,omitempty"`
-	Role          string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`                       // superadmin / classadmin / student / staff
+	Role          string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`                       // common.SUPERADMIN / classadmin / student / common.STAFF
 	ClassId       uint64                 `protobuf:"varint,8,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"` // 所属班级 学生 ID
 	Status        int64                  `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`                  // 1 正常 2 禁用 3 删除
 	CreatedAt     int64                  `protobuf:"varint,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -335,7 +335,7 @@ type InviteCode struct {
 	MaxUses       uint64                 `protobuf:"varint,4,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
 	UsedCount     uint64                 `protobuf:"varint,5,opt,name=used_count,json=usedCount,proto3" json:"used_count,omitempty"`
 	Remark        string                 `protobuf:"bytes,6,opt,name=remark,proto3" json:"remark,omitempty"`
-	TargetRole    string                 `protobuf:"bytes,7,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"` // 邀请码的目标角色 classadmin / student / staff
+	TargetRole    string                 `protobuf:"bytes,7,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"` // 邀请码的目标角色 classadmin / student / common.STAFF
 	ClassId       uint64                 `protobuf:"varint,8,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`         // student 用，注册自动加入班级 其中 0 表示没有班级
 	CreatedAt     int64                  `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     int64                  `protobuf:"varint,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -1375,7 +1375,7 @@ var File_auth_service_proto protoreflect.FileDescriptor
 
 const file_auth_service_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth_service.proto\x12\x04auth\x1a%third_party/google/protobuf/any.proto\"\xbd\x02\n" +
+	"\x12auth_service.proto\x12\x04auth\x1a\x19google/protobuf/any.proto\"\xbd\x02\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1516,7 +1516,7 @@ const file_auth_service_proto_rawDesc = "" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x0e.auth.Response\x12E\n" +
 	"\x12ModifyUserBaseInfo\x12\x1f.auth.ModifyUserBaseInfoRequest\x1a\x0e.auth.Response\x127\n" +
 	"\vGetUserInfo\x12\x18.auth.GetUserInfoRequest\x1a\x0e.auth.Response\x12;\n" +
-	"\rGenerateClass\x12\x1a.auth.GenerateClassRequest\x1a\x0e.auth.ResponseB\vZ\t./auth/v1b\x06proto3"
+	"\rGenerateClass\x12\x1a.auth.GenerateClassRequest\x1a\x0e.auth.ResponseB\x0eZ\f./pb/auth/v1b\x06proto3"
 
 var (
 	file_auth_service_proto_rawDescOnce sync.Once

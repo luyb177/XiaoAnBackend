@@ -5,9 +5,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+
 	"github.com/zeromicro/go-zero/core/logx"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -33,7 +35,7 @@ func NewDeleteCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 // DeleteComment 删除评论
 func (l *DeleteCommentLogic) DeleteComment(in *v1.DeleteCommentRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
@@ -58,7 +60,7 @@ func (l *DeleteCommentLogic) DeleteComment(in *v1.DeleteCommentRequest) (*v1.Res
 	}
 
 	// 超级管理员或者员工 或者 评论作者本人 可以删除
-	if user.Role != SUPERADMIN && user.Role != STAFF && user.UID != comment.UserId {
+	if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF && user.UID != comment.UserId {
 		return bad("没有权限删除该评论"), nil
 	}
 

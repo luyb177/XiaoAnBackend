@@ -6,9 +6,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+
 	"github.com/zeromicro/go-zero/core/logx"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
@@ -35,7 +37,7 @@ func NewDeleteArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 func (l *DeleteArticleLogic) DeleteArticle(in *v1.DeleteArticleRequest) (*v1.Response, error) {
 	// 目前是只有超级管理员和员工可以删除文章
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 

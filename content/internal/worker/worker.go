@@ -5,16 +5,16 @@ import (
 	"errors"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 )
 
 type Worker struct {
 	logx.Logger
-	taskQueue taskqueue.TaskQueue
+	taskQueue queue.TaskQueue
 	handlers  map[tasks.TaskPrefix]TaskHandler
 
 	// 用于实现 service 的接口
@@ -57,11 +57,12 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(w.ctx, svcCtx))
 	w.RegisterHandler(tasks.LikeRelationTaskPrefix, NewLikeRelationHandler(w.ctx, svcCtx))
 	w.RegisterHandler(tasks.CollectRelationTaskPrefix, NewCollectRelationHandler(w.ctx, svcCtx))
+
 	return w
 }
 
 type TaskHandler interface {
-	Handle(ctx context.Context, task taskqueue.Task) error
+	Handle(ctx context.Context, task queue.Task) error
 }
 
 func (w *Worker) RegisterHandler(taskType tasks.TaskPrefix, handler TaskHandler) {
