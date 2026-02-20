@@ -88,6 +88,24 @@ type (
 		isLiked        bool     `json:"is_liked"`
 		isCollected    bool     `json:"is_collected"`
 	}
+	ArticleInfo {
+		articleID      uint64 `json:"article_id"`
+		name           string `json:"name"`
+		url            string `json:"url"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		content        string `json:"content"`
+		author         string `json:"author"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
+	}
 	Video {
 		videoID        uint64   `json:"video_id"`
 		name           string   `json:"name"`
@@ -107,6 +125,23 @@ type (
 		relationStatus int64    `json:"relation_status"`
 		isLiked        bool     `json:"is_liked"`
 		isCollected    bool     `json:"is_collected"`
+	}
+	VideoInfo {
+		videoID        uint64 `json:"video_id"`
+		name           string `json:"name"`
+		url            string `json:"url"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		author         string `json:"author"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
 	}
 	Podcast {
 		podcastID      uint64                 `json:"podcast_id"`
@@ -131,6 +166,25 @@ type (
 		isLiked        bool                   `json:"is_liked"`
 		isCollected    bool                   `json:"is_collected"`
 	}
+	PodcastInfo {
+		podcastID      uint64 `json:"podcast_id"`
+		name           string `json:"name"`
+		url            string `json:"url"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		author         string `json:"author"`
+		channel        string `json:"channel"`
+		status         int64  `json:"status"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
+	}
 	PodcastHighlightItem {
 		second    uint64 `json:"second"`
 		highlight string `json:"highlight"`
@@ -154,6 +208,23 @@ type (
 		relationStatus int64    `json:"relation_status"`
 		isLiked        bool     `json:"is_liked"`
 		isCollected    bool     `json:"is_collected"`
+	}
+	ComicInfo {
+		comicID        uint64 `json:"comic_id"`
+		name           string `json:"name"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		author         string `json:"author"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		chapterCount   uint64 `json:"chapter_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
 	}
 	ComicChapter {
 		comicChapterID uint64 `json:"comic_chapter_id"`
@@ -459,6 +530,22 @@ type (
 		contentType string `json:"content_type"`
 		contentId   uint64 `json:"content_id"`
 	}
+	GetNewArticlesRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
+	GetNewVideosRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
+	GetNewPodcastsRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
+	GetNewComicsRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
 )
 
 // todo 定位
@@ -573,6 +660,26 @@ type (
 	}
 	GetSubCommentResponse {
 		comments []Comment `json:"comments"`
+	}
+	GetNewArticlesResponse {
+		articles   []ArticleInfo `json:"articles"`
+		hasMore    bool          `json:"has_more"`
+		nextCursor uint64        `json:"next_cursor"`
+	}
+	GetNewVideosResponse {
+		videos     []VideoInfo `json:"videos"`
+		hasMore    bool        `json:"has_more"`
+		nextCursor uint64      `json:"next_cursor"`
+	}
+	GetNewPodcastsResponse {
+		podcasts   []PodcastInfo `json:"podcasts"`
+		hasMore    bool          `json:"has_more"`
+		nextCursor uint64        `json:"next_cursor"`
+	}
+	GetNewComicsResponse {
+		comics     []ComicInfo `json:"comics"`
+		hasMore    bool        `json:"has_more"`
+		nextCursor uint64      `json:"next_cursor"`
 	}
 )
 
@@ -802,5 +909,21 @@ service xiaoan {
 	@doc "取消收藏"
 	@handler UnCollect
 	post /uncollect (UnCollectRequest) returns (Response)
+
+	@doc "获取最新文章"
+	@handler GetNewArticles
+	get /get-new-articles (GetNewArticlesRequest) returns (Response)
+
+	@doc "获取最新视频"
+	@handler GetNewVideos
+	get /get-new-videos (GetNewVideosRequest) returns (Response)
+
+	@doc "获取最新播客"
+	@handler GetNewPodcasts
+	get /get-new-podcasts (GetNewPodcastsRequest) returns (Response)
+
+	@doc "获取最新漫画"
+	@handler GetNewComics
+	get /get-new-comics (GetNewComicsRequest) returns (Response)
 }
 

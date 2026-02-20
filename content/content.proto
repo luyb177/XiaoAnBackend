@@ -420,12 +420,25 @@ message UnCollectRequest {
   uint64 content_id = 2;
 }
 
-// 获取内容请求
-message GetContentRequest {
-  string type = 1;
-  uint64 content_id = 2;
+message GetNewArticlesRequest {
+  int64 page_size = 1;
+  uint64 cursor = 2; // 上次查询的最后一个文章的 ID，第一次查询传 0
 }
 
+message GetNewVideosRequest {
+  int64 page_size = 1;
+  uint64 cursor = 2; // 上次查询的最后一个视频的 ID，第一次查询传 0
+}
+
+message GetNewPodcastsRequest {
+  int64 page_size = 1;
+  uint64 cursor = 2; // 上次查询的最后一个播客的 ID，第一次查询传 0
+}
+
+message GetNewComicsRequest {
+  int64 page_size = 1;
+  uint64 cursor = 2; // 上次查询的最后一个漫画的 ID，第一次查询传 0
+}
 
 // todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
@@ -519,6 +532,30 @@ message GetCommentResponse {
 
 message GetSubCommentResponse {
   repeated Comment comments = 1;
+}
+
+message GetNewArticlesResponse {
+  repeated Article articles = 1;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
+}
+
+message GetNewVideosResponse {
+  repeated Video videos = 1;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
+}
+
+message GetNewPodcastsResponse {
+  repeated Podcast podcasts = 1;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
+}
+
+message GetNewComicsResponse {
+  repeated Comic comics = 1;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
 }
 
 message SearchResponse {
@@ -629,6 +666,18 @@ service ContentService {
 
   // UnCollect 取消收藏
   rpc UnCollect(UnCollectRequest) returns (Response);
+
+  // GetNewArticles 获取最新文章列表
+  rpc GetNewArticles(GetNewArticlesRequest) returns (Response);
+
+  // GetNewVideos 获取最新视频列表
+  rpc GetNewVideos(GetNewVideosRequest) returns (Response);
+
+  // GetNewPodcasts 获取最新播客列表
+  rpc GetNewPodcasts(GetNewPodcastsRequest) returns (Response);
+
+  // GetNewComics 获取最新漫画列表
+  rpc GetNewComics(GetNewComicsRequest) returns (Response);
 
   // 搜索
   rpc Search(SearchRequest) returns (Response);

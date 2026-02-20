@@ -120,6 +120,25 @@ type Article struct {
 	IsCollected    bool     `json:"is_collected"`
 }
 
+type ArticleInfo struct {
+	ArticleID      uint64 `json:"article_id"`
+	Name           string `json:"name"`
+	Url            string `json:"url"`
+	Description    string `json:"description"`
+	Cover          string `json:"cover"`
+	Content        string `json:"content"`
+	Author         string `json:"author"`
+	PublishedAt    int64  `json:"published_at"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
+	LikeCount      uint64 `json:"like_count"`
+	ViewCount      uint64 `json:"view_count"`
+	CollectCount   uint64 `json:"collect_count"`
+	CommentCount   uint64 `json:"comment_count"`
+	LastModifiedBy int64  `json:"last_modified_by"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type ChangeClassRequest struct {
 	InviteCode string `json:"invite_code"`
 }
@@ -181,6 +200,24 @@ type ComicChapterPage struct {
 	PageURL            string `json:"page_url"`
 	CreatedAt          int64  `json:"created_at"`
 	UpdatedAt          int64  `json:"updated_at"`
+}
+
+type ComicInfo struct {
+	ComicID        uint64 `json:"comic_id"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	Cover          string `json:"cover"`
+	Author         string `json:"author"`
+	PublishedAt    int64  `json:"published_at"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
+	LikeCount      uint64 `json:"like_count"`
+	ViewCount      uint64 `json:"view_count"`
+	CollectCount   uint64 `json:"collect_count"`
+	CommentCount   uint64 `json:"comment_count"`
+	ChapterCount   uint64 `json:"chapter_count"`
+	LastModifiedBy int64  `json:"last_modified_by"`
+	RelationStatus int64  `json:"relation_status"`
 }
 
 type Comment struct {
@@ -322,6 +359,50 @@ type GetInviteCodeResponse struct {
 	InviteCodes []InviteCode `json:"invite_codes"`
 	HasMore     bool         `json:"has_more"`
 	NextCursor  uint64       `json:"next_cursor"`
+}
+
+type GetNewArticlesRequest struct {
+	PageSize int64  `form:"page_size"`
+	Cursor   uint64 `form:"cursor"`
+}
+
+type GetNewArticlesResponse struct {
+	Articles   []ArticleInfo `json:"articles"`
+	HasMore    bool          `json:"has_more"`
+	NextCursor uint64        `json:"next_cursor"`
+}
+
+type GetNewComicsRequest struct {
+	PageSize int64  `form:"page_size"`
+	Cursor   uint64 `form:"cursor"`
+}
+
+type GetNewComicsResponse struct {
+	Comics     []ComicInfo `json:"comics"`
+	HasMore    bool        `json:"has_more"`
+	NextCursor uint64      `json:"next_cursor"`
+}
+
+type GetNewPodcastsRequest struct {
+	PageSize int64  `form:"page_size"`
+	Cursor   uint64 `form:"cursor"`
+}
+
+type GetNewPodcastsResponse struct {
+	Podcasts   []PodcastInfo `json:"podcasts"`
+	HasMore    bool          `json:"has_more"`
+	NextCursor uint64        `json:"next_cursor"`
+}
+
+type GetNewVideosRequest struct {
+	PageSize int64  `form:"page_size"`
+	Cursor   uint64 `form:"cursor"`
+}
+
+type GetNewVideosResponse struct {
+	Videos     []VideoInfo `json:"videos"`
+	HasMore    bool        `json:"has_more"`
+	NextCursor uint64      `json:"next_cursor"`
 }
 
 type GetPodcastContentRequest struct {
@@ -525,6 +606,26 @@ type PodcastHighlightItem struct {
 	Highlight string `json:"highlight"`
 }
 
+type PodcastInfo struct {
+	PodcastID      uint64 `json:"podcast_id"`
+	Name           string `json:"name"`
+	Url            string `json:"url"`
+	Description    string `json:"description"`
+	Cover          string `json:"cover"`
+	Author         string `json:"author"`
+	Channel        string `json:"channel"`
+	Status         int64  `json:"status"`
+	PublishedAt    int64  `json:"published_at"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
+	LikeCount      uint64 `json:"like_count"`
+	ViewCount      uint64 `json:"view_count"`
+	CollectCount   uint64 `json:"collect_count"`
+	CommentCount   uint64 `json:"comment_count"`
+	LastModifiedBy int64  `json:"last_modified_by"`
+	RelationStatus int64  `json:"relation_status"`
+}
+
 type RegisterRequest struct {
 	Email          string `json:"email"`
 	EmailCode      string `json:"email_code"`
@@ -609,4 +710,22 @@ type Video struct {
 	RelationStatus int64    `json:"relation_status"`
 	IsLiked        bool     `json:"is_liked"`
 	IsCollected    bool     `json:"is_collected"`
+}
+
+type VideoInfo struct {
+	VideoID        uint64 `json:"video_id"`
+	Name           string `json:"name"`
+	Url            string `json:"url"`
+	Description    string `json:"description"`
+	Cover          string `json:"cover"`
+	Author         string `json:"author"`
+	PublishedAt    int64  `json:"published_at"`
+	CreatedAt      int64  `json:"created_at"`
+	UpdatedAt      int64  `json:"updated_at"`
+	LikeCount      uint64 `json:"like_count"`
+	ViewCount      uint64 `json:"view_count"`
+	CollectCount   uint64 `json:"collect_count"`
+	CommentCount   uint64 `json:"comment_count"`
+	LastModifiedBy int64  `json:"last_modified_by"`
+	RelationStatus int64  `json:"relation_status"`
 }

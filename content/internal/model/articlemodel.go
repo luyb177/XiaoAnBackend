@@ -41,6 +41,8 @@ type (
 		FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Article, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Article, error)
+		FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Article, error)
+		FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Article, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
@@ -227,6 +229,37 @@ func (m *customArticleModel) FindOneWithNotDelete(ctx context.Context, id uint64
 
 func (m *customArticleModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Article, error) {
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
+}
+
+func (m *customArticleModel) FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Article, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+		where deleted_at = 0
+		order by id desc
+		limit ?`,
+		articleRows,
+		m.table,
+	)
+
+	var resp []*Article
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, limit)
+	return resp, mapDBError(err)
+}
+
+func (m *customArticleModel) FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Article, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+		where deleted_at = 0 
+		    and id < ?
+		order by id desc
+		limit ?`,
+		articleRows,
+		m.table,
+	)
+
+	var resp []*Article
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, cursor, limit)
+	return resp, mapDBError(err)
 }
 
 func (m *customArticleModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error {

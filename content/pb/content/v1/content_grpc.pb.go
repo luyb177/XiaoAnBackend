@@ -48,6 +48,10 @@ const (
 	ContentService_Unlike_FullMethodName             = "/content.ContentService/Unlike"
 	ContentService_Collect_FullMethodName            = "/content.ContentService/Collect"
 	ContentService_UnCollect_FullMethodName          = "/content.ContentService/UnCollect"
+	ContentService_GetNewArticles_FullMethodName     = "/content.ContentService/GetNewArticles"
+	ContentService_GetNewVideos_FullMethodName       = "/content.ContentService/GetNewVideos"
+	ContentService_GetNewPodcasts_FullMethodName     = "/content.ContentService/GetNewPodcasts"
+	ContentService_GetNewComics_FullMethodName       = "/content.ContentService/GetNewComics"
 	ContentService_Search_FullMethodName             = "/content.ContentService/Search"
 )
 
@@ -113,6 +117,14 @@ type ContentServiceClient interface {
 	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
 	// UnCollect 取消收藏
 	UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetNewArticles 获取最新文章列表
+	GetNewArticles(ctx context.Context, in *GetNewArticlesRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetNewVideos 获取最新视频列表
+	GetNewVideos(ctx context.Context, in *GetNewVideosRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetNewPodcasts 获取最新播客列表
+	GetNewPodcasts(ctx context.Context, in *GetNewPodcastsRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetNewComics 获取最新漫画列表
+	GetNewComics(ctx context.Context, in *GetNewComicsRequest, opts ...grpc.CallOption) (*Response, error)
 	// 搜索
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
 }
@@ -415,6 +427,46 @@ func (c *contentServiceClient) UnCollect(ctx context.Context, in *UnCollectReque
 	return out, nil
 }
 
+func (c *contentServiceClient) GetNewArticles(ctx context.Context, in *GetNewArticlesRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetNewArticles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetNewVideos(ctx context.Context, in *GetNewVideosRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetNewVideos_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetNewPodcasts(ctx context.Context, in *GetNewPodcastsRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetNewPodcasts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetNewComics(ctx context.Context, in *GetNewComicsRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, ContentService_GetNewComics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
@@ -487,6 +539,14 @@ type ContentServiceServer interface {
 	Collect(context.Context, *CollectRequest) (*Response, error)
 	// UnCollect 取消收藏
 	UnCollect(context.Context, *UnCollectRequest) (*Response, error)
+	// GetNewArticles 获取最新文章列表
+	GetNewArticles(context.Context, *GetNewArticlesRequest) (*Response, error)
+	// GetNewVideos 获取最新视频列表
+	GetNewVideos(context.Context, *GetNewVideosRequest) (*Response, error)
+	// GetNewPodcasts 获取最新播客列表
+	GetNewPodcasts(context.Context, *GetNewPodcastsRequest) (*Response, error)
+	// GetNewComics 获取最新漫画列表
+	GetNewComics(context.Context, *GetNewComicsRequest) (*Response, error)
 	// 搜索
 	Search(context.Context, *SearchRequest) (*Response, error)
 	mustEmbedUnimplementedContentServiceServer()
@@ -585,6 +645,18 @@ func (UnimplementedContentServiceServer) Collect(context.Context, *CollectReques
 }
 func (UnimplementedContentServiceServer) UnCollect(context.Context, *UnCollectRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnCollect not implemented")
+}
+func (UnimplementedContentServiceServer) GetNewArticles(context.Context, *GetNewArticlesRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewArticles not implemented")
+}
+func (UnimplementedContentServiceServer) GetNewVideos(context.Context, *GetNewVideosRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewVideos not implemented")
+}
+func (UnimplementedContentServiceServer) GetNewPodcasts(context.Context, *GetNewPodcastsRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewPodcasts not implemented")
+}
+func (UnimplementedContentServiceServer) GetNewComics(context.Context, *GetNewComicsRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewComics not implemented")
 }
 func (UnimplementedContentServiceServer) Search(context.Context, *SearchRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
@@ -1132,6 +1204,78 @@ func _ContentService_UnCollect_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_GetNewArticles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewArticlesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetNewArticles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetNewArticles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetNewArticles(ctx, req.(*GetNewArticlesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetNewVideos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewVideosRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetNewVideos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetNewVideos_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetNewVideos(ctx, req.(*GetNewVideosRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetNewPodcasts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewPodcastsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetNewPodcasts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetNewPodcasts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetNewPodcasts(ctx, req.(*GetNewPodcastsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetNewComics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewComicsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetNewComics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetNewComics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetNewComics(ctx, req.(*GetNewComicsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchRequest)
 	if err := dec(in); err != nil {
@@ -1272,6 +1416,22 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnCollect",
 			Handler:    _ContentService_UnCollect_Handler,
+		},
+		{
+			MethodName: "GetNewArticles",
+			Handler:    _ContentService_GetNewArticles_Handler,
+		},
+		{
+			MethodName: "GetNewVideos",
+			Handler:    _ContentService_GetNewVideos_Handler,
+		},
+		{
+			MethodName: "GetNewPodcasts",
+			Handler:    _ContentService_GetNewPodcasts_Handler,
+		},
+		{
+			MethodName: "GetNewComics",
+			Handler:    _ContentService_GetNewComics_Handler,
 		},
 		{
 			MethodName: "Search",

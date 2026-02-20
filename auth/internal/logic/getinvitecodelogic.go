@@ -71,10 +71,7 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return &v1.Response{
-				Code:    404,
-				Message: "没有更多了",
-			}, nil
+			return notFound("邀请码不存在"), nil
 		}
 		l.Errorf("GetInviteCodeLogic FindManyByCreatorIdWithCursor error: %v", err)
 		return internal("系统繁忙，请稍后再试"), nil

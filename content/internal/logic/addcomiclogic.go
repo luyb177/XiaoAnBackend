@@ -36,8 +36,12 @@ func NewAddComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddComic
 func (l *AddComicLogic) AddComic(in *v1.AddComicRequest) (*v1.Response, error) {
 	// 添加漫画只有 超级管理员 和 员工 才能添加
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
+	}
+
+	if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF {
+		return bad("用户没有权限添加漫画"), nil
 	}
 
 	// 校验参数

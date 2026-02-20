@@ -212,6 +212,30 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.GetComicPageHandler(serverCtx),
 				},
 				{
+					// 获取最新文章
+					Method:  http.MethodGet,
+					Path:    "/get-new-articles",
+					Handler: content.GetNewArticlesHandler(serverCtx),
+				},
+				{
+					// 获取最新漫画
+					Method:  http.MethodGet,
+					Path:    "/get-new-comics",
+					Handler: content.GetNewComicsHandler(serverCtx),
+				},
+				{
+					// 获取最新播客
+					Method:  http.MethodGet,
+					Path:    "/get-new-podcasts",
+					Handler: content.GetNewPodcastsHandler(serverCtx),
+				},
+				{
+					// 获取最新视频
+					Method:  http.MethodGet,
+					Path:    "/get-new-videos",
+					Handler: content.GetNewVideosHandler(serverCtx),
+				},
+				{
 					// 获取播客详细内容
 					Method:  http.MethodGet,
 					Path:    "/get-podcast-content",

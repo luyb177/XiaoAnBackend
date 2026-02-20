@@ -15,3 +15,10 @@ func internal(msg string) *v1.Response {
 		Message: msg,
 	}
 }
+
+func notFound(msg string) *v1.Response {
+	return &v1.Response{
+		Code:    404,
+		Message: msg,
+	}
+}

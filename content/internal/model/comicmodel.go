@@ -43,6 +43,8 @@ type (
 		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comic, error)
+		FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Comic, error)
+		FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Comic, error)
 		FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Comic, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Comic) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
@@ -209,6 +211,36 @@ func (m *customComicModel) FindOneWithNotDelete(ctx context.Context, id uint64) 
 
 func (m *customComicModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comic, error) {
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
+}
+
+func (m *customComicModel) FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Comic, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+	  	where deleted_at = 0
+	  	order by id desc 
+	  	limit ?`,
+		comicRows,
+		m.table,
+	)
+
+	var resp []*Comic
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, limit)
+	return resp, mapDBError(err)
+}
+
+func (m *customComicModel) FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Comic, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+	  	where deleted_at = 0 and id < ?
+	  	order by id desc 
+	  	limit ?`,
+		comicRows,
+		m.table,
+	)
+
+	var resp []*Comic
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, cursor, limit)
+	return resp, mapDBError(err)
 }
 
 func (m *customComicModel) FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Comic, error) {
