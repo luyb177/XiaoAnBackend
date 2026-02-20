@@ -5,13 +5,13 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/infra/constants"
 	"github.com/luyb177/XiaoAnBackend/infra/middleware"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type InvalidateInviteCodeLogic struct {
