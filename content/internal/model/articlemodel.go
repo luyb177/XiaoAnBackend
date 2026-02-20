@@ -26,15 +26,27 @@ type (
 		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		DecrCommentCount(ctx context.Context, id uint64) (sql.Result, error)
 		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
-		DecrCommentCountByCount(ctx context.Context, id uint64, count uint64) (sql.Result, error)
-		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, id uint64, count uint64) (sql.Result, error)
-		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error)
+		DecrCommentCountByCount(ctx context.Context, id, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, id, count uint64) (sql.Result, error)
+		IncrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		IncrViewCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrViewCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Article, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Article, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Article, error)
+		FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Article, error)
+		FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Article, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
-		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
+		SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error
 	}
 
 	customArticleModel struct {
@@ -83,7 +95,7 @@ func (m *customArticleModel) DecrCommentCountWithSession(ctx context.Context, se
 	return m.withSession(session).DecrCommentCount(ctx, id)
 }
 
-func (m *customArticleModel) DecrCommentCountByCount(ctx context.Context, id uint64, count uint64) (sql.Result, error) {
+func (m *customArticleModel) DecrCommentCountByCount(ctx context.Context, id, count uint64) (sql.Result, error) {
 	query := fmt.Sprintf(
 		"update %s set `comment_count` = `comment_count` - ? where id = ? and comment_count >= ? and deleted_at = 0",
 		m.table,
@@ -92,11 +104,87 @@ func (m *customArticleModel) DecrCommentCountByCount(ctx context.Context, id uin
 	return result, mapDBError(err)
 }
 
-func (m *customArticleModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, id uint64, count uint64) (sql.Result, error) {
+func (m *customArticleModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, id, count uint64) (sql.Result, error) {
 	return m.withSession(session).DecrCommentCountByCount(ctx, id, count)
 }
 
-func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Article, error) {
+func (m *customArticleModel) IncrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(
+		"update %s set `like_count` = `like_count` + 1 where `id` = ? and deleted_at = 0",
+		m.table,
+	)
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrLikeCount(ctx, id)
+}
+
+func (m *customArticleModel) DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set like_count = like_count - 1 
+		where id = ? and like_count > 0 and deleted_at = 0`,
+		m.table)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrLikeCount(ctx, id)
+}
+
+func (m *customArticleModel) IncrViewCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set view_count = view_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) IncrViewCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrViewCount(ctx, id)
+}
+
+func (m *customArticleModel) IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set collect_count = collect_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCollectCount(ctx, id)
+}
+
+func (m *customArticleModel) DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set collect_count = collect_count - 1
+		where id = ? and collect_count > 0 and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customArticleModel) DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCollectCount(ctx, id)
+}
+
+func (m *customArticleModel) FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Article, error) {
 	kw := "%" + keyword + "%"
 
 	args := make([]interface{}, 0, len(tags)+6)
@@ -143,6 +231,37 @@ func (m *customArticleModel) FindOneWithNotDeleteWithSession(ctx context.Context
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
+func (m *customArticleModel) FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Article, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+		where deleted_at = 0
+		order by id desc
+		limit ?`,
+		articleRows,
+		m.table,
+	)
+
+	var resp []*Article
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, limit)
+	return resp, mapDBError(err)
+}
+
+func (m *customArticleModel) FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Article, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+		where deleted_at = 0 
+		    and id < ?
+		order by id desc
+		limit ?`,
+		articleRows,
+		m.table,
+	)
+
+	var resp []*Article
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, cursor, limit)
+	return resp, mapDBError(err)
+}
+
 func (m *customArticleModel) UpdateWithSession(ctx context.Context, session sqlx.Session, data *Article) error {
 	return m.withSession(session).Update(ctx, data)
 }
@@ -158,7 +277,7 @@ func (m *customArticleModel) UpdateRelationStatusWithSession(ctx context.Context
 	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
 }
 
-func (m *customArticleModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+func (m *customArticleModel) SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ?",
 		m.table,

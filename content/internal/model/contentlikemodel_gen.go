@@ -38,13 +38,14 @@ type (
 	}
 
 	ContentLike struct {
-		Id        uint64       `db:"id"`         // 点赞记录ID
-		Type      string       `db:"type"`       // 内容类型: video, comic, podcast, article, comment
-		TargetId  uint64       `db:"target_id"`  // 目标内容ID
-		UserId    uint64       `db:"user_id"`    // 用户ID
-		CreatedAt time.Time    `db:"created_at"` // 创建时间
-		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
-		DeletedAt sql.NullTime `db:"deleted_at"` // 软删除时间（NULL表示未删除）
+		Id        uint64    `db:"id"`         // 点赞记录ID
+		Type      string    `db:"type"`       // 内容类型: video, comic, podcast, article, comment
+		TargetId  uint64    `db:"target_id"`  // 目标内容ID
+		UserId    uint64    `db:"user_id"`    // 用户ID
+		IsCounted int64     `db:"is_counted"` // 是否已计入内容点赞数
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		DeletedAt uint64    `db:"deleted_at"` // 删除时间戳(0=未删除)
 	}
 )
 
@@ -90,14 +91,14 @@ func (m *defaultContentLikeModel) FindOneByUserIdTypeTargetId(ctx context.Contex
 }
 
 func (m *defaultContentLikeModel) Insert(ctx context.Context, data *ContentLike) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, contentLikeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, contentLikeRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Type, data.TargetId, data.UserId, data.IsCounted, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultContentLikeModel) Update(ctx context.Context, newData *ContentLike) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, contentLikeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Type, newData.TargetId, newData.UserId, newData.DeletedAt, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Type, newData.TargetId, newData.UserId, newData.IsCounted, newData.DeletedAt, newData.Id)
 	return err
 }
 

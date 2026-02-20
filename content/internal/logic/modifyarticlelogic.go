@@ -6,14 +6,15 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type ModifyArticleLogic struct {
@@ -38,7 +39,7 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 // todo: 修改历史
 func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
@@ -63,7 +64,7 @@ func (l *ModifyArticleLogic) ModifyArticle(in *v1.ModifyArticleRequest) (*v1.Res
 		}
 	}
 
-	if in.Tag == nil || len(in.Tag) == 0 {
+	if len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 	// 检查标签

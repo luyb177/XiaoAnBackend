@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type AddCommentLogic struct {
@@ -26,7 +26,7 @@ func NewAddCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddCom
 }
 
 func (l *AddCommentLogic) AddComment(req *types.AddCommentRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.AddComment(l.ctx, &content.AddCommentRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.AddComment(l.ctx, &content.AddCommentRequest{
 		Type:           req.ContentType,
 		TargetId:       req.ContentId,
 		Nickname:       req.UserName,
@@ -38,21 +38,29 @@ func (l *AddCommentLogic) AddComment(req *types.AddCommentRequest) (resp *types.
 		Status:         req.Status,
 	})
 	if err != nil {
+		l.Errorf("rpc AddComment error: %v", err)
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "添加评论失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.AddCommentResponse
-	if res.Data != nil {
-		data = &content.AddCommentResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	var rpcData = &content.AddCommentResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("rpc AddComment unmarshal error: %v", err)
+		}
+	}
+
+	httpData := &types.AddCommentResponse{
+		CommentID:      rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

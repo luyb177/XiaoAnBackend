@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type ModifyArticleLogic struct {
@@ -16,7 +16,7 @@ type ModifyArticleLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// 修改文章
+// NewModifyArticleLogic 修改文章
 func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ModifyArticleLogic {
 	return &ModifyArticleLogic{
 		Logger: logx.WithContext(ctx),
@@ -26,7 +26,7 @@ func NewModifyArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mod
 }
 
 func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.ModifyArticle(l.ctx, &content.ModifyArticleRequest{
 		Id:          req.ArticleId,
 		Name:        req.Name,
 		Tag:         req.Tags,
@@ -39,22 +39,31 @@ func (l *ModifyArticleLogic) ModifyArticle(req *types.ModifyArticleRequest) (res
 	})
 
 	if err != nil {
+		l.Errorf("rpc ModifyArticle err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "修改文章失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.ModifyArticleResponse
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.ModifyArticleResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal ModifyArticleResponse failed: %v", err)
+		}
+	}
 
-	if res.Data != nil {
-		data = &content.ModifyArticleResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.ModifyArticleResponse{
+		ArticleId:      rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

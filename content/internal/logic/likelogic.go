@@ -2,111 +2,69 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"time"
-
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
-)
 
-const (
-	Valid   = "valid"
-	Invalid = "invalid"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type LikeLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	contentLikeDao model.ContentLikeModel
 }
 
 func NewLikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LikeLogic {
 	return &LikeLogic{
-		ctx:            ctx,
-		svcCtx:         svcCtx,
-		Logger:         logx.WithContext(ctx),
-		contentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
+		ctx:    ctx,
+		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
 	}
 }
 
 // Like 点赞
 func (l *LikeLogic) Like(in *v1.LikeRequest) (*v1.Response, error) {
-	userId := l.ctx.Value("user_id").(uint64)
-	userRole := l.ctx.Value("user_role").(string)
-	userStatus := l.ctx.Value("user_status").(int64)
-
-	if userId == 0 || userRole == "" || userStatus != 1 {
-		return &v1.Response{
-			Code:    400,
-			Message: "用户信息错误",
-		}, fmt.Errorf("用户信息错误")
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
 	}
 
-	if in.Type == "" || in.TargetId <= 0 {
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, fmt.Errorf("参数错误")
+	if resp := ValidateContentTypeAndID(in.ContentType, in.ContentId); resp != nil {
+		return resp, nil
 	}
 
-	// 先查询
-	now := time.Now()
-
-	like, err := l.contentLikeDao.FindOneByUserIdTypeTargetId(l.ctx, userId, in.Type, in.TargetId)
-
-	switch {
-	case errors.Is(err, model.ErrNotFound):
-		_, err = l.contentLikeDao.Insert(l.ctx, &model.ContentLike{
-			Type:     in.Type,
-			TargetId: in.TargetId,
-			UserId:   userId,
-
-			CreatedAt: now,
-			UpdatedAt: now,
-		})
-		if err != nil {
-			return &v1.Response{
-				Code:    400,
-				Message: "点赞失败",
-			}, fmt.Errorf("点赞失败")
-		}
+	liked, err := l.svcCtx.LikeRepo.Like(l.ctx, user.UID, in.ContentType, in.ContentId)
+	if err != nil {
+		l.Errorf("Like err: 点赞失败, %v", err)
+		return bad("点赞失败"), nil
+	}
+	if !liked {
+		// 幂等处理，用户之前已经点过赞了
 		return &v1.Response{
 			Code:    200,
-			Message: "点赞成功",
-		}, nil
-
-	case err != nil:
-		return &v1.Response{
-			Code:    400,
-			Message: "点赞失败",
-		}, fmt.Errorf("点赞失败")
-
-	default:
-		//// 有 查看状态
-		//if like.Status == Valid {
-		//	// 取消点赞
-		//	like.Status = Invalid
-		//} else {
-		//	// 点赞
-		//	like.Status = Valid
-		//}
-		like.UpdatedAt = now
-		// 更新
-		err = l.contentLikeDao.Update(l.ctx, like)
-		if err != nil {
-			return &v1.Response{
-				Code:    400,
-				Message: "点赞失败",
-			}, fmt.Errorf("点赞失败")
-		}
-		return &v1.Response{
-			Code:    200,
-			Message: "点赞成功",
+			Message: "你已经点过赞了",
 		}, nil
 	}
+
+	// 进入队列
+	likeRelationTask := &tasks.LikeRelationTask{
+		Type:        tasks.LikeRelationAdd,
+		ContentType: in.ContentType,
+		ContentID:   in.ContentId,
+		UID:         user.UID,
+	}
+
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, likeRelationTask)
+	if err != nil {
+		l.Errorf("Like err: 点赞关系入队列失败, %v", err)
+	}
+
+	return &v1.Response{
+		Code:    200,
+		Message: "点赞成功",
+	}, nil
 }

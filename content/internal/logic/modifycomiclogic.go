@@ -6,14 +6,15 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type ModifyComicLogic struct {
@@ -35,7 +36,7 @@ func NewModifyComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 // ModifyComic 修改漫画
 func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
@@ -65,7 +66,7 @@ func (l *ModifyComicLogic) ModifyComic(in *v1.ModifyComicRequest) (*v1.Response,
 	if in.PublishedAt <= 0 {
 		in.PublishedAt = now.Unix()
 	}
-	if in.Tag == nil || len(in.Tag) == 0 {
+	if len(in.Tag) == 0 {
 		in.Tag = []string{"默认标签"}
 	}
 

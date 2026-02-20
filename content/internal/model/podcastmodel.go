@@ -25,11 +25,24 @@ type (
 		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error)
 		DecrCommentCount(ctx context.Context, podcastID uint64) (sql.Result, error)
 		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error)
-		DecrCommentCountByCount(ctx context.Context, podcastID uint64, count uint64) (sql.Result, error)
-		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64, count uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, podcastID, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, podcastID, count uint64) (sql.Result, error)
+		IncrLikeCount(ctx context.Context, podcastID uint64) (sql.Result, error)
+		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error)
+		DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		IncrViewCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrViewCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
+		IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
+		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Podcast, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Podcast, error)
-		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error)
+		FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Podcast, error)
+		FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Podcast, error)
+		FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Podcast, error)
+
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
@@ -71,17 +84,96 @@ func (m *customPodcastModel) DecrCommentCountWithSession(ctx context.Context, se
 	return m.withSession(session).DecrCommentCount(ctx, podcastID)
 }
 
-func (m *customPodcastModel) DecrCommentCountByCount(ctx context.Context, podcastID uint64, count uint64) (sql.Result, error) {
+func (m *customPodcastModel) DecrCommentCountByCount(ctx context.Context, podcastID, count uint64) (sql.Result, error) {
 	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - ? where `id` = ? and `comment_count` >= ? and `deleted_at` = 0", m.table)
 	result, err := m.conn.ExecCtx(ctx, query, count, podcastID, count)
 	return result, mapDBError(err)
 }
 
-func (m *customPodcastModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64, count uint64) (sql.Result, error) {
+func (m *customPodcastModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, podcastID, count uint64) (sql.Result, error) {
 	return m.withSession(session).DecrCommentCountByCount(ctx, podcastID, count)
 }
 
-func (m *customPodcastModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Podcast, error) {
+func (m *customPodcastModel) IncrLikeCount(ctx context.Context, podcastID uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set like_count = like_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+	result, err := m.conn.ExecCtx(ctx, query, podcastID)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) (sql.Result, error) {
+	return m.withSession(session).IncrLikeCount(ctx, podcastID)
+}
+
+func (m *customPodcastModel) DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set like_count = like_count - 1
+		where id = ? and like_count > 0 and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrLikeCount(ctx, id)
+}
+
+func (m *customPodcastModel) IncrViewCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set view_count = view_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) IncrViewCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrViewCount(ctx, id)
+}
+
+func (m *customPodcastModel) IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set collect_count = collect_count + 1
+		where id = ? and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCollectCount(ctx, id)
+}
+
+func (m *customPodcastModel) DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s
+		set collect_count = collect_count - 1
+		where id = ? and collect_count > 0 and deleted_at = 0`,
+		m.table,
+	)
+
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
+}
+
+func (m *customPodcastModel) DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCollectCount(ctx, id)
+}
+
+func (m *customPodcastModel) FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Podcast, error) {
 	kw := "%" + keyword + "%"
 
 	args := make([]interface{}, 0, len(tags)+5) // 占位符的数据，后两个是 offest 和 limit
@@ -140,7 +232,36 @@ func (m *customPodcastModel) FindOneWithNotDeleteWithSession(ctx context.Context
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
-func (m *customPodcastModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+func (m *customPodcastModel) FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Podcast, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+	  	where deleted_at = 0 
+	  	order by id desc 
+	  	limit ?`,
+		podcastRows,
+		m.table)
+
+	var resp []*Podcast
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, limit)
+	return resp, mapDBError(err)
+}
+
+func (m *customPodcastModel) FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Podcast, error) {
+	query := fmt.Sprintf(`
+		select %s from %s 
+	  	where deleted_at = 0 
+	  	    and id < ? 
+	  	order by id desc 
+	  	limit ?`,
+		podcastRows,
+		m.table)
+
+	var resp []*Podcast
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, cursor, limit)
+	return resp, mapDBError(err)
+}
+
+func (m *customPodcastModel) SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ?",
 		m.table,

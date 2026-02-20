@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AddPodcastLogic struct {
@@ -34,7 +34,7 @@ func (l *AddPodcastLogic) AddPodcast(req *types.AddPodcastRequest) (resp *types.
 		}
 	}
 
-	res, err := l.svcCtx.ContentRpc.AddPodcast(l.ctx, &content.AddPodcastRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.AddPodcast(l.ctx, &content.AddPodcastRequest{
 		Name:        req.Name,
 		Url:         req.Url,
 		Description: req.Description,
@@ -48,21 +48,31 @@ func (l *AddPodcastLogic) AddPodcast(req *types.AddPodcastRequest) (resp *types.
 	})
 
 	if err != nil {
+		l.Errorf("rpc AddPodcast err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "添加播客失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.AddPodcastResponse
-	if res.Data != nil {
-		data = &content.AddPodcastResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.AddPodcastResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal AddPodcastResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.AddPodcastResponse{
+		PodcastID:      rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/video/convert"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetVideoLogic struct {
@@ -33,18 +36,13 @@ func NewGetVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetVideo
 
 // GetVideo 获取视频
 func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
-	validations := []Validation{
-		{in.Id > 0, "视频ID参数错误"},
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
-	for _, v := range validations {
-		if !v.Condition {
-			l.Errorf("GetVideo err: %s", v.Message)
 
-			return &v1.Response{
-				Code:    400,
-				Message: v.Message,
-			}, nil
-		}
+	if in.Id == 0 {
+		return bad("视频ID不合法"), nil
 	}
 
 	video, err := l.VideoDao.FindOneWithNotDelete(l.ctx, in.Id)
@@ -59,26 +57,55 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		}
 
 		l.Errorf("GetVideo err: %v", err)
-		return &v1.Response{
-			Code:    500,
-			Message: "获取视频失败",
-		}, nil
+		return internal("获取视频失败"), nil
 	}
 
-	// 异步获取tag
+	// 入队
+	videoRelationTask := &tasks.VideoRelationTask{
+		Type:    tasks.VideoRelationGet,
+		VideoID: in.Id,
+		Tags:    nil,
+	}
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, videoRelationTask)
+	if err != nil {
+		l.Errorf("GetVideo err: 入队失败 %v", err)
+	}
+
+	// 异步获取tag like
 	type tagResult struct {
 		tags []*model.VideoTag
 		err  error
 	}
+	type LikeResult struct {
+		liked bool
+		err   error
+	}
+	type CollectResult struct {
+		collected bool
+		err       error
+	}
 
 	tagCh := make(chan tagResult, 1)
+	likeCh := make(chan LikeResult, 1)
+	collectCh := make(chan CollectResult, 1)
 
 	go func() {
-		tags, err := l.VideoTagDao.FindManyByVideoId(l.ctx, video.Id)
+		tags, err := l.VideoTagDao.FindManyByVideoID(l.ctx, video.Id)
 		tagCh <- tagResult{
 			tags: tags,
 			err:  err,
 		}
+	}()
+	go func() {
+		liked, err := l.svcCtx.LikeRepo.HasLiked(l.ctx, user.UID, ContentTypeVideo, in.Id)
+		likeCh <- LikeResult{
+			liked: liked,
+			err:   err,
+		}
+	}()
+	go func() {
+		collected, err := l.svcCtx.CollectRepo.HasCollect(l.ctx, user.UID, ContentTypeVideo, in.Id)
+		collectCh <- CollectResult{collected: collected, err: err}
 	}()
 
 	tagsResult := <-tagCh
@@ -86,25 +113,39 @@ func (l *GetVideoLogic) GetVideo(in *v1.GetVideoRequest) (*v1.Response, error) {
 		l.Errorf("GetVideo err: %v", tagsResult.err)
 		// 不影响获取视频内容
 	}
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetVideo err: 获取点赞情况错误 %v", likeResult.err)
+	}
+	// 等待 collect 结果
+	collectRes := <-collectCh
+	if collectRes.err != nil {
+		l.Errorf("GetVideo err: %v", collectRes.err)
+	}
+
 	// 处理 tag
 	tagsRes := convert.StringsFromVideoTags(tagsResult.tags)
 
 	// 构造返回内容
 	res := &v1.GetVideoResponse{Video: &v1.Video{
-		Id:           video.Id,
-		Name:         video.Name,
-		Tag:          tagsRes,
-		Url:          video.Url,
-		Description:  video.Description.String,
-		Cover:        video.Cover,
-		Author:       video.Author,
-		PublishedAt:  video.PublishedAt.Time.Unix(),
-		CreatedAt:    video.CreatedAt.Unix(),
-		UpdatedAt:    video.UpdatedAt.Unix(),
-		LikeCount:    video.LikeCount,
-		ViewCount:    video.ViewCount,
-		CollectCount: video.CollectCount,
-		CommentCount: video.CommentCount,
+		Id:             video.Id,
+		Name:           video.Name,
+		Tag:            tagsRes,
+		Url:            video.Url,
+		Description:    video.Description.String,
+		Cover:          video.Cover,
+		Author:         video.Author,
+		PublishedAt:    video.PublishedAt.Time.Unix(),
+		CreatedAt:      video.CreatedAt.Unix(),
+		UpdatedAt:      video.UpdatedAt.Unix(),
+		LikeCount:      video.LikeCount,
+		ViewCount:      video.ViewCount,
+		CollectCount:   video.CollectCount,
+		CommentCount:   video.CommentCount,
+		LastModifiedBy: video.LastModifiedBy.Int64,
+		RelationStatus: video.RelationStatus,
+		IsLiked:        likeResult.liked,
+		IsCollected:    collectRes.collected,
 	}}
 
 	resAny, err := anypb.New(res)

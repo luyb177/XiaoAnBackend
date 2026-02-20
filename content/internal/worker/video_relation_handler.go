@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/video/convert"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/video/convert"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type VideoRelationHandler struct {
@@ -23,20 +23,22 @@ type VideoRelationHandler struct {
 	VideoDao    model.VideoModel
 	VideoTagDao model.VideoTagModel
 
-	CommentDao model.CommentModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
-func NewVideoRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *VideoRelationHandler {
+func NewVideoRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *VideoRelationHandler {
 	return &VideoRelationHandler{
-		svcCtx:      svcCtx,
-		Logger:      logx.WithContext(ctx),
-		VideoDao:    model.NewVideoModel(svcCtx.Mysql),
-		VideoTagDao: model.NewVideoTagModel(svcCtx.Mysql),
-		CommentDao:  model.NewCommentModel(svcCtx.Mysql),
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		VideoDao:       model.NewVideoModel(svcCtx.Mysql),
+		VideoTagDao:    model.NewVideoTagModel(svcCtx.Mysql),
+		CommentDao:     model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
-func (h *VideoRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *VideoRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -63,6 +65,8 @@ func (h *VideoRelationHandler) Handle(ctx context.Context, task taskqueue.Task) 
 		return h.handleModify(ctx, &videoTask)
 	case tasks.VideoRelationDelete:
 		return h.handleDelete(ctx, &videoTask)
+	case tasks.VideoRelationGet:
+		return h.handleGet(ctx, &videoTask)
 	default:
 		h.Errorf("unknown task type: %s", videoTask.Type)
 		return nil
@@ -87,7 +91,7 @@ func (h *VideoRelationHandler) handleModify(ctx context.Context, task *tasks.Vid
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除旧标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.VideoTagDao.SoftDeleteByVideoIdWithSession(ctx, session, task.VideoID, deletedAt)
+		err := h.VideoTagDao.SoftDeleteByVideoIDWithSession(ctx, session, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -108,13 +112,27 @@ func (h *VideoRelationHandler) handleDelete(ctx context.Context, task *tasks.Vid
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.VideoTagDao.SoftDeleteByVideoIdWithSession(ctx, session, task.VideoID, deletedAt)
+		err := h.VideoTagDao.SoftDeleteByVideoIDWithSession(ctx, session, task.VideoID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 删除评论
-		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIDWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIDWithSession(ctx, session, logic.ContentTypeVideo, task.VideoID, deletedAt)
+		return err
+	})
+}
+
+func (h *VideoRelationHandler) handleGet(ctx context.Context, task *tasks.VideoRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加浏览量
+		_, err := h.VideoDao.IncrViewCountWithSession(ctx, session, task.VideoID)
 		return err
 	})
 }

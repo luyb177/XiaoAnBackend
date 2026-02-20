@@ -7,7 +7,7 @@ func VideoTagsFromStrings(videoID uint64, tags []string) []*model.VideoTag {
 	for i, tag := range tags {
 		res[i] = &model.VideoTag{
 			Tag:     tag,
-			VideoId: videoID,
+			VideoID: videoID,
 		}
 	}
 	return res

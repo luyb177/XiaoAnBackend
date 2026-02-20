@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/podcast/convert"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetPodcastLogic struct {
@@ -35,19 +38,13 @@ func NewGetPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPod
 
 // GetPodcast 获取播客
 func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, error) {
-	validations := []Validation{
-		{in.Id > 0, "播客ID参数错误"},
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	for _, v := range validations {
-		if !v.Condition {
-			l.Errorf("GetPodcast err: %s", v.Message)
-
-			return &v1.Response{
-				Code:    400,
-				Message: v.Message,
-			}, nil
-		}
+	if in.Id == 0 {
+		return bad("播客ID不合法"), nil
 	}
 
 	// 1. 获取播客主体信息
@@ -69,31 +66,66 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		}, nil
 	}
 
-	// 2. 获取播客标签消息
+	// 入队
+	podcastRelationTask := &tasks.PodcastRelationTask{
+		Type:       tasks.PodcastRelationGet,
+		PodcastID:  in.Id,
+		Tags:       nil,
+		Highlights: nil,
+	}
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, podcastRelationTask)
+	if err != nil {
+		l.Errorf("GetPodcast err: 入队获取播客相关内容失败, %v", err)
+		// 不影响获取播客内容
+	}
+
+	// 2. 异步获取 tag like
 	type TagResult struct {
 		podcastTags []*model.PodcastTag
 		err         error
 	}
 
+	type LikeResult struct {
+		liked bool
+		err   error
+	}
+	type CollectResult struct {
+		collected bool
+		err       error
+	}
+	type HighlightResult struct {
+		highlights []*model.PodcastHighlight
+		err        error
+	}
+
 	tagCh := make(chan TagResult, 1)
+	likeCh := make(chan LikeResult, 1)
+	collectCh := make(chan CollectResult, 1)
+	highlightCh := make(chan HighlightResult, 1)
 
 	go func() {
-		tags, err := l.PodcastTagDao.FindManyByPodcastId(l.ctx, in.Id)
+		tags, err := l.PodcastTagDao.FindManyByPodcastID(l.ctx, in.Id)
 		tagCh <- TagResult{
 			podcastTags: tags,
 			err:         err,
 		}
 	}()
 
-	// 3. 获取播客 highlight 信息
-	type HighlightResult struct {
-		highlights []*model.PodcastHighlight
-		err        error
-	}
-	highlightCh := make(chan HighlightResult, 1)
+	go func() {
+		liked, err := l.svcCtx.LikeRepo.HasLiked(l.ctx, user.UID, ContentTypePodcast, in.Id)
+		likeCh <- LikeResult{
+			liked: liked,
+			err:   err,
+		}
+	}()
 
 	go func() {
-		highlights, err := l.PodcastHighlightDao.FindManyByPodcastId(l.ctx, in.Id)
+		collected, err := l.svcCtx.CollectRepo.HasCollect(l.ctx, user.UID, ContentTypePodcast, in.Id)
+		collectCh <- CollectResult{collected: collected, err: err}
+	}()
+
+	go func() {
+		highlights, err := l.PodcastHighlightDao.FindManyByPodcastID(l.ctx, in.Id)
 		highlightCh <- HighlightResult{
 			highlights: highlights,
 			err:        err,
@@ -101,18 +133,28 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	}()
 
 	tagResult := <-tagCh
-	highlightResult := <-highlightCh
 	if tagResult.err != nil {
-		l.Errorf("GetPodcast err: %v", tagResult.err)
+		l.Errorf("GetPodcast err: 获取tag错误 %v", tagResult.err)
 		// 不影响获取播客内容
 	}
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetPodcast err: 获取点赞情况错误 %v", likeResult.err)
+	}
+	// 等待 collect 结果
+	collectRes := <-collectCh
+	if collectRes.err != nil {
+		l.Errorf("GetPodcast err: %v", collectRes.err)
+	}
+
+	highlightResult := <-highlightCh
 	if highlightResult.err != nil {
-		l.Errorf("GetPodcast err: %v", highlightResult.err)
+		l.Errorf("GetPodcast err: 获取重点时间点错误 %v", highlightResult.err)
 		// 不影响获取播客内容
 	}
 
 	tagsRes := convert.StringsFromPodcastTags(tagResult.podcastTags)
-	hightlightsRes := convert.PBFromPodcastHighlights(highlightResult.highlights)
+	highlightsRes := convert.PBFromPodcastHighlights(highlightResult.highlights)
 
 	// 4. 构造相应
 	res := &v1.GetPodcastResponse{Podcast: &v1.Podcast{
@@ -129,12 +171,14 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		LikeCount:      podcast.LikeCount,
 		ViewCount:      podcast.ViewCount,
 		CollectCount:   podcast.CollectCount,
-		Highlights:     hightlightsRes,
+		Highlights:     highlightsRes,
 		LastModifiedBy: podcast.LastModifiedBy.Int64,
 		RelationStatus: podcast.RelationStatus,
 		Channel:        podcast.Channel,
 		Status:         podcast.Status,
 		CommentCount:   podcast.CommentCount,
+		IsLiked:        likeResult.liked,
+		IsCollected:    collectRes.collected,
 	}}
 
 	resAny, err := anypb.New(res)

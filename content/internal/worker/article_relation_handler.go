@@ -5,37 +5,39 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/article/convert"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type ArticleRelationHandler struct {
 	logx.Logger
-	svcCtx        *svc.ServiceContext
-	ArticleDao    model.ArticleModel
-	ArticleTagDao model.ArticleTagModel
-	CommentDao    model.CommentModel
+	svcCtx         *svc.ServiceContext
+	ArticleDao     model.ArticleModel
+	ArticleTagDao  model.ArticleTagModel
+	CommentDao     model.CommentModel
+	ContentLikeDao model.ContentLikeModel
 }
 
-func NewArticleRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ArticleRelationHandler {
+func NewArticleRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *ArticleRelationHandler {
 	return &ArticleRelationHandler{
-		svcCtx:        svcCtx,
-		Logger:        logx.WithContext(ctx),
-		ArticleDao:    model.NewArticleModel(svcCtx.Mysql),
-		ArticleTagDao: model.NewArticleTagModel(svcCtx.Mysql),
-		CommentDao:    model.NewCommentModel(svcCtx.Mysql),
+		svcCtx:         svcCtx,
+		Logger:         logx.WithContext(ctx),
+		ArticleDao:     model.NewArticleModel(svcCtx.Mysql),
+		ArticleTagDao:  model.NewArticleTagModel(svcCtx.Mysql),
+		CommentDao:     model.NewCommentModel(svcCtx.Mysql),
+		ContentLikeDao: model.NewContentLikeModel(svcCtx.Mysql),
 	}
 }
 
-func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *ArticleRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -62,6 +64,8 @@ func (h *ArticleRelationHandler) Handle(ctx context.Context, task taskqueue.Task
 		return h.handleModify(ctx, &articleTask)
 	case tasks.ArticleRelationDelete:
 		return h.handleDelete(ctx, &articleTask)
+	case tasks.ArticleRelationGet:
+		return h.handleGet(ctx, &articleTask)
 	default:
 		h.Errorf("unknown task type: %s", articleTask.Type)
 		return nil
@@ -90,7 +94,7 @@ func (h *ArticleRelationHandler) handleModify(ctx context.Context, task *tasks.A
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除旧标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.ArticleTagDao.SoftDeleteByArticleIdWithSession(ctx, session, task.ArticleID, deletedAt)
+		err := h.ArticleTagDao.SoftDeleteByArticleIDWithSession(ctx, session, task.ArticleID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -111,12 +115,26 @@ func (h *ArticleRelationHandler) handleDelete(ctx context.Context, task *tasks.A
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 删除标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.ArticleTagDao.SoftDeleteByArticleIdWithSession(ctx, session, task.ArticleID, deletedAt)
+		err := h.ArticleTagDao.SoftDeleteByArticleIDWithSession(ctx, session, task.ArticleID, deletedAt)
 		if err != nil {
 			return err
 		}
 		// 删除评论
-		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIDWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		if err != nil {
+			return err
+		}
+
+		// 删除点赞
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIDWithSession(ctx, session, logic.ContentTypeArticle, task.ArticleID, deletedAt)
+		return err
+	})
+}
+
+func (h *ArticleRelationHandler) handleGet(ctx context.Context, task *tasks.ArticleRelationTask) error {
+	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 增加 文章浏览量
+		_, err := h.ArticleDao.IncrViewCountWithSession(ctx, session, task.ArticleID)
 		return err
 	})
 }

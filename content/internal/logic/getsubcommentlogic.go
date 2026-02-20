@@ -3,14 +3,16 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/comment/convert"
-	"google.golang.org/protobuf/types/known/anypb"
-
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/comment/convert"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetSubCommentLogic struct {
@@ -31,6 +33,10 @@ func NewGetSubCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 // GetSubComment 获取子评论
 func (l *GetSubCommentLogic) GetSubComment(in *v1.GetSubCommentRequest) (*v1.Response, error) {
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
+		return bad("用户未登录或登录状态异常"), nil
+	}
 	if resp := l.validate(in); resp != nil {
 		l.Errorf("GetSubComment err: 参数校验失败, %s", resp.Message)
 		return resp, nil
@@ -43,7 +49,7 @@ func (l *GetSubCommentLogic) GetSubComment(in *v1.GetSubCommentRequest) (*v1.Res
 	}
 
 	offset := (in.Page - 1) * in.PageSize
-	subCommentsModel, err := l.CommentDao.FindSubByTypeAndTargetIdAndParentId(l.ctx, in.ContentType, in.ContentId, in.ParentCommentId, offset, in.PageSize)
+	subCommentsModel, err := l.CommentDao.FindSubByTypeAndTargetIDAndParentID(l.ctx, in.ContentType, in.ContentId, in.ParentCommentId, offset, in.PageSize)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			l.Errorf("GetSubComment err: 子评论不存在, contentType: %s, contentId: %d, parentCommentId: %d", in.ContentType, in.ContentId, in.ParentCommentId)
@@ -56,8 +62,31 @@ func (l *GetSubCommentLogic) GetSubComment(in *v1.GetSubCommentRequest) (*v1.Res
 		return internal("获取子评论失败"), nil
 	}
 
+	commentIDs := make([]uint64, len(subCommentsModel))
+	for i, comment := range subCommentsModel {
+		commentIDs[i] = comment.Id
+	}
+
+	type LikeResult struct {
+		likes map[uint64]bool
+		err   error
+	}
+
+	likeCh := make(chan LikeResult, 1)
+
+	go func() {
+		likes, err := l.svcCtx.LikeRepo.BatchHasLiked(l.ctx, user.UID, ContentTypeComment, commentIDs)
+		likeCh <- LikeResult{likes: likes, err: err}
+	}()
+
+	// 等待结果
+	likeResult := <-likeCh
+	if likeResult.err != nil {
+		l.Errorf("GetSubComment err: 获取点赞详情出错,%v", likeResult.err)
+	}
+
 	// todo 点赞
-	subCommentsPB := convert.PBFromComment(subCommentsModel)
+	subCommentsPB := convert.PBFromComment(subCommentsModel, likeResult.likes)
 
 	res := &v1.GetSubCommentResponse{Comments: subCommentsPB}
 

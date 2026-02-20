@@ -49,7 +49,14 @@ type (
 	GetComicRequest            = v1.GetComicRequest
 	GetComicResponse           = v1.GetComicResponse
 	GetCommentResponse         = v1.GetCommentResponse
-	GetContentRequest          = v1.GetContentRequest
+	GetNewArticlesRequest      = v1.GetNewArticlesRequest
+	GetNewArticlesResponse     = v1.GetNewArticlesResponse
+	GetNewComicsRequest        = v1.GetNewComicsRequest
+	GetNewComicsResponse       = v1.GetNewComicsResponse
+	GetNewPodcastsRequest      = v1.GetNewPodcastsRequest
+	GetNewPodcastsResponse     = v1.GetNewPodcastsResponse
+	GetNewVideosRequest        = v1.GetNewVideosRequest
+	GetNewVideosResponse       = v1.GetNewVideosResponse
 	GetPodcastRequest          = v1.GetPodcastRequest
 	GetPodcastResponse         = v1.GetPodcastResponse
 	GetRootCommentRequest      = v1.GetRootCommentRequest
@@ -73,6 +80,8 @@ type (
 	Response                   = v1.Response
 	SearchRequest              = v1.SearchRequest
 	SearchResponse             = v1.SearchResponse
+	UnCollectRequest           = v1.UnCollectRequest
+	UnlikeRequest              = v1.UnlikeRequest
 	Video                      = v1.Video
 
 	ContentService interface {
@@ -126,12 +135,24 @@ type (
 		GetRootComment(ctx context.Context, in *GetRootCommentRequest, opts ...grpc.CallOption) (*Response, error)
 		// GetSubComment 获取子评论
 		GetSubComment(ctx context.Context, in *GetSubCommentRequest, opts ...grpc.CallOption) (*Response, error)
+		// Like 点赞
+		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
+		// Unlike 取消点赞
+		Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error)
+		// Collect 收藏
+		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
+		// UnCollect 取消收藏
+		UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetNewArticles 获取最新文章列表
+		GetNewArticles(ctx context.Context, in *GetNewArticlesRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetNewVideos 获取最新视频列表
+		GetNewVideos(ctx context.Context, in *GetNewVideosRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetNewPodcasts 获取最新播客列表
+		GetNewPodcasts(ctx context.Context, in *GetNewPodcastsRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetNewComics 获取最新漫画列表
+		GetNewComics(ctx context.Context, in *GetNewComicsRequest, opts ...grpc.CallOption) (*Response, error)
 		// 搜索
 		Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error)
-		// 点赞
-		Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error)
-		// 收藏
-		Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultContentService struct {
@@ -295,20 +316,56 @@ func (m *defaultContentService) GetSubComment(ctx context.Context, in *GetSubCom
 	return client.GetSubComment(ctx, in, opts...)
 }
 
-// 搜索
-func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
-	client := v1.NewContentServiceClient(m.cli.Conn())
-	return client.Search(ctx, in, opts...)
-}
-
-// 点赞
+// Like 点赞
 func (m *defaultContentService) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.Like(ctx, in, opts...)
 }
 
-// 收藏
+// Unlike 取消点赞
+func (m *defaultContentService) Unlike(ctx context.Context, in *UnlikeRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Unlike(ctx, in, opts...)
+}
+
+// Collect 收藏
 func (m *defaultContentService) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewContentServiceClient(m.cli.Conn())
 	return client.Collect(ctx, in, opts...)
+}
+
+// UnCollect 取消收藏
+func (m *defaultContentService) UnCollect(ctx context.Context, in *UnCollectRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.UnCollect(ctx, in, opts...)
+}
+
+// GetNewArticles 获取最新文章列表
+func (m *defaultContentService) GetNewArticles(ctx context.Context, in *GetNewArticlesRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetNewArticles(ctx, in, opts...)
+}
+
+// GetNewVideos 获取最新视频列表
+func (m *defaultContentService) GetNewVideos(ctx context.Context, in *GetNewVideosRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetNewVideos(ctx, in, opts...)
+}
+
+// GetNewPodcasts 获取最新播客列表
+func (m *defaultContentService) GetNewPodcasts(ctx context.Context, in *GetNewPodcastsRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetNewPodcasts(ctx, in, opts...)
+}
+
+// GetNewComics 获取最新漫画列表
+func (m *defaultContentService) GetNewComics(ctx context.Context, in *GetNewComicsRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.GetNewComics(ctx, in, opts...)
+}
+
+// 搜索
+func (m *defaultContentService) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewContentServiceClient(m.cli.Conn())
+	return client.Search(ctx, in, opts...)
 }

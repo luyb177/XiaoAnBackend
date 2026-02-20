@@ -21,13 +21,13 @@ type (
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *ComicChapter) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*ComicChapter, error)
 		FindOneByComicIDAndChapterNo(ctx context.Context, comicID uint64, chapterNo int64) (*ComicChapter, error)
-		FindOneByComicIDAndChapterID(ctx context.Context, comicID uint64, chapterID uint64) (*ComicChapter, error)
+		FindOneByComicIDAndChapterID(ctx context.Context, comicID, chapterID uint64) (*ComicChapter, error)
 		FindManyByComicIDOrderByChapterNo(ctx context.Context, comicID uint64, offset, pageSize int64) ([]*ComicChapter, error)
 		FindAllByComicID(ctx context.Context, comicID uint64) ([]*ComicChapter, error)
 		FindAllByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) ([]*ComicChapter, error)
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
-		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
+		SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error
 		SoftDeleteByIDs(ctx context.Context, ids []uint64, deletedAt uint64, modifier sql.NullInt64) error
 		SoftDeleteByIDsWithSession(ctx context.Context, session sqlx.Session, ids []uint64, deletedAt uint64, modifier sql.NullInt64) error
 	}
@@ -49,6 +49,7 @@ func (m *customComicChapterModel) withSession(session sqlx.Session) ComicChapter
 }
 
 func (m *customComicChapterModel) Insert(ctx context.Context, data *ComicChapter) (sql.Result, error) {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
 	ret, err := m.defaultComicChapterModel.Insert(ctx, data)
 	return ret, mapDBError(err)
 }
@@ -81,7 +82,7 @@ func (m *customComicChapterModel) FindOneByComicIDAndChapterNo(ctx context.Conte
 	return &resp, mapDBError(err)
 }
 
-func (m *customComicChapterModel) FindOneByComicIDAndChapterID(ctx context.Context, comicID uint64, chapterID uint64) (*ComicChapter, error) {
+func (m *customComicChapterModel) FindOneByComicIDAndChapterID(ctx context.Context, comicID, chapterID uint64) (*ComicChapter, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `comic_id` = ? and `id` = ? and `deleted_at` = 0 limit 1",
 		comicChapterRows,
@@ -132,7 +133,7 @@ func (m *customComicChapterModel) UpdateRelationStatusWithSession(ctx context.Co
 	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
 }
 
-func (m *customComicChapterModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+func (m *customComicChapterModel) SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error {
 	query := fmt.Sprintf(`
 		UPDATE %s
 		SET deleted_at = ?, last_modified_by = ?

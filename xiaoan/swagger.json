@@ -15,6 +15,116 @@
   },
   "basePath": "/",
   "paths": {
+    "/api/auth/change-class": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "切换班级",
+        "operationId": "authChangeClass",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "invite_code"
+              ],
+              "properties": {
+                "invite_code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/generate-class": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "生成班级",
+        "operationId": "authGenerateClass",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "class_name",
+                "class_description"
+              ],
+              "properties": {
+                "class_description": {
+                  "type": "string"
+                },
+                "class_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/generate-invite-code": {
       "post": {
         "consumes": [
@@ -39,7 +149,6 @@
             "schema": {
               "type": "object",
               "required": [
-                "creator_name",
                 "department",
                 "max_uses",
                 "remark",
@@ -50,9 +159,6 @@
               "properties": {
                 "class_id": {
                   "type": "integer"
-                },
-                "creator_name": {
-                  "type": "string"
                 },
                 "department": {
                   "type": "string"
@@ -92,11 +198,100 @@
         }
       }
     },
-    "/api/auth/get-invite-code": {
-      "post": {
-        "consumes": [
+    "/api/auth/get-class-info": {
+      "get": {
+        "produces": [
           "application/json"
         ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "获取班级信息",
+        "operationId": "authGetClassInfo",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "class_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/get-classes": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "获取班级列表",
+        "operationId": "authGetClasses",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/get-invite-code": {
+      "get": {
         "produces": [
           "application/json"
         ],
@@ -110,21 +305,112 @@
         "operationId": "authGetInviteCode",
         "parameters": [
           {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/get-user-info": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "获取用户信息",
+        "operationId": "authGetUserInfo",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/invalidate-invite-code": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "失效邀请码",
+        "operationId": "authInvalidateInviteCode",
+        "parameters": [
+          {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "type": "object",
               "required": [
-                "page",
-                "page_size"
+                "code"
               ],
               "properties": {
-                "page": {
-                  "type": "integer"
-                },
-                "page_size": {
-                  "type": "integer"
+                "code": {
+                  "type": "string"
                 }
               }
             }
@@ -188,6 +474,71 @@
                 },
                 "type": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/modify-user-base-info": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "修改用户基本信息",
+        "operationId": "authModifyUserBaseInfo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "avatar",
+                "phone",
+                "user_id"
+              ],
+              "properties": {
+                "avatar": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "integer"
                 }
               }
             }
@@ -304,63 +655,6 @@
                 "email"
               ],
               "properties": {
-                "email": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer"
-                },
-                "data": {},
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/validate-email": {
-      "post": {
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "认证模块"
-        ],
-        "summary": "验证邮箱验证码",
-        "operationId": "authValidateEmail",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "email",
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "type": "string"
-                },
                 "email": {
                   "type": "string"
                 }
@@ -655,7 +949,6 @@
                 "content_id",
                 "user_name",
                 "avatar",
-                "ip_location",
                 "parent_id",
                 "reply_comment_id",
                 "reply_user_id",
@@ -673,9 +966,6 @@
                   "type": "integer"
                 },
                 "content_type": {
-                  "type": "string"
-                },
-                "ip_location": {
                   "type": "string"
                 },
                 "parent_id": {
@@ -878,6 +1168,63 @@
                   }
                 },
                 "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/collect": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "收藏",
+        "operationId": "contentCollect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id"
+              ],
+              "properties": {
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
                   "type": "string"
                 }
               }
@@ -1351,6 +1698,190 @@
         }
       }
     },
+    "/api/content/get-new-articles": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取最新文章",
+        "operationId": "contentGetNewArticles",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-new-comics": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取最新漫画",
+        "operationId": "contentGetNewComics",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-new-podcasts": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取最新播客",
+        "operationId": "contentGetNewPodcasts",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/get-new-videos": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "获取最新视频",
+        "operationId": "contentGetNewVideos",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/content/get-podcast-content": {
       "get": {
         "produces": [
@@ -1532,6 +2063,63 @@
             "name": "video_id",
             "in": "query",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/like": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "点赞",
+        "operationId": "contentLike",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id"
+              ],
+              "properties": {
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -2000,6 +2588,120 @@
         }
       }
     },
+    "/api/content/uncollect": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "取消收藏",
+        "operationId": "contentUnCollect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id"
+              ],
+              "properties": {
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/unlike": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "文件内容模块"
+        ],
+        "summary": "取消点赞",
+        "operationId": "contentUnlike",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content_type",
+                "content_id"
+              ],
+              "properties": {
+                "content_id": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/qa/answer": {
       "post": {
         "consumes": [
@@ -2054,7 +2756,7 @@
       }
     }
   },
-  "x-date": "2026-02-01 15:53:01",
+  "x-date": "2026-02-20 11:42:52",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

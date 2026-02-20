@@ -18,11 +18,12 @@ type (
 		withSession(session sqlx.Session) VideoTagModel
 		InsertBatch(ctx context.Context, list []*VideoTag) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*VideoTag) error
-		FindManyByVideoId(ctx context.Context, videoId uint64) ([]*VideoTag, error)
-		DeleteBatchByVideoId(ctx context.Context, videoId uint64) error
-		DeleteBatchByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64) error
-		SoftDeleteByVideoId(ctx context.Context, videoId uint64, deletedAt uint64) error
-		SoftDeleteByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64, deletedAt uint64) error
+		FindManyByVideoID(ctx context.Context, videoID uint64) ([]*VideoTag, error)
+		FindByVideoTags(ctx context.Context, offest, limit int, tags []string) ([]*VideoTag, error)
+		DeleteBatchByVideoID(ctx context.Context, videoID uint64) error
+		DeleteBatchByVideoIDWithSession(ctx context.Context, session sqlx.Session, videoID uint64) error
+		SoftDeleteByVideoID(ctx context.Context, videoID, deletedAt uint64) error
+		SoftDeleteByVideoIDWithSession(ctx context.Context, session sqlx.Session, videoID, deletedAt uint64) error
 	}
 
 	customVideoTagModel struct {
@@ -52,7 +53,7 @@ func (m *customVideoTagModel) InsertBatch(ctx context.Context, list []*VideoTag)
 
 	for _, tag := range list {
 		valuePlaceholders = append(valuePlaceholders, "(?,?,?)")
-		valueArgs = append(valueArgs, tag.VideoId, tag.Tag, tag.DeletedAt)
+		valueArgs = append(valueArgs, tag.VideoID, tag.Tag, tag.DeletedAt)
 	}
 
 	query := fmt.Sprintf(
@@ -69,7 +70,7 @@ func (m *customVideoTagModel) InsertBatchWithSession(ctx context.Context, sessio
 	return m.withSession(session).InsertBatch(ctx, list)
 }
 
-func (m *customVideoTagModel) FindByVideoTags(ctx context.Context, offest int, limit int, tags []string) ([]*VideoTag, error) {
+func (m *customVideoTagModel) FindByVideoTags(ctx context.Context, offest, limit int, tags []string) ([]*VideoTag, error) {
 	// 为了安全 要使用占位符
 	placeholders := make([]string, 0, len(tags))
 	valueArgs := make([]interface{}, 0, len(tags)+2) // 占位符中的数据，后两个是 offest 和 limit
@@ -90,33 +91,33 @@ func (m *customVideoTagModel) FindByVideoTags(ctx context.Context, offest int, l
 	return out, mapDBError(err)
 }
 
-func (m *customVideoTagModel) FindManyByVideoId(ctx context.Context, videoId uint64) ([]*VideoTag, error) {
+func (m *customVideoTagModel) FindManyByVideoID(ctx context.Context, videoID uint64) ([]*VideoTag, error) {
 	query := fmt.Sprintf("select %s from %s where `video_id` = ? and `deleted_at` = 0", videoTagRows, m.table)
 	var res []*VideoTag
-	err := m.conn.QueryRowsCtx(ctx, &res, query, videoId)
+	err := m.conn.QueryRowsCtx(ctx, &res, query, videoID)
 	return res, mapDBError(err)
 }
 
-func (m *customVideoTagModel) DeleteBatchByVideoId(ctx context.Context, videoId uint64) error {
+func (m *customVideoTagModel) DeleteBatchByVideoID(ctx context.Context, videoID uint64) error {
 	query := fmt.Sprintf("delete from %s where `video_id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, videoId)
+	_, err := m.conn.ExecCtx(ctx, query, videoID)
 	return mapDBError(err)
 }
 
-func (m *customVideoTagModel) DeleteBatchByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64) error {
-	return m.withSession(session).DeleteBatchByVideoId(ctx, videoId)
+func (m *customVideoTagModel) DeleteBatchByVideoIDWithSession(ctx context.Context, session sqlx.Session, videoID uint64) error {
+	return m.withSession(session).DeleteBatchByVideoID(ctx, videoID)
 }
 
-func (m *customVideoTagModel) SoftDeleteByVideoId(ctx context.Context, videoId uint64, deletedAt uint64) error {
+func (m *customVideoTagModel) SoftDeleteByVideoID(ctx context.Context, videoID, deletedAt uint64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ? where `video_id` = ?",
 		m.table,
 	)
 
-	_, err := m.conn.ExecCtx(ctx, query, deletedAt, videoId)
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, videoID)
 	return mapDBError(err)
 }
 
-func (m *customVideoTagModel) SoftDeleteByVideoIdWithSession(ctx context.Context, session sqlx.Session, videoId uint64, deletedAt uint64) error {
-	return m.withSession(session).SoftDeleteByVideoId(ctx, videoId, deletedAt)
+func (m *customVideoTagModel) SoftDeleteByVideoIDWithSession(ctx context.Context, session sqlx.Session, videoID, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteByVideoID(ctx, videoID, deletedAt)
 }

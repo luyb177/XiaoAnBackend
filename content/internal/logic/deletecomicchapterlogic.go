@@ -6,13 +6,14 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type DeleteComicChapterLogic struct {
@@ -36,7 +37,7 @@ func NewDeleteComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // DeleteComicChapter 删除漫画章节
 func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
@@ -107,7 +108,7 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(in *v1.DeleteComicChapterRe
 	// 删除对应章节的内容
 	comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 		Type:      tasks.ComicChapterRelationDelete,
-		ComicId:   in.ComicId,
+		ComicID:   in.ComicId,
 		UID:       user.UID,
 		ChapterID: comicChapter.Id,
 	}

@@ -2,13 +2,15 @@ package logic
 
 import (
 	"context"
-
-	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	authcode "github.com/luyb177/XiaoAnBackend/auth/pkg/code"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	authcode "github.com/luyb177/XiaoAnBackend/auth/pkg/code"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
 )
 
 type SendEmailCodeLogic struct {
@@ -18,6 +20,7 @@ type SendEmailCodeLogic struct {
 }
 
 func NewSendEmailCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendEmailCodeLogic {
+
 	return &SendEmailCodeLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
@@ -26,38 +29,47 @@ func NewSendEmailCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sen
 }
 
 // SendEmailCode 邮箱验证码
-// 这里如果要返回 response 的话，是不能返回 error 的，所以要把err全换成nil
 func (l *SendEmailCodeLogic) SendEmailCode(in *v1.SendEmailRequest) (*v1.Response, error) {
 	if in.Email == "" {
-		l.Errorf("SendEmailCode err: 邮箱不能为空")
-
-		return &v1.Response{
-			Code:    400,
-			Message: "邮箱不能为空",
-		}, nil
+		return bad("邮箱不能为空"), nil
 	}
 
-	emailCfg := email.EmailConfig{
-		From:     l.svcCtx.Config.Email.From,
-		Password: l.svcCtx.Config.Email.Password,
-		SMTPHost: l.svcCtx.Config.Email.SMTPHost,
-		SMTPPort: l.svcCtx.Config.Email.SMTPPort,
+	// 基本验证
+	// 	1. 长度
+	if len(in.Email) > 254 {
+		return bad("邮箱长度不能超过254个字符"), nil
 	}
 
+	// 	2. trim spaces and to lower
+	in.Email = email.CanonicalEmail(in.Email)
+
+	// 	3. 基本格式验证
+	if !email.IsValidEmail(in.Email) {
+		return bad("邮箱格式不正确"), nil
+	}
+
+	// 生成验证码
 	code := authcode.EmailCode()
 
-	go func() {
-		err := l.svcCtx.RedisRepo.SetEmailCode(in.Email, code, 300)
-		if err != nil {
-			l.Errorf("设置邮件验证码失败: %v", err)
-			return
-		}
+	// 先存储 后发送
+	err := l.svcCtx.RedisRepo.EmailRepo.SetEmailCode(in.Email, code, time.Minute*5)
+	if err != nil {
+		l.Errorf("设置邮件验证码失败: %v", err)
+		return bad("设置邮件验证码失败"), nil
+	}
 
-		if err = email.SendEmailCode(emailCfg, in.Email, code); err != nil {
-			l.Errorf("发送邮件失败: %v", err)
-			return
-		}
-	}()
+	// 加入任务队列 异步发送邮件
+	emailRelationTask := &tasks.EmailRelationTask{
+		Type: tasks.EmailRelationSend,
+		To:   in.Email,
+		Code: code,
+	}
+
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, emailRelationTask)
+	if err != nil {
+		// 加入任务队列失败 不影响用户使用 只是无法发送邮件
+		l.Errorf("加入邮件任务队列失败: %v", err)
+	}
 
 	return &v1.Response{
 		Code:    200,

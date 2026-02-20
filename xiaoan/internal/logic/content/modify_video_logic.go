@@ -2,11 +2,12 @@ package content
 
 import (
 	"context"
+
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type ModifyVideoLogic struct {
@@ -25,8 +26,8 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 }
 
 func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
-		Id:          req.VideoId,
+	rpcResp, err := l.svcCtx.ContentRPC.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
+		Id:          req.VideoID,
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Url:         req.Url,
@@ -36,21 +37,31 @@ func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *typ
 		PublishedAt: req.PublishedAt,
 	})
 	if err != nil {
+		l.Errorf("rpc ModifyVideo err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "修改视频失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.ModifyVideoResponse
-	if res.Data != nil {
-		data = &content.ModifyVideoResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.ModifyVideoResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal ModifyVideoResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.ModifyVideoResponse{
+		VideoID:        rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

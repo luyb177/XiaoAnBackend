@@ -2,6 +2,12 @@ module github.com/luyb177/XiaoAnBackend/qa
 
 go 1.25.3
 
+replace (
+	github.com/luyb177/XiaoAnBackend/auth => ../auth
+	github.com/luyb177/XiaoAnBackend/infra => ../infra
+	github.com/luyb177/XiaoAnBackend/content => ../content
+)
+
 require (
 	github.com/zeromicro/go-zero v1.9.2
 	google.golang.org/grpc v1.76.0

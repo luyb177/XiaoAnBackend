@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AddVideoLogic struct {
@@ -26,7 +26,7 @@ func NewAddVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddVideo
 }
 
 func (l *AddVideoLogic) AddVideo(req *types.AddVideoRequest) (resp *types.Response, err error) {
-	res, err := l.svcCtx.ContentRpc.AddVideo(l.ctx, &content.AddVideoRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.AddVideo(l.ctx, &content.AddVideoRequest{
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Url:         req.Url,
@@ -37,21 +37,31 @@ func (l *AddVideoLogic) AddVideo(req *types.AddVideoRequest) (resp *types.Respon
 	})
 
 	if err != nil {
+		l.Errorf("rpc AddVideo err: %s", err.Error())
 		return &types.Response{
 			Code:    400,
-			Message: err.Error(),
+			Message: "添加视频失败",
+			Data:    &types.EmptyResponse{},
 		}, nil
 	}
 
-	var data *content.AddVideoResponse
-	if res.Data != nil {
-		data = &content.AddVideoResponse{}
-		_ = res.Data.UnmarshalTo(data)
+	// RPC 返回数据（proto 层）
+	var rpcData = &content.AddVideoResponse{}
+	if rpcResp.Data != nil {
+		if err = rpcResp.Data.UnmarshalTo(rpcData); err != nil {
+			l.Errorf("unmarshal AddVideoResponse failed: %v", err)
+		}
+	}
+
+	// HTTP 返回数据（对前端稳定）
+	httpData := &types.AddVideoResponse{
+		VideoID:        rpcData.Id,
+		RelationStatus: rpcData.RelationStatus,
 	}
 
 	return &types.Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    data,
+		Code:    rpcResp.Code,
+		Message: rpcResp.Message,
+		Data:    httpData,
 	}, nil
 }

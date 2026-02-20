@@ -14,10 +14,8 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	data, _ := os.ReadFile(c.DataPath)
-	//fmt.Println(c.DataPath)
 	var qaList []QAItem
 	_ = json.Unmarshal(data, &qaList)
-	//fmt.Println(qaList)
 	return &ServiceContext{
 		Config: c,
 		QAData: qaList,

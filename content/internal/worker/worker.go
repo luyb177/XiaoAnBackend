@@ -5,16 +5,16 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
 	"github.com/zeromicro/go-zero/core/logx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
 )
 
 type Worker struct {
 	logx.Logger
-	taskQueue taskqueue.TaskQueue
+	taskQueue queue.TaskQueue
 	handlers  map[tasks.TaskPrefix]TaskHandler
 
 	// 用于实现 service 的接口
@@ -49,18 +49,20 @@ func NewWorker(svcCtx *svc.ServiceContext) *Worker {
 	w.ctx, w.cancel = context.WithCancel(context.Background())
 
 	// 注册处理器
-	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.PodcastRelationTaskPrefix, NewPodcastRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.ComicRelationTaskPrefix, NewComicRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.ComicChapterRelationTaskPrefix, NewComicChapterRelationHandler(svcCtx, w.ctx))
-	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(svcCtx, w.ctx))
+	w.RegisterHandler(tasks.ArticleRelationTaskPrefix, NewArticleRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.VideoRelationTaskPrefix, NewVideoRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.PodcastRelationTaskPrefix, NewPodcastRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.ComicRelationTaskPrefix, NewComicRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.ComicChapterRelationTaskPrefix, NewComicChapterRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.CommentRelationTaskPrefix, NewCommentRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.LikeRelationTaskPrefix, NewLikeRelationHandler(w.ctx, svcCtx))
+	w.RegisterHandler(tasks.CollectRelationTaskPrefix, NewCollectRelationHandler(w.ctx, svcCtx))
 
 	return w
 }
 
 type TaskHandler interface {
-	Handle(ctx context.Context, task taskqueue.Task) error
+	Handle(ctx context.Context, task queue.Task) error
 }
 
 func (w *Worker) RegisterHandler(taskType tasks.TaskPrefix, handler TaskHandler) {

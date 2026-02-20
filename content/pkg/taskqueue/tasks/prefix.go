@@ -9,4 +9,6 @@ const (
 	ComicRelationTaskPrefix        TaskPrefix = "comic_relation_task"
 	ComicChapterRelationTaskPrefix TaskPrefix = "comic_chapter_relation_task"
 	CommentRelationTaskPrefix      TaskPrefix = "comment_relation_task"
+	LikeRelationTaskPrefix         TaskPrefix = "like_relation_task"
+	CollectRelationTaskPrefix      TaskPrefix = "collect_relation_task"
 )

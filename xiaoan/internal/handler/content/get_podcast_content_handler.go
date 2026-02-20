@@ -3,13 +3,14 @@ package content
 import (
 	"net/http"
 
+	"github.com/zeromicro/go-zero/rest/httpx"
+
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/content"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 获取播客详细内容
+// GetPodcastContentHandler 获取播客详细内容
 func GetPodcastContentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.GetPodcastContentRequest

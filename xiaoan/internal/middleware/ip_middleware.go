@@ -2,16 +2,17 @@ package middleware
 
 import (
 	"context"
+	"encoding/base64"
 	"net"
 	"net/http"
 	"strings"
 
-	contentIp2region "github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
-
 	"github.com/lionsoul2014/ip2region/binding/golang/service"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 )
 
 type IPMiddleware struct {
@@ -61,19 +62,20 @@ func (m *IPMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// 2. 将 IP 地址和地理位置存储在 metadata 中
+		// tips: 不能使用中文， 必须是 ASCII 码
 		ctx := r.Context()
 
 		if ip != "" {
-			ctx = metadata.AppendToOutgoingContext(ctx, contentIp2region.MdKeyClientIP, ip)
+			ctx = metadata.AppendToOutgoingContext(ctx, middleware.MdKeyClientIP, ip)
 		}
 		if ipLocation != nil {
 			ctx = metadata.AppendToOutgoingContext(
 				ctx,
-				contentIp2region.MdKeyGeoCountry, ipLocation.Country,
-				contentIp2region.MdKeyGeoProvince, ipLocation.Province,
-				contentIp2region.MdKeyGeoCity, ipLocation.City,
-				contentIp2region.MdKeyGeoISP, ipLocation.ISP,
-				contentIp2region.MdKeyGeoISO, ipLocation.ISOCode,
+				middleware.MdKeyGeoCountry, ipLocation.Country,
+				middleware.MdKeyGeoProvince, ipLocation.Province,
+				middleware.MdKeyGeoCity, ipLocation.City,
+				middleware.MdKeyGeoISP, ipLocation.ISP,
+				middleware.MdKeyGeoISO, ipLocation.ISOCode,
 			)
 		}
 
@@ -123,11 +125,23 @@ func parseIPRegion(region string) *IPLocation {
 		return nil
 	}
 
-	return &IPLocation{
-		Country:  parts[0],
-		Province: parts[1],
-		City:     parts[2],
-		ISP:      parts[3],
-		ISOCode:  parts[4],
+	clean := func(s string) string {
+		if s == "0" {
+			return "未知"
+		}
+		return s
 	}
+
+	return &IPLocation{
+		Country:  encodeValue(clean(parts[0])),
+		Province: encodeValue(clean(parts[1])),
+		City:     encodeValue(clean(parts[2])),
+		ISP:      encodeValue(clean(parts[3])),
+		ISOCode:  encodeValue(clean(parts[4])),
+	}
+}
+
+// encodeValue 使用 base64 编码字符串
+func encodeValue(s string) string {
+	return base64.StdEncoding.EncodeToString([]byte(s))
 }

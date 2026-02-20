@@ -2,22 +2,20 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"time"
-
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type CollectLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	contentCollectDao model.ContentCollectModel
 }
 
 func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLogic {
@@ -30,63 +28,42 @@ func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLo
 
 // Collect 收藏
 func (l *CollectLogic) Collect(in *v1.CollectRequest) (*v1.Response, error) {
-	userId := l.ctx.Value("user_id").(uint64)
-	userRole := l.ctx.Value("user_role").(string)
-	userStatus := l.ctx.Value("user_status").(int64)
-
-	if userId == 0 || userRole == "" || userStatus != 1 {
-		return &v1.Response{
-			Code:    400,
-			Message: "用户信息错误",
-		}, fmt.Errorf("用户信息错误")
+	user, ok := middleware.GetUser(l.ctx)
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
+		return bad("用户未登录或状态异常"), nil
+	}
+	if resp := ValidateCollectAndUnCollectRequest(in.ContentType, in.ContentId); resp != nil {
+		return resp, nil
 	}
 
-	if in.Type == "" || in.TargetId <= 0 {
-		return &v1.Response{
-			Code:    400,
-			Message: "参数错误",
-		}, fmt.Errorf("参数错误")
+	collected, err := l.svcCtx.CollectRepo.Collect(l.ctx, user.UID, in.ContentType, in.ContentId)
+	if err != nil {
+		l.Errorf("Collect err: 收藏失败, %v", err)
+		return bad("收藏失败"), nil
 	}
-	now := time.Now()
-	collect, err := l.contentCollectDao.FindOneByUserIdTypeTargetId(l.ctx, userId, in.Type, in.TargetId)
-	switch {
-	case errors.Is(err, model.ErrNotFound):
-		_, err = l.contentCollectDao.Insert(l.ctx, &model.ContentCollect{
-			Type:      in.Type,
-			TargetId:  in.TargetId,
-			UserId:    userId,
-			CreatedAt: now,
-			UpdatedAt: now,
-		})
-		if err != nil {
-			return &v1.Response{
-				Code:    400,
-				Message: "收藏失败",
-			}, fmt.Errorf("收藏失败")
-		}
+	if !collected {
+		// 幂等处理，用户之前已经收藏过了
 		return &v1.Response{
 			Code:    200,
-			Message: "收藏成功",
-		}, nil
-
-	case err != nil:
-		return &v1.Response{
-			Code:    400,
-			Message: "收藏失败",
-		}, fmt.Errorf("收藏失败")
-
-	default:
-		collect.UpdatedAt = now
-		err = l.contentCollectDao.Update(l.ctx, collect)
-		if err != nil {
-			return &v1.Response{
-				Code:    400,
-				Message: "收藏失败",
-			}, fmt.Errorf("收藏失败")
-		}
-		return &v1.Response{
-			Code:    200,
-			Message: "收藏成功",
+			Message: "你已经收藏过了",
 		}, nil
 	}
+
+	// 进入队列
+	collectRelationTask := &tasks.CollectRelationTask{
+		Type:        tasks.CollectRelationAdd,
+		ContentType: in.ContentType,
+		ContentID:   in.ContentId,
+		UID:         user.UID,
+	}
+
+	err = l.svcCtx.TaskQueue.Enqueue(l.ctx, collectRelationTask)
+	if err != nil {
+		l.Errorf("Collect err: 收藏任务入队失败, %v", err)
+	}
+
+	return &v1.Response{
+		Code:    200,
+		Message: "收藏成功",
+	}, nil
 }

@@ -5,6 +5,268 @@ info (
 	version: "v1.0"
 )
 
+// todo 定位
+// ---------------------------------------------------------------------------------------------------------------------
+// ======================
+// ======= model ========
+// ======================
+// ---------------------------------------------------------------------------------------------------------------------
+// auth model 模块
+type (
+	User {
+		userID         uint64 `json:"user_id"`
+		name           string `json:"name"`
+		email          string `json:"email"`
+		avatar         string `json:"avatar"`
+		phone          string `json:"phone"`
+		department     string `json:"department"`
+		role           string `json:"role"`
+		classID        uint64 `json:"class_id"`
+		status         int64  `json:"status"`
+		inviteCodeUsed string `json:"invite_code_used"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+	}
+	UserInfo {
+		userID     uint64 `json:"user_id"`
+		name       string `json:"name"`
+		email      string `json:"email"`
+		avatar     string `json:"avatar"`
+		phone      string `json:"phone"`
+		department string `json:"department"`
+		role       string `json:"role"`
+		classID    uint64 `json:"class_id"`
+		status     int64  `json:"status"`
+		createdAt  int64  `json:"created_at"`
+		updatedAt  int64  `json:"updated_at"`
+	}
+	InviteCode {
+		code       string `json:"code"`
+		creatorID  uint64 `json:"creator_id"`
+		department string `json:"department"`
+		maxUses    uint64 `json:"max_uses"`
+		usedCount  uint64 `json:"used_count"`
+		remark     string `json:"remark"`
+		expiresAt  int64  `json:"expires_at"`
+		targetRole string `json:"target_role"`
+		classId    uint64 `json:"class_id"`
+		createdAt  int64  `json:"created_at"`
+		updatedAt  int64  `json:"updated_at"`
+	}
+	Class {
+		classID          uint64 `json:"class_id"`
+		className        string `json:"class_name"`
+		classDescription string `json:"class_description"`
+		adminID          uint64 `json:"admin_id"`
+		studentCount     uint64 `json:"student_count"`
+		status           int64  `json:"status"`
+		createdAt        int64  `json:"created_at"`
+		updatedAt        int64  `json:"updated_at"`
+	}
+)
+
+// content model 模块
+type (
+	Article {
+		articleID      uint64   `json:"article_id"`
+		name           string   `json:"name"`
+		tags           []string `json:"tags"`
+		url            string   `json:"url"`
+		description    string   `json:"description"`
+		cover          string   `json:"cover"`
+		content        string   `json:"content"`
+		author         string   `json:"author"`
+		publishedAt    int64    `json:"published_at"`
+		createdAt      int64    `json:"created_at"`
+		updatedAt      int64    `json:"updated_at"`
+		likeCount      uint64   `json:"like_count"`
+		viewCount      uint64   `json:"view_count"`
+		collectCount   uint64   `json:"collect_count"`
+		commentCount   uint64   `json:"comment_count"`
+		lastModifiedBy int64    `json:"last_modified_by"`
+		relationStatus int64    `json:"relation_status"`
+		isLiked        bool     `json:"is_liked"`
+		isCollected    bool     `json:"is_collected"`
+	}
+	ArticleInfo {
+		articleID      uint64 `json:"article_id"`
+		name           string `json:"name"`
+		url            string `json:"url"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		content        string `json:"content"`
+		author         string `json:"author"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	Video {
+		videoID        uint64   `json:"video_id"`
+		name           string   `json:"name"`
+		tags           []string `json:"tags"`
+		url            string   `json:"url"`
+		description    string   `json:"description"`
+		cover          string   `json:"cover"`
+		author         string   `json:"author"`
+		publishedAt    int64    `json:"published_at"`
+		createdAt      int64    `json:"created_at"`
+		updatedAt      int64    `json:"updated_at"`
+		likeCount      uint64   `json:"like_count"`
+		viewCount      uint64   `json:"view_count"`
+		collectCount   uint64   `json:"collect_count"`
+		commentCount   uint64   `json:"comment_count"`
+		lastModifiedBy int64    `json:"last_modified_by"`
+		relationStatus int64    `json:"relation_status"`
+		isLiked        bool     `json:"is_liked"`
+		isCollected    bool     `json:"is_collected"`
+	}
+	VideoInfo {
+		videoID        uint64 `json:"video_id"`
+		name           string `json:"name"`
+		url            string `json:"url"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		author         string `json:"author"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	Podcast {
+		podcastID      uint64                 `json:"podcast_id"`
+		name           string                 `json:"name"`
+		tags           []string               `json:"tags"`
+		url            string                 `json:"url"`
+		description    string                 `json:"description"`
+		cover          string                 `json:"cover"`
+		author         string                 `json:"author"`
+		channel        string                 `json:"channel"`
+		status         int64                  `json:"status"`
+		publishedAt    int64                  `json:"published_at"`
+		createdAt      int64                  `json:"created_at"`
+		updatedAt      int64                  `json:"updated_at"`
+		likeCount      uint64                 `json:"like_count"`
+		viewCount      uint64                 `json:"view_count"`
+		collectCount   uint64                 `json:"collect_count"`
+		commentCount   uint64                 `json:"comment_count"`
+		highlights     []PodcastHighlightItem `json:"highlights"`
+		lastModifiedBy int64                  `json:"last_modified_by"`
+		relationStatus int64                  `json:"relation_status"`
+		isLiked        bool                   `json:"is_liked"`
+		isCollected    bool                   `json:"is_collected"`
+	}
+	PodcastInfo {
+		podcastID      uint64 `json:"podcast_id"`
+		name           string `json:"name"`
+		url            string `json:"url"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		author         string `json:"author"`
+		channel        string `json:"channel"`
+		status         int64  `json:"status"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	PodcastHighlightItem {
+		second    uint64 `json:"second"`
+		highlight string `json:"highlight"`
+	}
+	Comic {
+		comicID        uint64   `json:"comic_id"`
+		name           string   `json:"name"`
+		tags           []string `json:"tags"`
+		description    string   `json:"description"`
+		cover          string   `json:"cover"`
+		author         string   `json:"author"`
+		publishedAt    int64    `json:"published_at"`
+		createdAt      int64    `json:"created_at"`
+		updatedAt      int64    `json:"updated_at"`
+		likeCount      uint64   `json:"like_count"`
+		viewCount      uint64   `json:"view_count"`
+		collectCount   uint64   `json:"collect_count"`
+		commentCount   uint64   `json:"comment_count"`
+		chapterCount   uint64   `json:"chapter_count"`
+		lastModifiedBy int64    `json:"last_modified_by"`
+		relationStatus int64    `json:"relation_status"`
+		isLiked        bool     `json:"is_liked"`
+		isCollected    bool     `json:"is_collected"`
+	}
+	ComicInfo {
+		comicID        uint64 `json:"comic_id"`
+		name           string `json:"name"`
+		description    string `json:"description"`
+		cover          string `json:"cover"`
+		author         string `json:"author"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		likeCount      uint64 `json:"like_count"`
+		viewCount      uint64 `json:"view_count"`
+		collectCount   uint64 `json:"collect_count"`
+		commentCount   uint64 `json:"comment_count"`
+		chapterCount   uint64 `json:"chapter_count"`
+		lastModifiedBy int64  `json:"last_modified_by"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	ComicChapter {
+		comicChapterID uint64 `json:"comic_chapter_id"`
+		comicID        uint64 `json:"comic_id"`
+		chapterNo      int64  `json:"chapter_no"`
+		title          string `json:"title"`
+		description    string `json:"description"`
+		status         int64  `json:"status"`
+		pageCount      uint64 `json:"page_count"`
+		publishedAt    int64  `json:"published_at"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+	}
+	ComicChapterPage {
+		comicChapterPageID uint64 `json:"comic_chapter_page_id"`
+		comicChapterID     uint64 `json:"comic_chapter_id"`
+		pageNo             int64  `json:"page_no"`
+		pageURL            string `json:"page_url"`
+		createdAt          int64  `json:"created_at"`
+		updatedAt          int64  `json:"updated_at"`
+	}
+	Comment {
+		commentID      uint64 `json:"comment_id"`
+		contentType    string `json:"content_type"`
+		contentID      uint64 `json:"content_id"`
+		userID         uint64 `json:"user_id"`
+		nickname       string `json:"nickname"`
+		avatar         string `json:"avatar"`
+		ipLocation     string `json:"ip_location"`
+		parentID       uint64 `json:"parent_id"`
+		replyCommentID uint64 `json:"reply_comment_id"`
+		replyUserID    uint64 `json:"reply_user_id"`
+		commentText    string `json:"comment_text"`
+		likeCount      uint64 `json:"like_count"`
+		status         uint64 `json:"status"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+		isLiked        bool   `json:"is_liked"`
+	}
+)
+
+// todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
 // =================
 // ==== Request ====
@@ -20,17 +282,17 @@ type (
 		code  string `json:"code"`
 	}
 	GenerateInviteCodeRequest {
-		creator_name string `json:"creator_name"`
-		department   string `json:"department"`
-		maxUses      int64  `json:"max_uses"`
-		remark       string `json:"remark"`
-		expires_at   int64  `json:"expires_at"`
-		target_role  string `json:"target_role"`
-		classId      uint64 `json:"class_id"`
+		department string `json:"department"`
+		maxUses    uint64 `json:"max_uses"`
+		remark     string `json:"remark"`
+		expiresAt  int64  `json:"expires_at"`
+		targetRole string `json:"target_role"`
+		classId    uint64 `json:"class_id"`
 	}
 	GetInviteCodeRequest {
-		page     int64 `json:"page"`
-		pageSize int64 `json:"page_size"`
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+		userID   uint64 `form:"user_id"`
 	}
 	RegisterRequest {
 		email          string `json:"email"`
@@ -43,6 +305,33 @@ type (
 		email     string `json:"email"`
 		password  string `json:"password,optional"`
 		emailCode string `json:"email_code,optional"`
+	}
+	ModifyUserBaseInfoRequest {
+		name   string `json:"name"`
+		avatar string `json:"avatar"`
+		phone  string `json:"phone"`
+		userID uint64 `json:"user_id"`
+	}
+	GetUserInfoRequest {
+		userID uint64 `form:"user_id"`
+	}
+	GenerateClassRequest {
+		className        string `json:"class_name"`
+		classDescription string `json:"class_description"`
+	}
+	GetClassesRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+		userID   uint64 `form:"user_id"`
+	}
+	GetClassInfoRequest {
+		classID uint64 `form:"class_id"`
+	}
+	ChangeClassRequest {
+		inviteCode string `json:"invite_code"`
+	}
+	InvalidateInviteCodeRequest {
+		code string `json:"code"`
 	}
 )
 
@@ -94,10 +383,10 @@ type (
 		tags        []string `json:"tags"`
 	}
 	GetVideoContentRequest {
-		videoId uint64 `form:"video_id"`
+		videoID uint64 `form:"video_id"`
 	}
 	ModifyVideoRequest {
-		videoId     uint64   `json:"video_id"`
+		videoID     uint64   `json:"video_id"`
 		name        string   `json:"name"`
 		url         string   `json:"url"`
 		description string   `json:"description"`
@@ -107,7 +396,7 @@ type (
 		tags        []string `json:"tags"`
 	}
 	DeleteVideoRequest {
-		videoId uint64 `form:"video_id"`
+		videoID uint64 `form:"video_id"`
 	}
 	// 播客
 	AddPodcastRequest {
@@ -122,15 +411,11 @@ type (
 		tags        []string                `json:"tags"`
 		highlights  []*PodcastHighlightItem `json:"highlights"`
 	}
-	PodcastHighlightItem {
-		second    uint64 `json:"second"`
-		highlight string `json:"highlight"`
-	}
 	GetPodcastContentRequest {
-		podcastId uint64 `form:"podcast_id"`
+		podcastID uint64 `form:"podcast_id"`
 	}
 	ModifyPodcastRequest {
-		podcastId   uint64                  `json:"podcast_id"`
+		podcastID   uint64                  `json:"podcast_id"`
 		name        string                  `json:"name"`
 		url         string                  `json:"url"`
 		description string                  `json:"description"`
@@ -143,7 +428,7 @@ type (
 		highlights  []*PodcastHighlightItem `json:"highlights"`
 	}
 	DeletePodcastRequest {
-		podcastId uint64 `form:"podcast_id"`
+		podcastID uint64 `form:"podcast_id"`
 	}
 	// 漫画
 	AddComicRequest {
@@ -155,7 +440,7 @@ type (
 		publishedAt int64    `json:"published_at"`
 	}
 	AddComicChapterRequest {
-		comicId     uint64   `json:"comic_id"`
+		comicID     uint64   `json:"comic_id"`
 		chapterNo   int64    `json:"chapter_no"`
 		title       string   `json:"title"`
 		description string   `json:"description"`
@@ -164,10 +449,10 @@ type (
 		pageUrls    []string `json:"page_urls"`
 	}
 	GetComicRequest {
-		comicId uint64 `form:"comic_id"`
+		comicID uint64 `form:"comic_id"`
 	}
 	GetComicChapterRequest {
-		comicId  uint64 `form:"comic_id"`
+		comicID  uint64 `form:"comic_id"`
 		page     int64  `form:"page"`
 		pageSize int64  `form:"page_size"`
 	}
@@ -177,7 +462,7 @@ type (
 		pageSize       int64  `form:"page_size"`
 	}
 	ModifyComicRequest {
-		comicId     uint64   `json:"comic_id"`
+		comicID     uint64   `json:"comic_id"`
 		name        string   `json:"name"`
 		tags        []string `json:"tags"`
 		description string   `json:"description"`
@@ -187,7 +472,7 @@ type (
 	}
 	ModifyComicChapterRequest {
 		comicChapterId uint64   `json:"comic_chapter_id"`
-		comicId        uint64   `json:"comic_id"`
+		comicID        uint64   `json:"comic_id"`
 		chapterNo      int64    `json:"chapter_no"`
 		title          string   `json:"title"`
 		description    string   `json:"description"`
@@ -196,11 +481,11 @@ type (
 		pageUrls       []string `json:"page_urls"`
 	}
 	DeleteComicRequest {
-		comicId uint64 `form:"comic_id"`
+		comicID uint64 `form:"comic_id"`
 	}
 	DeleteComicChapterRequest {
 		comicChapterId uint64 `form:"comic_chapter_id"`
-		comicId        uint64 `form:"comic_id"`
+		comicID        uint64 `form:"comic_id"`
 	}
 	AddCommentRequest {
 		contentType    string `json:"content_type"`
@@ -214,7 +499,7 @@ type (
 		status         uint64 `json:"status"`
 	}
 	DeleteCommentRequest {
-		commentId uint64 `form:"comment_id"`
+		commentID uint64 `form:"comment_id"`
 	}
 	GetRootCommentRequest {
 		contentType string `form:"content_type"`
@@ -229,8 +514,41 @@ type (
 		page            int64  `form:"page"`
 		pageSize        int64  `form:"page_size"`
 	}
+	LikeRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
+	UnlikeRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
+	CollectRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
+	UnCollectRequest {
+		contentType string `json:"content_type"`
+		contentId   uint64 `json:"content_id"`
+	}
+	GetNewArticlesRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
+	GetNewVideosRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
+	GetNewPodcastsRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
+	GetNewComicsRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+	}
 )
 
+// todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
 // ==================
 // ==== Response ====
@@ -243,6 +561,128 @@ type (
 	}
 )
 
+// auth 返回模块
+type (
+	LoginResponse {
+		token string `json:"token"`
+		user  User   `json:"user"`
+	}
+	RegisterResponse {
+		user User `json:"user"`
+	}
+	GenerateInviteCodeResponse {
+		inviteCode InviteCode `json:"invite_code"`
+	}
+	GetInviteCodeResponse {
+		inviteCodes []InviteCode `json:"invite_codes"`
+		hasMore     bool         `json:"has_more"`
+		nextCursor  uint64       `json:"next_cursor"`
+	}
+	GetUserInfoResponse {
+		userInfo UserInfo `json:"user_info"`
+	}
+	GetClassesResponse {
+		classes    []Class `json:"classes"`
+		hasMore    bool    `json:"has_more"`
+		nextCursor uint64  `json:"next_cursor"`
+	}
+	GetClassInfoResponse {
+		classInfo Class `json:"class_info"`
+	}
+)
+
+// content 返回模块
+type (
+	AddArticleResponse {
+		articleId      uint64 `json:"article_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	ModifyArticleResponse {
+		articleId      uint64 `json:"article_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	GetArticleResponse {
+		article Article `json:"article"`
+	}
+	AddVideoResponse {
+		videoID        uint64 `json:"video_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	ModifyVideoResponse {
+		videoID        uint64 `json:"video_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	GetVideoResponse {
+		video Video `json:"video"`
+	}
+	AddPodcastResponse {
+		podcastID      uint64 `json:"podcast_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	GetPodcastResponse {
+		podcast Podcast `json:"podcast"`
+	}
+	ModifyPodcastResponse {
+		podcastID      uint64 `json:"podcast_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	AddComicResponse {
+		comicID        uint64 `json:"comic_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	AddComicChapterResponse {
+		comicChapterId uint64 `json:"comic_chapter_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	GetComicResponse {
+		comic Comic `json:"comic"`
+	}
+	GetComicChapterResponse {
+		chapters []ComicChapter `json:"chapters"`
+	}
+	GetComicChapterPageResponse {
+		pages []ComicChapterPage `json:"pages"`
+	}
+	ModifyComicResponse {
+		comicID        uint64 `json:"comic_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	ModifyComicChapterResponse {
+		comicChapterId uint64 `json:"comic_chapter_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	AddCommentResponse {
+		commentID      uint64 `json:"comment_id"`
+		relationStatus int64  `json:"relation_status"`
+	}
+	GetRootCommentResponse {
+		comments []Comment `json:"comments"`
+	}
+	GetSubCommentResponse {
+		comments []Comment `json:"comments"`
+	}
+	GetNewArticlesResponse {
+		articles   []ArticleInfo `json:"articles"`
+		hasMore    bool          `json:"has_more"`
+		nextCursor uint64        `json:"next_cursor"`
+	}
+	GetNewVideosResponse {
+		videos     []VideoInfo `json:"videos"`
+		hasMore    bool        `json:"has_more"`
+		nextCursor uint64      `json:"next_cursor"`
+	}
+	GetNewPodcastsResponse {
+		podcasts   []PodcastInfo `json:"podcasts"`
+		hasMore    bool          `json:"has_more"`
+		nextCursor uint64        `json:"next_cursor"`
+	}
+	GetNewComicsResponse {
+		comics     []ComicInfo `json:"comics"`
+		hasMore    bool        `json:"has_more"`
+		nextCursor uint64      `json:"next_cursor"`
+	}
+)
+
 // 通用返回结构
 type (
 	Response {
@@ -250,8 +690,10 @@ type (
 		message string      `json:"message"`
 		data    interface{} `json:"data"`
 	}
+	EmptyResponse  {}
 )
 
+// todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
 // ======================
 // ======== auth ========
@@ -267,10 +709,6 @@ service xiaoan {
 	@doc "发送邮箱验证码"
 	@handler SendEmail
 	post /send-email (SendEmailRequest) returns (Response)
-
-	@doc "验证邮箱验证码"
-	@handler ValidateEmail
-	post /validate-email (ValidateEmailRequest) returns (Response)
 
 	@doc "注册"
 	@handler Register
@@ -294,9 +732,38 @@ service xiaoan {
 
 	@doc "获取邀请码"
 	@handler GetInviteCode
-	post /get-invite-code (GetInviteCodeRequest) returns (Response)
+	get /get-invite-code (GetInviteCodeRequest) returns (Response)
+
+	@doc "修改用户基本信息"
+	@handler ModifyUserBaseInfo
+	post /modify-user-base-info (ModifyUserBaseInfoRequest) returns (Response)
+
+	@doc "获取用户信息"
+	@handler GetUserInfo
+	get /get-user-info (GetUserInfoRequest) returns (Response)
+
+	@doc "生成班级"
+	@handler GenerateClass
+	post /generate-class (GenerateClassRequest) returns (Response)
+
+	@doc "获取班级列表"
+	@handler GetClasses
+	get /get-classes (GetClassesRequest) returns (Response)
+
+	@doc "获取班级信息"
+	@handler GetClassInfo
+	get /get-class-info (GetClassInfoRequest) returns (Response)
+
+	@doc "切换班级"
+	@handler ChangeClass
+	post /change-class (ChangeClassRequest) returns (Response)
+
+	@doc "失效邀请码"
+	@handler InvalidateInviteCode
+	post /invalidate-invite-code (InvalidateInviteCodeRequest) returns (Response)
 }
 
+// todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
 // ======================
 // ========= qa =========
@@ -314,51 +781,12 @@ service xiaoan {
 	post /answer (GetAnswerRequest) returns (Response)
 }
 
+// todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
 // ======================
 // ======= content ======
 // ======================
 // ---------------------------------------------------------------------------------------------------------------------
-@server (
-	prefix:     /api/content
-	tags:       "文件内容模块"
-	group:      content
-	middleware: IPMiddleware
-)
-service xiaoan {
-	@doc "获取文章详细内容"
-	@handler GetArticleContent
-	get /get-article-content (GetArticleContentRequest) returns (Response)
-
-	@doc "获取视频详细内容"
-	@handler GetVideoContent
-	get /get-video-content (GetVideoContentRequest) returns (Response)
-
-	@doc "获取播客详细内容"
-	@handler GetPodcastContent
-	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
-
-	@doc "获取漫画"
-	@handler GetComic
-	get /get-comic (GetComicRequest) returns (Response)
-
-	@doc "获取漫画章节"
-	@handler GetComicChapter
-	get /get-comic-chapter (GetComicChapterRequest) returns (Response)
-
-	@doc "获取漫画页面"
-	@handler GetComicPage
-	get /get-comic-page (GetComicPageRequest) returns (Response)
-
-	@doc "获取根评论"
-	@handler GetRootComment
-	get /get-root-comment (GetRootCommentRequest) returns (Response)
-
-	@doc "获取子评论"
-	@handler GetSubComment
-	get /get-sub-comment (GetSubCommentRequest) returns (Response)
-}
-
 @server (
 	prefix:     /api/content
 	tags:       "文件内容模块"
@@ -378,6 +806,10 @@ service xiaoan {
 	@handler DeleteArticle
 	delete /delete-article (DeleteArticleRequest) returns (Response)
 
+	@doc "获取文章详细内容"
+	@handler GetArticleContent
+	get /get-article-content (GetArticleContentRequest) returns (Response)
+
 	@doc "添加视频"
 	@handler AddVideo
 	post /add-video (AddVideoRequest) returns (Response)
@@ -390,6 +822,10 @@ service xiaoan {
 	@handler DeleteVideo
 	delete /delete-video (DeleteVideoRequest) returns (Response)
 
+	@doc "获取视频详细内容"
+	@handler GetVideoContent
+	get /get-video-content (GetVideoContentRequest) returns (Response)
+
 	@doc "添加播客"
 	@handler AddPodcast
 	post /add-podcast (AddPodcastRequest) returns (Response)
@@ -401,6 +837,10 @@ service xiaoan {
 	@doc "删除播客"
 	@handler DeletePodcast
 	delete /delete-podcast (DeletePodcastRequest) returns (Response)
+
+	@doc "获取播客详细内容"
+	@handler GetPodcastContent
+	get /get-podcast-content (GetPodcastContentRequest) returns (Response)
 
 	@doc "添加漫画"
 	@handler AddComic
@@ -426,6 +866,18 @@ service xiaoan {
 	@handler DeleteComicChapter
 	delete /delete-comic-chapter (DeleteComicChapterRequest) returns (Response)
 
+	@doc "获取漫画"
+	@handler GetComic
+	get /get-comic (GetComicRequest) returns (Response)
+
+	@doc "获取漫画章节"
+	@handler GetComicChapter
+	get /get-comic-chapter (GetComicChapterRequest) returns (Response)
+
+	@doc "获取漫画页面"
+	@handler GetComicPage
+	get /get-comic-page (GetComicPageRequest) returns (Response)
+
 	@doc "添加评论"
 	@handler AddComment
 	post /add-comment (AddCommentRequest) returns (Response)
@@ -433,5 +885,45 @@ service xiaoan {
 	@doc "删除评论"
 	@handler DeleteComment
 	delete /delete-comment (DeleteCommentRequest) returns (Response)
+
+	@doc "获取根评论"
+	@handler GetRootComment
+	get /get-root-comment (GetRootCommentRequest) returns (Response)
+
+	@doc "获取子评论"
+	@handler GetSubComment
+	get /get-sub-comment (GetSubCommentRequest) returns (Response)
+
+	@doc "点赞"
+	@handler Like
+	post /like (LikeRequest) returns (Response)
+
+	@doc "取消点赞"
+	@handler Unlike
+	post /unlike (UnlikeRequest) returns (Response)
+
+	@doc "收藏"
+	@handler Collect
+	post /collect (CollectRequest) returns (Response)
+
+	@doc "取消收藏"
+	@handler UnCollect
+	post /uncollect (UnCollectRequest) returns (Response)
+
+	@doc "获取最新文章"
+	@handler GetNewArticles
+	get /get-new-articles (GetNewArticlesRequest) returns (Response)
+
+	@doc "获取最新视频"
+	@handler GetNewVideos
+	get /get-new-videos (GetNewVideosRequest) returns (Response)
+
+	@doc "获取最新播客"
+	@handler GetNewPodcasts
+	get /get-new-podcasts (GetNewPodcastsRequest) returns (Response)
+
+	@doc "获取最新漫画"
+	@handler GetNewComics
+	get /get-new-comics (GetNewComicsRequest) returns (Response)
 }
 

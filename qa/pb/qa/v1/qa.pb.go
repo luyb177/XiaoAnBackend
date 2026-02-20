@@ -174,7 +174,7 @@ var File_qa_proto protoreflect.FileDescriptor
 
 const file_qa_proto_rawDesc = "" +
 	"\n" +
-	"\bqa.proto\x12\x02qa\x1a%third_party/google/protobuf/any.proto\".\n" +
+	"\bqa.proto\x12\x02qa\x1a\x19google/protobuf/any.proto\".\n" +
 	"\x10GetAnswerRequest\x12\x1a\n" +
 	"\bquestion\x18\x01 \x01(\tR\bquestion\"+\n" +
 	"\x11GetAnswerResponse\x12\x16\n" +
@@ -184,7 +184,8 @@ const file_qa_proto_rawDesc = "" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12(\n" +
 	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data2<\n" +
 	"\tQAService\x12/\n" +
-	"\tGetAnswer\x12\x14.qa.GetAnswerRequest\x1a\f.qa.ResponseB\tZ\a./qa/v1b\x06proto3"
+	"\tGetAnswer\x12\x14.qa.GetAnswerRequest\x1a\f.qa.ResponseB\fZ\n" +
+	"./pb/qa/v1b\x06proto3"
 
 var (
 	file_qa_proto_rawDescOnce sync.Once
