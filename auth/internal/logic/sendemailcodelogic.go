@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	authcode "github.com/luyb177/XiaoAnBackend/auth/pkg/code"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type SendEmailCodeLogic struct {

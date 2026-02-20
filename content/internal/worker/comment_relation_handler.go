@@ -7,15 +7,15 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type CommentRelationHandler struct {
@@ -28,7 +28,7 @@ type CommentRelationHandler struct {
 	CommentDao model.CommentModel
 }
 
-func NewCommentRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *CommentRelationHandler {
+func NewCommentRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *CommentRelationHandler {
 	return &CommentRelationHandler{
 		svcCtx:     svcCtx,
 		Logger:     logx.WithContext(ctx),
@@ -39,7 +39,7 @@ func NewCommentRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) 
 		CommentDao: model.NewCommentModel(svcCtx.Mysql),
 	}
 }
-func (h *CommentRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *CommentRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -165,7 +165,8 @@ func (h *CommentRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 				return err
 			}
 			if affect == 0 {
-				// 父评论不存在/被删除，已经被删除，无需处理
+				// 父评论不存在/被删除，继续执行删除子评论的操作，因为父评论可能是被删除了但还未被清理掉
+				h.Errorf("父评论不存在或已被删除，parent_id: %d", task.ParentID)
 			}
 		}
 
@@ -183,6 +184,7 @@ func (h *CommentRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 			return nil
 		}
 
+		// 无需result判断，因为即使内容没了，这条评论也被删除了
 		result, err = h.decrContentCommentCount(ctx, session, task.ContentType, task.ContentID, commentCount)
 		if err != nil {
 			return err
@@ -192,45 +194,45 @@ func (h *CommentRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 			return err
 		}
 		if affect == 0 {
-			// 内容不存在/被删除，已经被删除，无需处理
+			// 内容不存在/被删除，记录日志后直接返回
+			h.Errorf("内容不存在或已被删除，content_type: %s, content_id: %d", task.ContentType, task.ContentID)
 		}
-
 		return nil
 	})
 }
 
-func (h *CommentRelationHandler) incrContentCommentCount(ctx context.Context, session sqlx.Session, tp string, contentId uint64) (sql.Result, error) {
+func (h *CommentRelationHandler) incrContentCommentCount(ctx context.Context, session sqlx.Session, tp string, contentID uint64) (sql.Result, error) {
 	var err error
 	var result sql.Result
 	switch tp {
 	case logic.ContentTypeArticle:
-		result, err = h.ArticleDao.IncrCommentCountWithSession(ctx, session, contentId)
+		result, err = h.ArticleDao.IncrCommentCountWithSession(ctx, session, contentID)
 	case logic.ContentTypeComic:
-		result, err = h.ComicDao.IncrCommentCountWithSession(ctx, session, contentId)
+		result, err = h.ComicDao.IncrCommentCountWithSession(ctx, session, contentID)
 	case logic.ContentTypeVideo:
-		result, err = h.VideoDao.IncrCommentCountWithSession(ctx, session, contentId)
+		result, err = h.VideoDao.IncrCommentCountWithSession(ctx, session, contentID)
 	case logic.ContentTypePodcast:
-		result, err = h.PodcastDao.IncrCommentCountWithSession(ctx, session, contentId)
+		result, err = h.PodcastDao.IncrCommentCountWithSession(ctx, session, contentID)
 	default:
-		return nil, errors.New("未知的评论类型")
+		return result, errors.New("未知的评论类型")
 	}
 	return result, err
 }
 
-func (h *CommentRelationHandler) decrContentCommentCount(ctx context.Context, session sqlx.Session, tp string, contentId uint64, count uint64) (sql.Result, error) {
+func (h *CommentRelationHandler) decrContentCommentCount(ctx context.Context, session sqlx.Session, tp string, contentID, count uint64) (sql.Result, error) {
 	var err error
 	var result sql.Result
 	switch tp {
 	case logic.ContentTypeArticle:
-		result, err = h.ArticleDao.DecrCommentCountByCountWithSession(ctx, session, contentId, count)
+		result, err = h.ArticleDao.DecrCommentCountByCountWithSession(ctx, session, contentID, count)
 	case logic.ContentTypeComic:
-		result, err = h.ComicDao.DecrCommentCountByCountWithSession(ctx, session, contentId, count)
+		result, err = h.ComicDao.DecrCommentCountByCountWithSession(ctx, session, contentID, count)
 	case logic.ContentTypeVideo:
-		result, err = h.VideoDao.DecrCommentCountByCountWithSession(ctx, session, contentId, count)
+		result, err = h.VideoDao.DecrCommentCountByCountWithSession(ctx, session, contentID, count)
 	case logic.ContentTypePodcast:
-		result, err = h.PodcastDao.DecrCommentCountByCountWithSession(ctx, session, contentId, count)
+		result, err = h.PodcastDao.DecrCommentCountByCountWithSession(ctx, session, contentID, count)
 	default:
-		return nil, errors.New("未知的评论类型")
+		return result, errors.New("未知的评论类型")
 	}
 	return result, err
 }

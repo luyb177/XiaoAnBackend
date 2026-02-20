@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type RegisterLogic struct {
@@ -26,7 +27,7 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRpc.Register(l.ctx, &auth.RegisterRequest{
+	rpcResp, err := l.svcCtx.AuthRPC.Register(l.ctx, &auth.RegisterRequest{
 		Email:          req.Email,
 		EmailCode:      req.EmailCode,
 		Password:       req.Password,
@@ -35,11 +36,7 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Respon
 
 	if err != nil {
 		l.Errorf("rpc Register err: %v", err)
-		return &types.Response{
-			Code:    400,
-			Message: "注册失败",
-			Data:    &types.EmptyResponse{},
-		}, nil
+		return logic.BadResponse("注册失败"), nil
 	}
 
 	var rpcData = &auth.RegisterResponse{}

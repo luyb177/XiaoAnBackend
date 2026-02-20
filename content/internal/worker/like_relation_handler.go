@@ -7,15 +7,15 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type LikeRelationHandler struct {
@@ -30,7 +30,7 @@ type LikeRelationHandler struct {
 	CommentDao model.CommentModel
 }
 
-func NewLikeRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *LikeRelationHandler {
+func NewLikeRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *LikeRelationHandler {
 	return &LikeRelationHandler{
 		svcCtx:         svcCtx,
 		Logger:         logx.WithContext(ctx),
@@ -43,7 +43,7 @@ func NewLikeRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *Li
 	}
 }
 
-func (h *LikeRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *LikeRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -89,7 +89,7 @@ func (h *LikeRelationHandler) handleAdd(ctx context.Context, task *tasks.LikeRel
 			return err
 		}
 		// 获取ID
-		contentLike, err = h.ContentLikeDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentLike, err = h.ContentLikeDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func (h *LikeRelationHandler) handleAdd(ctx context.Context, task *tasks.LikeRel
 func (h *LikeRelationHandler) handleDelete(ctx context.Context, task *tasks.LikeRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 先 find
-		contentLike, err := h.ContentLikeDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentLike, err := h.ContentLikeDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			if errors.Is(err, model.ErrNotFound) {
 				return nil
@@ -163,7 +163,8 @@ func (h *LikeRelationHandler) handleDelete(ctx context.Context, task *tasks.Like
 				return err
 			}
 			if affect == 0 {
-				// 内容不存在
+				// 内容不存在 （可能被删除了），记录一下日志，并继续删除点赞记录
+				h.Errorf("content not found when decrementing like count: type=%s, id=%d", task.ContentType, task.ContentID)
 			}
 		}
 

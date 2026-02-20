@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/luyb177/XiaoAnBackend/auth/internal/repo/redisqueue"
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/email"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue"
 	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type EmailRelationHandler struct {
@@ -19,7 +19,7 @@ type EmailRelationHandler struct {
 	EmailConfig *email.Config
 }
 
-func NewEmailRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *EmailRelationHandler {
+func NewEmailRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *EmailRelationHandler {
 	emailConfig := &email.Config{
 		From:     svcCtx.Config.Email.From,
 		Password: svcCtx.Config.Email.Password,
@@ -34,7 +34,7 @@ func NewEmailRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *E
 	}
 }
 
-func (h *EmailRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *EmailRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err

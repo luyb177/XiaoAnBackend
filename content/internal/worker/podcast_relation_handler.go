@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/podcast/convert"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/podcast/convert"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type PodcastRelationHandler struct {
@@ -28,7 +28,7 @@ type PodcastRelationHandler struct {
 	ContentLikeDao model.ContentLikeModel
 }
 
-func NewPodcastRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *PodcastRelationHandler {
+func NewPodcastRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *PodcastRelationHandler {
 	return &PodcastRelationHandler{
 		svcCtx:              svcCtx,
 		Logger:              logx.WithContext(ctx),
@@ -40,7 +40,7 @@ func NewPodcastRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) 
 	}
 }
 
-func (h *PodcastRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *PodcastRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (h *PodcastRelationHandler) handleAdd(ctx context.Context, task *tasks.Podc
 func (h *PodcastRelationHandler) handleModify(ctx context.Context, task *tasks.PodcastRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除旧标签
-		err := h.PodcastTagDao.DeleteBatchByPodcastIdWithSession(ctx, session, task.PodcastID)
+		err := h.PodcastTagDao.DeleteBatchByPodcastIDWithSession(ctx, session, task.PodcastID)
 		if err != nil {
 			return err
 		}
@@ -111,7 +111,7 @@ func (h *PodcastRelationHandler) handleModify(ctx context.Context, task *tasks.P
 		}
 
 		// 3. 删除旧重点时间
-		err = h.PodcastHighlightDao.DeleteBatchByPodcastIdWithSession(ctx, session, task.PodcastID)
+		err = h.PodcastHighlightDao.DeleteBatchByPodcastIDWithSession(ctx, session, task.PodcastID)
 		if err != nil {
 			return err
 		}
@@ -131,25 +131,25 @@ func (h *PodcastRelationHandler) handleDelete(ctx context.Context, task *tasks.P
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		deletedAt := uint64(time.Now().Unix())
 		// 1. 删除标签
-		err := h.PodcastTagDao.SoftDeleteByPodcastIdWithSession(ctx, session, task.PodcastID, deletedAt)
+		err := h.PodcastTagDao.SoftDeleteByPodcastIDWithSession(ctx, session, task.PodcastID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 2. 删除重点时间
-		err = h.PodcastHighlightDao.SoftDeleteByPodcastIdWithSession(ctx, session, task.PodcastID, deletedAt)
+		err = h.PodcastHighlightDao.SoftDeleteByPodcastIDWithSession(ctx, session, task.PodcastID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 3. 删除评论
-		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIDWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 删除点赞
-		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIDWithSession(ctx, session, logic.ContentTypePodcast, task.PodcastID, deletedAt)
 		return err
 	})
 }

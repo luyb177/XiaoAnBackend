@@ -22,24 +22,24 @@ type (
 		videoModel
 		withSession(session sqlx.Session) VideoModel
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *Video) (sql.Result, error)
-		IncrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error)
-		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
-		DecrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error)
-		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
-		DecrCommentCountByCount(ctx context.Context, videoId uint64, count uint64) (sql.Result, error)
-		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64, count uint64) (sql.Result, error)
-		IncrLikeCount(ctx context.Context, videoId uint64) (sql.Result, error)
-		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
+		IncrCommentCount(ctx context.Context, videoID uint64) (sql.Result, error)
+		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error)
+		DecrCommentCount(ctx context.Context, videoID uint64) (sql.Result, error)
+		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, videoID, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoID, count uint64) (sql.Result, error)
+		IncrLikeCount(ctx context.Context, videoID uint64) (sql.Result, error)
+		IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error)
 		DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
 		DecrLikeCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
-		IncrViewCount(ctx context.Context, videoId uint64) (sql.Result, error)
-		IncrViewCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error)
+		IncrViewCount(ctx context.Context, videoID uint64) (sql.Result, error)
+		IncrViewCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error)
 		IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
 		IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
 		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
-		FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error)
-		FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error)
+		FindByKeyWord(ctx context.Context, offset, limit int, keyword string) ([]*Video, error)
+		FindByVideoTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Video, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Video, error)
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
@@ -67,52 +67,52 @@ func (m *customVideoModel) InsertWithSession(ctx context.Context, session sqlx.S
 	return m.withSession(session).Insert(ctx, data)
 }
 
-func (m *customVideoModel) IncrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+func (m *customVideoModel) IncrCommentCount(ctx context.Context, videoID uint64) (sql.Result, error) {
 	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` + 1 where `id` = ? and `deleted_at` = 0", m.table)
 
-	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	result, err := m.conn.ExecCtx(ctx, query, videoID)
 	return result, mapDBError(err)
 }
 
-func (m *customVideoModel) IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
-	return m.withSession(session).IncrCommentCount(ctx, videoId)
+func (m *customVideoModel) IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error) {
+	return m.withSession(session).IncrCommentCount(ctx, videoID)
 }
 
-func (m *customVideoModel) DecrCommentCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+func (m *customVideoModel) DecrCommentCount(ctx context.Context, videoID uint64) (sql.Result, error) {
 	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - 1 where `id` = ? and `comment_count` > 0 and `deleted_at` =0", m.table)
 
-	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	result, err := m.conn.ExecCtx(ctx, query, videoID)
 	return result, mapDBError(err)
 }
 
-func (m *customVideoModel) DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
-	return m.withSession(session).DecrCommentCount(ctx, videoId)
+func (m *customVideoModel) DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCount(ctx, videoID)
 }
 
-func (m *customVideoModel) DecrCommentCountByCount(ctx context.Context, videoId uint64, count uint64) (sql.Result, error) {
+func (m *customVideoModel) DecrCommentCountByCount(ctx context.Context, videoID, count uint64) (sql.Result, error) {
 	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - ? where `id` = ? and `comment_count` >= ? and `deleted_at` =0", m.table)
 
-	result, err := m.conn.ExecCtx(ctx, query, count, videoId, count)
+	result, err := m.conn.ExecCtx(ctx, query, count, videoID, count)
 	return result, mapDBError(err)
 }
 
-func (m *customVideoModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64, count uint64) (sql.Result, error) {
-	return m.withSession(session).DecrCommentCountByCount(ctx, videoId, count)
+func (m *customVideoModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, videoID, count uint64) (sql.Result, error) {
+	return m.withSession(session).DecrCommentCountByCount(ctx, videoID, count)
 }
 
-func (m *customVideoModel) IncrLikeCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+func (m *customVideoModel) IncrLikeCount(ctx context.Context, videoID uint64) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		update %s
 		set like_count = like_count + 1
 		where id = ? and deleted_at = 0`,
 		m.table)
 
-	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	result, err := m.conn.ExecCtx(ctx, query, videoID)
 	return result, mapDBError(err)
 }
 
-func (m *customVideoModel) IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
-	return m.withSession(session).IncrLikeCount(ctx, videoId)
+func (m *customVideoModel) IncrLikeCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error) {
+	return m.withSession(session).IncrLikeCount(ctx, videoID)
 }
 
 func (m *customVideoModel) DecrLikeCount(ctx context.Context, id uint64) (sql.Result, error) {
@@ -131,7 +131,7 @@ func (m *customVideoModel) DecrLikeCountWithSession(ctx context.Context, session
 	return m.withSession(session).DecrLikeCount(ctx, id)
 }
 
-func (m *customVideoModel) IncrViewCount(ctx context.Context, videoId uint64) (sql.Result, error) {
+func (m *customVideoModel) IncrViewCount(ctx context.Context, videoID uint64) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		update %s
 		set view_count = view_count + 1
@@ -139,12 +139,12 @@ func (m *customVideoModel) IncrViewCount(ctx context.Context, videoId uint64) (s
 		m.table,
 	)
 
-	result, err := m.conn.ExecCtx(ctx, query, videoId)
+	result, err := m.conn.ExecCtx(ctx, query, videoID)
 	return result, mapDBError(err)
 }
 
-func (m *customVideoModel) IncrViewCountWithSession(ctx context.Context, session sqlx.Session, videoId uint64) (sql.Result, error) {
-	return m.withSession(session).IncrViewCount(ctx, videoId)
+func (m *customVideoModel) IncrViewCountWithSession(ctx context.Context, session sqlx.Session, videoID uint64) (sql.Result, error) {
+	return m.withSession(session).IncrViewCount(ctx, videoID)
 }
 
 func (m *customVideoModel) IncrCollectCount(ctx context.Context, id uint64) (sql.Result, error) {
@@ -195,7 +195,7 @@ func (m *customVideoModel) FindOneWithNotDeleteWithSession(ctx context.Context, 
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
-func (m *customVideoModel) FindByKeyWord(ctx context.Context, offset int, limit int, keyword string) ([]*Video, error) {
+func (m *customVideoModel) FindByKeyWord(ctx context.Context, offset, limit int, keyword string) ([]*Video, error) {
 	kw := "%" + keyword + "%"
 	query := fmt.Sprintf("select %s from %s where name like ? or description like ? or author like ? limit ?, ?", videoRows, m.table)
 	var out []*Video
@@ -203,7 +203,7 @@ func (m *customVideoModel) FindByKeyWord(ctx context.Context, offset int, limit 
 	return out, mapDBError(err)
 }
 
-func (m *customVideoModel) FindByVideoTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Video, error) {
+func (m *customVideoModel) FindByVideoTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Video, error) {
 	kw := "%" + keyword + "%"
 
 	args := make([]interface{}, 0, len(tags)+5) // 占位符的数据，后两个是 offest 和 limit
@@ -246,7 +246,7 @@ func (m *customVideoModel) UpdateRelationStatusWithSession(ctx context.Context, 
 	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
 }
 
-func (m *customVideoModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+func (m *customVideoModel) SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ?",
 		m.table,

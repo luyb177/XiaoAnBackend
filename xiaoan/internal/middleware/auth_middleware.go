@@ -6,24 +6,24 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/pkg/auth"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/pkg/ijwt"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/luyb177/XiaoAnBackend/infra/jwt"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type AuthMiddleware struct {
-	r ijwt.Handler
+	r jwt.Handler
 	logx.Logger
 }
 
 func NewAuthMiddleware(cfg config.JWTConfig) *AuthMiddleware {
 	return &AuthMiddleware{
-		r:      ijwt.NewHandler(cfg.Secret, time.Duration(cfg.Expire)),
+		r:      jwt.NewHandler(cfg.Secret, time.Duration(cfg.Expire)*time.Second),
 		Logger: logx.WithContext(context.Background()),
 	}
 }
@@ -42,7 +42,7 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		// todo 这里可以把 user 相关信息加密一下，然后解密
 		claims, err := m.r.ParseJWTToken(token)
 		if err != nil {
-			m.Logger.Errorf("ParseJWTToken 解析token失败：err %v", err)
+			m.Errorf("ParseJWTToken 解析token失败：err %v", err)
 			httpx.OkJsonCtx(r.Context(), w, &types.Response{
 				Code:    401,
 				Message: "token解析失败",
@@ -53,9 +53,9 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		ctx := r.Context()
 		ctx = metadata.AppendToOutgoingContext(
 			ctx,
-			auth.MdKeyUserID, strconv.FormatUint(claims.UserId, 10),
-			auth.MdKeyUserRole, claims.UserRole,
-			auth.MdKeyUserStatus, strconv.FormatUint(uint64(claims.UserStatus), 10),
+			middleware.MdKeyUserID, strconv.FormatUint(claims.UserID, 10),
+			middleware.MdKeyUserRole, claims.UserRole,
+			middleware.MdKeyUserStatus, strconv.FormatUint(uint64(claims.UserStatus), 10),
 		)
 
 		next(w, r.WithContext(ctx))

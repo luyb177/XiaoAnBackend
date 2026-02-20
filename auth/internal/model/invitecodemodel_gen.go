@@ -38,22 +38,20 @@ type (
 	}
 
 	InviteCode struct {
-		Id          uint64         `db:"id"`
-		Code        string         `db:"code"`
-		CreatorId   uint64         `db:"creator_id"`
-		CreatorName sql.NullString `db:"creator_name"`
-		Department  sql.NullString `db:"department"`
-		MaxUses     uint64         `db:"max_uses"`
-		UsedCount   uint64         `db:"used_count"`
-		IsActive    int64          `db:"is_active"`
-		Remark      sql.NullString `db:"remark"`
-		CreatedAt   time.Time      `db:"created_at"` // 记录创建时间（系统时间）
-		UpdatedAt   time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt   uint64         `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
-		ExpiresAt   sql.NullTime   `db:"expires_at"`
-		TargetRole  string         `db:"target_role"`
-		ClassId     uint64         `db:"class_id"`
-		Type        string         `db:"type"`
+		Id         uint64         `db:"id"`
+		Code       string         `db:"code"`
+		CreatorId  uint64         `db:"creator_id"`
+		Department sql.NullString `db:"department"`
+		MaxUses    uint64         `db:"max_uses"`
+		UsedCount  uint64         `db:"used_count"`
+		IsActive   int64          `db:"is_active"`
+		Remark     sql.NullString `db:"remark"`
+		CreatedAt  time.Time      `db:"created_at"` // 记录创建时间（系统时间）
+		UpdatedAt  time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
+		DeletedAt  uint64         `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
+		ClassId    uint64         `db:"class_id"`
+		TargetRole string         `db:"target_role"`
+		ExpiresAt  sql.NullTime   `db:"expires_at"`
 	}
 )
 
@@ -99,14 +97,14 @@ func (m *defaultInviteCodeModel) FindOneByCodeDeletedAt(ctx context.Context, cod
 }
 
 func (m *defaultInviteCodeModel) Insert(ctx context.Context, data *InviteCode) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.CreatorId, data.CreatorName, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.DeletedAt, data.ExpiresAt, data.TargetRole, data.ClassId, data.Type)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, inviteCodeRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.CreatorId, data.Department, data.MaxUses, data.UsedCount, data.IsActive, data.Remark, data.DeletedAt, data.ClassId, data.TargetRole, data.ExpiresAt)
 	return ret, err
 }
 
 func (m *defaultInviteCodeModel) Update(ctx context.Context, newData *InviteCode) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, inviteCodeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.CreatorId, newData.CreatorName, newData.Department, newData.MaxUses, newData.UsedCount, newData.IsActive, newData.Remark, newData.DeletedAt, newData.ExpiresAt, newData.TargetRole, newData.ClassId, newData.Type, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.CreatorId, newData.Department, newData.MaxUses, newData.UsedCount, newData.IsActive, newData.Remark, newData.DeletedAt, newData.ClassId, newData.TargetRole, newData.ExpiresAt, newData.Id)
 	return err
 }
 

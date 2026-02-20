@@ -18,11 +18,11 @@ type (
 		withSession(session sqlx.Session) PodcastTagModel
 		InsertBatch(ctx context.Context, list []*PodcastTag) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*PodcastTag) error
-		FindManyByPodcastId(ctx context.Context, podcastId uint64) ([]*PodcastTag, error)
-		DeleteBatchByPodcastId(ctx context.Context, podcastId uint64) error
-		DeleteBatchByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64) error
-		SoftDeleteByPodcastId(ctx context.Context, podcastId uint64, deletedAt uint64) error
-		SoftDeleteByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64, deletedAt uint64) error
+		FindManyByPodcastID(ctx context.Context, podcastID uint64) ([]*PodcastTag, error)
+		DeleteBatchByPodcastID(ctx context.Context, podcastID uint64) error
+		DeleteBatchByPodcastIDWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) error
+		SoftDeleteByPodcastID(ctx context.Context, podcastID, deletedAt uint64) error
+		SoftDeleteByPodcastIDWithSession(ctx context.Context, session sqlx.Session, podcastID, deletedAt uint64) error
 	}
 
 	customPodcastTagModel struct {
@@ -70,7 +70,7 @@ func (m *customPodcastTagModel) InsertBatchWithSession(ctx context.Context, sess
 	return m.withSession(session).InsertBatch(ctx, list)
 }
 
-func (m *customPodcastTagModel) FindManyByPodcastId(ctx context.Context, podcastId uint64) ([]*PodcastTag, error) {
+func (m *customPodcastTagModel) FindManyByPodcastID(ctx context.Context, podcastID uint64) ([]*PodcastTag, error) {
 	query := fmt.Sprintf(
 		"select %s from %s where `podcast_id` = ?",
 		podcastTagRows,
@@ -78,34 +78,34 @@ func (m *customPodcastTagModel) FindManyByPodcastId(ctx context.Context, podcast
 	)
 
 	var resp []*PodcastTag
-	err := m.conn.QueryRowsCtx(ctx, &resp, query, podcastId)
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, podcastID)
 	return resp, mapDBError(err)
 }
 
-func (m *customPodcastTagModel) DeleteBatchByPodcastId(ctx context.Context, podcastId uint64) error {
+func (m *customPodcastTagModel) DeleteBatchByPodcastID(ctx context.Context, podcastID uint64) error {
 	query := fmt.Sprintf(
 		"DELETE FROM %s WHERE `podcast_id` = ?",
 		m.table,
 	)
 
-	_, err := m.conn.ExecCtx(ctx, query, podcastId)
+	_, err := m.conn.ExecCtx(ctx, query, podcastID)
 	return mapDBError(err)
 }
 
-func (m *customPodcastTagModel) DeleteBatchByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64) error {
-	return m.withSession(session).DeleteBatchByPodcastId(ctx, podcastId)
+func (m *customPodcastTagModel) DeleteBatchByPodcastIDWithSession(ctx context.Context, session sqlx.Session, podcastID uint64) error {
+	return m.withSession(session).DeleteBatchByPodcastID(ctx, podcastID)
 }
 
-func (m *customPodcastTagModel) SoftDeleteByPodcastId(ctx context.Context, podcastId uint64, deletedAt uint64) error {
+func (m *customPodcastTagModel) SoftDeleteByPodcastID(ctx context.Context, podcastID, deletedAt uint64) error {
 	query := fmt.Sprintf(
 		"UPDATE %s SET `deleted_at` = ? WHERE `podcast_id` = ?",
 		m.table,
 	)
 
-	_, err := m.conn.ExecCtx(ctx, query, deletedAt, podcastId)
+	_, err := m.conn.ExecCtx(ctx, query, deletedAt, podcastID)
 	return mapDBError(err)
 }
 
-func (m *customPodcastTagModel) SoftDeleteByPodcastIdWithSession(ctx context.Context, session sqlx.Session, podcastId uint64, deletedAt uint64) error {
-	return m.withSession(session).SoftDeleteByPodcastId(ctx, podcastId, deletedAt)
+func (m *customPodcastTagModel) SoftDeleteByPodcastIDWithSession(ctx context.Context, session sqlx.Session, podcastID, deletedAt uint64) error {
+	return m.withSession(session).SoftDeleteByPodcastID(ctx, podcastID, deletedAt)
 }

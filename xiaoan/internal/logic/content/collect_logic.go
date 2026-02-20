@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type CollectLogic struct {
@@ -26,7 +26,7 @@ func NewCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CollectLo
 }
 
 func (l *CollectLogic) Collect(req *types.CollectRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.Collect(l.ctx, &content.CollectRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.Collect(l.ctx, &content.CollectRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 	})

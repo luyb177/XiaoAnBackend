@@ -20,7 +20,7 @@ type AddArticleResponse struct {
 }
 
 type AddComicChapterRequest struct {
-	ComicId     uint64   `json:"comic_id"`
+	ComicID     uint64   `json:"comic_id"`
 	ChapterNo   int64    `json:"chapter_no"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
@@ -44,7 +44,7 @@ type AddComicRequest struct {
 }
 
 type AddComicResponse struct {
-	ComicId        uint64 `json:"comic_id"`
+	ComicID        uint64 `json:"comic_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
@@ -61,7 +61,7 @@ type AddCommentRequest struct {
 }
 
 type AddCommentResponse struct {
-	CommentId      uint64 `json:"comment_id"`
+	CommentID      uint64 `json:"comment_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
@@ -79,7 +79,7 @@ type AddPodcastRequest struct {
 }
 
 type AddPodcastResponse struct {
-	PodcastId      uint64 `json:"podcast_id"`
+	PodcastID      uint64 `json:"podcast_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
@@ -94,7 +94,7 @@ type AddVideoRequest struct {
 }
 
 type AddVideoResponse struct {
-	VideoId        uint64 `json:"video_id"`
+	VideoID        uint64 `json:"video_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
@@ -118,6 +118,21 @@ type Article struct {
 	RelationStatus int64    `json:"relation_status"`
 	IsLiked        bool     `json:"is_liked"`
 	IsCollected    bool     `json:"is_collected"`
+}
+
+type ChangeClassRequest struct {
+	InviteCode string `json:"invite_code"`
+}
+
+type Class struct {
+	ClassID          uint64 `json:"class_id"`
+	ClassName        string `json:"class_name"`
+	ClassDescription string `json:"class_description"`
+	AdminID          uint64 `json:"admin_id"`
+	StudentCount     uint64 `json:"student_count"`
+	Status           int64  `json:"status"`
+	CreatedAt        int64  `json:"created_at"`
+	UpdatedAt        int64  `json:"updated_at"`
 }
 
 type CollectRequest struct {
@@ -193,26 +208,31 @@ type DeleteArticleRequest struct {
 
 type DeleteComicChapterRequest struct {
 	ComicChapterId uint64 `form:"comic_chapter_id"`
-	ComicId        uint64 `form:"comic_id"`
+	ComicID        uint64 `form:"comic_id"`
 }
 
 type DeleteComicRequest struct {
-	ComicId uint64 `form:"comic_id"`
+	ComicID uint64 `form:"comic_id"`
 }
 
 type DeleteCommentRequest struct {
-	CommentId uint64 `form:"comment_id"`
+	CommentID uint64 `form:"comment_id"`
 }
 
 type DeletePodcastRequest struct {
-	PodcastId uint64 `form:"podcast_id"`
+	PodcastID uint64 `form:"podcast_id"`
 }
 
 type DeleteVideoRequest struct {
-	VideoId uint64 `form:"video_id"`
+	VideoID uint64 `form:"video_id"`
 }
 
 type EmptyResponse struct {
+}
+
+type GenerateClassRequest struct {
+	ClassName        string `json:"class_name"`
+	ClassDescription string `json:"class_description"`
 }
 
 type GenerateInviteCodeRequest struct {
@@ -244,12 +264,32 @@ type GetArticleResponse struct {
 	Article Article `json:"article"`
 }
 
+type GetClassInfoRequest struct {
+	ClassID uint64 `form:"class_id"`
+}
+
+type GetClassInfoResponse struct {
+	ClassInfo Class `json:"class_info"`
+}
+
+type GetClassesRequest struct {
+	PageSize int64  `form:"page_size"`
+	Cursor   uint64 `form:"cursor"`
+	UserID   uint64 `form:"user_id"`
+}
+
+type GetClassesResponse struct {
+	Classes    []Class `json:"classes"`
+	HasMore    bool    `json:"has_more"`
+	NextCursor uint64  `json:"next_cursor"`
+}
+
 type GetComicChapterPageResponse struct {
 	Pages []ComicChapterPage `json:"pages"`
 }
 
 type GetComicChapterRequest struct {
-	ComicId  uint64 `form:"comic_id"`
+	ComicID  uint64 `form:"comic_id"`
 	Page     int64  `form:"page"`
 	PageSize int64  `form:"page_size"`
 }
@@ -265,7 +305,7 @@ type GetComicPageRequest struct {
 }
 
 type GetComicRequest struct {
-	ComicId uint64 `form:"comic_id"`
+	ComicID uint64 `form:"comic_id"`
 }
 
 type GetComicResponse struct {
@@ -273,8 +313,9 @@ type GetComicResponse struct {
 }
 
 type GetInviteCodeRequest struct {
-	PageSize int64  `json:"page_size"`
-	Cursor   uint64 `json:"cursor"`
+	PageSize int64  `form:"page_size"`
+	Cursor   uint64 `form:"cursor"`
+	UserID   uint64 `form:"user_id"`
 }
 
 type GetInviteCodeResponse struct {
@@ -284,7 +325,7 @@ type GetInviteCodeResponse struct {
 }
 
 type GetPodcastContentRequest struct {
-	PodcastId uint64 `form:"podcast_id"`
+	PodcastID uint64 `form:"podcast_id"`
 }
 
 type GetPodcastResponse struct {
@@ -314,27 +355,38 @@ type GetSubCommentResponse struct {
 	Comments []Comment `json:"comments"`
 }
 
+type GetUserInfoRequest struct {
+	UserID uint64 `form:"user_id"`
+}
+
+type GetUserInfoResponse struct {
+	UserInfo UserInfo `json:"user_info"`
+}
+
 type GetVideoContentRequest struct {
-	VideoId uint64 `form:"video_id"`
+	VideoID uint64 `form:"video_id"`
 }
 
 type GetVideoResponse struct {
 	Video Video `json:"video"`
 }
 
+type InvalidateInviteCodeRequest struct {
+	Code string `json:"code"`
+}
+
 type InviteCode struct {
-	Code        string `json:"code"`
-	CreatorID   uint64 `json:"creator_id"`
-	CreatorName string `json:"creator_name"`
-	Department  string `json:"department"`
-	MaxUses     uint64 `json:"max_uses"`
-	UsedCount   uint64 `json:"used_count"`
-	Remark      string `json:"remark"`
-	ExpiresAt   int64  `json:"expires_at"`
-	TargetRole  string `json:"target_role"`
-	ClassId     uint64 `json:"class_id"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	Code       string `json:"code"`
+	CreatorID  uint64 `json:"creator_id"`
+	Department string `json:"department"`
+	MaxUses    uint64 `json:"max_uses"`
+	UsedCount  uint64 `json:"used_count"`
+	Remark     string `json:"remark"`
+	ExpiresAt  int64  `json:"expires_at"`
+	TargetRole string `json:"target_role"`
+	ClassId    uint64 `json:"class_id"`
+	CreatedAt  int64  `json:"created_at"`
+	UpdatedAt  int64  `json:"updated_at"`
 }
 
 type LikeRequest struct {
@@ -373,7 +425,7 @@ type ModifyArticleResponse struct {
 
 type ModifyComicChapterRequest struct {
 	ComicChapterId uint64   `json:"comic_chapter_id"`
-	ComicId        uint64   `json:"comic_id"`
+	ComicID        uint64   `json:"comic_id"`
 	ChapterNo      int64    `json:"chapter_no"`
 	Title          string   `json:"title"`
 	Description    string   `json:"description"`
@@ -388,7 +440,7 @@ type ModifyComicChapterResponse struct {
 }
 
 type ModifyComicRequest struct {
-	ComicId     uint64   `json:"comic_id"`
+	ComicID     uint64   `json:"comic_id"`
 	Name        string   `json:"name"`
 	Tags        []string `json:"tags"`
 	Description string   `json:"description"`
@@ -398,12 +450,12 @@ type ModifyComicRequest struct {
 }
 
 type ModifyComicResponse struct {
-	ComicId        uint64 `json:"comic_id"`
+	ComicID        uint64 `json:"comic_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
 type ModifyPodcastRequest struct {
-	PodcastId   uint64                  `json:"podcast_id"`
+	PodcastID   uint64                  `json:"podcast_id"`
 	Name        string                  `json:"name"`
 	Url         string                  `json:"url"`
 	Description string                  `json:"description"`
@@ -417,12 +469,19 @@ type ModifyPodcastRequest struct {
 }
 
 type ModifyPodcastResponse struct {
-	PodcastId      uint64 `json:"podcast_id"`
+	PodcastID      uint64 `json:"podcast_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
+type ModifyUserBaseInfoRequest struct {
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	Phone  string `json:"phone"`
+	UserID uint64 `json:"user_id"`
+}
+
 type ModifyVideoRequest struct {
-	VideoId     uint64   `json:"video_id"`
+	VideoID     uint64   `json:"video_id"`
 	Name        string   `json:"name"`
 	Url         string   `json:"url"`
 	Description string   `json:"description"`
@@ -433,7 +492,7 @@ type ModifyVideoRequest struct {
 }
 
 type ModifyVideoResponse struct {
-	VideoId        uint64 `json:"video_id"`
+	VideoID        uint64 `json:"video_id"`
 	RelationStatus int64  `json:"relation_status"`
 }
 
@@ -510,6 +569,20 @@ type User struct {
 	InviteCodeUsed string `json:"invite_code_used"`
 	CreatedAt      int64  `json:"created_at"`
 	UpdatedAt      int64  `json:"updated_at"`
+}
+
+type UserInfo struct {
+	UserID     uint64 `json:"user_id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Avatar     string `json:"avatar"`
+	Phone      string `json:"phone"`
+	Department string `json:"department"`
+	Role       string `json:"role"`
+	ClassID    uint64 `json:"class_id"`
+	Status     int64  `json:"status"`
+	CreatedAt  int64  `json:"created_at"`
+	UpdatedAt  int64  `json:"updated_at"`
 }
 
 type ValidateEmailRequest struct {

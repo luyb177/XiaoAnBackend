@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type DeleteArticleLogic struct {
@@ -26,7 +26,7 @@ func NewDeleteArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 }
 
 func (l *DeleteArticleLogic) DeleteArticle(req *types.DeleteArticleRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.DeleteArticle(l.ctx, &content.DeleteArticleRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.DeleteArticle(l.ctx, &content.DeleteArticleRequest{
 		Id: req.ArticleId,
 	})
 

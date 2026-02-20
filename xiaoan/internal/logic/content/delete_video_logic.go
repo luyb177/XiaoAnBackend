@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type DeleteVideoLogic struct {
@@ -26,7 +26,7 @@ func NewDeleteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 }
 
 func (l *DeleteVideoLogic) DeleteVideo(req *types.DeleteVideoRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.DeleteVideo(l.ctx, &content.DeleteVideoRequest{Id: req.VideoId})
+	rpcResp, err := l.svcCtx.ContentRPC.DeleteVideo(l.ctx, &content.DeleteVideoRequest{Id: req.VideoID})
 	if err != nil {
 		l.Errorf("rpc DeleteVideo err: %s", err.Error())
 		return &types.Response{

@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AddArticleLogic struct {
@@ -26,7 +26,7 @@ func NewAddArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddArt
 }
 
 func (l *AddArticleLogic) AddArticle(req *types.AddArticleRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.AddArticle(l.ctx, &content.AddArticleRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.AddArticle(l.ctx, &content.AddArticleRequest{
 		Name:        req.Name,
 		Description: req.Description,
 		Content:     req.Content,

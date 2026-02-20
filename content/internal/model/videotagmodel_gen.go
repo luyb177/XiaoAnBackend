@@ -27,7 +27,7 @@ type (
 	videoTagModel interface {
 		Insert(ctx context.Context, data *VideoTag) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*VideoTag, error)
-		FindOneByVideoIdTagDeletedAt(ctx context.Context, videoId uint64, tag string, deletedAt uint64) (*VideoTag, error)
+		FindOneByVideoIDTagDeletedAt(ctx context.Context, videoID uint64, tag string, deletedAt uint64) (*VideoTag, error)
 		Update(ctx context.Context, data *VideoTag) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -39,7 +39,7 @@ type (
 
 	VideoTag struct {
 		Id        uint64    `db:"id"`
-		VideoId   uint64    `db:"video_id"`   // 视频ID
+		VideoID   uint64    `db:"video_id"`   // 视频ID
 		Tag       string    `db:"tag"`        // 标签
 		CreatedAt time.Time `db:"created_at"` // 记录创建时间（系统时间）
 		UpdatedAt time.Time `db:"updated_at"` // 记录更新时间（系统时间）
@@ -74,10 +74,10 @@ func (m *defaultVideoTagModel) FindOne(ctx context.Context, id uint64) (*VideoTa
 	}
 }
 
-func (m *defaultVideoTagModel) FindOneByVideoIdTagDeletedAt(ctx context.Context, videoId uint64, tag string, deletedAt uint64) (*VideoTag, error) {
+func (m *defaultVideoTagModel) FindOneByVideoIDTagDeletedAt(ctx context.Context, videoID uint64, tag string, deletedAt uint64) (*VideoTag, error) {
 	var resp VideoTag
 	query := fmt.Sprintf("select %s from %s where `video_id` = ? and `tag` = ? and `deleted_at` = ? limit 1", videoTagRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, videoId, tag, deletedAt)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, videoID, tag, deletedAt)
 	switch err {
 	case nil:
 		return &resp, nil
@@ -90,13 +90,13 @@ func (m *defaultVideoTagModel) FindOneByVideoIdTagDeletedAt(ctx context.Context,
 
 func (m *defaultVideoTagModel) Insert(ctx context.Context, data *VideoTag) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, videoTagRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.VideoId, data.Tag, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.VideoID, data.Tag, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultVideoTagModel) Update(ctx context.Context, newData *VideoTag) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, videoTagRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.VideoId, newData.Tag, newData.DeletedAt, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.VideoID, newData.Tag, newData.DeletedAt, newData.Id)
 	return err
 }
 

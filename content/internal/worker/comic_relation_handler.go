@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type ComicRelationHandler struct {
@@ -26,7 +26,7 @@ type ComicRelationHandler struct {
 	ContentLikeDao model.ContentLikeModel
 }
 
-func NewComicRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *ComicRelationHandler {
+func NewComicRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *ComicRelationHandler {
 	return &ComicRelationHandler{
 		svcCtx:         svcCtx,
 		Logger:         logx.WithContext(ctx),
@@ -37,7 +37,7 @@ func NewComicRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *C
 	}
 }
 
-func (h *ComicRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *ComicRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (h *ComicRelationHandler) handleModify(ctx context.Context, task *tasks.Com
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除旧标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.ComicTagDao.SoftDeleteBatchByComicIdWithSession(ctx, session, task.ComicID, deletedAt)
+		err := h.ComicTagDao.SoftDeleteBatchByComicIDWithSession(ctx, session, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -111,19 +111,19 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 1. 删除标签
 		deletedAt := uint64(time.Now().Unix())
-		err := h.ComicTagDao.SoftDeleteBatchByComicIdWithSession(ctx, session, task.ComicID, deletedAt)
+		err := h.ComicTagDao.SoftDeleteBatchByComicIDWithSession(ctx, session, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 2. 删除评论
-		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIdWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
+		_, err = h.CommentDao.SoftDeleteByTypeAndTargetIDWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}
 
 		// 删除点赞
-		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIdWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
+		_, err = h.ContentLikeDao.SoftDeleteByTypeTargetIDWithSession(ctx, session, logic.ContentTypeComic, task.ComicID, deletedAt)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (h *ComicRelationHandler) handleDelete(ctx context.Context, task *tasks.Com
 		// 3. 删除对应的全部章节
 		comicChapterRelationTask := &tasks.ComicChapterRelationTask{
 			Type:    tasks.ComicChapterRelationDeleteAll,
-			ComicId: task.ComicID,
+			ComicID: task.ComicID,
 			UID:     task.UID,
 		}
 

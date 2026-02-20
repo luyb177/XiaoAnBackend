@@ -5,15 +5,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
-	"github.com/luyb177/XiaoAnBackend/content/internal/model"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"time"
+
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"time"
+
+	"github.com/luyb177/XiaoAnBackend/content/internal/logic"
+	"github.com/luyb177/XiaoAnBackend/content/internal/model"
+	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type CollectRelationHandler struct {
@@ -27,7 +29,7 @@ type CollectRelationHandler struct {
 	ComicDao   model.ComicModel
 }
 
-func NewCollectRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) *CollectRelationHandler {
+func NewCollectRelationHandler(ctx context.Context, svcCtx *svc.ServiceContext) *CollectRelationHandler {
 	return &CollectRelationHandler{
 		svcCtx:            svcCtx,
 		Logger:            logx.WithContext(ctx),
@@ -39,7 +41,7 @@ func NewCollectRelationHandler(svcCtx *svc.ServiceContext, ctx context.Context) 
 	}
 }
 
-func (h *CollectRelationHandler) Handle(ctx context.Context, task taskqueue.Task) error {
+func (h *CollectRelationHandler) Handle(ctx context.Context, task queue.Task) error {
 	payload, err := task.Payload()
 	if err != nil {
 		return err
@@ -85,7 +87,7 @@ func (h *CollectRelationHandler) handleAdd(ctx context.Context, task *tasks.Coll
 			return err
 		}
 		// 获取 ID
-		contentCollect, err = h.ContentCollectDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		contentCollect, err = h.ContentCollectDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			return err
 		}
@@ -129,7 +131,8 @@ func (h *CollectRelationHandler) handleAdd(ctx context.Context, task *tasks.Coll
 func (h *CollectRelationHandler) handleDelete(ctx context.Context, task *tasks.CollectRelationTask) error {
 	return h.svcCtx.Mysql.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
 		// 先 find
-		contentCollect, err := h.ContentCollectDao.FindOneByUserIdTypeTargetIdWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
+		// todo : 可以不用 find ，避免 toctou 问题
+		contentCollect, err := h.ContentCollectDao.FindOneByUserIDTypeTargetIDWithSession(ctx, session, task.UID, task.ContentType, task.ContentID)
 		if err != nil {
 			if errors.Is(err, model.ErrNotFound) {
 				return nil
@@ -159,6 +162,7 @@ func (h *CollectRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 			}
 			if affect == 0 {
 				// 内容不存在
+				h.Errorf("CollectRelationHandler handleDelete: content not found, contentType: %s, contentID: %d", task.ContentType, task.ContentID)
 			}
 		}
 

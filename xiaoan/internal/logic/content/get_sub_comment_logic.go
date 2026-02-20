@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetSubCommentLogic struct {
@@ -26,7 +26,7 @@ func NewGetSubCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetSubCommentLogic) GetSubComment(req *types.GetSubCommentRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetSubComment(l.ctx, &content.GetSubCommentRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.GetSubComment(l.ctx, &content.GetSubCommentRequest{
 		ContentType:     req.ContentType,
 		ContentId:       req.ContentId,
 		ParentCommentId: req.ParentCommentId,

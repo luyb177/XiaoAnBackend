@@ -1,26 +1,26 @@
 package svc
 
 import (
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/config"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/collect"
 	"github.com/luyb177/XiaoAnBackend/content/internal/repo/like"
-	"github.com/luyb177/XiaoAnBackend/content/internal/repo/redisqueue"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue"
-
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type ServiceContext struct {
 	Config      config.Config
 	Mysql       sqlx.SqlConn
-	TaskQueue   taskqueue.TaskQueue
+	TaskQueue   queue.TaskQueue
 	LikeRepo    like.Repository
 	CollectRepo collect.Repository
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	keys := taskqueue.QueueKey{
+	keys := queue.QueueKey{
 		Pending:    "content:pending",
 		Processing: "content:processing",
 		Retry:      "content:retry",

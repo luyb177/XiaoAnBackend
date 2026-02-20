@@ -3,16 +3,17 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/podcast/convert"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetPodcastLogic struct {
@@ -38,7 +39,7 @@ func NewGetPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPod
 // GetPodcast 获取播客
 func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
@@ -103,7 +104,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	highlightCh := make(chan HighlightResult, 1)
 
 	go func() {
-		tags, err := l.PodcastTagDao.FindManyByPodcastId(l.ctx, in.Id)
+		tags, err := l.PodcastTagDao.FindManyByPodcastID(l.ctx, in.Id)
 		tagCh <- TagResult{
 			podcastTags: tags,
 			err:         err,
@@ -124,7 +125,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	}()
 
 	go func() {
-		highlights, err := l.PodcastHighlightDao.FindManyByPodcastId(l.ctx, in.Id)
+		highlights, err := l.PodcastHighlightDao.FindManyByPodcastID(l.ctx, in.Id)
 		highlightCh <- HighlightResult{
 			highlights: highlights,
 			err:        err,

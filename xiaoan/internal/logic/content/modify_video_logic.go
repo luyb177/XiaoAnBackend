@@ -2,11 +2,12 @@ package content
 
 import (
 	"context"
+
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type ModifyVideoLogic struct {
@@ -25,8 +26,8 @@ func NewModifyVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 }
 
 func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
-		Id:          req.VideoId,
+	rpcResp, err := l.svcCtx.ContentRPC.ModifyVideo(l.ctx, &content.ModifyVideoRequest{
+		Id:          req.VideoID,
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Url:         req.Url,
@@ -54,7 +55,7 @@ func (l *ModifyVideoLogic) ModifyVideo(req *types.ModifyVideoRequest) (resp *typ
 
 	// HTTP 返回数据（对前端稳定）
 	httpData := &types.ModifyVideoResponse{
-		VideoId:        rpcData.Id,
+		VideoID:        rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 

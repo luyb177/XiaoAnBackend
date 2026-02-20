@@ -3,12 +3,12 @@ package auth
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 const (
@@ -42,7 +42,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.Response, err e
 	}
 }
 func (l *LoginLogic) LoginByPassword(req *types.LoginRequest) (*types.Response, error) {
-	return l.loginByRpc(&auth.LoginRequest{
+	return l.loginByRPC(&auth.LoginRequest{
 		Type:     auth.LoginType_PASSWORD,
 		Email:    req.Email,
 		Password: req.Password,
@@ -50,15 +50,15 @@ func (l *LoginLogic) LoginByPassword(req *types.LoginRequest) (*types.Response, 
 }
 
 func (l *LoginLogic) LoginByEmailCode(req *types.LoginRequest) (*types.Response, error) {
-	return l.loginByRpc(&auth.LoginRequest{
+	return l.loginByRPC(&auth.LoginRequest{
 		Type:      auth.LoginType_EMAIL_CODE,
 		Email:     req.Email,
 		EmailCode: req.EmailCode,
 	})
 }
 
-func (l *LoginLogic) loginByRpc(rpcReq *auth.LoginRequest) (*types.Response, error) {
-	rpcResp, err := l.svcCtx.AuthRpc.Login(l.ctx, rpcReq)
+func (l *LoginLogic) loginByRPC(rpcReq *auth.LoginRequest) (*types.Response, error) {
+	rpcResp, err := l.svcCtx.AuthRPC.Login(l.ctx, rpcReq)
 	if err != nil {
 		l.Errorf("rpc Login err: %v", err)
 		return logic.BadResponse("登录失败，请稍后重试"), nil

@@ -2,11 +2,12 @@ package content
 
 import (
 	"context"
+
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetVideoContentLogic struct {
@@ -25,8 +26,8 @@ func NewGetVideoContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 }
 
 func (l *GetVideoContentLogic) GetVideoContent(req *types.GetVideoContentRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetVideo(l.ctx, &content.GetVideoRequest{
-		Id: req.VideoId,
+	rpcResp, err := l.svcCtx.ContentRPC.GetVideo(l.ctx, &content.GetVideoRequest{
+		Id: req.VideoID,
 	})
 
 	if err != nil {

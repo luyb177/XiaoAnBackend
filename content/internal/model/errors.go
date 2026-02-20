@@ -2,9 +2,9 @@ package model
 
 import (
 	"errors"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 func mapDBError(err error) error {
@@ -21,6 +21,8 @@ func mapDBError(err error) error {
 		switch mysqlErr.Number {
 		case 1062:
 			return ErrDuplicateEntry
+		default:
+			return err
 		}
 	}
 

@@ -2,11 +2,12 @@ package content
 
 import (
 	"context"
+
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetArticleContentLogic struct {
@@ -24,10 +25,15 @@ func NewGetArticleContentLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-func (l *GetArticleContentLogic) GetArticleContent(req *types.GetArticleContentRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.GetArticle(l.ctx, &content.GetArticleRequest{
-		Id: req.ArticleId,
-	})
+func (l *GetArticleContentLogic) GetArticleContent(
+	req *types.GetArticleContentRequest,
+) (resp *types.Response, err error) {
+
+	rpcResp, err := l.svcCtx.ContentRPC.GetArticle(
+		l.ctx,
+		&content.GetArticleRequest{
+			Id: req.ArticleId,
+		})
 
 	if err != nil {
 		l.Errorf("rpc GetArticle err: %s", err.Error())

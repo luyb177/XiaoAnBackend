@@ -5,18 +5,18 @@ go 1.25.3
 replace (
 	github.com/luyb177/XiaoAnBackend/auth => ../auth
 	github.com/luyb177/XiaoAnBackend/content => ../content
+	github.com/luyb177/XiaoAnBackend/infra => ../infra
 	github.com/luyb177/XiaoAnBackend/qa => ../qa
 )
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20260128144803-ad4253dbb0ca
 	github.com/luyb177/XiaoAnBackend/auth v0.0.0-00010101000000-000000000000
 	github.com/luyb177/XiaoAnBackend/content v0.0.0-00010101000000-000000000000
+	github.com/luyb177/XiaoAnBackend/infra v0.0.0-00010101000000-000000000000
 	github.com/luyb177/XiaoAnBackend/qa v0.0.0-00010101000000-000000000000
-	github.com/zeromicro/go-zero v1.9.3
+	github.com/zeromicro/go-zero v1.9.4
 	google.golang.org/grpc v1.76.0
-	google.golang.org/protobuf v1.36.10
 )
 
 require (
@@ -36,6 +36,7 @@ require (
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -59,7 +60,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/redis/go-redis/v9 v9.16.0 // indirect
+	github.com/redis/go-redis/v9 v9.17.2 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.15 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.15 // indirect
@@ -89,6 +90,7 @@ require (
 	golang.org/x/time v0.10.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250804133106-a7a43d27e69b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
+	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

@@ -3,16 +3,17 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
-
-	"github.com/luyb177/XiaoAnBackend/auth/internal/jwt"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/password"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/jwt"
 )
 
 type LoginLogic struct {
@@ -72,13 +73,13 @@ func (l *LoginLogic) Login(in *v1.LoginRequest) (*v1.Response, error) {
 		}
 	}
 
-	if user.Status != UserStatusNormal {
+	if user.Status != constants.UserStatusNormal {
 		return bad("该用户已被禁用"), nil
 	}
 
 	// 生成 token
 	token, err := l.svcCtx.JWTHandler.SetJWTToken(jwt.ClaimsParams{
-		UserId:     user.Id,
+		UserID:     user.Id,
 		UserRole:   user.Role,
 		UserStatus: user.Status,
 	})

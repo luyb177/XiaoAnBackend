@@ -1,7 +1,7 @@
--- KEYS[1] = user collect key     collect:user:{userId}
+-- KEYS[1] = user collect key     collect:user:{userID}
 -- KEYS[2] = target collect key   collect:target:{type}:{id}
 -- ARGV[1] = member               type:id
--- ARGV[2] = userId
+-- ARGV[2] = userID
 
 -- 已收藏
 if redis.call("SISMEMBER", KEYS[1], ARGV[1]) == 1 then

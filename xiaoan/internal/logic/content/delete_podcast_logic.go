@@ -3,11 +3,11 @@ package content
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type DeletePodcastLogic struct {
@@ -26,8 +26,8 @@ func NewDeletePodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 }
 
 func (l *DeletePodcastLogic) DeletePodcast(req *types.DeletePodcastRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.DeletePodcast(l.ctx, &content.DeletePodcastRequest{
-		Id: req.PodcastId,
+	rpcResp, err := l.svcCtx.ContentRPC.DeletePodcast(l.ctx, &content.DeletePodcastRequest{
+		Id: req.PodcastID,
 	})
 
 	if err != nil {

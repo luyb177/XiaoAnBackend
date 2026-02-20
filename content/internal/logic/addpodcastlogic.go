@@ -5,14 +5,15 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type AddPodcastLogic struct {
@@ -35,7 +36,7 @@ func NewAddPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddPod
 func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, error) {
 	// 添加播客只有 超级管理员 和 员工 才能添加
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
@@ -115,7 +116,7 @@ func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, er
 	}
 
 	// 获取插入的播客ID
-	podcastId, err := result.LastInsertId()
+	podcastID, err := result.LastInsertId()
 	if err != nil {
 		l.Errorf("AddPodcast err: 获取播客ID失败，%v", err)
 
@@ -124,7 +125,7 @@ func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, er
 			Message: "获取播客ID失败",
 		}, nil
 	}
-	podcast.Id = uint64(podcastId)
+	podcast.Id = uint64(podcastID)
 
 	//  添加标签 & 添加重要时间点
 	podcastRelationTask := &tasks.PodcastRelationTask{

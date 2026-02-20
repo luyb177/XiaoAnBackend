@@ -2,12 +2,12 @@ package content
 
 import (
 	"context"
-	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
-
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+
+	content "github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 type UnCollectLogic struct {
@@ -26,7 +26,7 @@ func NewUnCollectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnColle
 }
 
 func (l *UnCollectLogic) UnCollect(req *types.UnCollectRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRpc.UnCollect(l.ctx, &content.UnCollectRequest{
+	rpcResp, err := l.svcCtx.ContentRPC.UnCollect(l.ctx, &content.UnCollectRequest{
 		ContentType: req.ContentType,
 		ContentId:   req.ContentId,
 	})

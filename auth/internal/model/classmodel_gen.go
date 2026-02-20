@@ -38,14 +38,14 @@ type (
 
 	Class struct {
 		Id           uint64         `db:"id"`
-		Name         string         `db:"name"`
-		Department   sql.NullString `db:"department"`
-		AdminId      int64          `db:"admin_id"`
-		AdminName    sql.NullString `db:"admin_name"`
-		StudentCount int64          `db:"student_count"`
-		CreatedAt    time.Time      `db:"created_at"` // 记录创建时间（系统时间）
-		UpdatedAt    time.Time      `db:"updated_at"` // 记录更新时间（系统时间）
-		DeletedAt    uint64         `db:"deleted_at"` // 删除时间戳(0=未删除，>0=删除时间)
+		Name         string         `db:"name"`          // 班级名称
+		Description  sql.NullString `db:"description"`   // 班级描述
+		AdminId      uint64         `db:"admin_id"`      // 班级管理员用户ID
+		StudentCount uint64         `db:"student_count"` // 班级人数（缓存）
+		Status       int64          `db:"status"`        // 1正常 2冻结 3已解散
+		CreatedAt    time.Time      `db:"created_at"`
+		UpdatedAt    time.Time      `db:"updated_at"`
+		DeletedAt    uint64         `db:"deleted_at"`
 	}
 )
 
@@ -78,13 +78,13 @@ func (m *defaultClassModel) FindOne(ctx context.Context, id uint64) (*Class, err
 
 func (m *defaultClassModel) Insert(ctx context.Context, data *Class) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, classRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Department, data.AdminId, data.AdminName, data.StudentCount, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Description, data.AdminId, data.StudentCount, data.Status, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultClassModel) Update(ctx context.Context, data *Class) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, classRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Department, data.AdminId, data.AdminName, data.StudentCount, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Description, data.AdminId, data.StudentCount, data.Status, data.DeletedAt, data.Id)
 	return err
 }
 

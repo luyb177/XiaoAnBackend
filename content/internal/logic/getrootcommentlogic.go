@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comment/convert"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetRootCommentLogic struct {
@@ -33,7 +34,7 @@ func NewGetRootCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 // GetRootComment 获取评论
 func (l *GetRootCommentLogic) GetRootComment(in *v1.GetRootCommentRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
@@ -50,7 +51,7 @@ func (l *GetRootCommentLogic) GetRootComment(in *v1.GetRootCommentRequest) (*v1.
 	}
 
 	offset := (in.Page - 1) * in.PageSize
-	rootCommentsModel, err := l.CommentDao.FindRootByTypeAndTargetId(l.ctx, in.ContentType, in.ContentId, offset, in.PageSize)
+	rootCommentsModel, err := l.CommentDao.FindRootByTypeAndTargetID(l.ctx, in.ContentType, in.ContentId, offset, in.PageSize)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return &v1.Response{

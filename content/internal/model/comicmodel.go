@@ -27,8 +27,8 @@ type (
 		IncrCommentCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64) (sql.Result, error)
 		DecrCommentCount(ctx context.Context, comicID uint64) (sql.Result, error)
 		DecrCommentCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64) (sql.Result, error)
-		DecrCommentCountByCount(ctx context.Context, comicID uint64, count uint64) (sql.Result, error)
-		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64, count uint64) (sql.Result, error)
+		DecrCommentCountByCount(ctx context.Context, comicID, count uint64) (sql.Result, error)
+		DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID, count uint64) (sql.Result, error)
 		DecrChapterCountByComicID(ctx context.Context, comicID uint64) error
 		DecrChapterCountByComicIDWithSession(ctx context.Context, session sqlx.Session, comicID uint64) error
 		IncrLikeCount(ctx context.Context, id uint64) (sql.Result, error)
@@ -43,11 +43,11 @@ type (
 		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Comic, error)
 		FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Comic, error)
-		FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error)
+		FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Comic, error)
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *Comic) error
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
-		SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error
+		SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error
 	}
 
 	customComicModel struct {
@@ -96,13 +96,13 @@ func (m *customComicModel) DecrCommentCountWithSession(ctx context.Context, sess
 	return m.withSession(session).DecrCommentCount(ctx, comicID)
 }
 
-func (m *customComicModel) DecrCommentCountByCount(ctx context.Context, comicID uint64, count uint64) (sql.Result, error) {
+func (m *customComicModel) DecrCommentCountByCount(ctx context.Context, comicID, count uint64) (sql.Result, error) {
 	query := fmt.Sprintf("update %s set `comment_count` = `comment_count` - ? where `id` = ? and `comment_count` >= ? and `deleted_at` = 0", m.table)
 	result, err := m.conn.ExecCtx(ctx, query, count, comicID, count)
 	return result, mapDBError(err)
 }
 
-func (m *customComicModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID uint64, count uint64) (sql.Result, error) {
+func (m *customComicModel) DecrCommentCountByCountWithSession(ctx context.Context, session sqlx.Session, comicID, count uint64) (sql.Result, error) {
 	return m.withSession(session).DecrCommentCountByCount(ctx, comicID, count)
 }
 
@@ -211,7 +211,7 @@ func (m *customComicModel) FindOneWithNotDeleteWithSession(ctx context.Context, 
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
 }
 
-func (m *customComicModel) FindByTagsAndKeyWord(ctx context.Context, offset int, limit int, tags []string, keyword string) ([]*Comic, error) {
+func (m *customComicModel) FindByTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Comic, error) {
 	kw := "%" + keyword + "%"
 	args := make([]interface{}, 0, len(tags)+5) // 占位符的数据，后两个是 offest 和 limit
 	args = append(args, kw, kw, kw)             // name, description, author
@@ -256,7 +256,7 @@ func (m *customComicModel) UpdateRelationStatusWithSession(ctx context.Context, 
 	return m.withSession(session).UpdateRelationStatus(ctx, id, relationStatus)
 }
 
-func (m *customComicModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64, modifier sql.NullInt64) error {
+func (m *customComicModel) SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ?, `last_modified_by` = ? where `id` = ? and `deleted_at` = 0",
 		m.table,

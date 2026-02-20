@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 
-	"github.com/luyb177/XiaoAnBackend/auth/internal/middleware"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
-	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
-	"github.com/luyb177/XiaoAnBackend/auth/pkg/code/convert"
-
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/luyb177/XiaoAnBackend/auth/internal/model"
+	"github.com/luyb177/XiaoAnBackend/auth/internal/svc"
+	v1 "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/auth/pkg/code/convert"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type GetInviteCodeLogic struct {
@@ -34,12 +35,22 @@ func NewGetInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || user.Role == "" || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Role == "" || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
 	if in.PageSize <= 0 {
 		in.PageSize = 10
+	}
+
+	var targetUserID uint64
+	if user.UID != in.UserId && in.UserId != constants.InvalidUserID {
+		if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF {
+			return bad("没有权限查询其他用户创建的邀请码"), nil
+		}
+		targetUserID = in.UserId
+	} else {
+		targetUserID = user.UID
 	}
 
 	// 查询多一条记录，来判断是否有下一页
@@ -52,10 +63,10 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 
 	if in.Cursor == 0 {
 		// 首次查询
-		list, err = l.InviteCodeDao.FindManyByCreatorId(l.ctx, user.UID, limit)
+		list, err = l.InviteCodeDao.FindManyByCreatorID(l.ctx, targetUserID, limit)
 	} else {
 		// 继续查询
-		list, err = l.InviteCodeDao.FindManyByCreatorIdWithCursor(l.ctx, user.UID, in.Cursor, limit)
+		list, err = l.InviteCodeDao.FindManyByCreatorIDWithCursor(l.ctx, targetUserID, in.Cursor, limit)
 	}
 
 	if err != nil {

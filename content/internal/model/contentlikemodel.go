@@ -16,14 +16,14 @@ type (
 	ContentLikeModel interface {
 		contentLikeModel
 		withSession(session sqlx.Session) ContentLikeModel
-		FindOneByUserIdTypeTargetId(ctx context.Context, userId uint64, tp string, targetId uint64) (*ContentLike, error)
-		FindOneByUserIdTypeTargetIdWithSession(ctx context.Context, session sqlx.Session, userId uint64, tp string, targetId uint64) (*ContentLike, error)
+		FindOneByUserIDTypeTargetID(ctx context.Context, userID uint64, tp string, targetID uint64) (*ContentLike, error)
+		FindOneByUserIDTypeTargetIDWithSession(ctx context.Context, session sqlx.Session, userID uint64, tp string, targetID uint64) (*ContentLike, error)
 		Upsert(ctx context.Context, data *ContentLike) (sql.Result, error)
 		UpsertWithSession(ctx context.Context, session sqlx.Session, data *ContentLike) (sql.Result, error)
-		SoftDelete(ctx context.Context, id uint64, deletedAt uint64) (sql.Result, error)
-		SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64, deletedAt uint64) (sql.Result, error)
-		SoftDeleteByTypeTargetId(ctx context.Context, tp string, targetId uint64, deletedAt uint64) (sql.Result, error)
-		SoftDeleteByTypeTargetIdWithSession(ctx context.Context, session sqlx.Session, tp string, targetId uint64, deletedAt uint64) (sql.Result, error)
+		SoftDelete(ctx context.Context, id, deletedAt uint64) (sql.Result, error)
+		SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id, deletedAt uint64) (sql.Result, error)
+		SoftDeleteByTypeTargetID(ctx context.Context, tp string, targetID, deletedAt uint64) (sql.Result, error)
+		SoftDeleteByTypeTargetIDWithSession(ctx context.Context, session sqlx.Session, tp string, targetID uint64, deletedAt uint64) (sql.Result, error)
 		MarkLikeAsCounted(ctx context.Context, id uint64) (sql.Result, error)
 		MarkLikeAsCountedWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		UnmarkLikeAsCounted(ctx context.Context, id uint64) (sql.Result, error)
@@ -46,13 +46,14 @@ func (m *customContentLikeModel) withSession(session sqlx.Session) ContentLikeMo
 	return NewContentLikeModel(sqlx.NewSqlConnFromSession(session))
 }
 
-func (m *customContentLikeModel) FindOneByUserIdTypeTargetId(ctx context.Context, userId uint64, tp string, targetId uint64) (*ContentLike, error) {
-	res, err := m.defaultContentLikeModel.FindOneByUserIdTypeTargetId(ctx, userId, tp, targetId)
+func (m *customContentLikeModel) FindOneByUserIDTypeTargetID(ctx context.Context, userID uint64, tp string, targetID uint64) (*ContentLike, error) {
+	//nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
+	res, err := m.defaultContentLikeModel.FindOneByUserIdTypeTargetId(ctx, userID, tp, targetID)
 	return res, mapDBError(err)
 }
 
-func (m *customContentLikeModel) FindOneByUserIdTypeTargetIdWithSession(ctx context.Context, session sqlx.Session, userId uint64, tp string, targetId uint64) (*ContentLike, error) {
-	return m.withSession(session).FindOneByUserIdTypeTargetId(ctx, userId, tp, targetId)
+func (m *customContentLikeModel) FindOneByUserIDTypeTargetIDWithSession(ctx context.Context, session sqlx.Session, userID uint64, tp string, targetID uint64) (*ContentLike, error) {
+	return m.withSession(session).FindOneByUserIdTypeTargetId(ctx, userID, tp, targetID)
 }
 
 // Upsert -> 对象不存在 -> 插入
@@ -76,7 +77,7 @@ func (m *customContentLikeModel) UpsertWithSession(ctx context.Context, session 
 	return m.withSession(session).Upsert(ctx, data)
 }
 
-func (m *customContentLikeModel) SoftDelete(ctx context.Context, id uint64, deletedAt uint64) (sql.Result, error) {
+func (m *customContentLikeModel) SoftDelete(ctx context.Context, id, deletedAt uint64) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		update %s
 		set deleted_at = ?
@@ -87,11 +88,11 @@ func (m *customContentLikeModel) SoftDelete(ctx context.Context, id uint64, dele
 	return result, mapDBError(err)
 }
 
-func (m *customContentLikeModel) SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64, deletedAt uint64) (sql.Result, error) {
+func (m *customContentLikeModel) SoftDeleteWithSession(ctx context.Context, session sqlx.Session, id, deletedAt uint64) (sql.Result, error) {
 	return m.withSession(session).SoftDelete(ctx, id, deletedAt)
 }
 
-func (m *customContentLikeModel) SoftDeleteByTypeTargetId(ctx context.Context, tp string, targetId uint64, deletedAt uint64) (sql.Result, error) {
+func (m *customContentLikeModel) SoftDeleteByTypeTargetID(ctx context.Context, tp string, targetID, deletedAt uint64) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		update %s
 		set deleted_at = ?
@@ -99,13 +100,13 @@ func (m *customContentLikeModel) SoftDeleteByTypeTargetId(ctx context.Context, t
 		m.table,
 	)
 
-	result, err := m.conn.ExecCtx(ctx, query, deletedAt, tp, targetId)
+	result, err := m.conn.ExecCtx(ctx, query, deletedAt, tp, targetID)
 	return result, mapDBError(err)
 
 }
 
-func (m *customContentLikeModel) SoftDeleteByTypeTargetIdWithSession(ctx context.Context, session sqlx.Session, tp string, targetId uint64, deletedAt uint64) (sql.Result, error) {
-	return m.withSession(session).SoftDeleteByTypeTargetId(ctx, tp, targetId, deletedAt)
+func (m *customContentLikeModel) SoftDeleteByTypeTargetIDWithSession(ctx context.Context, session sqlx.Session, tp string, targetID, deletedAt uint64) (sql.Result, error) {
+	return m.withSession(session).SoftDeleteByTypeTargetID(ctx, tp, targetID, deletedAt)
 }
 
 func (m *customContentLikeModel) MarkLikeAsCounted(ctx context.Context, id uint64) (sql.Result, error) {

@@ -47,16 +47,58 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.IPMiddleware},
 			[]rest.Route{
 				{
+					// 切换班级
+					Method:  http.MethodPost,
+					Path:    "/change-class",
+					Handler: auth.ChangeClassHandler(serverCtx),
+				},
+				{
+					// 生成班级
+					Method:  http.MethodPost,
+					Path:    "/generate-class",
+					Handler: auth.GenerateClassHandler(serverCtx),
+				},
+				{
 					// 生成邀请码
 					Method:  http.MethodPost,
 					Path:    "/generate-invite-code",
 					Handler: auth.GenerateInviteCodeHandler(serverCtx),
 				},
 				{
+					// 获取班级信息
+					Method:  http.MethodGet,
+					Path:    "/get-class-info",
+					Handler: auth.GetClassInfoHandler(serverCtx),
+				},
+				{
+					// 获取班级列表
+					Method:  http.MethodGet,
+					Path:    "/get-classes",
+					Handler: auth.GetClassesHandler(serverCtx),
+				},
+				{
 					// 获取邀请码
-					Method:  http.MethodPost,
+					Method:  http.MethodGet,
 					Path:    "/get-invite-code",
 					Handler: auth.GetInviteCodeHandler(serverCtx),
+				},
+				{
+					// 获取用户信息
+					Method:  http.MethodGet,
+					Path:    "/get-user-info",
+					Handler: auth.GetUserInfoHandler(serverCtx),
+				},
+				{
+					// 失效邀请码
+					Method:  http.MethodPost,
+					Path:    "/invalidate-invite-code",
+					Handler: auth.InvalidateInviteCodeHandler(serverCtx),
+				},
+				{
+					// 修改用户基本信息
+					Method:  http.MethodPost,
+					Path:    "/modify-user-base-info",
+					Handler: auth.ModifyUserBaseInfoHandler(serverCtx),
 				},
 			}...,
 		),

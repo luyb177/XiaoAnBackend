@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strings"
 
-	contentIp2region "github.com/luyb177/XiaoAnBackend/content/pkg/ip2region"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
-
 	"github.com/lionsoul2014/ip2region/binding/golang/service"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 )
 
 type IPMiddleware struct {
@@ -66,16 +66,16 @@ func (m *IPMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		ctx := r.Context()
 
 		if ip != "" {
-			ctx = metadata.AppendToOutgoingContext(ctx, contentIp2region.MdKeyClientIP, ip)
+			ctx = metadata.AppendToOutgoingContext(ctx, middleware.MdKeyClientIP, ip)
 		}
 		if ipLocation != nil {
 			ctx = metadata.AppendToOutgoingContext(
 				ctx,
-				contentIp2region.MdKeyGeoCountry, ipLocation.Country,
-				contentIp2region.MdKeyGeoProvince, ipLocation.Province,
-				contentIp2region.MdKeyGeoCity, ipLocation.City,
-				contentIp2region.MdKeyGeoISP, ipLocation.ISP,
-				contentIp2region.MdKeyGeoISO, ipLocation.ISOCode,
+				middleware.MdKeyGeoCountry, ipLocation.Country,
+				middleware.MdKeyGeoProvince, ipLocation.Province,
+				middleware.MdKeyGeoCity, ipLocation.City,
+				middleware.MdKeyGeoISP, ipLocation.ISP,
+				middleware.MdKeyGeoISO, ipLocation.ISOCode,
 			)
 		}
 

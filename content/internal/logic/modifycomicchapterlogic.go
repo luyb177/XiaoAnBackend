@@ -6,14 +6,15 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/content/internal/middleware"
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type ModifyComicChapterLogic struct {
@@ -37,7 +38,7 @@ func NewModifyComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // ModifyComicChapter 修改漫画章节
 func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRequest) (*v1.Response, error) {
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == InvalidUserID || (user.Role != SUPERADMIN && user.Role != STAFF) || user.Status != UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
 	}
 
@@ -49,7 +50,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(in *v1.ModifyComicChapterRe
 		{in.Title != "", "章节标题不能为空"},
 		{in.Description != "", "章节描述不能为空"},
 		{in.Status == ComicStatusPublished || in.Status == ComicStatusDraft, "章节状态不合法"},
-		{in.PageUrls != nil && len(in.PageUrls) > 0, "章节页面不能为空"},
+		{len(in.PageUrls) > 0, "章节页面不能为空"},
 	}
 
 	for _, v := range validations {

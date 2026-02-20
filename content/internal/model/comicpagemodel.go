@@ -19,8 +19,8 @@ type (
 		InsertBatch(ctx context.Context, list []*ComicPage) error
 		InsertBatchWithSession(ctx context.Context, session sqlx.Session, list []*ComicPage) error
 		FindManyByChapterIDOrderByPageNo(ctx context.Context, chapterID uint64, offset, pageSize int64) ([]*ComicPage, error)
-		SoftDeleteByChapterID(ctx context.Context, chapterID uint64, deletedAt uint64) error
-		SoftDeleteByChapterIDWithSession(ctx context.Context, session sqlx.Session, chapterID uint64, deletedAt uint64) error
+		SoftDeleteByChapterID(ctx context.Context, chapterID, deletedAt uint64) error
+		SoftDeleteByChapterIDWithSession(ctx context.Context, session sqlx.Session, chapterID, deletedAt uint64) error
 		SoftDeleteAllByChapterIDs(ctx context.Context, chapterIDs []uint64, deletedAt uint64) error
 		SoftDeleteAllByChapterIDsWithSession(ctx context.Context, session sqlx.Session, chapterIDs []uint64, deletedAt uint64) error
 	}
@@ -80,7 +80,7 @@ func (m *customComicPageModel) FindManyByChapterIDOrderByPageNo(ctx context.Cont
 	return resp, mapDBError(err)
 }
 
-func (m *customComicPageModel) SoftDeleteByChapterID(ctx context.Context, chapterID uint64, deletedAt uint64) error {
+func (m *customComicPageModel) SoftDeleteByChapterID(ctx context.Context, chapterID, deletedAt uint64) error {
 	query := fmt.Sprintf(
 		"update %s set `deleted_at` = ? where `chapter_id` = ? and `deleted_at` = 0",
 		m.table,
@@ -89,7 +89,7 @@ func (m *customComicPageModel) SoftDeleteByChapterID(ctx context.Context, chapte
 	return mapDBError(err)
 }
 
-func (m *customComicPageModel) SoftDeleteByChapterIDWithSession(ctx context.Context, session sqlx.Session, chapterID uint64, deletedAt uint64) error {
+func (m *customComicPageModel) SoftDeleteByChapterIDWithSession(ctx context.Context, session sqlx.Session, chapterID, deletedAt uint64) error {
 	return m.withSession(session).SoftDeleteByChapterID(ctx, chapterID, deletedAt)
 }
 

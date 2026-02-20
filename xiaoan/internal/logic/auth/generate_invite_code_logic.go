@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
+
 	auth "github.com/luyb177/XiaoAnBackend/auth/pb/auth/v1"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GenerateInviteCodeLogic struct {
@@ -25,23 +26,22 @@ func NewGenerateInviteCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-func (l *GenerateInviteCodeLogic) GenerateInviteCode(req *types.GenerateInviteCodeRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRpc.GenerateInviteCode(l.ctx, &auth.GenerateInviteCodeRequest{
-		Department: req.Department,
-		MaxUses:    req.MaxUses,
-		Remark:     req.Remark,
-		ExpiresAt:  req.ExpiresAt,
-		TargetRole: req.TargetRole,
-		ClassId:    req.ClassId,
-	})
+func (l *GenerateInviteCodeLogic) GenerateInviteCode(
+	req *types.GenerateInviteCodeRequest,
+) (resp *types.Response, err error) {
+	rpcResp, err := l.svcCtx.AuthRPC.GenerateInviteCode(
+		l.ctx, &auth.GenerateInviteCodeRequest{
+			Department: req.Department,
+			MaxUses:    req.MaxUses,
+			Remark:     req.Remark,
+			ExpiresAt:  req.ExpiresAt,
+			TargetRole: req.TargetRole,
+			ClassId:    req.ClassId,
+		})
 
 	if err != nil {
 		l.Errorf("rpc GenerateInviteCode err: %v", err)
-		return &types.Response{
-			Code:    400,
-			Message: "生成邀请码失败",
-			Data:    &types.EmptyResponse{},
-		}, nil
+		return logic.BadResponse("生成邀请码失败"), nil
 	}
 
 	var rpcData = &auth.GenerateInviteCodeResponse{}
@@ -56,18 +56,17 @@ func (l *GenerateInviteCodeLogic) GenerateInviteCode(req *types.GenerateInviteCo
 	}
 
 	httpInviteCode := types.InviteCode{
-		Code:        rpcInviteCode.Code,
-		CreatorID:   rpcInviteCode.CreatorId,
-		CreatorName: rpcInviteCode.CreatorName,
-		Department:  rpcInviteCode.Department,
-		MaxUses:     rpcInviteCode.MaxUses,
-		UsedCount:   rpcInviteCode.UsedCount,
-		Remark:      rpcInviteCode.Remark,
-		ExpiresAt:   rpcInviteCode.ExpiresAt,
-		TargetRole:  rpcInviteCode.TargetRole,
-		ClassId:     rpcInviteCode.ClassId,
-		CreatedAt:   rpcInviteCode.CreatedAt,
-		UpdatedAt:   rpcInviteCode.UpdatedAt,
+		Code:       rpcInviteCode.Code,
+		CreatorID:  rpcInviteCode.CreatorId,
+		Department: rpcInviteCode.Department,
+		MaxUses:    rpcInviteCode.MaxUses,
+		UsedCount:  rpcInviteCode.UsedCount,
+		Remark:     rpcInviteCode.Remark,
+		ExpiresAt:  rpcInviteCode.ExpiresAt,
+		TargetRole: rpcInviteCode.TargetRole,
+		ClassId:    rpcInviteCode.ClassId,
+		CreatedAt:  rpcInviteCode.CreatedAt,
+		UpdatedAt:  rpcInviteCode.UpdatedAt,
 	}
 
 	httpData := types.GenerateInviteCodeResponse{
