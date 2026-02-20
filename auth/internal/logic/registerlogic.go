@@ -174,9 +174,16 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 
 		// 班级成员数+1
 		if code.ClassId != 0 {
-			_, err = l.ClassDao.IncrStudentCountWithSession(ctx, session, code.ClassId)
+			result, err = l.ClassDao.IncrStudentCountWithSession(ctx, session, code.ClassId)
 			if err != nil {
 				return err
+			}
+			affect, err = result.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if affect == 0 {
+				return errors.New("加入班级失败，班级不存在或已失效")
 			}
 		}
 		return nil

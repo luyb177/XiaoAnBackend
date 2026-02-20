@@ -55,7 +55,7 @@ func (m *customUserModel) InsertWithSession(ctx context.Context, session sqlx.Se
 func (m *customUserModel) FindOneWithNotDelete(ctx context.Context, id uint64) (*User, error) {
 	query := fmt.Sprintf(`
 		select %s from %s
-		where id = ? and deleted_at = 0 and status = 1`,
+		where id = ? and deleted_at = 0`,
 		userRows,
 		m.table)
 

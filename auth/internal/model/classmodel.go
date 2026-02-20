@@ -110,10 +110,11 @@ func (m *customClassModel) IncrStudentCountWithSession(ctx context.Context, sess
 	return m.withSession(session).IncrStudentCount(ctx, id)
 }
 
+// DecrStudentCount 旧班级的筛选条件里不需要 status = 1，因为可能因为班级被禁用了，所以需要切换班级
 func (m *customClassModel) DecrStudentCount(ctx context.Context, id uint64) (sql.Result, error) {
 	query := fmt.Sprintf(`
 		update %s set student_count = student_count - 1
-		where id = ? and deleted_at = 0 and status = 1 and student_count > 0`,
+		where id = ? and deleted_at = 0  and student_count > 0`,
 		m.table)
 
 	result, err := m.conn.ExecCtx(ctx, query, id)
