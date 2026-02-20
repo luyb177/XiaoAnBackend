@@ -74,7 +74,7 @@ func (l *GetNewVideosLogic) GetNewVideos(in *v1.GetNewVideosRequest) (*v1.Respon
 		nextCursor = list[len(list)-1].Id
 	}
 
-	// NOTE: 这里没有获取视频的 tag like collect 等相关内容，前端可以根据视频ID单独请求获取
+	// NOTE: 此列表接口仅返回视频基础信息。视频的标签、点赞、收藏状态等关联内容应在用户查看视频详情时通过单独接口获取，避免列表页出现 N+1 查询。
 	videosPB := convert.PBFromVideo(list)
 
 	res := &v1.GetNewVideosResponse{

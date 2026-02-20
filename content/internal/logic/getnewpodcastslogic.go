@@ -74,7 +74,7 @@ func (l *GetNewPodcastsLogic) GetNewPodcasts(in *v1.GetNewPodcastsRequest) (*v1.
 		nextCursor = list[len(list)-1].Id
 	}
 
-	// NOTE: 这里没有获取播客的 tag highlight like collect 等相关内容，前端可以根据播客ID单独请求获取
+	// NOTE: 此列表接口仅返回播客基础信息。播客的标签、点赞、收藏状态等关联内容应在用户查看播客详情时通过单独接口获取，避免列表页出现 N+1 查询。
 	podcastsPB := convert.PBFromPodcasts(list)
 
 	res := &v1.GetNewPodcastsResponse{

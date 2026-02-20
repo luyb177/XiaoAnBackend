@@ -75,7 +75,7 @@ func (l *GetNewArticlesLogic) GetNewArticles(in *v1.GetNewArticlesRequest) (*v1.
 		nextCursor = list[len(list)-1].Id
 	}
 
-	// NOTE: 这里没有获取文章的 tag like collect 等相关内容，前端可以根据文章ID单独请求获取
+	// NOTE: 此列表接口仅返回文章基础信息。文章的标签、点赞、收藏状态等关联内容应在用户查看文章详情时通过单独接口获取，避免列表页出现 N+1 查询。
 	articlesPB := convert.PBFromArticle(list)
 
 	res := &v1.GetNewArticlesResponse{

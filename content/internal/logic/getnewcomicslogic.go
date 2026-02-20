@@ -74,7 +74,7 @@ func (l *GetNewComicsLogic) GetNewComics(in *v1.GetNewComicsRequest) (*v1.Respon
 		nextCursor = list[len(list)-1].Id
 	}
 
-	// NOTE: 这里没有获取漫画的 tag like collect 等相关内容，前端可以根据漫画ID单独请求获取
+	// NOTE: 此列表接口仅返回漫画基础信息。漫画的标签、点赞、收藏状态等关联内容应在用户查看漫画详情时通过单独接口获取，避免列表页出现 N+1 查询。
 	comicsPB := convert.PBFromComics(list)
 
 	res := &v1.GetNewComicsResponse{
