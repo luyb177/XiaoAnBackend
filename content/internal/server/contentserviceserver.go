@@ -197,6 +197,30 @@ func (s *ContentServiceServer) UnCollect(ctx context.Context, in *v1.UnCollectRe
 	return l.UnCollect(in)
 }
 
+// GetNewArticles 获取最新文章列表
+func (s *ContentServiceServer) GetNewArticles(ctx context.Context, in *v1.GetNewArticlesRequest) (*v1.Response, error) {
+	l := logic.NewGetNewArticlesLogic(ctx, s.svcCtx)
+	return l.GetNewArticles(in)
+}
+
+// GetNewVideos 获取最新视频列表
+func (s *ContentServiceServer) GetNewVideos(ctx context.Context, in *v1.GetNewVideosRequest) (*v1.Response, error) {
+	l := logic.NewGetNewVideosLogic(ctx, s.svcCtx)
+	return l.GetNewVideos(in)
+}
+
+// GetNewPodcasts 获取最新播客列表
+func (s *ContentServiceServer) GetNewPodcasts(ctx context.Context, in *v1.GetNewPodcastsRequest) (*v1.Response, error) {
+	l := logic.NewGetNewPodcastsLogic(ctx, s.svcCtx)
+	return l.GetNewPodcasts(in)
+}
+
+// GetNewComics 获取最新漫画列表
+func (s *ContentServiceServer) GetNewComics(ctx context.Context, in *v1.GetNewComicsRequest) (*v1.Response, error) {
+	l := logic.NewGetNewComicsLogic(ctx, s.svcCtx)
+	return l.GetNewComics(in)
+}
+
 // 搜索
 func (s *ContentServiceServer) Search(ctx context.Context, in *v1.SearchRequest) (*v1.Response, error) {
 	l := logic.NewSearchLogic(ctx, s.svcCtx)

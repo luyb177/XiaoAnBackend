@@ -36,8 +36,12 @@ func NewAddVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddVideo
 func (l *AddVideoLogic) AddVideo(in *v1.AddVideoRequest) (*v1.Response, error) {
 	// 目前添加视频也只能由超级管理员或员工添加
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
+	}
+
+	if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF {
+		return bad("用户没有权限添加视频"), nil
 	}
 
 	// 校验参数

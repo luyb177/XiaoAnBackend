@@ -38,6 +38,8 @@ type (
 		IncrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
 		DecrCollectCount(ctx context.Context, id uint64) (sql.Result, error)
 		DecrCollectCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Video, error)
+		FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Video, error)
 		FindByKeyWord(ctx context.Context, offset, limit int, keyword string) ([]*Video, error)
 		FindByVideoTagsAndKeyWord(ctx context.Context, offset, limit int, tags []string, keyword string) ([]*Video, error)
 		FindOneWithNotDelete(ctx context.Context, id uint64) (*Video, error)
@@ -193,6 +195,37 @@ func (m *customVideoModel) FindOneWithNotDelete(ctx context.Context, id uint64) 
 
 func (m *customVideoModel) FindOneWithNotDeleteWithSession(ctx context.Context, session sqlx.Session, id uint64) (*Video, error) {
 	return m.withSession(session).FindOneWithNotDelete(ctx, id)
+}
+
+func (m *customVideoModel) FindManyWithNotDelete(ctx context.Context, limit int64) ([]*Video, error) {
+	query := fmt.Sprintf(`
+		select %s from %s
+		where deleted_at = 0
+		order by id desc
+		limit ?`,
+		videoRows,
+		m.table,
+	)
+
+	var out []*Video
+	err := m.conn.QueryRowsCtx(ctx, &out, query, limit)
+	return out, mapDBError(err)
+}
+
+func (m *customVideoModel) FindManyWithNotDeleteByCursor(ctx context.Context, cursor uint64, limit int64) ([]*Video, error) {
+	query := fmt.Sprintf(`
+		select %s from %s
+		where deleted_at = 0 
+		    and id < ?
+		order by id desc
+		limit ?`,
+		videoRows,
+		m.table,
+	)
+
+	var out []*Video
+	err := m.conn.QueryRowsCtx(ctx, &out, query, cursor, limit)
+	return out, mapDBError(err)
 }
 
 func (m *customVideoModel) FindByKeyWord(ctx context.Context, offset, limit int, keyword string) ([]*Video, error) {

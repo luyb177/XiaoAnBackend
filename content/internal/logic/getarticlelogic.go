@@ -108,11 +108,11 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 
 	// 等待 tag 结果
 	tagsResult := <-tagCh
-
 	if tagsResult.err != nil {
 		l.Errorf("GetArticle err: %v", tagsResult.err)
 		// 不影响获取文章内容
 	}
+
 	// 处理 tag
 	tagsRes := convert.StringsFromArticleTags(tagsResult.tags)
 
@@ -129,27 +129,28 @@ func (l *GetArticleLogic) GetArticle(in *v1.GetArticleRequest) (*v1.Response, er
 	}
 
 	// 构造返回内容
-	res := &v1.GetArticleResponse{Article: &v1.Article{
-		Id:             article.Id,
-		Name:           article.Name,
-		Tag:            tagsRes,
-		Url:            article.Url,
-		Description:    article.Description.String,
-		Cover:          article.Cover,
-		Content:        article.Content.String,
-		Author:         article.Author,
-		PublishedAt:    article.PublishedAt.Unix(),
-		CreatedAt:      article.CreatedAt.Unix(),
-		UpdatedAt:      article.UpdatedAt.Unix(),
-		LikeCount:      article.LikeCount,
-		ViewCount:      article.ViewCount,
-		CollectCount:   article.CollectCount,
-		LastModifiedBy: article.LastModifiedBy.Int64,
-		RelationStatus: article.RelationStatus,
-		CommentCount:   article.CommentCount,
-		IsLiked:        likeRes.liked,
-		IsCollected:    collectRes.collected,
-	}}
+	res := &v1.GetArticleResponse{
+		Article: &v1.Article{
+			Id:             article.Id,
+			Name:           article.Name,
+			Tag:            tagsRes,
+			Url:            article.Url,
+			Description:    article.Description.String,
+			Cover:          article.Cover,
+			Content:        article.Content.String,
+			Author:         article.Author,
+			PublishedAt:    article.PublishedAt.Unix(),
+			CreatedAt:      article.CreatedAt.Unix(),
+			UpdatedAt:      article.UpdatedAt.Unix(),
+			LikeCount:      article.LikeCount,
+			ViewCount:      article.ViewCount,
+			CollectCount:   article.CollectCount,
+			LastModifiedBy: article.LastModifiedBy.Int64,
+			RelationStatus: article.RelationStatus,
+			CommentCount:   article.CommentCount,
+			IsLiked:        likeRes.liked,
+			IsCollected:    collectRes.collected,
+		}}
 
 	resAny, err := anypb.New(res)
 	if err != nil {

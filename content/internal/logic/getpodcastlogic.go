@@ -154,7 +154,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 	}
 
 	tagsRes := convert.StringsFromPodcastTags(tagResult.podcastTags)
-	hightlightsRes := convert.PBFromPodcastHighlights(highlightResult.highlights)
+	highlightsRes := convert.PBFromPodcastHighlights(highlightResult.highlights)
 
 	// 4. 构造相应
 	res := &v1.GetPodcastResponse{Podcast: &v1.Podcast{
@@ -171,7 +171,7 @@ func (l *GetPodcastLogic) GetPodcast(in *v1.GetPodcastRequest) (*v1.Response, er
 		LikeCount:      podcast.LikeCount,
 		ViewCount:      podcast.ViewCount,
 		CollectCount:   podcast.CollectCount,
-		Highlights:     hightlightsRes,
+		Highlights:     highlightsRes,
 		LastModifiedBy: podcast.LastModifiedBy.Int64,
 		RelationStatus: podcast.RelationStatus,
 		Channel:        podcast.Channel,

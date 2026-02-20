@@ -36,8 +36,12 @@ func NewAddPodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddPod
 func (l *AddPodcastLogic) AddPodcast(in *v1.AddPodcastRequest) (*v1.Response, error) {
 	// 添加播客只有 超级管理员 和 员工 才能添加
 	user, ok := middleware.GetUser(l.ctx)
-	if !ok || user.UID == constants.InvalidUserID || (user.Role != constants.SUPERADMIN && user.Role != constants.STAFF) || user.Status != constants.UserStatusNormal {
+	if !ok || user.UID == constants.InvalidUserID || user.Status != constants.UserStatusNormal {
 		return bad("用户未登录或状态异常"), nil
+	}
+
+	if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF {
+		return bad("用户没有权限添加播客"), nil
 	}
 
 	// 检验请求体内容
