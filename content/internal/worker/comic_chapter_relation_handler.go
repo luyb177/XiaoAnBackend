@@ -4,9 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/luyb177/XiaoAnBackend/infra/queue"
-	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
-
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -17,6 +14,8 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/comic/convert"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type ComicChapterRelationHandler struct {

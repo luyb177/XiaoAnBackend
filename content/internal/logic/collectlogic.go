@@ -3,14 +3,13 @@ package logic
 import (
 	"context"
 
-	"github.com/luyb177/XiaoAnBackend/infra/constants"
-	"github.com/luyb177/XiaoAnBackend/infra/middleware"
-
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type CollectLogic struct {

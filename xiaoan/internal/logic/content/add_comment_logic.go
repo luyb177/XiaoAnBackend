@@ -54,7 +54,7 @@ func (l *AddCommentLogic) AddComment(req *types.AddCommentRequest) (resp *types.
 	}
 
 	httpData := &types.AddCommentResponse{
-		CommentId:      rpcData.Id,
+		CommentID:      rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 

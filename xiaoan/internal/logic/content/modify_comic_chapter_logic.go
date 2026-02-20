@@ -32,7 +32,7 @@ func (l *ModifyComicChapterLogic) ModifyComicChapter(
 		l.ctx,
 		&content.ModifyComicChapterRequest{
 			Id:          req.ComicChapterId,
-			ComicId:     req.ComicId,
+			ComicId:     req.ComicID,
 			ChapterNo:   req.ChapterNo,
 			Title:       req.Title,
 			Description: req.Description,

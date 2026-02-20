@@ -53,7 +53,7 @@ func (l *AddComicLogic) AddComic(req *types.AddComicRequest) (resp *types.Respon
 
 	// HTTP 返回数据（对前端稳定）
 	httpData := &types.AddComicResponse{
-		ComicId:        rpcData.Id,
+		ComicID:        rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 

@@ -70,3 +70,33 @@ func (s *AuthServiceServer) GenerateClass(ctx context.Context, in *v1.GenerateCl
 	l := logic.NewGenerateClassLogic(ctx, s.svcCtx)
 	return l.GenerateClass(in)
 }
+
+// GetClasses 获取班级列表
+func (s *AuthServiceServer) GetClasses(ctx context.Context, in *v1.GetClassesRequest) (*v1.Response, error) {
+	l := logic.NewGetClassesLogic(ctx, s.svcCtx)
+	return l.GetClasses(in)
+}
+
+// GetClassInfo 获取班级信息
+func (s *AuthServiceServer) GetClassInfo(ctx context.Context, in *v1.GetClassInfoRequest) (*v1.Response, error) {
+	l := logic.NewGetClassInfoLogic(ctx, s.svcCtx)
+	return l.GetClassInfo(in)
+}
+
+// GetClassMembers 获取班级成员列表
+func (s *AuthServiceServer) GetClassMembers(ctx context.Context, in *v1.GetClassMembersRequest) (*v1.Response, error) {
+	l := logic.NewGetClassMembersLogic(ctx, s.svcCtx)
+	return l.GetClassMembers(in)
+}
+
+// ChangeClass 切换班级
+func (s *AuthServiceServer) ChangeClass(ctx context.Context, in *v1.ChangeClassRequest) (*v1.Response, error) {
+	l := logic.NewChangeClassLogic(ctx, s.svcCtx)
+	return l.ChangeClass(in)
+}
+
+// InvalidateInviteCode 失效邀请码
+func (s *AuthServiceServer) InvalidateInviteCode(ctx context.Context, in *v1.InvalidateInviteCodeRequest) (*v1.Response, error) {
+	l := logic.NewInvalidateInviteCodeLogic(ctx, s.svcCtx)
+	return l.InvalidateInviteCode(in)
+}

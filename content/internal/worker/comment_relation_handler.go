@@ -7,8 +7,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/infra/queue"
-	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
@@ -16,6 +14,8 @@ import (
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 )
 
 type CommentRelationHandler struct {

@@ -2,10 +2,6 @@ package middleware
 
 import (
 	"context"
-
-	"github.com/luyb177/XiaoAnBackend/infra/jwt"
-	"github.com/luyb177/XiaoAnBackend/infra/middleware"
-
 	"net/http"
 	"strconv"
 	"time"
@@ -14,6 +10,8 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/luyb177/XiaoAnBackend/infra/jwt"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/config"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
@@ -25,7 +23,7 @@ type AuthMiddleware struct {
 
 func NewAuthMiddleware(cfg config.JWTConfig) *AuthMiddleware {
 	return &AuthMiddleware{
-		r:      jwt.NewHandler(cfg.Secret, time.Duration(cfg.Expire)),
+		r:      jwt.NewHandler(cfg.Secret, time.Duration(cfg.Expire)*time.Second),
 		Logger: logx.WithContext(context.Background()),
 	}
 }

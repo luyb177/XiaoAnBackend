@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -14,6 +13,7 @@ import (
 	"github.com/luyb177/XiaoAnBackend/qa/internal/config"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/server"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 )
 
 var configFile = flag.String("f", "etc/qa.yaml", "the config file")

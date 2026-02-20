@@ -28,7 +28,7 @@ func (h *HandlerImpl) SetJWTToken(claimsParams ClaimsParams) (string, error) {
 	claims := Claims{
 		ClaimsParams: claimsParams,
 		RegisteredClaims: jwtv5.RegisteredClaims{
-			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(h.TokenExpire)),
+			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(h.TokenExpire * time.Second)),
 		},
 	}
 	token := jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, &claims)
@@ -40,7 +40,7 @@ func (h *HandlerImpl) ParseJWTToken(tokenString string) (*Claims, error) {
 		tokenString,
 		&Claims{},
 		func(token *jwtv5.Token) (interface{}, error) {
-			if token.Method != jwtv5.SigningMethodHS256 {
+			if _, ok := token.Method.(*jwtv5.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")
 			}
 			return h.Secret, nil

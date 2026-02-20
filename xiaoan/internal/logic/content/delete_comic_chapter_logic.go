@@ -32,7 +32,7 @@ func (l *DeleteComicChapterLogic) DeleteComicChapter(
 	rpcResp, err := l.svcCtx.ContentRPC.DeleteComicChapter(
 		l.ctx,
 		&content.DeleteComicChapterRequest{
-			Id: req.ComicChapterId, ComicId: req.ComicId,
+			Id: req.ComicChapterId, ComicId: req.ComicID,
 		})
 
 	if err != nil {

@@ -64,13 +64,14 @@ message InviteCode {
 message Class {
   uint64 id = 1;                // 班级 ID
   string name = 2;              // 班级名称，如 "软件工程 2201 班"
-  uint64 admin_id = 3;          // 班级管理员（班主任）
+  string description = 3;       // 班级描述
+  uint64 admin_id = 4;          // 班级管理员（班主任）
 
-  uint64 student_count = 4;     // 班级学生数量
-  int64 status = 5;             // 状态：1 正常，2 禁用，3 已解散
+  uint64 student_count = 5;     // 班级学生数量
+  int64 status = 6;             // 状态：1 正常，2 禁用，3 已解散
 
-  int64 created_at = 6;         // 创建时间
-  int64 updated_at = 7;         // 更新时间
+  int64 created_at = 7;         // 创建时间
+  int64 updated_at = 8;         // 更新时间
 }
 
 enum LoginType {
@@ -108,6 +109,8 @@ message GenerateInviteCodeRequest {
 message GetInviteCodeRequest {
   int64 page_size = 1;
   uint64 cursor = 2; // 上次查询的最后一个邀请码的 ID，第一次查询传 0
+
+  uint64 user_id = 3; // 可选，默认查自己创建的邀请码，超级管理员和员工可查询其他用户所有邀请码，普通用户只能查询自己创建的邀请码
 }
 
 message LoginRequest {
@@ -138,6 +141,32 @@ message GetUserInfoRequest {
 
 message GenerateClassRequest {
   string name = 1;
+  string description = 2;
+}
+
+message GetClassesRequest {
+  int64 page_size = 1;
+  uint64 cursor = 2; // 上次查询的最后一个班级的 ID，第一次查询传 0
+
+  uint64 user_id = 3; // 可选，默认查自己创建的班级，超级管理员和员工可查询所有班级，普通用户只能查询自己创建的班级
+}
+
+message GetClassInfoRequest {
+  uint64 class_id = 1;
+}
+
+message GetClassMembersRequest {
+  uint64 class_id = 1;
+  int64 page_size = 2;
+  uint64 cursor = 3; // 上次查询的最后一个成员的 ID，第一次查询传 0
+}
+
+message ChangeClassRequest {
+  string invite_code = 1; // 加入班级时使用的邀请码
+}
+
+message InvalidateInviteCodeRequest {
+  string code = 1; // 要失效的邀请码
 }
 
 // todo 定位
@@ -168,6 +197,22 @@ message RegisterResponse {
 
 message GetUserInfoResponse {
   UserInfo user = 1;
+}
+
+message GetClassesResponse {
+  repeated Class classes = 1;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
+}
+
+message GetClassInfoResponse {
+  Class class_info = 1;
+}
+
+message GetClassMembersResponse {
+  repeated UserInfo members = 1;
+  bool has_more = 2;
+  uint64 next_cursor = 3;
 }
 
 message Response {
@@ -207,4 +252,19 @@ service AuthService {
 
   // GenerateClass 生成班级
   rpc GenerateClass(GenerateClassRequest) returns (Response);
+
+  // GetClasses 获取班级列表
+  rpc GetClasses(GetClassesRequest) returns (Response);
+
+  // GetClassInfo 获取班级信息
+  rpc GetClassInfo(GetClassInfoRequest) returns (Response);
+
+  // GetClassMembers 获取班级成员列表
+  rpc GetClassMembers(GetClassMembersRequest) returns (Response);
+
+  // ChangeClass 切换班级
+  rpc ChangeClass(ChangeClassRequest) returns (Response);
+
+  // InvalidateInviteCode 失效邀请码
+  rpc InvalidateInviteCode(InvalidateInviteCodeRequest) returns (Response);
 }

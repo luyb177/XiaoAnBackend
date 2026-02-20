@@ -53,6 +53,16 @@ type (
 		createdAt  int64  `json:"created_at"`
 		updatedAt  int64  `json:"updated_at"`
 	}
+	Class {
+		classID          uint64 `json:"class_id"`
+		className        string `json:"class_name"`
+		classDescription string `json:"class_description"`
+		adminID          uint64 `json:"admin_id"`
+		studentCount     uint64 `json:"student_count"`
+		status           int64  `json:"status"`
+		createdAt        int64  `json:"created_at"`
+		updatedAt        int64  `json:"updated_at"`
+	}
 )
 
 // content model 模块
@@ -209,8 +219,9 @@ type (
 		classId    uint64 `json:"class_id"`
 	}
 	GetInviteCodeRequest {
-		pageSize int64  `json:"page_size"`
-		cursor   uint64 `json:"cursor"`
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+		userID   uint64 `form:"user_id"`
 	}
 	RegisterRequest {
 		email          string `json:"email"`
@@ -234,7 +245,22 @@ type (
 		userID uint64 `form:"user_id"`
 	}
 	GenerateClassRequest {
-		className string `json:"class_name"`
+		className        string `json:"class_name"`
+		classDescription string `json:"class_description"`
+	}
+	GetClassesRequest {
+		pageSize int64  `form:"page_size"`
+		cursor   uint64 `form:"cursor"`
+		userID   uint64 `form:"user_id"`
+	}
+	GetClassInfoRequest {
+		classID uint64 `form:"class_id"`
+	}
+	ChangeClassRequest {
+		inviteCode string `json:"invite_code"`
+	}
+	InvalidateInviteCodeRequest {
+		code string `json:"code"`
 	}
 )
 
@@ -468,6 +494,14 @@ type (
 	GetUserInfoResponse {
 		userInfo UserInfo `json:"user_info"`
 	}
+	GetClassesResponse {
+		classes    []Class `json:"classes"`
+		hasMore    bool    `json:"has_more"`
+		nextCursor uint64  `json:"next_cursor"`
+	}
+	GetClassInfoResponse {
+		classInfo Class `json:"class_info"`
+	}
 )
 
 // content 返回模块
@@ -591,7 +625,7 @@ service xiaoan {
 
 	@doc "获取邀请码"
 	@handler GetInviteCode
-	post /get-invite-code (GetInviteCodeRequest) returns (Response)
+	get /get-invite-code (GetInviteCodeRequest) returns (Response)
 
 	@doc "修改用户基本信息"
 	@handler ModifyUserBaseInfo
@@ -604,6 +638,22 @@ service xiaoan {
 	@doc "生成班级"
 	@handler GenerateClass
 	post /generate-class (GenerateClassRequest) returns (Response)
+
+	@doc "获取班级列表"
+	@handler GetClasses
+	get /get-classes (GetClassesRequest) returns (Response)
+
+	@doc "获取班级信息"
+	@handler GetClassInfo
+	get /get-class-info (GetClassInfoRequest) returns (Response)
+
+	@doc "切换班级"
+	@handler ChangeClass
+	post /change-class (ChangeClassRequest) returns (Response)
+
+	@doc "失效邀请码"
+	@handler InvalidateInviteCode
+	post /invalidate-invite-code (InvalidateInviteCodeRequest) returns (Response)
 }
 
 // todo 定位

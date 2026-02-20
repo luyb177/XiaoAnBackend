@@ -4,7 +4,7 @@ const (
 	SUPERADMIN = "superadmin"
 	CLASSADMIN = "classadmin"
 	STUDENT    = "student"
-	STAFF      = "STAFF"
+	STAFF      = "staff"
 	GUEST      = "guest"
 )
 
@@ -20,4 +20,8 @@ const (
 	UserStatusDisable
 	// UserStatusDeletion 删除
 	UserStatusDeletion
+)
+
+const (
+	InvalidClassID = iota
 )

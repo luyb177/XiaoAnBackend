@@ -15,6 +15,59 @@
   },
   "basePath": "/",
   "paths": {
+    "/api/auth/change-class": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "切换班级",
+        "operationId": "authChangeClass",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "invite_code"
+              ],
+              "properties": {
+                "invite_code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/generate-class": {
       "post": {
         "consumes": [
@@ -39,9 +92,13 @@
             "schema": {
               "type": "object",
               "required": [
-                "class_name"
+                "class_name",
+                "class_description"
               ],
               "properties": {
+                "class_description": {
+                  "type": "string"
+                },
                 "class_name": {
                   "type": "string"
                 }
@@ -141,11 +198,100 @@
         }
       }
     },
-    "/api/auth/get-invite-code": {
-      "post": {
-        "consumes": [
+    "/api/auth/get-class-info": {
+      "get": {
+        "produces": [
           "application/json"
         ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "获取班级信息",
+        "operationId": "authGetClassInfo",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "class_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/get-classes": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "获取班级列表",
+        "operationId": "authGetClasses",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/get-invite-code": {
+      "get": {
         "produces": [
           "application/json"
         ],
@@ -159,24 +305,22 @@
         "operationId": "authGetInviteCode",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "page_size",
-                "cursor"
-              ],
-              "properties": {
-                "cursor": {
-                  "type": "integer"
-                },
-                "page_size": {
-                  "type": "integer"
-                }
-              }
-            }
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -217,6 +361,59 @@
             "name": "user_id",
             "in": "query",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/invalidate-invite-code": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证模块"
+        ],
+        "summary": "失效邀请码",
+        "operationId": "authInvalidateInviteCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -2375,7 +2572,7 @@
       }
     }
   },
-  "x-date": "2026-02-09 20:09:07",
+  "x-date": "2026-02-19 21:16:53",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -131,6 +132,7 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 	}
 
 	// 创建用户
+	now := time.Now()
 	user := model.User{
 		Name:           NamePrefix + rand.String(8),
 		Email:          in.Email,
@@ -140,6 +142,8 @@ func (l *RegisterLogic) Register(in *v1.RegisterRequest) (*v1.Response, error) {
 		ClassId:        code.ClassId,
 		Status:         constants.UserStatusNormal, // 1 正常
 		InviteCodeUsed: sql.NullString{String: code.Code, Valid: true},
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
 
 	// 事务

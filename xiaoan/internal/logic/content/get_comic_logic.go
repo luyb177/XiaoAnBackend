@@ -26,7 +26,7 @@ func NewGetComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetComic
 }
 
 func (l *GetComicLogic) GetComic(req *types.GetComicRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRPC.GetComic(l.ctx, &content.GetComicRequest{Id: req.ComicId})
+	rpcResp, err := l.svcCtx.ContentRPC.GetComic(l.ctx, &content.GetComicRequest{Id: req.ComicID})
 	if err != nil {
 		l.Errorf("rpc GetComic err: %s", err.Error())
 		return &types.Response{

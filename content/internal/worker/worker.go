@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/infra/queue"
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
 )
 
 type Worker struct {

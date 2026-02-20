@@ -27,7 +27,7 @@ func NewDeletePodcastLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 
 func (l *DeletePodcastLogic) DeletePodcast(req *types.DeletePodcastRequest) (resp *types.Response, err error) {
 	rpcResp, err := l.svcCtx.ContentRPC.DeletePodcast(l.ctx, &content.DeletePodcastRequest{
-		Id: req.PodcastId,
+		Id: req.PodcastID,
 	})
 
 	if err != nil {

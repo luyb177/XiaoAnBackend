@@ -27,7 +27,7 @@ func NewGetComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GetComicChapterLogic) GetComicChapter(req *types.GetComicChapterRequest) (resp *types.Response, err error) {
 	rpcResp, err := l.svcCtx.ContentRPC.GetComicChapter(l.ctx, &content.GetComicChapterRequest{
-		ComicId:  req.ComicId,
+		ComicId:  req.ComicID,
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	})

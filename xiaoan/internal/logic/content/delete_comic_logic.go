@@ -26,7 +26,7 @@ func NewDeleteComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 }
 
 func (l *DeleteComicLogic) DeleteComic(req *types.DeleteComicRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.ContentRPC.DeleteComic(l.ctx, &content.DeleteComicRequest{Id: req.ComicId})
+	rpcResp, err := l.svcCtx.ContentRPC.DeleteComic(l.ctx, &content.DeleteComicRequest{Id: req.ComicID})
 
 	if err != nil {
 		l.Errorf("rpc DeleteComic err: %s", err.Error())

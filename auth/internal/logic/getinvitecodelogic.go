@@ -43,6 +43,16 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 		in.PageSize = 10
 	}
 
+	var targetUserID uint64
+	if user.UID != in.UserId && in.UserId != constants.InvalidUserID {
+		if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF {
+			return bad("没有权限查询其他用户创建的邀请码"), nil
+		}
+		targetUserID = in.UserId
+	} else {
+		targetUserID = user.UID
+	}
+
 	// 查询多一条记录，来判断是否有下一页
 	limit := in.PageSize + 1
 
@@ -53,10 +63,10 @@ func (l *GetInviteCodeLogic) GetInviteCode(in *v1.GetInviteCodeRequest) (*v1.Res
 
 	if in.Cursor == 0 {
 		// 首次查询
-		list, err = l.InviteCodeDao.FindManyByCreatorID(l.ctx, user.UID, limit)
+		list, err = l.InviteCodeDao.FindManyByCreatorID(l.ctx, targetUserID, limit)
 	} else {
 		// 继续查询
-		list, err = l.InviteCodeDao.FindManyByCreatorIDWithCursor(l.ctx, user.UID, in.Cursor, limit)
+		list, err = l.InviteCodeDao.FindManyByCreatorIDWithCursor(l.ctx, targetUserID, in.Cursor, limit)
 	}
 
 	if err != nil {

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -36,12 +37,13 @@ func (l *GenerateClassLogic) GenerateClass(in *v1.GenerateClassRequest) (*v1.Res
 		return bad("用户未登录或登录状态异常"), nil
 	}
 
-	if in.Name == "" || len(in.Name) > 50 {
-		return bad("班级名称不能为空且不能超过50个字符"), nil
+	if resp := l.validate(in); resp != nil {
+		return resp, nil
 	}
 
 	class := &model.Class{
 		Name:         in.Name,
+		Description:  sql.NullString{String: in.Description, Valid: true},
 		AdminId:      user.UID,
 		StudentCount: 0,
 		Status:       ClassStatusNormal,
@@ -62,4 +64,16 @@ func (l *GenerateClassLogic) GenerateClass(in *v1.GenerateClassRequest) (*v1.Res
 		Code:    200,
 		Message: "班级创建成功",
 	}, nil
+}
+
+func (l *GenerateClassLogic) validate(in *v1.GenerateClassRequest) *v1.Response {
+	switch {
+	case in.Name == "":
+		return bad("班级名称不能为空")
+	case len(in.Name) > 50:
+		return bad("班级名称不能超过50个字符")
+	case len(in.Description) > 200:
+		return bad("班级描述不能超过200个字符")
+	}
+	return nil
 }

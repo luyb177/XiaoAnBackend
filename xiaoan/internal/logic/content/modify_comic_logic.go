@@ -27,7 +27,7 @@ func NewModifyComicLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Modif
 
 func (l *ModifyComicLogic) ModifyComic(req *types.ModifyComicRequest) (resp *types.Response, err error) {
 	rpcResp, err := l.svcCtx.ContentRPC.ModifyComic(l.ctx, &content.ModifyComicRequest{
-		Id:          req.ComicId,
+		Id:          req.ComicID,
 		Name:        req.Name,
 		Tag:         req.Tags,
 		Description: req.Description,
@@ -53,7 +53,7 @@ func (l *ModifyComicLogic) ModifyComic(req *types.ModifyComicRequest) (resp *typ
 	}
 
 	httpData := &types.ModifyComicResponse{
-		ComicId:        rpcData.Id,
+		ComicID:        rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 

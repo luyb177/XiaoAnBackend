@@ -14,25 +14,33 @@ import (
 )
 
 type (
-	Class                      = v1.Class
-	GenerateClassRequest       = v1.GenerateClassRequest
-	GenerateInviteCodeRequest  = v1.GenerateInviteCodeRequest
-	GenerateInviteCodeResponse = v1.GenerateInviteCodeResponse
-	GetInviteCodeRequest       = v1.GetInviteCodeRequest
-	GetInviteCodeResponse      = v1.GetInviteCodeResponse
-	GetUserInfoRequest         = v1.GetUserInfoRequest
-	GetUserInfoResponse        = v1.GetUserInfoResponse
-	InviteCode                 = v1.InviteCode
-	LoginRequest               = v1.LoginRequest
-	LoginResponse              = v1.LoginResponse
-	ModifyUserBaseInfoRequest  = v1.ModifyUserBaseInfoRequest
-	RegisterRequest            = v1.RegisterRequest
-	RegisterResponse           = v1.RegisterResponse
-	Response                   = v1.Response
-	SendEmailRequest           = v1.SendEmailRequest
-	User                       = v1.User
-	UserInfo                   = v1.UserInfo
-	ValidateEmailRequest       = v1.ValidateEmailRequest
+	ChangeClassRequest          = v1.ChangeClassRequest
+	Class                       = v1.Class
+	GenerateClassRequest        = v1.GenerateClassRequest
+	GenerateInviteCodeRequest   = v1.GenerateInviteCodeRequest
+	GenerateInviteCodeResponse  = v1.GenerateInviteCodeResponse
+	GetClassInfoRequest         = v1.GetClassInfoRequest
+	GetClassInfoResponse        = v1.GetClassInfoResponse
+	GetClassMembersRequest      = v1.GetClassMembersRequest
+	GetClassMembersResponse     = v1.GetClassMembersResponse
+	GetClassesRequest           = v1.GetClassesRequest
+	GetClassesResponse          = v1.GetClassesResponse
+	GetInviteCodeRequest        = v1.GetInviteCodeRequest
+	GetInviteCodeResponse       = v1.GetInviteCodeResponse
+	GetUserInfoRequest          = v1.GetUserInfoRequest
+	GetUserInfoResponse         = v1.GetUserInfoResponse
+	InvalidateInviteCodeRequest = v1.InvalidateInviteCodeRequest
+	InviteCode                  = v1.InviteCode
+	LoginRequest                = v1.LoginRequest
+	LoginResponse               = v1.LoginResponse
+	ModifyUserBaseInfoRequest   = v1.ModifyUserBaseInfoRequest
+	RegisterRequest             = v1.RegisterRequest
+	RegisterResponse            = v1.RegisterResponse
+	Response                    = v1.Response
+	SendEmailRequest            = v1.SendEmailRequest
+	User                        = v1.User
+	UserInfo                    = v1.UserInfo
+	ValidateEmailRequest        = v1.ValidateEmailRequest
 
 	AuthService interface {
 		// SendEmailCode 发送邮箱验证码
@@ -51,6 +59,16 @@ type (
 		GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error)
 		// GenerateClass 生成班级
 		GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetClasses 获取班级列表
+		GetClasses(ctx context.Context, in *GetClassesRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetClassInfo 获取班级信息
+		GetClassInfo(ctx context.Context, in *GetClassInfoRequest, opts ...grpc.CallOption) (*Response, error)
+		// GetClassMembers 获取班级成员列表
+		GetClassMembers(ctx context.Context, in *GetClassMembersRequest, opts ...grpc.CallOption) (*Response, error)
+		// ChangeClass 切换班级
+		ChangeClass(ctx context.Context, in *ChangeClassRequest, opts ...grpc.CallOption) (*Response, error)
+		// InvalidateInviteCode 失效邀请码
+		InvalidateInviteCode(ctx context.Context, in *InvalidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 	}
 
 	defaultAuthService struct {
@@ -110,4 +128,34 @@ func (m *defaultAuthService) GetUserInfo(ctx context.Context, in *GetUserInfoReq
 func (m *defaultAuthService) GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error) {
 	client := v1.NewAuthServiceClient(m.cli.Conn())
 	return client.GenerateClass(ctx, in, opts...)
+}
+
+// GetClasses 获取班级列表
+func (m *defaultAuthService) GetClasses(ctx context.Context, in *GetClassesRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.GetClasses(ctx, in, opts...)
+}
+
+// GetClassInfo 获取班级信息
+func (m *defaultAuthService) GetClassInfo(ctx context.Context, in *GetClassInfoRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.GetClassInfo(ctx, in, opts...)
+}
+
+// GetClassMembers 获取班级成员列表
+func (m *defaultAuthService) GetClassMembers(ctx context.Context, in *GetClassMembersRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.GetClassMembers(ctx, in, opts...)
+}
+
+// ChangeClass 切换班级
+func (m *defaultAuthService) ChangeClass(ctx context.Context, in *ChangeClassRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.ChangeClass(ctx, in, opts...)
+}
+
+// InvalidateInviteCode 失效邀请码
+func (m *defaultAuthService) InvalidateInviteCode(ctx context.Context, in *InvalidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
+	client := v1.NewAuthServiceClient(m.cli.Conn())
+	return client.InvalidateInviteCode(ctx, in, opts...)
 }

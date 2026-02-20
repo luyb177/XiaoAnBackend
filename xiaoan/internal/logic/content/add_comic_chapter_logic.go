@@ -27,7 +27,7 @@ func NewAddComicChapterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *A
 
 func (l *AddComicChapterLogic) AddComicChapter(req *types.AddComicChapterRequest) (resp *types.Response, err error) {
 	rpcResp, err := l.svcCtx.ContentRPC.AddComicChapter(l.ctx, &content.AddComicChapterRequest{
-		ComicId:     req.ComicId,
+		ComicId:     req.ComicID,
 		ChapterNo:   req.ChapterNo,
 		Title:       req.Title,
 		Description: req.Description,

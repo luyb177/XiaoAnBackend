@@ -26,6 +26,7 @@ type (
 		UpdateWithSession(ctx context.Context, session sqlx.Session, data *InviteCode) error
 		IncrUsedCount(ctx context.Context, id uint64) (sql.Result, error)
 		IncrUsedCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error)
+		InvalidateInviteCode(ctx context.Context, id uint64) (sql.Result, error)
 	}
 
 	customInviteCodeModel struct {
@@ -155,4 +156,17 @@ func (m *customInviteCodeModel) IncrUsedCount(ctx context.Context, id uint64) (s
 
 func (m *customInviteCodeModel) IncrUsedCountWithSession(ctx context.Context, session sqlx.Session, id uint64) (sql.Result, error) {
 	return m.withSession(session).IncrUsedCount(ctx, id)
+}
+
+func (m *customInviteCodeModel) InvalidateInviteCode(ctx context.Context, id uint64) (sql.Result, error) {
+	query := fmt.Sprintf(`
+		update %s 
+		set is_active = 0
+		where id = ? 
+			and deleted_at = 0
+			and is_active = 1`,
+		m.table,
+	)
+	result, err := m.conn.ExecCtx(ctx, query, id)
+	return result, mapDBError(err)
 }

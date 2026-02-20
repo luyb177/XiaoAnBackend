@@ -19,14 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_SendEmailCode_FullMethodName      = "/auth.AuthService/SendEmailCode"
-	AuthService_GenerateInviteCode_FullMethodName = "/auth.AuthService/GenerateInviteCode"
-	AuthService_GetInviteCode_FullMethodName      = "/auth.AuthService/GetInviteCode"
-	AuthService_Register_FullMethodName           = "/auth.AuthService/Register"
-	AuthService_Login_FullMethodName              = "/auth.AuthService/Login"
-	AuthService_ModifyUserBaseInfo_FullMethodName = "/auth.AuthService/ModifyUserBaseInfo"
-	AuthService_GetUserInfo_FullMethodName        = "/auth.AuthService/GetUserInfo"
-	AuthService_GenerateClass_FullMethodName      = "/auth.AuthService/GenerateClass"
+	AuthService_SendEmailCode_FullMethodName        = "/auth.AuthService/SendEmailCode"
+	AuthService_GenerateInviteCode_FullMethodName   = "/auth.AuthService/GenerateInviteCode"
+	AuthService_GetInviteCode_FullMethodName        = "/auth.AuthService/GetInviteCode"
+	AuthService_Register_FullMethodName             = "/auth.AuthService/Register"
+	AuthService_Login_FullMethodName                = "/auth.AuthService/Login"
+	AuthService_ModifyUserBaseInfo_FullMethodName   = "/auth.AuthService/ModifyUserBaseInfo"
+	AuthService_GetUserInfo_FullMethodName          = "/auth.AuthService/GetUserInfo"
+	AuthService_GenerateClass_FullMethodName        = "/auth.AuthService/GenerateClass"
+	AuthService_GetClasses_FullMethodName           = "/auth.AuthService/GetClasses"
+	AuthService_GetClassInfo_FullMethodName         = "/auth.AuthService/GetClassInfo"
+	AuthService_GetClassMembers_FullMethodName      = "/auth.AuthService/GetClassMembers"
+	AuthService_ChangeClass_FullMethodName          = "/auth.AuthService/ChangeClass"
+	AuthService_InvalidateInviteCode_FullMethodName = "/auth.AuthService/InvalidateInviteCode"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -49,6 +54,16 @@ type AuthServiceClient interface {
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*Response, error)
 	// GenerateClass 生成班级
 	GenerateClass(ctx context.Context, in *GenerateClassRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetClasses 获取班级列表
+	GetClasses(ctx context.Context, in *GetClassesRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetClassInfo 获取班级信息
+	GetClassInfo(ctx context.Context, in *GetClassInfoRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetClassMembers 获取班级成员列表
+	GetClassMembers(ctx context.Context, in *GetClassMembersRequest, opts ...grpc.CallOption) (*Response, error)
+	// ChangeClass 切换班级
+	ChangeClass(ctx context.Context, in *ChangeClassRequest, opts ...grpc.CallOption) (*Response, error)
+	// InvalidateInviteCode 失效邀请码
+	InvalidateInviteCode(ctx context.Context, in *InvalidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type authServiceClient struct {
@@ -139,6 +154,56 @@ func (c *authServiceClient) GenerateClass(ctx context.Context, in *GenerateClass
 	return out, nil
 }
 
+func (c *authServiceClient) GetClasses(ctx context.Context, in *GetClassesRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthService_GetClasses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetClassInfo(ctx context.Context, in *GetClassInfoRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthService_GetClassInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetClassMembers(ctx context.Context, in *GetClassMembersRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthService_GetClassMembers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) ChangeClass(ctx context.Context, in *ChangeClassRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthService_ChangeClass_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) InvalidateInviteCode(ctx context.Context, in *InvalidateInviteCodeRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthService_InvalidateInviteCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -159,6 +224,16 @@ type AuthServiceServer interface {
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*Response, error)
 	// GenerateClass 生成班级
 	GenerateClass(context.Context, *GenerateClassRequest) (*Response, error)
+	// GetClasses 获取班级列表
+	GetClasses(context.Context, *GetClassesRequest) (*Response, error)
+	// GetClassInfo 获取班级信息
+	GetClassInfo(context.Context, *GetClassInfoRequest) (*Response, error)
+	// GetClassMembers 获取班级成员列表
+	GetClassMembers(context.Context, *GetClassMembersRequest) (*Response, error)
+	// ChangeClass 切换班级
+	ChangeClass(context.Context, *ChangeClassRequest) (*Response, error)
+	// InvalidateInviteCode 失效邀请码
+	InvalidateInviteCode(context.Context, *InvalidateInviteCodeRequest) (*Response, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -192,6 +267,21 @@ func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *GetUserInfoR
 }
 func (UnimplementedAuthServiceServer) GenerateClass(context.Context, *GenerateClassRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateClass not implemented")
+}
+func (UnimplementedAuthServiceServer) GetClasses(context.Context, *GetClassesRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClasses not implemented")
+}
+func (UnimplementedAuthServiceServer) GetClassInfo(context.Context, *GetClassInfoRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClassInfo not implemented")
+}
+func (UnimplementedAuthServiceServer) GetClassMembers(context.Context, *GetClassMembersRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClassMembers not implemented")
+}
+func (UnimplementedAuthServiceServer) ChangeClass(context.Context, *ChangeClassRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeClass not implemented")
+}
+func (UnimplementedAuthServiceServer) InvalidateInviteCode(context.Context, *InvalidateInviteCodeRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InvalidateInviteCode not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -358,6 +448,96 @@ func _AuthService_GenerateClass_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetClasses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClassesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetClasses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetClasses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetClasses(ctx, req.(*GetClassesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetClassInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClassInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetClassInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetClassInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetClassInfo(ctx, req.(*GetClassInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetClassMembers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClassMembersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetClassMembers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetClassMembers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetClassMembers(ctx, req.(*GetClassMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_ChangeClass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeClassRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ChangeClass(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ChangeClass_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ChangeClass(ctx, req.(*ChangeClassRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_InvalidateInviteCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InvalidateInviteCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).InvalidateInviteCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_InvalidateInviteCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).InvalidateInviteCode(ctx, req.(*InvalidateInviteCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -396,6 +576,26 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateClass",
 			Handler:    _AuthService_GenerateClass_Handler,
+		},
+		{
+			MethodName: "GetClasses",
+			Handler:    _AuthService_GetClasses_Handler,
+		},
+		{
+			MethodName: "GetClassInfo",
+			Handler:    _AuthService_GetClassInfo_Handler,
+		},
+		{
+			MethodName: "GetClassMembers",
+			Handler:    _AuthService_GetClassMembers_Handler,
+		},
+		{
+			MethodName: "ChangeClass",
+			Handler:    _AuthService_ChangeClass_Handler,
+		},
+		{
+			MethodName: "InvalidateInviteCode",
+			Handler:    _AuthService_InvalidateInviteCode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

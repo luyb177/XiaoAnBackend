@@ -4,11 +4,11 @@ import (
 	"context"
 	"strings"
 
-	"github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/luyb177/XiaoAnBackend/qa/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 )
 
 type GetAnswerLogic struct {

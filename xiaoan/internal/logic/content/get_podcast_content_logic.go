@@ -31,7 +31,7 @@ func (l *GetPodcastContentLogic) GetPodcastContent(
 	rpcResp, err := l.svcCtx.ContentRPC.GetPodcast(
 		l.ctx,
 		&content.GetPodcastRequest{
-			Id: req.PodcastId,
+			Id: req.PodcastID,
 		})
 
 	if err != nil {

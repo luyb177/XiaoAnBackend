@@ -5,15 +5,14 @@ import (
 	"errors"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/infra/constants"
-	"github.com/luyb177/XiaoAnBackend/infra/middleware"
-
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/luyb177/XiaoAnBackend/content/internal/model"
 	"github.com/luyb177/XiaoAnBackend/content/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/content/pb/content/v1"
 	"github.com/luyb177/XiaoAnBackend/content/pkg/taskqueue/tasks"
+	"github.com/luyb177/XiaoAnBackend/infra/constants"
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 )
 
 type DeleteCommentLogic struct {
@@ -60,7 +59,7 @@ func (l *DeleteCommentLogic) DeleteComment(in *v1.DeleteCommentRequest) (*v1.Res
 	}
 
 	// 超级管理员或者员工 或者 评论作者本人 可以删除
-	if !(user.Role == constants.SUPERADMIN || user.Role == constants.STAFF || user.UID == comment.UserId) {
+	if user.Role != constants.SUPERADMIN && user.Role != constants.STAFF && user.UID != comment.UserId {
 		return bad("没有权限删除该评论"), nil
 	}
 

@@ -27,7 +27,12 @@ func NewGenerateClassLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gen
 }
 
 func (l *GenerateClassLogic) GenerateClass(req *types.GenerateClassRequest) (resp *types.Response, err error) {
-	rpcResp, err := l.svcCtx.AuthRPC.GenerateClass(l.ctx, &auth.GenerateClassRequest{Name: req.ClassName})
+	rpcResp, err := l.svcCtx.AuthRPC.GenerateClass(
+		l.ctx,
+		&auth.GenerateClassRequest{
+			Name:        req.ClassName,
+			Description: req.ClassDescription,
+		})
 
 	if err != nil {
 		l.Errorf("rpc GenerateClass error: %v", err)

@@ -66,7 +66,7 @@ func (l *AddPodcastLogic) AddPodcast(req *types.AddPodcastRequest) (resp *types.
 
 	// HTTP 返回数据（对前端稳定）
 	httpData := &types.AddPodcastResponse{
-		PodcastId:      rpcData.Id,
+		PodcastID:      rpcData.Id,
 		RelationStatus: rpcData.RelationStatus,
 	}
 
