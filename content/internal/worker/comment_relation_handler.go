@@ -156,9 +156,17 @@ func (h *CommentRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 			commentCount = uint64(childConsumed + 1)
 		} else {
 			// 子评论，父评论子评论数 -1
-			_, err := h.CommentDao.DecrSubCommentCountWithSession(ctx, session, task.ParentID)
+			result, err := h.CommentDao.DecrSubCommentCountWithSession(ctx, session, task.ParentID)
 			if err != nil {
 				return err
+			}
+			affect, err := result.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if affect == 0 {
+				// 父评论不存在/被删除，继续执行删除子评论的操作，因为父评论可能是被删除了但还未被清理掉
+				h.Errorf("父评论不存在或已被删除，parent_id: %d", task.ParentID)
 			}
 		}
 
@@ -177,8 +185,19 @@ func (h *CommentRelationHandler) handleDelete(ctx context.Context, task *tasks.C
 		}
 
 		// 无需result判断，因为即使内容没了，这条评论也被删除了
-		_, err = h.decrContentCommentCount(ctx, session, task.ContentType, task.ContentID, commentCount)
-		return err
+		result, err = h.decrContentCommentCount(ctx, session, task.ContentType, task.ContentID, commentCount)
+		if err != nil {
+			return err
+		}
+		affect, err = result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if affect == 0 {
+			// 内容不存在/被删除，记录日志后直接返回
+			h.Errorf("内容不存在或已被删除，content_type: %s, content_id: %d", task.ContentType, task.ContentID)
+		}
+		return nil
 	})
 }
 

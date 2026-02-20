@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
@@ -41,7 +42,7 @@ func (h *HandlerImpl) ParseJWTToken(tokenString string) (*Claims, error) {
 		&Claims{},
 		func(token *jwtv5.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwtv5.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Method.Alg())
 			}
 			return h.Secret, nil
 		},

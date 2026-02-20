@@ -120,7 +120,6 @@ func (l *ChangeClassLogic) ChangeClass(in *v1.ChangeClassRequest) (*v1.Response,
 			return errors.New("切换班级失败，可能是因为学生信息已过期，请刷新后重试")
 		}
 
-		// 修改新旧班级的学生数量
 		// 新班级学生数量+1
 		result, err = l.ClassDao.IncrStudentCountWithSession(ctx, session, inviteCode.ClassId)
 		if err != nil {

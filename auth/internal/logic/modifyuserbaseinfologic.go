@@ -52,8 +52,8 @@ func (l *ModifyUserBaseInfoLogic) ModifyUserBaseInfo(in *v1.ModifyUserBaseInfoRe
 	}
 
 	if user.UID != targetUser.Id {
-		if user.Role == constants.STUDENT {
-			return bad("无权限修改该用户信息"), nil
+		if !l.hasPermission(user.Role, targetUser.Role) {
+			return bad("没有权限修改该用户信息"), nil
 		}
 	}
 
@@ -87,4 +87,17 @@ func (l *ModifyUserBaseInfoLogic) validate(in *v1.ModifyUserBaseInfoRequest) *v1
 		return bad("用户名长度不能超过50个字符")
 	}
 	return nil
+}
+
+func (l *ModifyUserBaseInfoLogic) hasPermission(userRole, targetUserRole string) bool {
+	switch userRole {
+	case constants.SUPERADMIN:
+		return targetUserRole == constants.SUPERADMIN || targetUserRole == constants.STAFF || targetUserRole == constants.CLASSADMIN || targetUserRole == constants.STUDENT
+	case constants.STAFF:
+		return targetUserRole == constants.CLASSADMIN || targetUserRole == constants.STUDENT
+	case constants.CLASSADMIN:
+		return targetUserRole == constants.STUDENT
+	default:
+		return false
+	}
 }
