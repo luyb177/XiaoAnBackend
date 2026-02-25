@@ -433,7 +433,7 @@ func (l *AskLogic) createAssistantPlaceholder(in *v1.AskRequest, stream v1.QASer
 
 		} else if errors.Is(err, model.ErrDuplicateEntry) {
 			// message_id 重复了，说明并发了同一个请求（可能是用户重复点击了发送按钮）,查询一下这个消息，
-			assistantMessage, err = l.ChatMessageDao.FindOneBySessionIdMessageIdWithSession(ctx, session, in.SessionId, assistantMessage.MessageId)
+			assistantMessage, err = l.ChatMessageDao.FindOneBySessionIDMessageIDWithSession(ctx, session, in.SessionId, assistantMessage.MessageId)
 			if err != nil {
 				if !errors.Is(err, model.ErrNotFound) {
 					return err

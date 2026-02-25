@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/luyb177/XiaoAnBackend/qa/pkg/xtime"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -62,7 +63,7 @@ func (l *GetOrCreateSessionLogic) GetOrCreateSession(in *v1.GetOrCreateSessionRe
 			HasMessage:     HasMessageNo,
 			SessionStatus:  SessionStatusEmpty,
 			IsPinned:       PinnedNo,
-			PinnedAt:       sql.NullTime{},
+			PinnedAt:       sql.NullTime{Valid: false},
 			LastMessageAt:  now,
 			RelationStatus: RelationStatusNormal,
 			CreatedAt:      now,
@@ -106,7 +107,7 @@ func (l *GetOrCreateSessionLogic) GetOrCreateSession(in *v1.GetOrCreateSessionRe
 		HasMessage:     chatSession.HasMessage,
 		SessionStatus:  chatSession.SessionStatus,
 		IsPinned:       chatSession.IsPinned,
-		PinnedAt:       chatSession.PinnedAt.Time.Unix(),
+		PinnedAt:       xtime.UnixOrZero(chatSession.PinnedAt),
 		LastMessageAt:  chatSession.LastMessageAt.Unix(),
 		RelationStatus: chatSession.RelationStatus,
 		CreatedAt:      chatSession.CreatedAt.Unix(),

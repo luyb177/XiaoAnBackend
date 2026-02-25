@@ -69,6 +69,9 @@ func (h *ChatSessionHandler) handleUpdateTitle(ctx context.Context, task *tasks.
 		return err
 	}
 	// 更新标题
+	if len(title) > 256 {
+		title = title[:256]
+	}
 	result, err := h.ChatSessionDao.UpdateTitle(ctx, task.SessionID, title)
 	if err != nil {
 		return err
