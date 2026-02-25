@@ -6,10 +6,11 @@ package qa
 import (
 	"net/http"
 
+	"github.com/zeromicro/go-zero/rest/httpx"
+
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/qa"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // GetOrCreateSessionHandler 获取或创建问答会话

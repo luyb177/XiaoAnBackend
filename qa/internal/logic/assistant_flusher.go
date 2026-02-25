@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/luyb177/XiaoAnBackend/qa/internal/model"
 	"github.com/zeromicro/go-zero/core/logx"
+
+	"github.com/luyb177/XiaoAnBackend/qa/internal/model"
 )
 
 type assistantFlusher struct {

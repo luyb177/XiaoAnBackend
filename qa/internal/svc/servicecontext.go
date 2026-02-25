@@ -1,14 +1,15 @@
 package svc
 
 import (
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
 	"github.com/luyb177/XiaoAnBackend/infra/queue"
 	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/config"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/repo/chatmessage"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/repo/chatsession"
 	llmopenai "github.com/luyb177/XiaoAnBackend/qa/pkg/llm/openai"
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {

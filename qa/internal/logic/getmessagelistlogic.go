@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/luyb177/XiaoAnBackend/infra/constants"
 	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/model"
@@ -14,9 +17,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/chatmessage/convert"
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/reverse"
-	"google.golang.org/protobuf/types/known/anypb"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetMessageListLogic struct {

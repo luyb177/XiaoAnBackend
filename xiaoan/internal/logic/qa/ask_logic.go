@@ -6,12 +6,13 @@ package qa
 import (
 	"context"
 	"errors"
+	"io"
+
+	"github.com/zeromicro/go-zero/core/logx"
 
 	qa "github.com/luyb177/XiaoAnBackend/qa/pb/qa/v1"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AskLogic struct {
@@ -56,10 +57,9 @@ func (l *AskLogic) Ask(req *types.AskRequest, client chan<- *types.AskStreamRepl
 				return nil
 			}
 			// io.EOF 是正常结束
-			if err.Error() == "EOF" {
+			if errors.Is(err, io.EOF) {
 				return nil
 			}
-
 			l.Errorf("Ask QA rpc recv err: %v", err)
 			return err
 		}

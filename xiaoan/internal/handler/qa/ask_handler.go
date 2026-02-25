@@ -8,12 +8,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/qa"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
-	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/threading"
 	"github.com/zeromicro/go-zero/rest/httpx"
+
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/logic/qa"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/svc"
+	"github.com/luyb177/XiaoAnBackend/xiaoan/internal/types"
 )
 
 // AskHandler 流式问答接口

@@ -3,11 +3,12 @@ package openai
 import (
 	"context"
 
-	"github.com/luyb177/XiaoAnBackend/qa/internal/config"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 	"github.com/openai/openai-go/v3/packages/param"
 	"github.com/zeromicro/go-zero/core/logx"
+
+	"github.com/luyb177/XiaoAnBackend/qa/internal/config"
 )
 
 type LLMClient interface {
@@ -57,7 +58,14 @@ func (c *LLMClientImpl) ChatCompletionToTitle(ctx context.Context, userMessage *
 		},
 		Model: c.cfg.Model,
 	})
-	return res.Choices[0].Message.Content, err
+	if err != nil {
+		return "新对话", err
+	}
+	if len (res.Choices) == 0 {
+		return "新对话", nil
+	}
+
+	return res.Choices[0].Message.Content, nil
 }
 
 // ChatCompletionStream 聊天补全流式接口
@@ -82,7 +90,11 @@ func (c *LLMClientImpl) ChatCompletionStream(ctx context.Context, history []open
 		Model:    c.cfg.Model,
 	})
 
-	defer stream.Close()
+	defer func () {
+		if err := stream.Close(); err != nil {
+			c.Errorf("fail to close stream: %s", err)
+		}
+	}()
 
 	for stream.Next() {
 

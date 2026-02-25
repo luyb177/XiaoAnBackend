@@ -19,8 +19,8 @@ type (
 		Insert(ctx context.Context, data *ChatMessage) (sql.Result, error)
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *ChatMessage) (sql.Result, error)
 		FindMessagesByChatSessionID(ctx context.Context, sessionID uint64, limit int64) ([]*ChatMessage, error)
-		FindOneBySessionIdMessageId(ctx context.Context, sessionId uint64, messageId string) (*ChatMessage, error)
-		FindOneBySessionIdMessageIdWithSession(ctx context.Context, session sqlx.Session, sessionId uint64, messageId string) (*ChatMessage, error)
+		FindOneBySessionIdMessageId(ctx context.Context, sessionID uint64, messageID string) (*ChatMessage, error)
+		FindOneBySessionIdMessageIdWithSession(ctx context.Context, session sqlx.Session, sessionID uint64, messageID string) (*ChatMessage, error)
 		UpdateContent(ctx context.Context, data *ChatMessage) (sql.Result, error)
 		UpdateContentFinishedSuccess(ctx context.Context, data *ChatMessage) (sql.Result, error)
 		UpdateContentFinishedFailed(ctx context.Context, data *ChatMessage) (sql.Result, error)
@@ -82,14 +82,14 @@ func (m *customChatMessageModel) UpdateContent(ctx context.Context, data *ChatMe
 	return result, mapDBError(err)
 }
 
-func (m *customChatMessageModel) FindOneBySessionIdMessageId(ctx context.Context, sessionId uint64, messageId string) (*ChatMessage, error) {
+func (m *customChatMessageModel) FindOneBySessionIdMessageId(ctx context.Context, sessionID uint64, messageID string) (*ChatMessage, error) {
 	// nolint:staticcheck // QF1008: go-zero embedding style retained intentionally
-	resp, err := m.defaultChatMessageModel.FindOneBySessionIdMessageId(ctx, sessionId, messageId)
+	resp, err := m.defaultChatMessageModel.FindOneBySessionIdMessageId(ctx, sessionID, messageID)
 	return resp, mapDBError(err)
 }
 
-func (m *customChatMessageModel) FindOneBySessionIdMessageIdWithSession(ctx context.Context, session sqlx.Session, sessionId uint64, messageId string) (*ChatMessage, error) {
-	return m.withSession(session).FindOneBySessionIdMessageId(ctx, sessionId, messageId)
+func (m *customChatMessageModel) FindOneBySessionIdMessageIdWithSession(ctx context.Context, session sqlx.Session, sessionID uint64, messageID string) (*ChatMessage, error) {
+	return m.withSession(session).FindOneBySessionIdMessageId(ctx, sessionID, messageID)
 }
 
 func (m *customChatMessageModel) UpdateContentFinishedSuccess(ctx context.Context, data *ChatMessage) (sql.Result, error) {

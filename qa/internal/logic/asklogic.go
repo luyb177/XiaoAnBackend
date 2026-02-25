@@ -6,6 +6,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/packages/param"
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/luyb177/XiaoAnBackend/infra/constants"
 	"github.com/luyb177/XiaoAnBackend/infra/middleware"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/model"
@@ -16,11 +22,6 @@ import (
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/chatmessage/convert"
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/chatmessage/messageid"
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/taskqueue/tasks"
-	"github.com/openai/openai-go/v3"
-	"github.com/openai/openai-go/v3/packages/param"
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"golang.org/x/sync/errgroup"
 )
 
 type AskLogic struct {
@@ -101,12 +102,12 @@ func (l *AskLogic) validate(in *v1.AskRequest, stream v1.QAService_AskServer) er
 	return nil
 }
 
-func (l *AskLogic) ensureSession(in *v1.AskRequest, stream v1.QAService_AskServer, UID uint64) error {
+func (l *AskLogic) ensureSession(in *v1.AskRequest, stream v1.QAService_AskServer, uid uint64) error {
 	g, ctx := errgroup.WithContext(stream.Context())
 
 	g.Go(func() error {
 		// 验证会话是否合法，顺便尽力加载会话归属到 redis，减少后续访问历史消息时对 mysql 的依赖
-		return l.validateSession(ctx, in.SessionId, UID, stream)
+		return l.validateSession(ctx, in.SessionId, uid, stream)
 	})
 
 	g.Go(func() error {
@@ -195,7 +196,7 @@ func (l *AskLogic) validateSession(ctx context.Context, sessionID, uid uint64, s
 	return nil
 }
 
-func (l *AskLogic) persistUserAndBuildHistory(in *v1.AskRequest, stream v1.QAService_AskServer, UID uint64) ([]openai.ChatCompletionMessageParamUnion, error) {
+func (l *AskLogic) persistUserAndBuildHistory(in *v1.AskRequest, stream v1.QAService_AskServer, uid uint64) ([]openai.ChatCompletionMessageParamUnion, error) {
 	var (
 		history []openai.ChatCompletionMessageParamUnion
 	)
@@ -203,7 +204,7 @@ func (l *AskLogic) persistUserAndBuildHistory(in *v1.AskRequest, stream v1.QASer
 	g, ctx := errgroup.WithContext(stream.Context())
 
 	g.Go(func() error {
-		return l.persistUserMessage(ctx, in, UID)
+		return l.persistUserMessage(ctx, in, uid)
 	})
 
 	g.Go(func() error {
@@ -215,13 +216,13 @@ func (l *AskLogic) persistUserAndBuildHistory(in *v1.AskRequest, stream v1.QASer
 	return history, g.Wait()
 }
 
-func (l *AskLogic) persistUserMessage(ctx context.Context, in *v1.AskRequest, UID uint64) error {
+func (l *AskLogic) persistUserMessage(ctx context.Context, in *v1.AskRequest, uid uint64) error {
 	// 构建 userMessage
 	now := time.Now()
 	userMessage := &model.ChatMessage{
 		MessageId:        in.ClientMessageId,
 		SessionId:        in.SessionId,
-		UserId:           UID,
+		UserId:           uid,
 		Status:           MessageStatusSuccess,
 		PromptTokens:     0,
 		CompletionTokens: 0,
@@ -383,14 +384,14 @@ func (l *AskLogic) buildHistory(ctx context.Context, in *v1.AskRequest) []openai
 	return history
 }
 
-func (l *AskLogic) createAssistantPlaceholder(in *v1.AskRequest, stream v1.QAService_AskServer, UID uint64) (*model.ChatMessage, error) {
+func (l *AskLogic) createAssistantPlaceholder(in *v1.AskRequest, stream v1.QAService_AskServer, uid uint64) (*model.ChatMessage, error) {
 	var assistantMessage *model.ChatMessage
 	err := l.svcCtx.Mysql.TransactCtx(stream.Context(), func(ctx context.Context, session sqlx.Session) error {
 		now := time.Now()
 		assistantMessage = &model.ChatMessage{
-			MessageId:        messageid.NewMessageID(in.SessionId, UID, in.ClientMessageId),
+			MessageId:        messageid.NewMessageID(in.SessionId, uid, in.ClientMessageId),
 			SessionId:        in.SessionId,
-			UserId:           UID,
+			UserId:           uid,
 			Status:           MessageStatusGenerating,
 			PromptTokens:     0,
 			CompletionTokens: 0,
@@ -404,7 +405,7 @@ func (l *AskLogic) createAssistantPlaceholder(in *v1.AskRequest, stream v1.QASer
 			DeletedAt:        0,
 		}
 
-		result, err := l.ChatMessageDao.InsertWithSession(stream.Context(), session, assistantMessage)
+		result, err := l.ChatMessageDao.InsertWithSession(ctx, session, assistantMessage)
 		if err == nil {
 			assistantMessageID, err := result.LastInsertId()
 			if err != nil {

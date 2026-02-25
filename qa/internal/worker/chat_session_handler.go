@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/packages/param"
+	"github.com/zeromicro/go-zero/core/logx"
+
 	"github.com/luyb177/XiaoAnBackend/infra/queue"
 	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/model"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/taskqueue/tasks"
-	"github.com/openai/openai-go/v3"
-	"github.com/openai/openai-go/v3/packages/param"
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type ChatSessionHandler struct {
