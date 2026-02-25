@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/luyb177/XiaoAnBackend/infra/middleware"
+	"github.com/luyb177/XiaoAnBackend/qa/internal/worker"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -25,15 +27,28 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
-	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+	var sg service.ServiceGroup
+
+	rpcServer := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		v1.RegisterQAServiceServer(grpcServer, server.NewQAServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
-	defer s.Stop()
+
+	// 中间件
+	rpcServer.AddUnaryInterceptors(middleware.UserUnaryInterceptor)
+	rpcServer.AddStreamInterceptors(middleware.UserStreamInterceptor)
+	rpcServer.AddUnaryInterceptors(middleware.IPUnaryInterceptor)
+
+	w := worker.NewWorker(ctx)
+
+	sg.Add(rpcServer)
+	sg.Add(w)
+
+	defer sg.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
-	s.Start()
+	sg.Start()
 }

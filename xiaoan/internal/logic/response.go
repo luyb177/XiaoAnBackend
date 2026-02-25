@@ -9,3 +9,11 @@ func BadResponse(msg string) *types.Response {
 		Data:    &types.EmptyResponse{},
 	}
 }
+
+func InternalErrorResponse(msg string) *types.Response {
+	return &types.Response{
+		Code:    500,
+		Message: msg,
+		Data:    &types.EmptyResponse{},
+	}
+}

@@ -46,6 +46,8 @@ func main() {
 	sg.Add(rpcServer)
 	sg.Add(w)
 
+	defer sg.Stop()
+
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	sg.Start()
 }

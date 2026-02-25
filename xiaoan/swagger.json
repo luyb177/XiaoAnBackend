@@ -2702,11 +2702,8 @@
         }
       }
     },
-    "/api/qa/answer": {
-      "post": {
-        "consumes": [
-          "application/json"
-        ],
+    "/api/qa/get-messages": {
+      "get": {
         "produces": [
           "application/json"
         ],
@@ -2716,24 +2713,32 @@
         "tags": [
           "问答模块"
         ],
-        "summary": "获取答案",
-        "operationId": "qaGetAnswer",
+        "summary": "获取问答消息列表",
+        "operationId": "qaGetMessages",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "question"
-              ],
-              "properties": {
-                "question": {
-                  "type": "string"
-                }
-              }
-            }
+            "type": "integer",
+            "name": "session_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -2754,11 +2759,161 @@
           }
         }
       }
+    },
+    "/api/qa/get-or-create-session": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "问答模块"
+        ],
+        "summary": "获取或创建问答会话",
+        "operationId": "qaGetOrCreateSession",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/qa/get-sessions": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "问答模块"
+        ],
+        "summary": "获取问答会话列表",
+        "operationId": "qaGetSessions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "cursor",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {},
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/qa/sse/ask": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "问答模块"
+        ],
+        "summary": "流式问答接口",
+        "operationId": "qaAsk",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "session_id",
+                "content",
+                "client_message_id"
+              ],
+              "properties": {
+                "client_message_id": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "session_id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "delta": {
+                  "type": "string"
+                },
+                "finished": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
-  "x-date": "2026-02-20 11:42:52",
+  "x-date": "2026-02-25 21:20:31",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
-  "x-goctl-version": "1.8.5"
+  "x-goctl-version": "1.9.2"
 }

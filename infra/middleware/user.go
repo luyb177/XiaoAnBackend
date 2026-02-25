@@ -43,6 +43,41 @@ func UserUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.Unary
 	return handler(ctx, req)
 }
 
+func UserStreamInterceptor(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	// 1. 跳过不需要鉴权的方法
+	if _, ok := noAuthMethods[info.FullMethod]; ok {
+		return handler(srv, ss)
+	}
+
+	// 2. 从 metadata 提取用户
+	userInfo := extractUserFromMetadata(ss.Context())
+
+	// 3. 写入新的 context
+	newCtx := context.WithValue(ss.Context(), ctxKeyUser, userInfo)
+
+	// 4. 包装 ServerStream
+	// 这里包装一层 ServerStream，重写 Context() 方法，使其返回新的 context
+	// 这样在 handler 中调用 ss.Context() 就能拿到新的 context，从而获取用户信息
+	// 因为 gRPC 的 stream context 是只读的
+	// 不能直接修改 ss.Context()，只能通过包装 ServerStream 来实现
+	wrapped := &userServerStream{
+		ServerStream: ss,
+		ctx:          newCtx,
+	}
+
+	// 5. 继续执行 handler
+	return handler(srv, wrapped)
+}
+
+type userServerStream struct {
+	grpc.ServerStream
+	ctx context.Context
+}
+
+func (s *userServerStream) Context() context.Context {
+	return s.ctx
+}
+
 type UserInfo struct {
 	UID    uint64
 	Role   string

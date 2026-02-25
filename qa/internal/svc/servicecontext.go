@@ -1,29 +1,47 @@
 package svc
 
 import (
-	"encoding/json"
-	"os"
-
+	"github.com/luyb177/XiaoAnBackend/infra/queue"
+	"github.com/luyb177/XiaoAnBackend/infra/queue/redisqueue"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/config"
+	"github.com/luyb177/XiaoAnBackend/qa/internal/repo/chatmessage"
+	"github.com/luyb177/XiaoAnBackend/qa/internal/repo/chatsession"
+	llmopenai "github.com/luyb177/XiaoAnBackend/qa/pkg/llm/openai"
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	QAData []QAItem
+	Config          config.Config
+	LLMClient       llmopenai.LLMClient
+	Mysql           sqlx.SqlConn
+	TaskQueue       queue.TaskQueue
+	ChatSessionRepo chatsession.Repository
+	ChatMessageRepo chatmessage.Repository
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	data, _ := os.ReadFile(c.DataPath)
-	var qaList []QAItem
-	_ = json.Unmarshal(data, &qaList)
-	return &ServiceContext{
-		Config: c,
-		QAData: qaList,
-	}
-}
+	lc := llmopenai.NewLLMClient(c.LLMClientConfig)
 
-type QAItem struct {
-	ID       int      `json:"id"`
-	Keywords []string `json:"keywords"`
-	Answer   string   `json:"answer"`
+	keys := queue.QueueKey{
+		Pending:    "qa:pending",
+		Processing: "qa:processing",
+		Retry:      "qa:retry",
+		DLQ:        "qa:dlq",
+	}
+
+	rds := redis.MustNewRedis(c.RedisConf)
+
+	tq := redisqueue.NewRedisTaskQueue(rds, keys)
+	csr := chatsession.NewRepository(rds)
+	cmr := chatmessage.NewRepository(rds)
+
+	return &ServiceContext{
+		Config:          c,
+		LLMClient:       lc,
+		Mysql:           sqlx.NewMysql(c.MysqlConf.DataSource),
+		TaskQueue:       tq,
+		ChatSessionRepo: csr,
+		ChatMessageRepo: cmr,
+	}
 }
