@@ -2726,7 +2726,7 @@
             "type": "string",
             "name": "cursor",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
@@ -2810,7 +2810,7 @@
             "type": "string",
             "name": "cursor",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
@@ -2911,7 +2911,7 @@
       }
     }
   },
-  "x-date": "2026-02-25 21:20:31",
+  "x-date": "2026-02-25 22:06:15",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
