@@ -7,12 +7,12 @@ ENV GOPROXY=https://goproxy.cn,direct
 
 RUN apk update --no-cache && apk add --no-cache tzdata
 
-WORKDIR /build
+WORKDIR /build/auth
 
-ADD go.mod .
-ADD go.sum .
+COPY . /build
+
 RUN go mod download
-COPY . .
+
 
 RUN go build -ldflags="-s -w" -o /app/authservice authservice.go
 

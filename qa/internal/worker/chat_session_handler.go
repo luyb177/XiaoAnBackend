@@ -73,7 +73,7 @@ func (h *ChatSessionHandler) handleUpdateTitle(ctx context.Context, task *tasks.
 	if err != nil {
 		return err
 	}
-	if len(title) == 0 {
+	if title == "" {
 		return errors.New("empty title returned from LLM")
 	}
 	// 更新标题，按字符数截断以避免切到 UTF-8 中间字节
