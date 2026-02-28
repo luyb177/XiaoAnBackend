@@ -858,7 +858,7 @@ service xiaoan {
 
 	@doc "获取问答会话列表"
 	@handler GetSessions
-	post /get-sessions (GetSessionsRequest) returns (Response)
+	get /get-sessions (GetSessionsRequest) returns (Response)
 
 	@doc "获取问答消息列表"
 	@handler GetMessages

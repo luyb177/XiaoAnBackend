@@ -77,9 +77,9 @@ func (h *ChatSessionHandler) handleUpdateTitle(ctx context.Context, task *tasks.
 		return errors.New("empty title returned from LLM")
 	}
 	// 更新标题，按字符数截断以避免切到 UTF-8 中间字节
-	if len([]rune(title)) > 256 {
+	if len([]rune(title)) > maxTitleLength {
 		runes := []rune(title)
-		title = string(runes[:256])
+		title = string(runes[:maxTitleLength])
 	}
 	result, err := h.ChatSessionDao.UpdateTitle(ctx, task.SessionID, title)
 	if err != nil {

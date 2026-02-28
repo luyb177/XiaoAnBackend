@@ -261,15 +261,17 @@ func (l *AskLogic) persistUserMessage(ctx context.Context, in *v1.AskRequest, ui
 			return nil
 		} else if errors.Is(err, model.ErrDuplicateEntry) {
 			// message_id 重复了，说明用户客户端重试了同一个请求（可能是网络抖动导致的）,查询一下这个消息，
-			userMessage, err = l.ChatMessageDao.FindOneBySessionIdMessageId(ctx, in.SessionId, in.ClientMessageId)
-			if err != nil {
-				if !errors.Is(err, model.ErrNotFound) {
-					return err
+			existingMsg, findErr := l.ChatMessageDao.FindOneBySessionIdMessageId(ctx, in.SessionId, in.ClientMessageId)
+			if findErr != nil {
+				if errors.Is(findErr, model.ErrNotFound) {
+					// 没有查到的错误，理论上不应该发生，说明数据不一致了，先记录日志，后续可以加个报警
+					l.Errorf("message_id duplicate but not found in mysql, session=%d, message_id=%s", in.SessionId, in.ClientMessageId)
 				}
-				// 没有查到的错误，理论上不应该发生，说明数据不一致了，先记录日志，后续可以加个报警
-				l.Errorf("message_id duplicate but not found in mysql, session=%d, message_id=%s", in.SessionId, in.ClientMessageId)
-				return nil
+				// 不再吞掉错误，直接返回，避免 userMessage 为空或数据不一致
+				return findErr
 			}
+			// 查询成功时再覆盖外层的 userMessage
+			userMessage = existingMsg
 			return nil
 		}
 		return err
@@ -437,41 +439,56 @@ func (l *AskLogic) createAssistantPlaceholder(in *v1.AskRequest, stream v1.QASer
 			// message_id 重复了，说明并发了同一个请求（可能是用户重复点击了发送按钮）,查询一下这个消息，
 			assistantMessage, err = l.ChatMessageDao.FindOneBySessionIDMessageIDWithSession(ctx, session, in.SessionId, assistantMessage.MessageId)
 			if err != nil {
-				if !errors.Is(err, model.ErrNotFound) {
-					return err
+				if errors.Is(err, model.ErrNotFound) {
+					// 没有查到的错误，理论上不应该发生，说明数据不一致了，先记录日志，后续可以加个报警
+					l.Errorf("assistant message_id duplicate but not found in mysql, session=%d, message_id=%s", in.SessionId, assistantMessage.MessageId)
+					// 将其视为错误返回，避免后续 assistantMessage 为 nil 却返回 err == nil
+					return errors.New("assistant message duplicate but not found in mysql")
 				}
-				// 没有查到的错误，理论上不应该发生，说明数据不一致了，先记录日志，后续可以加个报警
-				l.Errorf("assistant message_id duplicate but not found in mysql, session=%d, message_id=%s", in.SessionId, assistantMessage.MessageId)
-				return nil
+				return err
 			}
 			switch assistantMessage.Status {
 			case MessageStatusGenerating:
 				// 正在生成中，说明是重复请求了
-				_ = stream.Send(&v1.AskStreamReply{
+				err = stream.Send(&v1.AskStreamReply{
 					Finished: true,
 					Code:     202,
 					Message:  "正在生成中",
 				})
+				if err != nil {
+					return err
+				}
 				// 返回错误是为了退出这次请求
 				return errors.New("duplicate request, message is generating")
 			case MessageStatusSuccess:
 				// 已经生成好了，说明重复请求了，直接将
-				_ = stream.Send(&v1.AskStreamReply{
+				err = stream.Send(&v1.AskStreamReply{
 					Delta:    assistantMessage.Content,
 					Finished: false,
 					Code:     200,
 					Message:  "成功",
 				})
-				_ = stream.Send(&v1.AskStreamReply{
+				if err != nil {
+					return err
+				}
+				err = stream.Send(&v1.AskStreamReply{
 					Finished: true,
 					Code:     200,
 					Message:  "success",
 				})
+				if err != nil {
+					return err
+				}
 				// 返回错误是为了退出这次请求
+
 				return errors.New("duplicate request, message already generated")
 			case MessageStatusFailed:
 				// 上一次请求生成失败了，让客户端更换uuid重试
-				_ = badStream(stream, "上一次请求生成失败了，请重试")
+				err = badStream(stream, "上一次请求生成失败了，请重试")
+				if err != nil {
+					return err
+				}
+
 				// 返回错误是为了退出这次请求
 				return errors.New("duplicate request, previous generation failed")
 
