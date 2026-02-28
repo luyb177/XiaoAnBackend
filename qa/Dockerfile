@@ -7,9 +7,10 @@ ENV GOPROXY=https://goproxy.cn,direct
 
 RUN apk update --no-cache && apk add --no-cache tzdata
 
-WORKDIR /build
+WORKDIR /build/qa
+# ✅ 关键：拷贝整个仓库（支持跨服务引用）
+COPY . /build
 
-COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
@@ -21,6 +22,7 @@ FROM scratch
 # 证书 & 时区
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
+
 ENV TZ=Asia/Shanghai
 
 WORKDIR /app

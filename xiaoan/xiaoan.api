@@ -266,6 +266,38 @@ type (
 	}
 )
 
+// qa model 模块
+type (
+	ChatSession {
+		sessionID      uint64 `json:"session_id"`
+		title          string `json:"title"`
+		userID         uint64 `json:"user_id"`
+		messageCount   uint64 `json:"message_count"`
+		hasMessage     int64  `json:"has_message"`
+		sessionStatus  int64  `json:"session_status"`
+		isPinned       int64  `json:"is_pinned"`
+		pinnedAt       int64  `json:"pinned_at"`
+		lastMessageAt  int64  `json:"last_message_at"`
+		relationStatus int64  `json:"relation_status"`
+		createdAt      int64  `json:"created_at"`
+		updatedAt      int64  `json:"updated_at"`
+	}
+	ChatMessage {
+		messageID        string `json:"message_id"`
+		sessionID        uint64 `json:"session_id"`
+		userID           uint64 `json:"user_id"`
+		status           int64  `json:"status"`
+		promptTokens     uint64 `json:"prompt_tokens"`
+		completionTokens uint64 `json:"completion_tokens"`
+		totalTokens      uint64 `json:"total_tokens"`
+		messageType      int64  `json:"message_type"`
+		content          string `json:"content"`
+		finishReason     string `json:"finish_reason"`
+		createdAt        int64  `json:"created_at"`
+		updatedAt        int64  `json:"updated_at"`
+	}
+)
+
 // todo 定位
 // ---------------------------------------------------------------------------------------------------------------------
 // =================
@@ -337,8 +369,22 @@ type (
 
 // qa 模块
 type (
-	GetAnswerRequest {
-		question string `json:"question"`
+	AskRequest {
+		sessionID       uint64 `json:"session_id"`
+		content         string `json:"content"`
+		clientMessageID string `json:"client_message_id"`
+	}
+	GetOrCreateSessionRequest  {}
+	GetSessionsRequest {
+		cursor   string `form:"cursor,optional"`
+		pageSize int64  `form:"page_size"`
+		userID   uint64 `form:"user_id"`
+	}
+	GetMessagesRequest {
+		sessionID uint64 `form:"session_id"`
+		cursor    string `form:"cursor,optional"`
+		pageSize  int64  `form:"page_size"`
+		userID    uint64 `form:"user_id"`
 	}
 )
 
@@ -556,8 +602,24 @@ type (
 // ---------------------------------------------------------------------------------------------------------------------
 // 问答返回模块
 type (
-	GetAnswerResponse {
-		answer string `json:"answer"`
+	AskStreamReply {
+		delta    string `json:"delta"`
+		finished bool   `json:"finished"`
+		code     int64  `json:"code"`
+		message  string `json:"message"`
+	}
+	GetOrCreateSessionResponse {
+		session ChatSession `json:"session"`
+	}
+	GetSessionsResponse {
+		sessions   []ChatSession `json:"sessions"`
+		hasMore    bool          `json:"has_more"`
+		nextCursor string        `json:"next_cursor"`
+	}
+	GetMessagesResponse {
+		messages   []ChatMessage `json:"messages"`
+		hasMore    bool          `json:"has_more"`
+		nextCursor string        `json:"next_cursor"`
 	}
 )
 
@@ -770,15 +832,37 @@ service xiaoan {
 // ======================
 // ---------------------------------------------------------------------------------------------------------------------
 @server (
+	prefix:     /api/qa/sse
+	tags:       "问答模块"
+	group:      qa
+	middleware: AuthMiddleware,IPMiddleware
+	sse:        true
+	timeout:    60s
+)
+service xiaoan {
+	@doc "流式问答接口"
+	@handler Ask
+	post /ask (AskRequest) returns (AskStreamReply)
+}
+
+@server (
 	prefix:     /api/qa
 	tags:       "问答模块"
 	group:      qa
-	middleware: IPMiddleware
+	middleware: AuthMiddleware,IPMiddleware
 )
 service xiaoan {
-	@doc "获取答案"
-	@handler GetAnswer
-	post /answer (GetAnswerRequest) returns (Response)
+	@doc "获取或创建问答会话"
+	@handler GetOrCreateSession
+	get /get-or-create-session (GetOrCreateSessionRequest) returns (Response)
+
+	@doc "获取问答会话列表"
+	@handler GetSessions
+	get /get-sessions (GetSessionsRequest) returns (Response)
+
+	@doc "获取问答消息列表"
+	@handler GetMessages
+	get /get-messages (GetMessagesRequest) returns (Response)
 }
 
 // todo 定位

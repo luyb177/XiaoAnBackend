@@ -3,12 +3,123 @@ import "google/protobuf/any.proto";
 package qa;
 option go_package = "./pb/qa/v1";
 
-message GetAnswerRequest {
-  string question = 1;
+//todo
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ===== Model =====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
+
+message ChatSession {
+  uint64 id = 1;
+  string title = 2;
+  uint64 user_id = 3;
+
+  uint64 message_count = 4;
+  int64 has_message =5;
+  int64 session_status = 6;
+
+  int64 is_pinned = 7;
+  int64 pinned_at = 8;
+
+  int64 last_message_at = 9;
+
+  int64 relation_status = 10;
+
+  int64 created_at = 11;
+  int64 updated_at = 12;
 }
 
-message GetAnswerResponse {
-  string answer = 1;
+message ChatMessage {
+  uint64 id = 1;
+  string message_id = 2;
+  uint64 session_id = 3;
+  uint64 user_id = 4;
+  int64 status = 5;
+
+  uint64 prompt_tokens = 6;
+  uint64 completion_tokens = 7;
+  uint64 total_tokens = 8;
+
+  int64 message_type = 9;
+  string content = 10;
+
+  string finish_reason = 11;
+
+  int64 created_at = 12;
+  int64 updated_at = 13;
+
+  int64 role = 14;
+}
+
+// todo 定位
+// ---------------------------------------------------------------------------------------------------------------------
+// =================
+// ==== Request ====
+// =================
+// ---------------------------------------------------------------------------------------------------------------------
+
+message AskRequest {
+  uint64 session_id = 1;
+  string content = 2;
+  string client_message_id = 3;
+}
+
+message GetOrCreateSessionRequest {
+  // 暂无参数
+}
+
+message GetSessionListRequest {
+  string cursor = 1;
+  int64 page_size = 2;
+
+  uint64 user_id = 3;
+}
+
+message GetMessageListRequest {
+  uint64 session_id = 1;
+  string cursor = 2;
+  int64 page_size = 3;
+
+  uint64 user_id = 4;
+}
+
+// todo 定位
+// ---------------------------------------------------------------------------------------------------------------------
+// ==================
+// ==== Response ====
+// ==================
+// ---------------------------------------------------------------------------------------------------------------------
+
+
+message AskStreamReply {
+  // 本次增量文本
+  string delta = 1;
+
+  // 是否结束
+  bool finished = 2;
+
+  // 错误码（只在 finished=true 且失败时有意义）
+  int64 code = 3;
+
+  // 错误信息（只在 finished=true 且失败时有意义）
+  string message = 4;
+}
+
+message GetOrCreateSessionResponse {
+  ChatSession session = 1;
+}
+
+message GetSessionListResponse {
+  repeated ChatSession sessions = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+message GetMessageListResponse {
+  repeated ChatMessage messages = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
 }
 
 message Response {
@@ -17,6 +128,24 @@ message Response {
   google.protobuf.Any data = 3;
 }
 
+// todo 定位
+// ------------------------------------------------------------------------------------------------------------------
+// ===============
+// ==== Route ====
+//================
+// ---------------------------------------------------------------------------------------------------------------------
+
+
 service QAService {
-  rpc GetAnswer(GetAnswerRequest) returns (Response);
+  // Ask 问答接口，输入用户问题，输出模型回答
+  rpc Ask(AskRequest) returns (stream AskStreamReply);
+
+  // GetOrCreateSession 获取或创建新会话
+  rpc GetOrCreateSession (GetOrCreateSessionRequest) returns(Response);
+
+  // GetSessionList 获取会话列表
+  rpc GetSessionList (GetSessionListRequest) returns(Response);
+
+  // GetMessageList 获取消息列表
+  rpc GetMessageList (GetMessageListRequest) returns(Response);
 }

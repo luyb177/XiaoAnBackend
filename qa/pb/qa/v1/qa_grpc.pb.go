@@ -19,14 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	QAService_GetAnswer_FullMethodName = "/qa.QAService/GetAnswer"
+	QAService_Ask_FullMethodName                = "/qa.QAService/Ask"
+	QAService_GetOrCreateSession_FullMethodName = "/qa.QAService/GetOrCreateSession"
+	QAService_GetSessionList_FullMethodName     = "/qa.QAService/GetSessionList"
+	QAService_GetMessageList_FullMethodName     = "/qa.QAService/GetMessageList"
 )
 
 // QAServiceClient is the client API for QAService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QAServiceClient interface {
-	GetAnswer(ctx context.Context, in *GetAnswerRequest, opts ...grpc.CallOption) (*Response, error)
+	// Ask 问答接口，输入用户问题，输出模型回答
+	Ask(ctx context.Context, in *AskRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AskStreamReply], error)
+	// GetOrCreateSession 获取或创建新会话
+	GetOrCreateSession(ctx context.Context, in *GetOrCreateSessionRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetSessionList 获取会话列表
+	GetSessionList(ctx context.Context, in *GetSessionListRequest, opts ...grpc.CallOption) (*Response, error)
+	// GetMessageList 获取消息列表
+	GetMessageList(ctx context.Context, in *GetMessageListRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type qAServiceClient struct {
@@ -37,10 +47,49 @@ func NewQAServiceClient(cc grpc.ClientConnInterface) QAServiceClient {
 	return &qAServiceClient{cc}
 }
 
-func (c *qAServiceClient) GetAnswer(ctx context.Context, in *GetAnswerRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *qAServiceClient) Ask(ctx context.Context, in *AskRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AskStreamReply], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &QAService_ServiceDesc.Streams[0], QAService_Ask_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[AskRequest, AskStreamReply]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type QAService_AskClient = grpc.ServerStreamingClient[AskStreamReply]
+
+func (c *qAServiceClient) GetOrCreateSession(ctx context.Context, in *GetOrCreateSessionRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, QAService_GetAnswer_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, QAService_GetOrCreateSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *qAServiceClient) GetSessionList(ctx context.Context, in *GetSessionListRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, QAService_GetSessionList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *qAServiceClient) GetMessageList(ctx context.Context, in *GetMessageListRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, QAService_GetMessageList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +100,14 @@ func (c *qAServiceClient) GetAnswer(ctx context.Context, in *GetAnswerRequest, o
 // All implementations must embed UnimplementedQAServiceServer
 // for forward compatibility.
 type QAServiceServer interface {
-	GetAnswer(context.Context, *GetAnswerRequest) (*Response, error)
+	// Ask 问答接口，输入用户问题，输出模型回答
+	Ask(*AskRequest, grpc.ServerStreamingServer[AskStreamReply]) error
+	// GetOrCreateSession 获取或创建新会话
+	GetOrCreateSession(context.Context, *GetOrCreateSessionRequest) (*Response, error)
+	// GetSessionList 获取会话列表
+	GetSessionList(context.Context, *GetSessionListRequest) (*Response, error)
+	// GetMessageList 获取消息列表
+	GetMessageList(context.Context, *GetMessageListRequest) (*Response, error)
 	mustEmbedUnimplementedQAServiceServer()
 }
 
@@ -62,8 +118,17 @@ type QAServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedQAServiceServer struct{}
 
-func (UnimplementedQAServiceServer) GetAnswer(context.Context, *GetAnswerRequest) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAnswer not implemented")
+func (UnimplementedQAServiceServer) Ask(*AskRequest, grpc.ServerStreamingServer[AskStreamReply]) error {
+	return status.Errorf(codes.Unimplemented, "method Ask not implemented")
+}
+func (UnimplementedQAServiceServer) GetOrCreateSession(context.Context, *GetOrCreateSessionRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrCreateSession not implemented")
+}
+func (UnimplementedQAServiceServer) GetSessionList(context.Context, *GetSessionListRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSessionList not implemented")
+}
+func (UnimplementedQAServiceServer) GetMessageList(context.Context, *GetMessageListRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessageList not implemented")
 }
 func (UnimplementedQAServiceServer) mustEmbedUnimplementedQAServiceServer() {}
 func (UnimplementedQAServiceServer) testEmbeddedByValue()                   {}
@@ -86,20 +151,67 @@ func RegisterQAServiceServer(s grpc.ServiceRegistrar, srv QAServiceServer) {
 	s.RegisterService(&QAService_ServiceDesc, srv)
 }
 
-func _QAService_GetAnswer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAnswerRequest)
+func _QAService_Ask_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(AskRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(QAServiceServer).Ask(m, &grpc.GenericServerStream[AskRequest, AskStreamReply]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type QAService_AskServer = grpc.ServerStreamingServer[AskStreamReply]
+
+func _QAService_GetOrCreateSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrCreateSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QAServiceServer).GetAnswer(ctx, in)
+		return srv.(QAServiceServer).GetOrCreateSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: QAService_GetAnswer_FullMethodName,
+		FullMethod: QAService_GetOrCreateSession_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QAServiceServer).GetAnswer(ctx, req.(*GetAnswerRequest))
+		return srv.(QAServiceServer).GetOrCreateSession(ctx, req.(*GetOrCreateSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _QAService_GetSessionList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSessionListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QAServiceServer).GetSessionList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QAService_GetSessionList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QAServiceServer).GetSessionList(ctx, req.(*GetSessionListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _QAService_GetMessageList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMessageListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QAServiceServer).GetMessageList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QAService_GetMessageList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QAServiceServer).GetMessageList(ctx, req.(*GetMessageListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,10 +224,24 @@ var QAService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*QAServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetAnswer",
-			Handler:    _QAService_GetAnswer_Handler,
+			MethodName: "GetOrCreateSession",
+			Handler:    _QAService_GetOrCreateSession_Handler,
+		},
+		{
+			MethodName: "GetSessionList",
+			Handler:    _QAService_GetSessionList_Handler,
+		},
+		{
+			MethodName: "GetMessageList",
+			Handler:    _QAService_GetMessageList_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Ask",
+			Handler:       _QAService_Ask_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "qa.proto",
 }

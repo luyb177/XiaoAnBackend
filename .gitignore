@@ -5,6 +5,7 @@ qa/etc
 content/etc
 auth/sql
 content/sql
+qa/sql
 *_test.go
 *.png
 docker-compose.yaml
