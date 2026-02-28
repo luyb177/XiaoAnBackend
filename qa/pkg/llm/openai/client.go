@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+	"errors"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -59,10 +60,10 @@ func (c *LLMClientImpl) ChatCompletionToTitle(ctx context.Context, userMessage *
 		Model: c.cfg.Model,
 	})
 	if err != nil {
-		return "新对话", err
+		return "", err
 	}
-	if len (res.Choices) == 0 {
-		return "新对话", nil
+	if len(res.Choices) == 0 {
+		return "", errors.New("LLM did not return any choices for title generation")
 	}
 
 	return res.Choices[0].Message.Content, nil
@@ -90,7 +91,7 @@ func (c *LLMClientImpl) ChatCompletionStream(ctx context.Context, history []open
 		Model:    c.cfg.Model,
 	})
 
-	defer func () {
+	defer func() {
 		if err := stream.Close(); err != nil {
 			c.Errorf("fail to close stream: %s", err)
 		}

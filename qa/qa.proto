@@ -48,6 +48,8 @@ message ChatMessage {
 
   int64 created_at = 12;
   int64 updated_at = 13;
+
+  int64 role = 14;
 }
 
 // todo 定位

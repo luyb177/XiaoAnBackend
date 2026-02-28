@@ -22,6 +22,7 @@ func PBFromChatMessages(list []*model.ChatMessage) []*v1.ChatMessage {
 			FinishReason:     item.FinishReason,
 			CreatedAt:        item.CreatedAt.Unix(),
 			UpdatedAt:        item.UpdatedAt.Unix(),
+			Role:             item.Role,
 		}
 	}
 	return res

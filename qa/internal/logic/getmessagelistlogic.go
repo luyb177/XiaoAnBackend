@@ -77,6 +77,7 @@ func (l *GetMessageListLogic) GetMessageList(in *v1.GetMessageListRequest) (*v1.
 	}
 
 	if err != nil {
+		l.Errorf("failed to query chat messages for user %d: %v", targetUserID, err)
 		return bad("查询消息列表失败"), nil
 	}
 
@@ -86,7 +87,7 @@ func (l *GetMessageListLogic) GetMessageList(in *v1.GetMessageListRequest) (*v1.
 	}
 
 	var nextCursor string
-	if len(list) > 0 {
+	if hasMore && len(list) > 0 {
 		last := list[len(list)-1]
 		nextCursor = encodeMessageCursor(&MessageCursor{
 			ID: last.Id,
@@ -126,7 +127,7 @@ func encodeMessageCursor(c *MessageCursor) string {
 		return ""
 	}
 	raw := fmt.Sprintf("v1_%d", c.ID)
-	return base64.StdEncoding.EncodeToString([]byte(raw))
+	return base64.RawURLEncoding.EncodeToString([]byte(raw))
 }
 
 func decodeMessageCursor(s string) (*MessageCursor, error) {
@@ -134,7 +135,7 @@ func decodeMessageCursor(s string) (*MessageCursor, error) {
 		return nil, nil
 	}
 
-	decodeBytes, err := base64.StdEncoding.DecodeString(s)
+	decodeBytes, err := base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
 		return nil, err
 	}

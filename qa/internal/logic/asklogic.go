@@ -79,27 +79,22 @@ func (l *AskLogic) Ask(in *v1.AskRequest, stream v1.QAService_AskServer) error {
 }
 
 func (l *AskLogic) validate(in *v1.AskRequest, stream v1.QAService_AskServer) error {
+	var errMsg string
 	switch {
 	case in.SessionId == 0:
-		err := badStream(stream, "session id is required")
-		if err != nil {
-			return err
-		}
-		return errors.New("session_id is required")
+		errMsg = "session id is required"
 	case strings.TrimSpace(in.Content) == "":
-		err := badStream(stream, "content is required")
-		if err != nil {
-			return err
-		}
-		return errors.New("content is required")
+		errMsg = "content is required"
 	case in.ClientMessageId == "":
-		err := badStream(stream, "client_message_id is required")
-		if err != nil {
-			return err
-		}
-		return errors.New("client_message_id is required")
+		errMsg = "client_message_id is required"
+	default:
+		return nil
 	}
-	return nil
+
+	if err := badStream(stream, errMsg); err != nil {
+		return err
+	}
+	return errors.New(errMsg)
 }
 
 func (l *AskLogic) ensureSession(in *v1.AskRequest, stream v1.QAService_AskServer, uid uint64) error {
@@ -340,9 +335,15 @@ func (l *AskLogic) buildHistory(ctx context.Context, in *v1.AskRequest) []openai
 
 	history := make([]openai.ChatCompletionMessageParamUnion, 0, len(messagesCache)+1)
 
+	// 避免本次用户信息重复添加到历史记录中
+	appendUserMessage := false
+
 	for _, m := range messagesCache {
 		switch m.Role {
 		case MessageRoleUser:
+			if in.ClientMessageId == m.MessageID {
+				appendUserMessage = true
+			}
 			history = append(history, openai.ChatCompletionMessageParamUnion{
 				OfUser: &openai.ChatCompletionUserMessageParam{
 					Content: openai.ChatCompletionUserMessageParamContentUnion{
@@ -372,14 +373,15 @@ func (l *AskLogic) buildHistory(ctx context.Context, in *v1.AskRequest) []openai
 		}
 	}
 
-	// 最后追加用户的提问
-	history = append(history, openai.ChatCompletionMessageParamUnion{
-		OfUser: &openai.ChatCompletionUserMessageParam{
-			Content: openai.ChatCompletionUserMessageParamContentUnion{
-				OfString: param.NewOpt(in.Content),
+	if !appendUserMessage {
+		history = append(history, openai.ChatCompletionMessageParamUnion{
+			OfUser: &openai.ChatCompletionUserMessageParam{
+				Content: openai.ChatCompletionUserMessageParamContentUnion{
+					OfString: param.NewOpt(in.Content),
+				},
 			},
-		},
-	})
+		})
+	}
 
 	return history
 }

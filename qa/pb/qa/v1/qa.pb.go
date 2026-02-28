@@ -169,6 +169,7 @@ type ChatMessage struct {
 	FinishReason     string                 `protobuf:"bytes,11,opt,name=finish_reason,json=finishReason,proto3" json:"finish_reason,omitempty"`
 	CreatedAt        int64                  `protobuf:"varint,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt        int64                  `protobuf:"varint,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Role             int64                  `protobuf:"varint,14,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -290,6 +291,13 @@ func (x *ChatMessage) GetCreatedAt() int64 {
 func (x *ChatMessage) GetUpdatedAt() int64 {
 	if x != nil {
 		return x.UpdatedAt
+	}
+	return 0
+}
+
+func (x *ChatMessage) GetRole() int64 {
+	if x != nil {
+		return x.Role
 	}
 	return 0
 }
@@ -835,7 +843,7 @@ const file_qa_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\v \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\f \x01(\x03R\tupdatedAt\"\xa1\x03\n" +
+	"updated_at\x18\f \x01(\x03R\tupdatedAt\"\xb5\x03\n" +
 	"\vChatMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1d\n" +
 	"\n" +
@@ -854,7 +862,8 @@ const file_qa_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\f \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\x03R\tupdatedAt\"q\n" +
+	"updated_at\x18\r \x01(\x03R\tupdatedAt\x12\x12\n" +
+	"\x04role\x18\x0e \x01(\x03R\x04role\"q\n" +
 	"\n" +
 	"AskRequest\x12\x1d\n" +
 	"\n" +

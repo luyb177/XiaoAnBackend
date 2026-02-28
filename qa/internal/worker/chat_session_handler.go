@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/packages/param"
@@ -13,6 +14,10 @@ import (
 	"github.com/luyb177/XiaoAnBackend/qa/internal/model"
 	"github.com/luyb177/XiaoAnBackend/qa/internal/svc"
 	"github.com/luyb177/XiaoAnBackend/qa/pkg/taskqueue/tasks"
+)
+
+const (
+	maxTitleLength = 256
 )
 
 type ChatSessionHandler struct {
@@ -68,9 +73,13 @@ func (h *ChatSessionHandler) handleUpdateTitle(ctx context.Context, task *tasks.
 	if err != nil {
 		return err
 	}
-	// 更新标题
-	if len(title) > 256 {
-		title = title[:256]
+	if len(title) == 0 {
+		return errors.New("empty title returned from LLM")
+	}
+	// 更新标题，按字符数截断以避免切到 UTF-8 中间字节
+	if len([]rune(title)) > 256 {
+		runes := []rune(title)
+		title = string(runes[:256])
 	}
 	result, err := h.ChatSessionDao.UpdateTitle(ctx, task.SessionID, title)
 	if err != nil {
@@ -82,7 +91,7 @@ func (h *ChatSessionHandler) handleUpdateTitle(ctx context.Context, task *tasks.
 	}
 	if affect == 0 {
 		// 这里没更新的话说明 session_id 不存在了
-		h.Errorf("title %s not updated", task.UserMessage)
+		h.Errorf("title %q for session %v not updated", title, task.SessionID)
 	}
 	return nil
 }

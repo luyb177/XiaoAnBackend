@@ -80,7 +80,8 @@ func (l *GetSessionListLogic) GetSessionList(in *v1.GetSessionListRequest) (*v1.
 		list, err = l.ChatSessionDao.FindManyByUserIDWithCursor(l.ctx, targetUserID, sessionCursor.LastMessageAt, sessionCursor.ID, limit)
 	}
 	if err != nil {
-		return bad("查询失败"), err
+		l.Errorf("failed to query chat sessions for user %d: %v", targetUserID, err)
+		return bad("查询失败"), nil
 	}
 
 	hasMore := len(list) > int(in.PageSize)
@@ -129,7 +130,7 @@ func encodeCursor(cursor *SessionCursor) string {
 	}
 	// 版本号 v1
 	raw := fmt.Sprintf("v1_%d_%d", cursor.LastMessageAt.UnixMilli(), cursor.ID)
-	return base64.StdEncoding.EncodeToString([]byte(raw))
+	return base64.RawURLEncoding.EncodeToString([]byte(raw))
 }
 
 func decodeCursor(encodedCursor string) (*SessionCursor, error) {
@@ -138,7 +139,7 @@ func decodeCursor(encodedCursor string) (*SessionCursor, error) {
 		return nil, nil
 	}
 
-	decodedBytes, err := base64.StdEncoding.DecodeString(encodedCursor)
+	decodedBytes, err := base64.RawURLEncoding.DecodeString(encodedCursor)
 	if err != nil {
 		return nil, err
 	}

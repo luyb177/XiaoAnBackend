@@ -46,6 +46,11 @@ func (l *AskLogic) Ask(req *types.AskRequest, client chan<- *types.AskStreamRepl
 	})
 	if err != nil {
 		l.Errorf("Ask QA rpc call err: %v", err)
+		client <- &types.AskStreamReply{
+			Finished: true,
+			Code:     500,
+			Message:  "系统繁忙，请稍后再试",
+		}
 		return err
 	}
 
@@ -56,11 +61,18 @@ func (l *AskLogic) Ask(req *types.AskRequest, client chan<- *types.AskStreamRepl
 			if errors.Is(err, context.Canceled) {
 				return nil
 			}
+
 			// io.EOF 是正常结束
 			if errors.Is(err, io.EOF) {
 				return nil
 			}
+
 			l.Errorf("Ask QA rpc recv err: %v", err)
+			client <- &types.AskStreamReply{
+				Finished: true,
+				Code:     500,
+				Message:  "系统繁忙，请稍后再试",
+			}
 			return err
 		}
 
