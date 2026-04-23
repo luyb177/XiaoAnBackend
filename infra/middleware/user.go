@@ -50,8 +50,49 @@ type UserInfo struct {
 }
 
 func GetUser(ctx context.Context) (*UserInfo, bool) {
-	user, ok := ctx.Value(ctxKeyUser).(*UserInfo)
-	return user, ok
+	if u, ok := ctx.Value(ctxKeyUser).(*UserInfo); ok && u != nil {
+		return u, true
+	}
+	// HTTP 网关在多轮 context 包一层时，*UserInfo 可能不在 Value 链上；鉴权后写入的
+	// gRPC Outgoing metadata（user_id 等）仍在，可据此恢复
+	if u, ok := userFromOutgoingMetadata(ctx); ok {
+		return u, true
+	}
+	return nil, false
+}
+
+func userFromOutgoingMetadata(ctx context.Context) (*UserInfo, bool) {
+	md, ok := metadata.FromOutgoingContext(ctx)
+	if !ok || len(md) == 0 {
+		return nil, false
+	}
+	// FromOutgoingContext 的键名均为小写，与 MdKey* 一致
+	get := func(key string) string {
+		vals := md[key]
+		if len(vals) == 0 {
+			return ""
+		}
+		return vals[0]
+	}
+	uidStr := get(MdKeyUserID)
+	if uidStr == "" {
+		return nil, false
+	}
+	uid, _ := strconv.ParseUint(uidStr, 10, 64)
+	status, _ := strconv.ParseInt(get(MdKeyUserStatus), 10, 64)
+	role := get(MdKeyUserRole)
+	if role == "" {
+		role = constants.GUEST
+	}
+	return &UserInfo{UID: uid, Role: role, Status: status}, true
+}
+
+// WithUser 将已认证用户信息写入 context，供网关在 HTTP 链路上使用（与 gRPC 拦截器写入的 ctx 一致）
+func WithUser(ctx context.Context, u *UserInfo) context.Context {
+	if u == nil {
+		return ctx
+	}
+	return context.WithValue(ctx, ctxKeyUser, u)
 }
 
 func DefaultUserInfo() *UserInfo {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,7 +31,7 @@ func NewAuthMiddleware(cfg config.JWTConfig) *AuthMiddleware {
 
 func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
+		token := parseAuthorizationToken(r.Header)
 		if token == "" {
 			httpx.OkJsonCtx(r.Context(), w, &types.Response{
 				Code:    401,
@@ -50,14 +51,38 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		role := claims.UserRole
+		if role == "" {
+			role = middleware.DefaultUserInfo().Role
+		}
+
 		ctx := r.Context()
+		u := &middleware.UserInfo{
+			UID:    claims.UserID,
+			Role:   role,
+			Status: claims.UserStatus,
+		}
+		ctx = middleware.WithUser(ctx, u)
 		ctx = metadata.AppendToOutgoingContext(
 			ctx,
 			middleware.MdKeyUserID, strconv.FormatUint(claims.UserID, 10),
-			middleware.MdKeyUserRole, claims.UserRole,
-			middleware.MdKeyUserStatus, strconv.FormatUint(uint64(claims.UserStatus), 10),
+			middleware.MdKeyUserRole, role,
+			middleware.MdKeyUserStatus, strconv.FormatInt(claims.UserStatus, 10),
 		)
 
 		next(w, r.WithContext(ctx))
 	}
+}
+
+// parseAuthorizationToken 与常见前端/网关一致：支持「裸 JWT」或「Bearer <JWT>」
+func parseAuthorizationToken(h http.Header) string {
+	s := strings.TrimSpace(h.Get("Authorization"))
+	if s == "" {
+		return ""
+	}
+	const p = "Bearer "
+	if len(s) > len(p) && strings.EqualFold(s[:len(p)], p) {
+		return strings.TrimSpace(s[len(p):])
+	}
+	return s
 }

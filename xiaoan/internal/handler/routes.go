@@ -236,6 +236,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.GetNewVideosHandler(serverCtx),
 				},
 				{
+					// 按用户 ID 获取其创作/上传的作品
+					Method:  http.MethodGet,
+					Path:    "/get-user-works",
+					Handler: content.GetUserWorksHandler(serverCtx),
+				},
+				{
 					// 获取播客详细内容
 					Method:  http.MethodGet,
 					Path:    "/get-podcast-content",
