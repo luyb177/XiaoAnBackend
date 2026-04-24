@@ -399,6 +399,19 @@ type GetNewVideosRequest struct {
 	Cursor   uint64 `form:"cursor"`
 }
 
+// GetUserWorksRequest 按用户 ID 查询其创作/上传的作品（文章、视频含短/长视频、播客、漫画）
+type GetUserWorksRequest struct {
+	UserID uint64 `form:"user_id"`
+}
+
+// GetUserWorksResponse 各类作品列表；标签在列表中可为空，需详情可再调对应 get 接口
+type GetUserWorksResponse struct {
+	Articles  []ArticleInfo  `json:"articles"`
+	Videos    []VideoInfo    `json:"videos"`
+	Podcasts  []PodcastInfo  `json:"podcasts"`
+	Comics    []ComicInfo    `json:"comics"`
+}
+
 type GetNewVideosResponse struct {
 	Videos     []VideoInfo `json:"videos"`
 	HasMore    bool        `json:"has_more"`

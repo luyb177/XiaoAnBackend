@@ -47,6 +47,7 @@ type (
 		UpdateRelationStatus(ctx context.Context, id uint64, relationStatus int64) error
 		UpdateRelationStatusWithSession(ctx context.Context, session sqlx.Session, id uint64, relationStatus int64) error
 		SoftDelete(ctx context.Context, id, deletedAt uint64, modifier sql.NullInt64) error
+		UpdateAuthorByLastModifiedBy(ctx context.Context, lastModifiedBy int64, author string) error
 	}
 
 	customArticleModel struct {
@@ -284,5 +285,11 @@ func (m *customArticleModel) SoftDelete(ctx context.Context, id, deletedAt uint6
 	)
 
 	_, err := m.conn.ExecCtx(ctx, query, deletedAt, modifier, id)
+	return mapDBError(err)
+}
+
+func (m *customArticleModel) UpdateAuthorByLastModifiedBy(ctx context.Context, lastModifiedBy int64, author string) error {
+	query := fmt.Sprintf("update %s set `author` = ? where `last_modified_by` = ? and `deleted_at` = 0", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, author, lastModifiedBy)
 	return mapDBError(err)
 }

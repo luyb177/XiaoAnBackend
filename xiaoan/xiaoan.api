@@ -546,6 +546,9 @@ type (
 		pageSize int64  `form:"page_size"`
 		cursor   uint64 `form:"cursor"`
 	}
+	GetUserWorksRequest {
+		userId uint64 `form:"user_id"`
+	}
 )
 
 // todo 定位
@@ -925,5 +928,9 @@ service xiaoan {
 	@doc "获取最新漫画"
 	@handler GetNewComics
 	get /get-new-comics (GetNewComicsRequest) returns (Response)
+
+	@doc "按用户ID获取其创作/上传的作品（文章、视频、播客、漫画；视频含短/长视频）"
+	@handler GetUserWorks
+	get /get-user-works (GetUserWorksRequest) returns (Response)
 }
 

@@ -73,6 +73,16 @@ func (l *ModifyUserBaseInfoLogic) ModifyUserBaseInfo(in *v1.ModifyUserBaseInfoRe
 		return internal("用户信息更新失败"), nil
 	}
 
+	// 与 content 库内 article/video/comic/podcast 的作者字段、评论快照保持一致
+	var nameToSync, avatarToSync string
+	if in.Name != "" {
+		nameToSync = in.Name
+	}
+	if in.Avatar != "" {
+		avatarToSync = in.Avatar
+	}
+	syncContentDisplayAfterUserUpdate(l.ctx, l.svcCtx.Mysql, l.Logger, in.UserId, nameToSync, avatarToSync)
+
 	return &v1.Response{
 		Code:    200,
 		Message: "用户信息更新成功",

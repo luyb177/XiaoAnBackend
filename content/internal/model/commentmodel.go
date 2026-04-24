@@ -40,6 +40,8 @@ type (
 		CascadeSoftDeleteChildrenWithSession(ctx context.Context, session sqlx.Session, parentID uint64, deletedAt uint64) (sql.Result, error)
 		SoftDeleteByTypeAndTargetID(ctx context.Context, tp string, targetID, deletedAt uint64) (sql.Result, error)
 		SoftDeleteByTypeAndTargetIDWithSession(ctx context.Context, session sqlx.Session, tp string, targetID, deletedAt uint64) (sql.Result, error)
+		UpdateNicknameByUserId(ctx context.Context, userId uint64, nickname string) error
+		UpdateAvatarByUserId(ctx context.Context, userId uint64, avatar string) error
 	}
 
 	customCommentModel struct {
@@ -252,4 +254,16 @@ func (m *customCommentModel) SoftDeleteByTypeAndTargetID(ctx context.Context, tp
 
 func (m *customCommentModel) SoftDeleteByTypeAndTargetIDWithSession(ctx context.Context, session sqlx.Session, tp string, targetID, deletedAt uint64) (sql.Result, error) {
 	return m.withSession(session).SoftDeleteByTypeAndTargetID(ctx, tp, targetID, deletedAt)
+}
+
+func (m *customCommentModel) UpdateNicknameByUserId(ctx context.Context, userId uint64, nickname string) error {
+	query := fmt.Sprintf("update %s set `nickname` = ? where `user_id` = ? and `deleted_at` = 0", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, nickname, userId)
+	return mapDBError(err)
+}
+
+func (m *customCommentModel) UpdateAvatarByUserId(ctx context.Context, userId uint64, avatar string) error {
+	query := fmt.Sprintf("update %s set `avatar` = ? where `user_id` = ? and `deleted_at` = 0", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, avatar, userId)
+	return mapDBError(err)
 }
